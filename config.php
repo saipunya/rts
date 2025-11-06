@@ -26,8 +26,8 @@ function pdo(): PDO {
 }
 
 // Basic DB config (adjust as needed)
-const DB_HOST = '127.0.0.1';
-const DB_NAME = 'rts'; // change if your DB name is different
+const DB_HOST = 'localhost';
+const DB_NAME = 'rts_db'; // change if your DB name is different
 
 // Make mysqli throw exceptions and use utf8mb4
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
