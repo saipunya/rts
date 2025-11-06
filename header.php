@@ -4,7 +4,7 @@ require_once 'functions.php';
 <!doctype html>
 <html lang="en">
     <head>
-        <title>Title</title>
+        <title>+++สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด++</title>
         <!-- Required meta tags -->
         <meta charset="utf-8" />
         <meta

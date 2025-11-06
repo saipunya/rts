@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // Adjust to your environment
 // Replaced DB_DSN with explicit host/db constants and normalized host to 127.0.0.1
-const DB_HOST = 'localhost';
+const DB_HOST = '127.0.0.1';
 const DB_NAME = 'rts_db';
 const DB_USER = 'rts_user';
 const DB_PASS = 'sumetchoorat4631022';
