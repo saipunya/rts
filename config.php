@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // Adjust to your environment
 const DB_DSN  = 'localhost;dbname=rts_db;charset=utf8mb4';
-const DB_USER = 'rts_db';
+const DB_USER = 'rts_user';
 const DB_PASS = 'sumetchoorat4631022';
 const DB_PORT = 3306;
 const APP_DEBUG = true; // show detailed errors on the login page during debugging
