@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             $stmt->close();
 
-            header('Location: ../member_list.php'); // from /member/create.php go back to list
+            header('Location: index.php'); // from /member/create.php go back to list
             exit;
         } catch (Throwable $e) {
             $errors[] = 'บันทึกไม่สำเร็จ';
