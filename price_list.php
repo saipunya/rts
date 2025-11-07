@@ -1,210 +1,163 @@
 <?php
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-require ('db.php');
-require_admin();
+require __DIR__ . '/db.php'; // expects $pdo (PDO) ready
 
-// Ensure escaping helper exists
-if (!function_exists('e')) {
-  function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
-}
-// Guard flash() to avoid undefined fatal
-if (!function_exists('flash')) {
-  function flash() {
-    $m = $_SESSION['flash'] ?? ($_SESSION['_flash'] ?? null);
-    unset($_SESSION['flash'], $_SESSION['_flash']);
-    return $m;
-  }
+// Simple auth gate (adjust / remove as needed)
+if (!isset($_SESSION['user_level'])) {
+  http_response_code(403);
+  echo 'Forbidden';
+  exit;
 }
 
-// Add user info for navbar + CSRF token for destructive actions
-$username = htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES, 'UTF-8');
-$fullname = htmlspecialchars($_SESSION['fullname'] ?? '', ENT_QUOTES, 'UTF-8');
-$level    = htmlspecialchars($_SESSION['user_level'] ?? '', ENT_QUOTES, 'UTF-8');
-$status   = htmlspecialchars($_SESSION['user_status'] ?? '', ENT_QUOTES, 'UTF-8');
 if (empty($_SESSION['csrf_token'])) {
-  try {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-  } catch (Throwable $e) {
-    if (function_exists('openssl_random_pseudo_bytes')) {
-      $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
-    } else {
-      $_SESSION['csrf_token'] = bin2hex(substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 32));
+  try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
+  catch(Throwable $e) { $_SESSION['csrf_token'] = bin2hex(substr(str_shuffle('abcdef0123456789'),0,32)); }
+}
+$csrf = $_SESSION['csrf_token'];
+
+function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+
+$msg = '';
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
+  if (!hash_equals($csrf, $_POST['csrf_token'] ?? '')) {
+    $errors[] = 'CSRF token ผิดพลาด';
+  } else {
+    $pr_year    = trim($_POST['pr_year'] ?? '');
+    $pr_date    = trim($_POST['pr_date'] ?? '');
+    $pr_number  = trim($_POST['pr_number'] ?? '');
+    $pr_price   = trim($_POST['pr_price'] ?? '');
+    $pr_saveby  = trim($_POST['pr_saveby'] ?? '');
+    $pr_savedate= date('Y-m-d');
+    if ($pr_year === '' || !ctype_digit($pr_year)) $errors[] = 'ปี ไม่ถูกต้อง';
+    if ($pr_date === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$pr_date)) $errors[] = 'วันที่ ไม่ถูกต้อง (YYYY-MM-DD)';
+    if ($pr_number === '') $errors[] = 'เลขที่ ต้องระบุ';
+    if ($pr_price === '' || !is_numeric($pr_price)) $errors[] = 'ราคา ไม่ถูกต้อง';
+    if ($pr_saveby === '') $errors[] = 'ผู้บันทึก ต้องระบุ';
+
+    if (!$errors) {
+      try {
+        $stmt = $pdo->prepare("INSERT INTO tbl_price (pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate)
+                               VALUES (?,?,?,?,?,?)");
+        $stmt->execute([
+          $pr_year,
+          $pr_date,
+            $pr_number,
+          number_format((float)$pr_price, 2, '.', ''),
+          $pr_saveby,
+          $pr_savedate
+        ]);
+        $msg = 'บันทึกข้อมูลสำเร็จ';
+      } catch (Throwable $e) {
+        if (function_exists('error_log')) error_log('[price_list insert] '.$e->getMessage());
+        $errors[] = 'บันทึกข้อมูลล้มเหลว';
+      }
     }
   }
 }
 
-// Track DB errors locally
-$db_error = null;
-
-// Replace direct query with guarded execution
 $rows = [];
 try {
-	if (isset($pdo) && $pdo instanceof PDO) {
-		$sql = "SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate
-		        FROM tbl_price
-		        ORDER BY pr_date DESC, pr_id DESC";
-		$stmt = $pdo->prepare($sql);
-		if ($stmt && $stmt->execute()) {
-			$rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-		} else {
-			$rows = [];
-			$db_error = 'ไม่สามารถดึงข้อมูลราคายางได้';
-		}
-	} else {
-		$db_error = function_exists('db_error') ? db_error() : 'Database connection failed.';
-	}
+  $q = $pdo->query("SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate
+                    FROM tbl_price
+                    ORDER BY pr_date DESC, pr_id DESC");
+  $rows = $q ? $q->fetchAll(PDO::FETCH_ASSOC) : [];
 } catch (Throwable $e) {
-	$db_error = 'Database connection failed.';
-	if (function_exists('error_log')) { error_log('[price_list] ' . $e->getMessage()); }
+  if (function_exists('error_log')) error_log('[price_list select] '.$e->getMessage());
+  $errors[] = 'ดึงข้อมูลล้มเหลว';
 }
-
-// Ensure message is a string
-$msg = function_exists('flash') ? flash() : null;
-if (is_array($msg)) { $msg = implode(' ', array_map('strval', $msg)); }
 ?>
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <title>จัดการราคายาง</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      --bg:#f0fdf4;
-      --surface:#ffffff;
-      --card:#ffffff;
-      --text:#1e293b;
-      --muted:#64748b;
-      --brand:#10b981;
-      --brand-600:#059669;
-      --primary:#16a34a;
-      --primary-600:#15803d;
-      --danger:#dc2626;
-      --danger-600:#b91c1c;
-      --ring:rgba(16,185,129,.25);
-    }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Thai", sans-serif; background: radial-gradient(900px 600px at 15% 0%, #dcfce7, #f0fdf4); color: var(--text); }
-    a { color: inherit; text-decoration: none; }
-
-    .navbar { position: sticky; top:0; z-index:10; backdrop-filter: blur(10px); background: rgba(255,255,255,.85); border-bottom:1px solid #d1fae5; }
-    .nav-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:16px; padding:12px 16px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px; }
-    .brand-dot { width:10px; height:10px; border-radius:50%; background: linear-gradient(135deg, var(--brand), var(--brand-600)); box-shadow:0 0 10px rgba(16,185,129,.5); }
-    .nav-links { margin-left:8px; display:flex; gap:8px; flex-wrap:wrap; }
-    .nav-link { padding:6px 10px; border:1px solid transparent; color: var(--muted); border-radius:8px; }
-    .nav-link:hover { border-color:#d1fae5; color: var(--primary-600); background:#f0fdf4; }
-    .spacer { flex:1; }
-    .user-chip { display:flex; align-items:center; gap:8px; padding:6px 10px; background:#ffffff; border:1px solid #d1fae5; border-radius:999px; color:#0f172a; }
-    .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:#ecfdf5; border:1px solid #d1fae5; font-size:12px; color:#065f46; }
-
-    .container { max-width:1100px; margin:24px auto; padding:0 16px 40px; }
-    .hero { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:16px; background: linear-gradient(135deg, #ecfdf5, #ffffff); border:1px solid #d1fae5; border-radius:16px; }
-    .hero h1 { margin:0; font-size:24px; }
-    .hero .meta { color: var(--muted); }
-
-    .actions { display:flex; gap:8px; flex-wrap:wrap; }
-    .btn { display:inline-block; padding:10px 12px; border-radius:10px; background:#ffffff; border:1px solid #d1fae5; color:#065f46; cursor:pointer; }
-    .btn:hover { background:#f0fdf4; border-color:#10b981; }
-    .btn.primary { background: linear-gradient(180deg, var(--primary), var(--primary-600)); color:#fff; border-color:transparent; box-shadow:0 4px 10px rgba(20,83,45,.25); }
-    .btn.primary:hover { filter:brightness(1.08); }
-    .btn.danger { background: linear-gradient(180deg, var(--danger), var(--danger-600)); color:#fff; border-color:transparent; }
-    .btn.ghost { background:transparent; border-color:#d1fae5; color:#065f46; }
-    .btn.ghost:hover { background:#ecfdf5; }
-
-    .card { background:#ffffff; border:1px solid #d1fae5; border-radius:14px; padding:16px; box-shadow:0 2px 6px rgba(16,24,40,.05); margin-top:16px; }
-
-    table { width:100%; border-collapse:separate; border-spacing:0; margin-top:8px; }
-    thead th { background:#ecfdf5; color:#065f46; border-bottom:1px solid #d1fae5; padding:10px; text-align:left; }
-    tbody td { padding:10px; }
-    tr:not(:last-child) td { border-bottom:1px solid #eef2ff; }
-    .right { text-align:right; }
-    .muted { color:#6b7280; font-size:12px; }
-
-    .msg { margin:12px 0; padding:10px; border-radius:10px; }
-    .msg.info { background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; }
-    .msg.error { background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; }
-  </style>
+<meta charset="utf-8">
+<title>รายการราคายาง</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body { font-family: system-ui, Arial, sans-serif; margin:20px; background:#f6fdf9; color:#1e293b;}
+h1 { margin:0 0 16px; }
+form, table { background:#fff; border:1px solid #d1fae5; border-radius:10px; padding:16px; }
+label { display:block; margin-bottom:8px; font-size:14px; }
+input { width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; }
+.grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
+button { padding:10px 16px; background:#059669; color:#fff; border:none; border-radius:8px; cursor:pointer; }
+button:hover { background:#047857; }
+.msg { margin:12px 0; padding:10px 14px; border-radius:8px; font-size:14px; }
+.msg.ok { background:#dcfce7; color:#065f46; border:1px solid #86efac; }
+.msg.err { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+table { width:100%; border-collapse:collapse; margin-top:24px; }
+th,td { padding:8px 10px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:14px; }
+th { background:#ecfdf5; color:#065f46; }
+td.num { text-align:right; font-variant-numeric: tabular-nums; }
+.empty { text-align:center; color:#64748b; padding:24px 0; }
+.actions { display:flex; gap:6px; }
+.small { font-size:12px; color:#64748b; margin-top:4px; }
+</style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="nav-inner">
-      <div class="brand">
-        <span class="brand-dot"></span>
-        <a href="dashboard.php">RTS Co‑Op</a>
-      </div>
-      <div class="nav-links">
-        <a class="nav-link" href="dashboard.php">แดชบอร์ด</a>
-        <a class="nav-link" href="admin_users.php">ผู้ใช้งาน</a>
-        <a class="nav-link" href="member_list.php">สมาชิก</a>
-        <a class="nav-link" href="price_list.php">ราคายาง</a>
-      </div>
-      <div class="spacer"></div>
-      <div class="user-chip">
-        <span><?php echo $fullname !== '' ? $fullname : $username; ?></span>
-        <span class="badge"><?php echo $level ?: 'admin'; ?></span>
-        <span class="badge"><?php echo $status ?: 'active'; ?></span>
-      </div>
-      <a class="btn ghost" href="logout.php">ออกจากระบบ</a>
+<h1>รายการราคายาง</h1>
+
+<?php if ($msg): ?>
+  <div class="msg ok"><?php echo e($msg); ?></div>
+<?php endif; ?>
+<?php if ($errors): ?>
+  <div class="msg err"><?php echo e(implode(' | ', $errors)); ?></div>
+<?php endif; ?>
+
+<form method="post" autocomplete="off">
+  <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+  <input type="hidden" name="action" value="add">
+  <div class="grid">
+    <div>
+      <label>ปี (พ.ศ.) <input name="pr_year" required pattern="\d{4}" value="<?php echo e(date('Y')+543); ?>"></label>
     </div>
-  </nav>
-
-  <div class="container">
-    <div class="hero">
-      <div>
-        <h1>จัดการราคายาง</h1>
-        <div class="meta">บันทึก/แก้ไขราคายาง และรายการย้อนหลัง</div>
-      </div>
-      <div class="actions">
-        <a class="btn primary" href="price_form.php">+ เพิ่มราคา</a>
-        <a class="btn" href="dashboard.php">กลับหน้าหลัก</a>
-      </div>
+    <div>
+      <label>วันที่ <input name="pr_date" type="date" required value="<?php echo e(date('Y-m-d')); ?>"></label>
     </div>
-
-    <div class="card">
-      <?php if ($msg): ?><div class="msg info"><?php echo e($msg); ?></div><?php endif; ?>
-      <?php if ($db_error): ?><div class="msg error"><?php echo e($db_error); ?></div><?php endif; ?>
-
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>ปี</th>
-            <th>วันที่</th>
-            <th>เลขที่</th>
-            <th class="right">ราคา</th>
-            <th>บันทึกโดย</th>
-            <th>บันทึกเมื่อ</th>
-            <th>จัดการ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if ($db_error): ?>
-            <tr><td colspan="8" class="muted">ไม่สามารถโหลดข้อมูลจากฐานข้อมูล</td></tr>
-          <?php elseif (!$rows): ?>
-            <tr><td colspan="8" class="muted">ยังไม่มีข้อมูล</td></tr>
-          <?php else: foreach ($rows as $r): ?>
-            <tr>
-              <td><?php echo (int)$r['pr_id']; ?></td>
-              <td><?php echo e($r['pr_year']); ?></td>
-              <td><?php echo e($r['pr_date']); ?></td>
-              <td><?php echo e($r['pr_number']); ?></td>
-              <td class="right"><?php echo number_format((float)$r['pr_price'], 2); ?></td>
-              <td><?php echo e($r['pr_saveby']); ?></td>
-              <td><?php echo e($r['pr_savedate']); ?></td>
-              <td>
-                <a class="btn" href="price_form.php?id=<?php echo (int)$r['pr_id']; ?>">แก้ไข</a>
-                <form action="price_delete.php" method="post" style="display:inline" onsubmit="return confirm('ยืนยันการลบรายการนี้?');">
-                  <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                  <input type="hidden" name="pr_id" value="<?php echo (int)$r['pr_id']; ?>">
-                  <button type="submit" class="btn danger">ลบ</button>
-                </form>
-              </td>
-            </tr>
-          <?php endforeach; endif; ?>
-        </tbody>
-      </table>
+    <div>
+      <label>เลขที่ <input name="pr_number" required placeholder="รอบที่ 1"></label>
+    </div>
+    <div>
+      <label>ราคา (บาท) <input name="pr_price" required pattern="\d+(\.\d{1,2})?" placeholder="25.32"></label>
+    </div>
+    <div>
+      <label>ผู้บันทึก <input name="pr_saveby" required value="<?php echo e($_SESSION['fullname'] ?? ($_SESSION['username'] ?? '')); ?>"></label>
     </div>
   </div>
+  <div class="small">บันทึกวันนี้: <?php echo e(date('Y-m-d')); ?></div>
+  <div style="margin-top:12px;">
+    <button type="submit">บันทึกราคา</button>
+  </div>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>ปี</th>
+      <th>วันที่</th>
+      <th>เลขที่</th>
+      <th>ราคา</th>
+      <th>ผู้บันทึก</th>
+      <th>บันทึกเมื่อ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (!$rows): ?>
+      <tr><td colspan="7" class="empty">ยังไม่มีข้อมูล</td></tr>
+    <?php else: foreach ($rows as $r): ?>
+      <tr>
+        <td><?php echo (int)$r['pr_id']; ?></td>
+        <td><?php echo e($r['pr_year']); ?></td>
+        <td><?php echo e($r['pr_date']); ?></td>
+        <td><?php echo e($r['pr_number']); ?></td>
+        <td class="num"><?php echo number_format((float)$r['pr_price'], 2); ?></td>
+        <td><?php echo e($r['pr_saveby']); ?></td>
+        <td><?php echo e($r['pr_savedate']); ?></td>
+      </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
+</table>
 </body>
 </html>
