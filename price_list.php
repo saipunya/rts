@@ -3,6 +3,11 @@ if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 require ('db.php');
 require_admin();
 
+// Ensure escaping helper exists
+if (!function_exists('e')) {
+  function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+}
+
 // Add user info for navbar + CSRF token for destructive actions
 $username = htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES, 'UTF-8');
 $fullname = htmlspecialchars($_SESSION['fullname'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -19,7 +24,8 @@ try {
 	if (isset($pdo) && $pdo instanceof PDO) {
 		$rows = $pdo->query("SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate
                      FROM tbl_price
-                     ORDER BY pr_date DESC, pr_id DESC")->fetchAll();
+                     ORDER BY pr_date DESC, pr_id DESC")->fetchAll(PDO::FETCH_ASSOC);
+		if (!is_array($rows)) { $rows = []; }
 	} else {
 		$db_error = function_exists('db_error') ? db_error() : 'Database connection failed.';
 	}
