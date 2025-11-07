@@ -139,7 +139,7 @@ $status   = htmlspecialchars($_SESSION['user_status'] ?? '', ENT_QUOTES, 'UTF-8'
         <p>จัดการข้อมูลสมาชิก บุคคลทั่วไปที่มาขายยางให้สหกรณ์</p>
         <div class="actions">
           <a class="btn primary" href="member_list.php">จัดการสมาชิก</a>
-          <a class="btn" href="member_add.php">เพิ่มสมาชิกใหม่</a>
+          <a class="btn" href="member/create.php">เพิ่มสมาชิกใหม่</a>
         </div>
       </section>
 
