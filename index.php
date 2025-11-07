@@ -58,7 +58,7 @@ require('header.php');
         <div class="row">
             <div class="col-12 text-center mb-4">
                 <a href="index.php" class="d-inline-block mb-3">
-                    <img src="assets/logo.png" alt="สหกรณ์" height="60">
+                    <img src="images/head_logo.png" alt="สหกรณ์" height="60">
                 </a> 
             </div>     
         </div>
