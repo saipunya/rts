@@ -1,4 +1,76 @@
+<?php
+require_once __DIR__ . '/config.php';
 
+$pdo = pdo();
+$errors = [];
+$msg = '';
+$default_saveby = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
+$csrf = csrf_token();
+
+// สร้างตารางหากยังไม่มี
+$pdo->exec("
+	CREATE TABLE IF NOT EXISTS price_list (
+		pr_id INT AUTO_INCREMENT PRIMARY KEY,
+		pr_year VARCHAR(4) NOT NULL,
+		pr_date DATE NOT NULL,
+		pr_number VARCHAR(100) NOT NULL,
+		pr_price DECIMAL(10,2) NOT NULL,
+		pr_saveby VARCHAR(100) NOT NULL,
+		pr_savedate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
+// จัดการฟอร์มบันทึก
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
+	if (!csrf_check($_POST['csrf_token'] ?? '')) {
+		$errors[] = 'โทเค็นไม่ถูกต้อง';
+	} else {
+		$pr_year   = trim((string)($_POST['pr_year'] ?? ''));
+		$pr_date   = trim((string)($_POST['pr_date'] ?? ''));
+		$pr_number = trim((string)($_POST['pr_number'] ?? ''));
+		$pr_price  = $_POST['pr_price'] ?? '';
+		$pr_saveby = trim((string)($_POST['pr_saveby'] ?? ''));
+
+		if (!preg_match('/^\d{4}$/', $pr_year)) $errors[] = 'ปีไม่ถูกต้อง';
+		$dt = DateTime::createFromFormat('Y-m-d', $pr_date);
+		if (!$dt || $dt->format('Y-m-d') !== $pr_date) $errors[] = 'วันที่ไม่ถูกต้อง';
+		if ($pr_number === '') $errors[] = 'เลขที่ห้ามว่าง';
+		$pr_price_val = filter_var($pr_price, FILTER_VALIDATE_FLOAT);
+		if ($pr_price_val === false) $errors[] = 'ราคาต้องเป็นตัวเลข';
+		if ($pr_saveby === '') $errors[] = 'ผู้บันทึกห้ามว่าง';
+
+		if (!$errors) {
+			$stmt = $pdo->prepare("
+				INSERT INTO price_list (pr_year, pr_date, pr_number, pr_price, pr_saveby)
+				VALUES (:year, :date, :number, :price, :saveby)
+			");
+			$stmt->execute([
+				':year'   => $pr_year,
+				':date'   => $pr_date,
+				':number' => $pr_number,
+				':price'  => number_format((float)$pr_price_val, 2, '.', ''),
+				':saveby' => $pr_saveby,
+			]);
+			$msg = 'บันทึกราคาเรียบร้อย';
+			// รีเฟรชโทเค็นป้องกันฟอร์มซ้ำ
+			$csrf = csrf_token();
+		}
+	}
+}
+
+// ดึงข้อมูลมาแสดง
+$rows = [];
+try {
+	$q = $pdo->query("
+		SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate
+		FROM price_list
+		ORDER BY pr_date DESC, pr_id DESC
+	");
+	$rows = $q->fetchAll();
+} catch (Throwable $e) {
+	$errors[] = 'ไม่สามารถดึงข้อมูลได้';
+}
+?>
 <!doctype html>
 <html lang="th">
 <head>
