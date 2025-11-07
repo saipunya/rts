@@ -2,6 +2,21 @@
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 require __DIR__ . '/db.php'; // expects $pdo (PDO) ready
 
+// Ensure helpers exist (compat for older PHP)
+if (!function_exists('e')) {
+  function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+}
+if (!function_exists('hash_equals')) {
+  function hash_equals($a, $b) {
+    if (!is_string($a) || !is_string($b)) return false;
+    if (strlen($a) !== strlen($b)) return false;
+    $res = 0;
+    $len = strlen($a);
+    for ($i = 0; $i < $len; $i++) { $res |= ord($a[$i]) ^ ord($b[$i]); }
+    return $res === 0;
+  }
+}
+
 // Simple auth gate (adjust / remove as needed)
 if (!isset($_SESSION['user_level'])) {
   http_response_code(403);
@@ -10,25 +25,35 @@ if (!isset($_SESSION['user_level'])) {
 }
 
 if (empty($_SESSION['csrf_token'])) {
-  try { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
-  catch(Throwable $e) { $_SESSION['csrf_token'] = bin2hex(substr(str_shuffle('abcdef0123456789'),0,32)); }
+  if (function_exists('random_bytes')) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  } elseif (function_exists('openssl_random_pseudo_bytes')) {
+    $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+  } else {
+    $_SESSION['csrf_token'] = bin2hex(substr(str_shuffle('abcdef0123456789'), 0, 32));
+  }
 }
 $csrf = $_SESSION['csrf_token'];
 
-function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+// Precompute defaults without using ??
+$default_saveby = isset($_SESSION['fullname']) && $_SESSION['fullname'] !== ''
+  ? $_SESSION['fullname']
+  : (isset($_SESSION['username']) ? $_SESSION['username'] : '');
 
 $msg = '';
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add') {
-  if (!hash_equals($csrf, $_POST['csrf_token'] ?? '')) {
+$action = isset($_POST['action']) ? $_POST['action'] : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'add') {
+  $posted_csrf = isset($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
+  if (!hash_equals($csrf, $posted_csrf)) {
     $errors[] = 'CSRF token ผิดพลาด';
   } else {
-    $pr_year    = trim($_POST['pr_year'] ?? '');
-    $pr_date    = trim($_POST['pr_date'] ?? '');
-    $pr_number  = trim($_POST['pr_number'] ?? '');
-    $pr_price   = trim($_POST['pr_price'] ?? '');
-    $pr_saveby  = trim($_POST['pr_saveby'] ?? '');
+    $pr_year    = trim(isset($_POST['pr_year']) ? $_POST['pr_year'] : '');
+    $pr_date    = trim(isset($_POST['pr_date']) ? $_POST['pr_date'] : '');
+    $pr_number  = trim(isset($_POST['pr_number']) ? $_POST['pr_number'] : '');
+    $pr_price   = trim(isset($_POST['pr_price']) ? $_POST['pr_price'] : '');
+    $pr_saveby  = trim(isset($_POST['pr_saveby']) ? $_POST['pr_saveby'] : '');
     $pr_savedate= date('Y-m-d');
     if ($pr_year === '' || !ctype_digit($pr_year)) $errors[] = 'ปี ไม่ถูกต้อง';
     if ($pr_date === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$pr_date)) $errors[] = 'วันที่ ไม่ถูกต้อง (YYYY-MM-DD)';
@@ -49,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add')
           $pr_savedate
         ]);
         $msg = 'บันทึกข้อมูลสำเร็จ';
-      } catch (Throwable $e) {
+      } catch (Exception $e) { // Throwable -> Exception for PHP < 7
         if (function_exists('error_log')) error_log('[price_list insert] '.$e->getMessage());
         $errors[] = 'บันทึกข้อมูลล้มเหลว';
       }
@@ -63,7 +88,7 @@ try {
                     FROM tbl_price
                     ORDER BY pr_date DESC, pr_id DESC");
   $rows = $q ? $q->fetchAll(PDO::FETCH_ASSOC) : [];
-} catch (Throwable $e) {
+} catch (Exception $e) { // Throwable -> Exception for PHP < 7
   if (function_exists('error_log')) error_log('[price_list select] '.$e->getMessage());
   $errors[] = 'ดึงข้อมูลล้มเหลว';
 }
@@ -122,7 +147,7 @@ td.num { text-align:right; font-variant-numeric: tabular-nums; }
       <label>ราคา (บาท) <input name="pr_price" required pattern="\d+(\.\d{1,2})?" placeholder="25.32"></label>
     </div>
     <div>
-      <label>ผู้บันทึก <input name="pr_saveby" required value="<?php echo e($_SESSION['fullname'] ?? ($_SESSION['username'] ?? '')); ?>"></label>
+      <label>ผู้บันทึก <input name="pr_saveby" required value="<?php echo e($default_saveby); ?>"></label>
     </div>
   </div>
   <div class="small">บันทึกวันนี้: <?php echo e(date('Y-m-d')); ?></div>
