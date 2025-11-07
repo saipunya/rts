@@ -1,0 +1,3 @@
+# Ignore sensitive PHP files
+function.php
+config.php
