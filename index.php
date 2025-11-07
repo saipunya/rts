@@ -57,6 +57,7 @@ require('header.php');
     <section class="hero-wrap p-4 p-md-5">
         <div class="row align-items-center g-4">
             <div class="col-12 col-lg-7">
+                <h4 class="text-center">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
                 <div class="home-hero">
                     <span class="hero-accent mb-2">ระบบรวบรวมยางพารา</span>
                     <h1 class="display-6 fw-semibold mb-2">จัดการรับซื้อ ชั่งน้ำหนัก และรายงานผลได้ครบ จบในที่เดียว</h1>
