@@ -7,13 +7,31 @@ require_admin();
 if (!function_exists('e')) {
   function e($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 }
+// Guard flash() to avoid undefined fatal
+if (!function_exists('flash')) {
+  function flash() {
+    $m = $_SESSION['flash'] ?? ($_SESSION['_flash'] ?? null);
+    unset($_SESSION['flash'], $_SESSION['_flash']);
+    return $m;
+  }
+}
 
 // Add user info for navbar + CSRF token for destructive actions
 $username = htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES, 'UTF-8');
 $fullname = htmlspecialchars($_SESSION['fullname'] ?? '', ENT_QUOTES, 'UTF-8');
 $level    = htmlspecialchars($_SESSION['user_level'] ?? '', ENT_QUOTES, 'UTF-8');
 $status   = htmlspecialchars($_SESSION['user_status'] ?? '', ENT_QUOTES, 'UTF-8');
-if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
+if (empty($_SESSION['csrf_token'])) {
+  try {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+  } catch (Throwable $e) {
+    if (function_exists('openssl_random_pseudo_bytes')) {
+      $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+    } else {
+      $_SESSION['csrf_token'] = bin2hex(substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 32));
+    }
+  }
+}
 
 // Track DB errors locally
 $db_error = null;
@@ -22,10 +40,16 @@ $db_error = null;
 $rows = [];
 try {
 	if (isset($pdo) && $pdo instanceof PDO) {
-		$rows = $pdo->query("SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate
-                     FROM tbl_price
-                     ORDER BY pr_date DESC, pr_id DESC")->fetchAll(PDO::FETCH_ASSOC);
-		if (!is_array($rows)) { $rows = []; }
+		$sql = "SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate
+		        FROM tbl_price
+		        ORDER BY pr_date DESC, pr_id DESC";
+		$stmt = $pdo->prepare($sql);
+		if ($stmt && $stmt->execute()) {
+			$rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+		} else {
+			$rows = [];
+			$db_error = 'ไม่สามารถดึงข้อมูลราคายางได้';
+		}
 	} else {
 		$db_error = function_exists('db_error') ? db_error() : 'Database connection failed.';
 	}
@@ -34,7 +58,9 @@ try {
 	if (function_exists('error_log')) { error_log('[price_list] ' . $e->getMessage()); }
 }
 
-$msg = flash();
+// Ensure message is a string
+$msg = function_exists('flash') ? flash() : null;
+if (is_array($msg)) { $msg = implode(' ', array_map('strval', $msg)); }
 ?>
 <!doctype html>
 <html lang="th">
