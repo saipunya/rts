@@ -19,6 +19,8 @@
 </body>
 </html>
 <?php
+// close stmt
+$stmt->close();
 // close database connection
 $mysqli->close();
 ?>

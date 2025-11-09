@@ -40,7 +40,7 @@ if ($stmt) {
 	} else {
 		$latest_price = 0;
 	}
-	$stmt->close();
+	
 } else {
 	$latest_price = 0;
 }
