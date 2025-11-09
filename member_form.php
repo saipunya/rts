@@ -56,9 +56,9 @@ if ($action === 'edit') {
                     id="mem_class"
                     required
                 >
-                    <option selected>++โปรดเลือก++</option>
-                    <option value="member">สมาชิก</option>
-                    <option value="general">เกษตรกรทั่วไป</option>
+                    <option value="" selected>++โปรดเลือก++</option>
+                    <option value="member" <?php echo $member['mem_class'] === 'member' ? 'selected' : ''; ?>>สมาชิก</option>
+                    <option value="general" <?php echo $member['mem_class'] === 'general' ? 'selected' : ''; ?>>เกษตรกรทั่วไป</option>
                 </select>
             </div>
         </div>
