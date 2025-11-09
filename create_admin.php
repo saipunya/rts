@@ -28,6 +28,39 @@ if ($row && (int)$row['cnt'] > 0) {
     exit;
 }
 
+// Auto-create path: call create_admin.php?autocreate=1&pw=YOURPASSWORD[&username=admin]
+if (isset($_GET['autocreate']) && $_GET['autocreate'] == '1' && isset($_GET['pw'])) {
+    $username = isset($_GET['username']) && trim($_GET['username']) !== '' ? trim($_GET['username']) : 'admin';
+    $fullname = isset($_GET['fullname']) && trim($_GET['fullname']) !== '' ? trim($_GET['fullname']) : 'Administrator';
+    $password = $_GET['pw'];
+    if (strlen($password) < 6) {
+        echo '<h3>Error: รหัสผ่านควรมีความยาวอย่างน้อย 6 ตัวอักษร</h3>';
+        echo '</div>';
+        exit;
+    }
+    $hash = password_hash($password, PASSWORD_BCRYPT);
+    $level = 'admin';
+    $status = 'active';
+    $stmt = $mysqli->prepare('INSERT INTO tbl_user (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
+    if (!$stmt) {
+        echo '<h3>Prepare failed: ' . htmlspecialchars($mysqli->error) . '</h3>';
+        echo '</div>';
+        exit;
+    }
+    $stmt->bind_param('sssss', $username, $hash, $fullname, $level, $status);
+    if ($stmt->execute()) {
+        echo '<h2>Admin created</h2>';
+        echo '<p>Username: <strong>' . htmlspecialchars($username) . '</strong></p>';
+        echo '<p>Password (please save now): <strong>' . htmlspecialchars($password) . '</strong></p>';
+        echo '<p>หลังจากบันทึกรหัสผ่านแล้ว ให้ลบไฟล์นี้ (create_admin.php) ทันที</p>';
+    } else {
+        echo '<h3>Insert failed: ' . htmlspecialchars($stmt->error) . '</h3>';
+    }
+    $stmt->close();
+    echo '</div>';
+    exit;
+}
+
 // If form submitted, create admin with provided password
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = isset($_POST['username']) && trim($_POST['username']) !== '' ? trim($_POST['username']) : 'admin';
