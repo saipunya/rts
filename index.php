@@ -1,4 +1,5 @@
 <?php
+require_once 'functions.php';
 include 'header.php';
 ?>
 
@@ -36,7 +37,7 @@ if ($stmt) {
 	$res = $stmt->get_result();
 	$row = $res->fetch_assoc();
 	if ($row) {
-		$latest_price = (float)$row['pr_price'];
+		$latest_price = $row['pr_price'];
 	} else {
 		$latest_price = 0;
 	}
