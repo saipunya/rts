@@ -10,22 +10,49 @@ if (DEV) {
     error_reporting(E_ALL);
 }
 
+// new helper: respond - show debug info in DEV, otherwise redirect
+function respond($msg, $debug = null) {
+    if (defined('DEV') && DEV) {
+        echo "<h2>Debug message</h2>\n";
+        echo "<pre>" . htmlspecialchars($msg) . "</pre>\n";
+        if ($debug !== null) {
+            echo "<h3>Debug data</h3>\n<pre>";
+            if (is_array($debug) || is_object($debug)) {
+                print_r($debug);
+            } else {
+                echo htmlspecialchars((string)$debug);
+            }
+            echo "</pre>\n";
+        }
+        // also show $_POST and last mysqli error if available
+        echo "<h3>\$_POST</h3>\n<pre>";
+        print_r($_POST);
+        echo "</pre>\n";
+        if (isset($GLOBALS['mysqli']) && $GLOBALS['mysqli'] instanceof mysqli) {
+            echo "<h3>MySQLi error</h3>\n<pre>";
+            echo htmlspecialchars($GLOBALS['mysqli']->error);
+            echo "</pre>\n";
+        }
+        exit;
+    } else {
+        header('Location: users.php?msg=' . urlencode($msg));
+        exit;
+    }
+}
+
 // basic mysqli existence/connection check
 if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
     error_log('user_save.php: $mysqli not available');
-    header('Location: users.php?msg=' . urlencode('Server error: missing DB connection'));
-    exit;
+    respond('Server error: missing DB connection');
 }
 if ($mysqli->connect_errno) {
     error_log('user_save.php: MySQL connect error: ' . $mysqli->connect_error);
-    header('Location: users.php?msg=' . urlencode('DB connection error'));
-    exit;
+    respond('DB connection error: ' . $mysqli->connect_error);
 }
 
 // Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: users.php?msg=' . urlencode('Invalid request'));
-    exit;
+    respond('Invalid request');
 }
 
 // accept common alternative field names to avoid form/name mismatch
@@ -53,11 +80,8 @@ elseif (isset($_POST['password'])) $password = $_POST['password'];
 
 // basic validation
 if ($username === '' || $fullname === '' || $level === '' || $status === '') {
-    if (defined('DEV') && DEV) {
-        error_log('user_save.php: Missing required fields. POST=' . print_r($_POST, true));
-    }
-    header('Location: users.php?msg=' . urlencode('Please fill required fields'));
-    exit;
+    error_log('user_save.php: Missing required fields. POST=' . print_r($_POST, true));
+    respond('Please fill required fields', ['missing' => ['username'=>$username==='','fullname'=>$fullname==='','level'=>$level==='','status'=>$status==='']]);
 }
 
 $transactionStarted = false;
@@ -91,16 +115,14 @@ try {
             $stmt->close();
             if ($transactionStarted) $mysqli->rollback();
             if ($usingAutocommitFallback) $mysqli->autocommit(true);
-            header('Location: users.php?msg=' . urlencode('Username already exists'));
-            exit;
+            respond('Username already exists');
         }
         $stmt->close();
 
         if ($password === '') {
             if ($transactionStarted) $mysqli->rollback();
             if ($usingAutocommitFallback) $mysqli->autocommit(true);
-            header('Location: users.php?msg=' . urlencode('Password is required for new user'));
-            exit;
+            respond('Password is required for new user');
         }
         $hashed = password_hash($password, PASSWORD_DEFAULT);
 
@@ -119,8 +141,7 @@ try {
         if (!$mysqli->commit()) throw new Exception('Commit failed: ' . $mysqli->error);
         if ($usingAutocommitFallback) $mysqli->autocommit(true);
 
-        header('Location: users.php?msg=' . urlencode('User created'));
-        exit;
+        respond('User created', ['insert_id' => $mysqli->insert_id]);
     } elseif ($action === 'edit') {
         // ensure user exists
         $checkSql = "SELECT user_id FROM tbl_user WHERE user_id = ? LIMIT 1";
@@ -133,8 +154,7 @@ try {
             $stmt->close();
             if ($transactionStarted) $mysqli->rollback();
             if ($usingAutocommitFallback) $mysqli->autocommit(true);
-            header('Location: users.php?msg=' . urlencode('User not found'));
-            exit;
+            respond('User not found');
         }
         $stmt->close();
 
@@ -149,8 +169,7 @@ try {
             $stmt->close();
             if ($transactionStarted) $mysqli->rollback();
             if ($usingAutocommitFallback) $mysqli->autocommit(true);
-            header('Location: users.php?msg=' . urlencode('Username already used by another user'));
-            exit;
+            respond('Username already used by another user');
         }
         $stmt->close();
 
@@ -178,13 +197,11 @@ try {
         if (!$mysqli->commit()) throw new Exception('Commit failed: ' . $mysqli->error);
         if ($usingAutocommitFallback) $mysqli->autocommit(true);
 
-        header('Location: users.php?msg=' . urlencode('User updated'));
-        exit;
+        respond('User updated', ['affected_rows' => $mysqli->affected_rows]);
     } else {
         if ($transactionStarted) $mysqli->rollback();
         if ($usingAutocommitFallback) $mysqli->autocommit(true);
-        header('Location: users.php?msg=' . urlencode('Unknown action'));
-        exit;
+        respond('Unknown action', ['action' => $action]);
     }
 } catch (Exception $e) {
     // safe rollback if transaction was started
@@ -194,14 +211,6 @@ try {
     }
     // always log the detailed error
     error_log('user_save.php Exception: ' . $e->getMessage() . ' POST=' . print_r($_POST, true));
-
-    // expose message only in DEV for debugging
-    if (defined('DEV') && DEV) {
-        $msg = 'Database error: ' . $e->getMessage();
-    } else {
-        $msg = 'Database error';
-    }
-    header('Location: users.php?msg=' . urlencode($msg));
-    exit;
+    respond('Database error: ' . $e->getMessage(), ['exception' => $e->__toString()]);
 }
 ?>
