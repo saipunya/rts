@@ -48,11 +48,10 @@ if ($action === 'edit') {
         <input type="hidden" name="action" value="<?php echo htmlspecialchars($action); ?>">
         <input type="hidden" name="id" value="<?php echo (int)$member['mem_id']; ?>">
         <div class="mb-3">
-            <label class="form-label">ชั้น</label>
             <div class="mb-3">
                 <label for="mem_class" class="form-label">ชั้น</label>
                 <select
-                    class="form-select form-select-lg"
+                    class="form-select"
                     name="mem_class"
                     id="mem_class"
                     required

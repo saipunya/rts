@@ -45,6 +45,10 @@ if ($action === 'create') {
         header('Location: members.php?msg=' . urlencode('Invalid member id'));
         exit;
     }
+    if(empty($mem_group) || empty($mem_number) || empty($mem_fullname) || empty($mem_class)) {
+        header('Location: members.php?msg=' . urlencode('กรุณากรอกข้อมูลให้ครบ'));
+        exit;
+    }
     $stmt = $mysqli->prepare('UPDATE tbl_member SET mem_group = ?, mem_number = ?, mem_fullname = ?, mem_class = ?, mem_saveby = ?, mem_savedate = ? WHERE mem_id = ?');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
