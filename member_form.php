@@ -47,6 +47,22 @@ if ($action === 'edit') {
     <form method="post" action="member_save.php">
         <input type="hidden" name="action" value="<?php echo htmlspecialchars($action); ?>">
         <input type="hidden" name="id" value="<?php echo (int)$member['mem_id']; ?>">
+        <div class="mb-3">
+            <label class="form-label">ชั้น</label>
+            <div class="mb-3">
+                <label for="mem_class" class="form-label">ชั้น</label>
+                <select
+                    class="form-select form-select-lg"
+                    name="mem_class"
+                    id="mem_class"
+                    required
+                >
+                    <option selected>++โปรดเลือก++</option>
+                    <option value="member">สมาชิก</option>
+                    <option value="general">เกษตรกรทั่วไป</option>
+                </select>
+            </div>
+        </div>
 
         <div class="mb-3">
             <label class="form-label">กลุ่ม</label>
@@ -60,10 +76,7 @@ if ($action === 'edit') {
             <label class="form-label">ชื่อ-สกุล</label>
             <input type="text" name="mem_fullname" class="form-control" required value="<?php echo htmlspecialchars($member['mem_fullname']); ?>">
         </div>
-        <div class="mb-3">
-            <label class="form-label">ชั้น</label>
-            <input type="text" name="mem_class" class="form-control" required value="<?php echo htmlspecialchars($member['mem_class']); ?>">
-        </div>
+        
 
         <button type="submit" class="btn btn-primary"><?php echo $action === 'edit' ? 'บันทึกการแก้ไข' : 'บันทึก'; ?></button>
     </form>

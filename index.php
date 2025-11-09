@@ -84,7 +84,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ <span class="text-danger fw-bold"><?php echo number_format($latest_price, 2); ?> ฿</span>(<?php echo thai_date_format($latest_price_date); ?>)</div>
+				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ (<span class="text-danger fw-bold"><?php echo thai_date_format($latest_price_date); ?></span>)</div>
 				<div class="value display-4">
 					<?php echo number_format($latest_price,2); ?> ฿
 				</div>
