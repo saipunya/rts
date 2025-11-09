@@ -13,6 +13,4 @@ if ($mysqli->connect_error) {
 } else {
     echo "Connected successfully";
 }
-
-$mysqli->close();
 ?>
