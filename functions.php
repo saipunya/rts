@@ -7,14 +7,15 @@ $database = 'rts_db';
 $mydb = mysqli_connect($host, $username, $password, $database);
 if (!$mydb) {
     die("Connection failed: " . mysqli_connect_error());
-} else {
-    // Connection successful
-    echo "Database connection established.";
 }
 $mysqli = new mysqli($host, $username, $password, $database);
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
+
+// set proper charset to avoid encoding issues
+$mysqli->set_charset('utf8mb4');
+$mydb->set_charset('utf8mb4');
 
 // helper to check admin
 function is_admin(): bool {
