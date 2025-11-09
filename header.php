@@ -41,18 +41,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Pricing</a>
                             </li>
-                            <?php if (function_exists('is_admin') && is_admin()): ?>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="users.php">Users</a>
-                                </li>
-                            <?php endif; ?>
                         </ul>
                         <ul class="navbar-nav ms-auto">
                             <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
                                 <?php if (function_exists('current_user')): $cu = current_user(); endif; ?>
-                                <li class="nav-item">
-                                    <span class="navbar-text me-2"><?php echo isset($cu['user_fullname']) ? htmlspecialchars($cu['user_fullname']) : htmlspecialchars($_SESSION['user_username'] ?? ''); ?></span>
-                                </li>
+                                
                                 <li class="nav-item">
                                     <a class="nav-link" href="dashboard.php">Dashboard</a>
                                 </li>
