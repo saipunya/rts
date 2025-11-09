@@ -1,5 +1,5 @@
 <?php
-include 'functions.php';
+// functions.php should be required by pages that need it to avoid double-includes
 ?>
 <!doctype html>
 <html lang="en">
@@ -25,22 +25,47 @@ include 'functions.php';
         <header>
             <!-- place navbar here -->
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <a class="navbar-brand" href="#">Navbar</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Features</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Pricing</a>
-                        </li>
-                    </ul>
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="index.php">RTS</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="index.php" aria-current="page">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Features</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Pricing</a>
+                            </li>
+                            <?php if (function_exists('is_admin') && is_admin()): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="users.php">Users</a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                        <ul class="navbar-nav ms-auto">
+                            <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
+                                <?php if (function_exists('current_user')): $cu = current_user(); endif; ?>
+                                <li class="nav-item">
+                                    <span class="navbar-text me-2"><?php echo isset($cu['user_fullname']) ? htmlspecialchars($cu['user_fullname']) : htmlspecialchars($_SESSION['user_username'] ?? ''); ?></span>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="dashboard.php">Dashboard</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="logout.php">Logout</a>
+                                </li>
+                            <?php else: ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="login.php">Login</a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </header>
