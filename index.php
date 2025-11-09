@@ -1,6 +1,27 @@
 <?php
 include 'header.php';
-?>         
+?>
+
+<style>
+:root{
+  --bg-green: #f3fbf5;
+  --accent-green: #2e7d32;
+  --muted-green: #a5d6a7;
+  --card-shadow: 0 6px 18px rgba(46,125,50,0.08);
+}
+body {
+  background-color: var(--bg-green);
+}
+.header-lead { color: #155724; }
+.card.stat { border: none; box-shadow: var(--card-shadow); border-radius:12px; }
+.card.stat .value { font-weight:700; color: var(--accent-green); }
+.table thead { background: linear-gradient(90deg, rgba(165,214,167,0.25), rgba(243,251,245,0.25)); }
+.table tbody tr:hover { background-color: rgba(46,125,50,0.04); }
+.form-inline .form-control { min-width:150px; }
+.btn-cta { background: linear-gradient(90deg, var(--muted-green), var(--accent-green)); border: none; color: #fff; }
+.small-note { color: rgba(0,0,0,0.6); font-size:0.95rem; }
+@media (max-width: 576px){ .form-inline { display:block; } .form-inline .form-control { width:100%; margin-bottom:8px; } }
+</style>
 
 <?php
 // Sample data (would be replaced with DB calls in production)
@@ -35,32 +56,33 @@ $total_quantity = array_reduce($filtered, function($carry, $item){ return $carry
 $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){return $c+$i['price'];},0)/$total_listings,2) : 0;
 ?>
 
-<div class="container mt-4">
+<div class="container my-5">
 	<div class="row">
 		<div class="col-12 text-center mb-4">
-			<h1>ระบบการซื้อขาย รวบรวม ยาง</h1>
-			<p class="lead">รวมประกาศซื้อขายยางจากเกษตรกรและผู้รวบรวม — ค้นหาและติดต่อผู้ขายได้ตรง</p>
+			<h1 class="mb-1">ระบบการซื้อขาย รวบรวม ยาง</h1>
+			<p class="lead header-lead">รวมประกาศซื้อขายยางจากเกษตรกรและผู้รวบรวม — ค้นหาและติดต่อผู้ขายได้ตรง</p>
+			<p class="small-note">กรองผลลัพธ์ด้านล่างเพื่อค้นหายางที่ตรงกับความต้องการของคุณ</p>
 		</div>
 	</div>
 
 	<!-- Quick stats -->
 	<div class="row mb-3">
-		<div class="col-sm-4">
-			<div class="card p-3">
-				<h5 class="mb-0">รายการที่พบ</h5>
-				<p class="display-4 mb-0"><?php echo $total_listings; ?></p>
+		<div class="col-sm-4 mb-3">
+			<div class="card stat p-3 text-center">
+				<div class="mb-1 text-muted">รายการที่พบ</div>
+				<div class="value display-4"><?php echo $total_listings; ?></div>
 			</div>
 		</div>
-		<div class="col-sm-4">
-			<div class="card p-3">
-				<h5 class="mb-0">ปริมาณรวม</h5>
-				<p class="display-4 mb-0"><?php echo number_format($total_quantity); ?> kg</p>
+		<div class="col-sm-4 mb-3">
+			<div class="card stat p-3 text-center">
+				<div class="mb-1 text-muted">ปริมาณรวม</div>
+				<div class="value display-4"><?php echo number_format($total_quantity); ?> kg</div>
 			</div>
 		</div>
-		<div class="col-sm-4">
-			<div class="card p-3">
-				<h5 class="mb-0">ราคาเฉลี่ย</h5>
-				<p class="display-4 mb-0"><?php echo $avg_price; ?> ฿/kg</p>
+		<div class="col-sm-4 mb-3">
+			<div class="card stat p-3 text-center">
+				<div class="mb-1 text-muted">ราคาเฉลี่ย</div>
+				<div class="value display-4"><?php echo $avg_price; ?> ฿/kg</div>
 			</div>
 		</div>
 	</div>
@@ -68,7 +90,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<!-- Search / filter form -->
 	<div class="row mb-4">
 		<div class="col-12">
-			<form method="get" class="form-inline">
+			<form method="get" class="form-inline justify-content-start align-items-center">
 				<input type="text" name="q" class="form-control mr-2 mb-2" placeholder="ค้นหา (ผู้ขาย, ประเภท, จังหวัด)" value="<?php echo htmlspecialchars($search); ?>">
 				<select name="type" class="form-control mr-2 mb-2">
 					<option value="">ทั้งหมดประเภท</option>
@@ -79,8 +101,8 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 				<input type="text" name="location" class="form-control mr-2 mb-2" placeholder="จังหวัด" value="<?php echo htmlspecialchars($filter_location); ?>">
 				<input type="number" name="min_qty" class="form-control mr-2 mb-2" placeholder="ขั้นต่ำ kg" value="<?php echo $filter_min !== null ? $filter_min : ''; ?>">
 				<input type="number" name="max_qty" class="form-control mr-2 mb-2" placeholder="สูงสุด kg" value="<?php echo $filter_max !== null ? $filter_max : ''; ?>">
-				<button type="submit" class="btn btn-primary mb-2">ค้นหา</button>
-				<a href="index.php" class="btn btn-secondary mb-2 ml-2">รีเซ็ต</a>
+				<button type="submit" class="btn btn-outline-success mb-2">ค้นหา</button>
+				<a href="index.php" class="btn btn-light mb-2 ml-2">รีเซ็ต</a>
 			</form>
 		</div>
 	</div>
@@ -92,7 +114,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 				<div class="alert alert-info">ไม่พบรายการตามเงื่อนไขที่ค้นหา</div>
 			<?php else: ?>
 				<div class="table-responsive">
-					<table class="table table-striped">
+					<table class="table table-striped table-hover">
 						<thead>
 							<tr>
 								<th>#</th>
@@ -109,9 +131,9 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<tr>
 									<td><?php echo (int)$item['id']; ?></td>
 									<td><?php echo htmlspecialchars($item['seller']); ?></td>
-									<td><?php echo htmlspecialchars($item['type']); ?></td>
+									<td><span class="badge badge-pill badge-success"><?php echo htmlspecialchars($item['type']); ?></span></td>
 									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
-									<td><?php echo htmlspecialchars($item['price']); ?></td>
+									<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
 									<td><?php echo htmlspecialchars($item['location']); ?></td>
 									<td><?php echo htmlspecialchars($item['posted']); ?></td>
 								</tr>
@@ -126,7 +148,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<!-- Call to action -->
 	<div class="row mt-4">
 		<div class="col-12 text-center">
-			<p>ต้องการลงประกาศขายหรือรวบรวมยาง? <a href="#" class="btn btn-success">สร้างประกาศใหม่</a></p>
+			<p>ต้องการลงประกาศขายหรือรวบรวมยาง? <a href="#" class="btn btn-cta">สร้างประกาศใหม่</a></p>
 		</div>
 	</div>
 </div>
