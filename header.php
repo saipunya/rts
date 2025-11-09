@@ -45,10 +45,10 @@ include 'functions.php';
             </nav>
         </header>
         <main>
-            <div class="container-fluid">
+            <div class="container">
                 <div class="row mt-3 mb-3"></div>
                     <div class="col-12 text-center">
-                        <h4>สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
-                        <h5>ระบบการรวบรวมยาง</h5>
+                        <h4>Welcome to the Rubber Trading System</h4>
+                        <h5>สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h5>
                     </div>
                 </div>
