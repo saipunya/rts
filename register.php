@@ -1,58 +1,43 @@
 <?php
 require_once 'functions.php';
-if (is_logged_in()) {
+if(is_logged_in()) {
     header('Location: dashboard.php');
     exit;
 }
-$msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
+$fullname = $_POST['fullname'] ?? '';
+$username = $_POST['username'] ?? '';
+$password = $_POST['password'] ?? '';
+$msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $fullname = isset($_POST['fullname']) ? trim($_POST['fullname']) : '';
-
-    if ($username === '' || $password === '' || $fullname === '') {
-        header('Location: register.php?msg=' . urlencode('กรุณากรอกข้อมูลให้ครบถ้วน'));
-        exit;
-    }
-
-    // ensure username is not admin reserved
-    if (strtolower($username) === 'admin') {
-        header('Location: register.php?msg=' . urlencode('ชื่อนี้ไม่สามารถใช้งานได้'));
-        exit;
-    }
-
-    // simple uniqueness check and insert using escaped values
-    $esc_username = $mysqli->real_escape_string($username);
-    $checkSql = "SELECT user_id FROM tbl_user WHERE user_username = '{$esc_username}' LIMIT 1";
-    $res = $mysqli->query($checkSql);
-    if ($res === false) {
-        header('Location: register.php?msg=' . urlencode('เกิดข้อผิดพลาด: ' . $mysqli->error));
-        exit;
-    }
-    if ($res->fetch_assoc()) {
-        $res->free();
-        header('Location: register.php?msg=' . urlencode('ชื่อผู้ใช้ถูกใช้งานแล้ว'));
-        exit;
-    }
-    $res->free();
-
-    $hash = password_hash($password, PASSWORD_BCRYPT);
-    $level = 'user';
-    $status = 'active';
-
-    $esc_hash = $mysqli->real_escape_string($hash);
-    $esc_fullname = $mysqli->real_escape_string($fullname);
-    $esc_level = $mysqli->real_escape_string($level);
-    $esc_status = $mysqli->real_escape_string($status);
-
-    $insertSql = "INSERT INTO tbl_user (user_username, user_password, user_fullname, user_level, user_status)
-                  VALUES ('{$esc_username}', '{$esc_hash}', '{$esc_fullname}', '{$esc_level}', '{$esc_status}')";
-    if ($mysqli->query($insertSql)) {
-        header('Location: login.php?msg=' . urlencode('ลงทะเบียนสำเร็จ โปรดเข้าสู่ระบบ'));
-        exit;
+    if (trim($fullname) === '' || trim($username) === '' || trim($password) === '') {
+        $msg = 'กรุณากรอกข้อมูลให้ครบถ้วน';
     } else {
-        header('Location: register.php?msg=' . urlencode('การลงทะเบียนล้มเหลว: ' . $mysqli->error));
-        exit;
+        // check if username exists
+        $stmt = $mysqli->prepare('SELECT user_id FROM tbl_user WHERE user_username = ? LIMIT 1');
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res->fetch_assoc()) {
+            $msg = 'ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว';
+        } else {            
+            // create user
+            $hash = password_hash($password, PASSWORD_BCRYPT);
+            $level = 'user';
+            $status = 'active';
+            $stmt = $mysqli->prepare('INSERT INTO tbl_user (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
+            if (!$stmt) {
+                die('Prepare failed: ' . $mysqli->error);
+            }
+            $stmt->bind_param('sssss', $username, $hash, $fullname, $level, $status);
+            if ($stmt->execute()) {
+                header('Location: login.php?msg=' . urlencode('สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ'));
+                exit;
+            } else {
+                $msg = 'การสมัครสมาชิกล้มเหลว: ' . $stmt->error;
+            }
+            $stmt->close();
+        }
+        $stmt->close();
     }
 }
 
