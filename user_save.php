@@ -27,7 +27,7 @@ if (!in_array($status, ['active', 'inactive'])) $status = 'active';
 // create
 if ($action === 'create') {
     // check username unique
-    $stmt = $mysqli->prepare('SELECT user_id FROM users WHERE user_username = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT user_id FROM tbl_user WHERE user_username = ? LIMIT 1');
     $stmt->bind_param('s', $username);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -43,7 +43,7 @@ if ($action === 'create') {
         exit;
     }
     $hash = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $mysqli->prepare('INSERT INTO users (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
+    $stmt = $mysqli->prepare('INSERT INTO tbl_user (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
@@ -67,7 +67,7 @@ if ($action === 'edit') {
         exit;
     }
     // fetch existing
-    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_password FROM users WHERE user_id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_password FROM tbl_user WHERE user_id = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
@@ -82,7 +82,7 @@ if ($action === 'edit') {
     }
     // if username changed, ensure unique
     if ($username !== $existing['user_username']) {
-        $stmt = $mysqli->prepare('SELECT user_id FROM users WHERE user_username = ? LIMIT 1');
+        $stmt = $mysqli->prepare('SELECT user_id FROM tbl_user WHERE user_username = ? LIMIT 1');
         $stmt->bind_param('s', $username);
         $stmt->execute();
         $r = $stmt->get_result();
@@ -96,10 +96,10 @@ if ($action === 'edit') {
     // build update query
     if ($password !== '') {
         $hash = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $mysqli->prepare('UPDATE users SET user_username = ?, user_password = ?, user_fullname = ?, user_level = ?, user_status = ? WHERE user_id = ? LIMIT 1');
+        $stmt = $mysqli->prepare('UPDATE tbl_user SET user_username = ?, user_password = ?, user_fullname = ?, user_level = ?, user_status = ? WHERE user_id = ? LIMIT 1');
         $stmt->bind_param('sssssi', $username, $hash, $fullname, $level, $status, $id);
     } else {
-        $stmt = $mysqli->prepare('UPDATE users SET user_username = ?, user_fullname = ?, user_level = ?, user_status = ? WHERE user_id = ? LIMIT 1');
+        $stmt = $mysqli->prepare('UPDATE tbl_user SET user_username = ?, user_fullname = ?, user_level = ?, user_status = ? WHERE user_id = ? LIMIT 1');
         $stmt->bind_param('ssssi', $username, $fullname, $level, $status, $id);
     }
     if (!$stmt) {

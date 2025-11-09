@@ -7,8 +7,8 @@ include 'header.php';
 // fetch messages
 $msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
 
-// fetch users
-$stmt = $mysqli->prepare("SELECT user_id, user_username, user_fullname, user_level, user_status FROM users ORDER BY user_id ASC");
+// fetch users (use actual table name tbl_user)
+$stmt = $mysqli->prepare("SELECT user_id, user_username, user_fullname, user_level, user_status FROM tbl_user ORDER BY user_id ASC");
 if (!$stmt) {
     die('Prepare failed: ' . $mysqli->error);
 }

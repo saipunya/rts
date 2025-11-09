@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: login.php?msg=' . urlencode('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'));
         exit;
     }
-    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_password, user_fullname, user_level, user_status FROM users WHERE user_username = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_password, user_fullname, user_level, user_status FROM tbl_user WHERE user_username = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
