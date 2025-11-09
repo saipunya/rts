@@ -4,7 +4,7 @@ include 'functions.php';
 <!doctype html>
 <html lang="en">
     <head>
-        <title>Title</title>
+        <title>++ระบบการรวบรวมยาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด ++</title>
         <!-- Required meta tags -->
         <meta charset="utf-8" />
         <meta
@@ -46,3 +46,9 @@ include 'functions.php';
         </header>
         <main>
             <div class="container-fluid">
+                <div class="row mt-3 mb-3"></div>
+                    <div class="col-12 text-center">
+                        <h4>สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
+                        <h5>ระบบการรวบรวมยาง</h5>
+                    </div>
+                </div>
