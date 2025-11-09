@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $level = 'admin';
     $status = 'active';
 
-    $stmt = $mysqli->prepare('INSERT INTO users (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
+    $stmt = $mysqli->prepare('INSERT INTO tbl_user (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
     if (!$stmt) {
         echo '<h3>Prepare failed: ' . htmlspecialchars($mysqli->error) . '</h3>';
         echo '</div>';
