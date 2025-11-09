@@ -66,7 +66,7 @@
             <div class="container">
                 <div class="row mt-3 mb-3"></div>
                     <div class="col-12 text-center">
-                        <h4>Welcome to the Rubber Trading System</h4>
+                        <h1 class="mb-1">ระบบการซื้อขาย รวบรวม ยาง</h1>
                         <h5>สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h5>
                     </div>
                 </div>

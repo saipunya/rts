@@ -53,14 +53,7 @@ $total_quantity = array_reduce($filtered, function($carry, $item){ return $carry
 $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){return $c+$i['price'];},0)/$total_listings,2) : 0;
 ?>
 
-<div class="container my-5">
-	<div class="row">
-		<div class="col-12 text-center mb-4">
-			<h1 class="mb-1">ระบบการซื้อขาย รวบรวม ยาง</h1>
-			<p class="lead header-lead">แสดงปริมาณการขายยางจากเกษตรกรสมาชิกและผู้รวบรวม</p>
-		</div>
-	</div>
-
+<div class="container-xl my-5">
 	<!-- Quick stats -->
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
