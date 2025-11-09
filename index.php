@@ -69,44 +69,25 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">รายการที่พบ</div>
-				<div class="value display-4"><?php echo $total_listings; ?></div>
+				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ</div>
+				<div class="value display-4">23.20</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ปริมาณรวม</div>
-				<div class="value display-4"><?php echo number_format($total_quantity); ?> kg</div>
+				<div class="value display-4"> 1,300 kg</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">ราคาเฉลี่ย</div>
-				<div class="value display-4"><?php echo $avg_price; ?> ฿/kg</div>
+				<div class="mb-1 text-muted">ยอดเงินรวม</div>
+				<div class="value display-4">12,500 ฿</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- Search / filter form -->
-	<div class="row mb-4">
-		<div class="col-12">
-			<form method="get" class="form-inline justify-content-start align-items-center">
-				<input type="text" name="q" class="form-control mr-2 mb-2" placeholder="ค้นหา (ผู้ขาย, ประเภท, จังหวัด)" value="<?php echo htmlspecialchars($search); ?>">
-				<select name="type" class="form-control mr-2 mb-2">
-					<option value="">ทั้งหมดประเภท</option>
-					<option value="Natural" <?php if($filter_type==='Natural') echo 'selected'; ?>>Natural</option>
-					<option value="RSS" <?php if($filter_type==='RSS') echo 'selected'; ?>>RSS</option>
-					<option value="Latex" <?php if($filter_type==='Latex') echo 'selected'; ?>>Latex</option>
-				</select>
-				<input type="text" name="location" class="form-control mr-2 mb-2" placeholder="จังหวัด" value="<?php echo htmlspecialchars($filter_location); ?>">
-				<input type="number" name="min_qty" class="form-control mr-2 mb-2" placeholder="ขั้นต่ำ kg" value="<?php echo $filter_min !== null ? $filter_min : ''; ?>">
-				<input type="number" name="max_qty" class="form-control mr-2 mb-2" placeholder="สูงสุด kg" value="<?php echo $filter_max !== null ? $filter_max : ''; ?>">
-				<button type="submit" class="btn btn-outline-success mb-2">ค้นหา</button>
-				<a href="index.php" class="btn btn-light mb-2 ml-2">รีเซ็ต</a>
-			</form>
-		</div>
-	</div>
-
+	
 	<!-- Listings table -->
 	<div class="row">
 		<div class="col-12">
@@ -121,8 +102,8 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<th>ผู้ขาย</th>
 								<th>ประเภท</th>
 								<th>ปริมาณ</th>
-								<th>ราคา (฿/kg)</th>
-								<th>จังหวัด</th>
+                                <th>ยอดหัก</th>
+								<th>ยอดเงินรวม</th>
 								<th>ประกาศเมื่อ</th>
 							</tr>
 						</thead>
