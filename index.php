@@ -60,8 +60,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row">
 		<div class="col-12 text-center mb-4">
 			<h1 class="mb-1">ระบบการซื้อขาย รวบรวม ยาง</h1>
-			<p class="lead header-lead">รวมประกาศซื้อขายยางจากเกษตรกรและผู้รวบรวม — ค้นหาและติดต่อผู้ขายได้ตรง</p>
-			<p class="small-note">กรองผลลัพธ์ด้านล่างเพื่อค้นหายางที่ตรงกับความต้องการของคุณ</p>
+			<p class="lead header-lead">แสดงปริมาณการขายยางจากเกษตรกรสมาชิกและผู้รวบรวม</p>
 		</div>
 	</div>
 
@@ -91,9 +90,6 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<!-- Listings table -->
 	<div class="row">
 		<div class="col-12">
-			<?php if ($total_listings === 0): ?>
-				<div class="alert alert-info">ไม่พบรายการตามเงื่อนไขที่ค้นหา</div>
-			<?php else: ?>
 				<div class="table-responsive">
 					<table class="table table-striped table-hover">
 						<thead>
@@ -102,8 +98,8 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<th>ผู้ขาย</th>
 								<th>ประเภท</th>
 								<th>ปริมาณ</th>
-                                <th>ยอดหัก</th>
-								<th>ยอดเงินรวม</th>
+                                <th>จำนวนเงิน</th>
+								<th>รายการหัก</th>
 								<th>ประกาศเมื่อ</th>
 							</tr>
 						</thead>
@@ -112,7 +108,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<tr>
 									<td><?php echo (int)$item['id']; ?></td>
 									<td><?php echo htmlspecialchars($item['seller']); ?></td>
-									<td><span class="badge badge-pill badge-success"><?php echo htmlspecialchars($item['type']); ?></span></td>
+									<td>สมาชิก</td>
 									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
 									<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
 									<td><?php echo htmlspecialchars($item['location']); ?></td>
@@ -122,7 +118,6 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 						</tbody>
 					</table>
 				</div>
-			<?php endif; ?>
 		</div>
 	</div>
 
