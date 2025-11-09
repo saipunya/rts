@@ -78,10 +78,22 @@ $password = '';
 if (isset($_POST['user_password'])) $password = $_POST['user_password'];
 elseif (isset($_POST['password'])) $password = $_POST['password'];
 
-// basic validation
-if ($username === '' || $fullname === '' || $level === '' || $status === '') {
-    error_log('user_save.php: Missing required fields. POST=' . print_r($_POST, true));
-    respond('Please fill required fields', ['missing' => ['username'=>$username==='','fullname'=>$fullname==='','level'=>$level==='','status'=>$status==='']]);
+// === CHANGED: allow defaults for create ===
+// If creating and level/status not provided, set defaults so registration forms without those fields work.
+if ($action === 'create') {
+    if ($level === '') $level = 'user';
+    if ($status === '') $status = 'active';
+    // now require only username/fullname (password checked later)
+    if ($username === '' || $fullname === '') {
+        error_log('user_save.php: Missing required fields. POST=' . print_r($_POST, true));
+        respond('Please fill required fields', ['missing' => ['username'=>$username==='','fullname'=>$fullname==='']]);
+    }
+} else {
+    // For edit, require level/status values (keep stricter validation)
+    if ($username === '' || $fullname === '' || $level === '' || $status === '') {
+        error_log('user_save.php: Missing required fields for edit. POST=' . print_r($_POST, true));
+        respond('Please fill required fields', ['missing' => ['username'=>$username==='','fullname'=>$fullname==='','level'=>$level==='','status'=>$status==='']]);
+    }
 }
 
 $transactionStarted = false;
