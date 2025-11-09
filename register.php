@@ -7,6 +7,8 @@ if(is_logged_in()) {
 $fullname = $_POST['fullname'] ?? '';
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
+$level = 'user';
+$status = 'active';
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (trim($fullname) === '' || trim($username) === '' || trim($password) === '') {
@@ -62,6 +64,9 @@ include 'header.php';
                 <div class="mb-3">
                     <label class="form-label">Password</label>
                     <input type="password" name="password" class="form-control" required>
+                </div>
+                <div class="mb-">
+
                 </div>
                 <button type="submit" class="btn btn-primary">Register</button>
                 <a href="login.php" class="btn btn-link">Login</a>
