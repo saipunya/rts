@@ -36,6 +36,9 @@
                                 <a class="nav-link" href="index.php" aria-current="page">Home</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="prices.php">ราคายาง</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="#">Features</a>
                             </li>
                             <li class="nav-item">
