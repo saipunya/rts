@@ -51,4 +51,31 @@ function current_user() {
         'user_status' => $_SESSION['user_status'] ?? null,
     ];
 }
+
+// add function thai_date_format, thai month_name
+function thai_date_format(string $date_str): string {
+    $months = [
+        1 => 'มกราคม',
+        2 => 'กุมภาพันธ์',
+        3 => 'มีนาคม',
+        4 => 'เมษายน',
+        5 => 'พฤษภาคม',
+        6 => 'มิถุนายน',
+        7 => 'กรกฎาคม',
+        8 => 'สิงหาคม',
+        9 => 'กันยายน',
+        10 => 'ตุลาคม',
+        11 => 'พฤศจิกายน',
+        12 => 'ธันวาคม',
+    ];
+    $date = strtotime($date_str);
+    if ($date === false) {
+        return '';
+    }
+    $day = date('j', $date);
+    $month = (int)date('n', $date);
+    $year = (int)date('Y', $date) + 543; //
+    return sprintf('%d %s %d', $day, $months[$month], $year);
+}
+
 ?>
