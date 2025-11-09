@@ -2,6 +2,26 @@
 require_once 'functions.php';
 require_admin();
 
+// enable detailed errors in development only
+define('DEV', true);
+if (DEV) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}
+
+// basic mysqli existence/connection check
+if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
+    error_log('user_save.php: $mysqli not available');
+    header('Location: users.php?msg=' . urlencode('Server error: missing DB connection'));
+    exit;
+}
+if ($mysqli->connect_errno) {
+    error_log('user_save.php: MySQL connect error: ' . $mysqli->connect_error);
+    header('Location: users.php?msg=' . urlencode('DB connection error'));
+    exit;
+}
+
 // Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: users.php?msg=' . urlencode('Invalid request'));
@@ -22,8 +42,14 @@ if ($username === '' || $fullname === '' || $level === '' || $status === '') {
     exit;
 }
 
+$transactionStarted = false;
+
 try {
-    $mysqli->begin_transaction();
+    // start transaction and fail if cannot
+    if (!$mysqli->begin_transaction()) {
+        throw new Exception('Failed to start transaction: ' . $mysqli->error);
+    }
+    $transactionStarted = true;
 
     // check duplicate username
     if ($action === 'create') {
@@ -53,8 +79,9 @@ try {
         if (!$stmt) throw new Exception('Prepare failed: ' . $mysqli->error);
         $stmt->bind_param('sssss', $username, $hashed, $fullname, $level, $status);
         if (!$stmt->execute()) {
+            $err = $stmt->error;
             $stmt->close();
-            throw new Exception('Execute failed: ' . $stmt->error);
+            throw new Exception('Execute failed: ' . $err);
         }
         $stmt->close();
         $mysqli->commit();
@@ -105,8 +132,9 @@ try {
         }
 
         if (!$stmt->execute()) {
+            $err = $stmt->error;
             $stmt->close();
-            throw new Exception('Execute failed: ' . $stmt->error);
+            throw new Exception('Execute failed: ' . $err);
         }
         $stmt->close();
         $mysqli->commit();
@@ -118,9 +146,20 @@ try {
         exit;
     }
 } catch (Exception $e) {
-    if ($mysqli->errno) $mysqli->rollback();
-    // log error somewhere in production
-    header('Location: users.php?msg=' . urlencode('Database error'));
+    // safe rollback if transaction was started
+    if (isset($transactionStarted) && $transactionStarted && isset($mysqli) && ($mysqli instanceof mysqli)) {
+        $mysqli->rollback();
+    }
+    // always log the detailed error
+    error_log('user_save.php Exception: ' . $e->getMessage());
+
+    // expose message only in DEV for debugging
+    if (defined('DEV') && DEV) {
+        $msg = 'Database error: ' . $e->getMessage();
+    } else {
+        $msg = 'Database error';
+    }
+    header('Location: users.php?msg=' . urlencode($msg));
     exit;
 }
 ?>
