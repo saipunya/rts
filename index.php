@@ -28,9 +28,6 @@ body {
 $listings = [
 	['id'=>1,'seller'=>'Chaichan Farm','type'=>'Natural','quantity'=>2000,'unit'=>'kg','price'=>45,'location'=>'Surin','posted'=>'2025-11-01'],
 	['id'=>2,'seller'=>'Srisuk Co.','type'=>'RSS','quantity'=>1200,'unit'=>'kg','price'=>48,'location'=>'Nakhon Ratchasima','posted'=>'2025-11-03'],
-	['id'=>3,'seller'=>'Banpong Group','type'=>'Latex','quantity'=>500,'unit'=>'kg','price'=>50,'location'=>'Rayong','posted'=>'2025-10-28'],
-	['id'=>4,'seller'=>'GreenTree','type'=>'Natural','quantity'=>3000,'unit'=>'kg','price'=>44,'location'=>'Surin','posted'=>'2025-11-05'],
-	['id'=>5,'seller'=>'RubberCo','type'=>'RSS','quantity'=>800,'unit'=>'kg','price'=>47,'location'=>'Chumphon','posted'=>'2025-11-02'],
 ];
 
 // Read filters from GET
