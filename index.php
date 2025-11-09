@@ -45,6 +45,17 @@ if ($stmt) {
 } else {
 	$latest_price = 0;
 }
+// pr_date of latest_price
+
+
+$stmt = $mysqli->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+if ($stmt) {
+	$stmt->execute();
+	$res = $stmt->get_result();
+	$row = $res->fetch_assoc();
+	$latest_price_date = $row ? $row['pr_date'] : null;
+}
+
 // Read filters from GET
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
 $filter_location = isset($_GET['location']) ? trim($_GET['location']) : '';
@@ -73,7 +84,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ</div>
+				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ(<?php echo htmlspecialchars($latest_price_date); ?>)</div>
 				<div class="value display-4">
 					<?php echo number_format($latest_price,2); ?> ฿
 				</div>
