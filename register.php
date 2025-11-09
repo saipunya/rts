@@ -7,8 +7,6 @@ if(is_logged_in()) {
 $fullname = $_POST['fullname'] ?? '';
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
-$level = 'user';
-$status = 'active';
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (trim($fullname) === '' || trim($username) === '' || trim($password) === '') {

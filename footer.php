@@ -20,7 +20,5 @@
 </html>
 <?php
 // close database connection
-if (isset($mydb)) {
-    mysqli_close($mydb);
-}
+$mysqli->close();
 ?>
