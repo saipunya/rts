@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // check uniqueness
-    $stmt = $mysqli->prepare('SELECT user_id FROM users WHERE user_username = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT user_id FROM tbl_user WHERE user_username = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $level = 'user';
     $status = 'active';
 
-    $stmt = $mysqli->prepare('INSERT INTO users (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
+    $stmt = $mysqli->prepare('INSERT INTO tbl_user (user_username, user_password, user_fullname, user_level, user_status) VALUES (?, ?, ?, ?, ?)');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
