@@ -7,7 +7,7 @@ header('Content-Type: text/html; charset=utf-8');
 
 echo '<div style="max-width:800px;margin:40px auto;font-family:Arial,Helvetica,sans-serif">';
 // check existing admin
-$stmt = $mysqli->prepare("SELECT COUNT(*) AS cnt FROM users WHERE user_level = 'admin'");
+$stmt = $mysqli->prepare("SELECT COUNT(*) AS cnt FROM tbl_user WHERE user_level = 'admin'");
 if (!$stmt) {
     echo '<h3>Error preparing statement: ' . htmlspecialchars($mysqli->error) . '</h3>';
     echo '</div>';
