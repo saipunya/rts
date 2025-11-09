@@ -1,5 +1,7 @@
 <?php
 // create_admin.php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 require_once 'functions.php';
 // This script creates an initial admin user only if no admin exists.
 // IMPORTANT: remove this file after use.
