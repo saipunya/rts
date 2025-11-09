@@ -29,7 +29,21 @@ $listings = [
 	['id'=>1,'seller'=>'Chaichan Farm','type'=>'Natural','quantity'=>2000,'unit'=>'kg','price'=>45,'location'=>'Surin','posted'=>'2025-11-01'],
 	['id'=>2,'seller'=>'Srisuk Co.','type'=>'RSS','quantity'=>1200,'unit'=>'kg','price'=>48,'location'=>'Nakhon Ratchasima','posted'=>'2025-11-03'],
 ];
-
+// late price from tbl_price
+$stmt = $mysqli->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+if ($stmt) {
+	$stmt->execute();
+	$res = $stmt->get_result();
+	$row = $res->fetch_assoc();
+	if ($row) {
+		$latest_price = (float)$row['pr_price'];
+	} else {
+		$latest_price = 0;
+	}
+	$stmt->close();
+} else {
+	$latest_price = 0;
+}
 // Read filters from GET
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
 $filter_location = isset($_GET['location']) ? trim($_GET['location']) : '';
@@ -59,7 +73,9 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ</div>
-				<div class="value display-4">23.20</div>
+				<div class="value display-4">
+					<?php echo number_format($latest_price,2); ?> ฿
+				</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
