@@ -1,6 +1,9 @@
 <?php
 require_once 'functions.php';
 include 'header.php';
+
+// added: use db() instead of undefined $mysqli
+$db = db();
 ?>
 
 <style>
@@ -31,7 +34,7 @@ $listings = [
 	['id'=>2,'seller'=>'Srisuk Co.','type'=>'RSS','quantity'=>1200,'unit'=>'kg','price'=>48,'location'=>'Nakhon Ratchasima','posted'=>'2025-11-03'],
 ];
 // late price from tbl_price
-$stmt = $mysqli->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+$stmt = $db->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
 if ($stmt) {
 	$stmt->execute();
 	$res = $stmt->get_result();
@@ -48,13 +51,18 @@ if ($stmt) {
 // pr_date of latest_price
 
 
-$stmt = $mysqli->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+$stmt = $db->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
 if ($stmt) {
 	$stmt->execute();
 	$res = $stmt->get_result();
 	$row = $res->fetch_assoc();
 	$latest_price_date = $row ? $row['pr_date'] : null;
+} else {
+	$latest_price_date = null;
 }
+
+// added: safe display for latest price date
+$latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
 
 // Read filters from GET
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
@@ -84,7 +92,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ (<span class="text-danger fw-bold"><?php echo thai_date_format($latest_price_date); ?></span>)</div>
+				<div class="mb-1 text-muted">ราคาที่ใช้คำนวณ (<span class="text-danger fw-bold"><?php echo $latest_price_date_text; ?></span>)</div> <!-- changed: use pre-formatted text -->
 				<div class="value display-4">
 					<?php echo number_format($latest_price,2); ?> ฿
 				</div>
