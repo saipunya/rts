@@ -1,69 +1,96 @@
 <?php
-require_once 'functions.php';
-if (is_logged_in()) {
-    header('Location: dashboard.php');
-    exit;
-}
-$msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    if ($username === '' || $password === '') {
-        header('Location: login.php?msg=' . urlencode('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'));
-        exit;
-    }
-    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_password, user_fullname, user_level, user_status FROM tbl_user WHERE user_username = ? LIMIT 1');
-    if (!$stmt) {
-        die('Prepare failed: ' . $mysqli->error);
-    }
-    $stmt->bind_param('s', $username);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $user = $res->fetch_assoc();
-    $stmt->close();
-    if (!$user) {
-        header('Location: login.php?msg=' . urlencode('ไม่พบผู้ใช้'));
-        exit;
-    }
-    if ($user['user_status'] !== 'active') {
-        header('Location: login.php?msg=' . urlencode('บัญชีผู้ใช้ถูกระงับ'));
-        exit;
-    }
-    if (!password_verify($password, $user['user_password'])) {
-        header('Location: login.php?msg=' . urlencode('รหัสผ่านไม่ถูกต้อง'));
-        exit;
-    }
-    // success: set session
-    $_SESSION['user_id'] = $user['user_id'];
-    $_SESSION['user_username'] = $user['user_username'];
-    $_SESSION['user_fullname'] = $user['user_fullname'];
-    $_SESSION['user_level'] = $user['user_level'];
-    $_SESSION['user_status'] = $user['user_status'];
+require_once __DIR__ . '/functions.php';
+$db = db();
 
-    header('Location: dashboard.php');
-    exit;
+$errors = [];
+$msg = $_GET['msg'] ?? '';
+$csrf = csrf_token();
+
+// redirect if already logged-in
+if (!empty($_SESSION['user_id'])) {
+	header('Location: index.php');
+	exit;
 }
+
+// handle POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	if (!csrf_check($_POST['csrf_token'] ?? '')) {
+		$errors[] = 'โทเค็นไม่ถูกต้อง';
+	} else {
+		$username = trim((string)($_POST['username'] ?? ''));
+		$password = (string)($_POST['password'] ?? '');
+		if ($username === '' || $password === '') {
+			$errors[] = 'กรอกชื่อผู้ใช้และรหัสผ่าน';
+		} else {
+			$row = null;
+
+			// try tbl_user
+			if ($st = $db->prepare('SELECT * FROM tbl_user WHERE user_name = ? LIMIT 1')) {
+				$st->bind_param('s', $username);
+				$st->execute();
+				$res = $st->get_result();
+				$row = $res->fetch_assoc() ?: null;
+				$st->close();
+			}
+
+			// fallback to users
+			if (!$row && ($st = $db->prepare('SELECT * FROM users WHERE username = ? LIMIT 1'))) {
+				$st->bind_param('s', $username);
+				$st->execute();
+				$res = $st->get_result();
+				$row = $res->fetch_assoc() ?: null;
+				$st->close();
+			}
+
+			if ($row) {
+				// detect columns
+				$hash = $row['user_pass'] ?? ($row['user_password'] ?? ($row['password'] ?? ''));
+				$uid  = $row['user_id'] ?? ($row['id'] ?? null);
+				$uname= $row['user_name'] ?? ($row['username'] ?? $username);
+				$role = $row['user_role'] ?? ($row['role'] ?? null);
+
+				if ($hash !== '' && password_verify($password, $hash)) {
+					$_SESSION['user_id'] = (int)$uid;
+					$_SESSION['user_name'] = (string)$uname;
+					if ($role !== null) $_SESSION['user_role'] = (string)$role;
+
+					$redirect = $_GET['redirect'] ?? 'index.php';
+					if (strpos($redirect, '/') === 0) $redirect = ltrim($redirect, '/'); // simple safety
+					header('Location: ' . $redirect);
+					exit;
+				} else {
+					$errors[] = 'รหัสผ่านไม่ถูกต้อง';
+				}
+			} else {
+				$errors[] = 'ไม่พบบัญชีผู้ใช้';
+			}
+		}
+	}
+}
+
+// view
 include 'header.php';
 ?>
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h3 class="mb-3">Login</h3>
-            <?php if ($msg): ?>
-                <div class="alert alert-warning"><?php echo htmlspecialchars($msg); ?></div>
-            <?php endif; ?>
-            <form method="post" action="login.php">
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-        </div>
-    </div>
+<div class="container" style="max-width:480px;margin-top:60px;">
+	<h3 class="mb-3">เข้าสู่ระบบ</h3>
+	<?php if ($msg): ?>
+		<div class="alert alert-info"><?php echo e($msg); ?></div>
+	<?php endif; ?>
+	<?php if ($errors): ?>
+		<div class="alert alert-danger"><?php echo e(implode(' | ', $errors)); ?></div>
+	<?php endif; ?>
+
+	<form method="post" autocomplete="off">
+		<input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+		<div class="mb-3">
+			<label class="form-label">ชื่อผู้ใช้</label>
+			<input class="form-control" name="username" required>
+		</div>
+		<div class="mb-3">
+			<label class="form-label">รหัสผ่าน</label>
+			<input class="form-control" type="password" name="password" required>
+		</div>
+		<button class="btn btn-primary w-100" type="submit">เข้าสู่ระบบ</button>
+	</form>
 </div>
 <?php include 'footer.php'; ?>
