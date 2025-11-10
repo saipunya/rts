@@ -1,21 +1,36 @@
 <?php
-session_start();
-$host = 'localhost';
-$username = 'rts_user';
-$password = 'sumet4631022';
-$database = 'rts_db';
-$mydb = mysqli_connect($host, $username, $password, $database);
-if (!$mydb) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-$mysqli = new mysqli($host, $username, $password, $database);
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+declare(strict_types=1);
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+	session_start();
 }
 
-// set proper charset to avoid encoding issues
-$mysqli->set_charset('utf8mb4');
-$mydb->set_charset('utf8mb4');
+function db(): mysqli {
+	static $db;
+	if (!$db) {
+		$db = new mysqli('127.0.0.1', 'root', '', 'rts');
+		if ($db->connect_errno) {
+			die('DB connect error: ' . $db->connect_error);
+		}
+		$db->set_charset('utf8mb4');
+	}
+	return $db;
+}
+
+function e($v): string {
+	return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+}
+
+function csrf_token(): string {
+	if (empty($_SESSION['csrf_token'])) {
+		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+	}
+	return $_SESSION['csrf_token'];
+}
+
+function csrf_check(string $token): bool {
+	return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
 
 // helper to check admin
 function is_admin(): bool {
