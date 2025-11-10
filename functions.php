@@ -8,7 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 function db(): mysqli {
 	static $db;
 	if (!$db) {
-		$db = new mysqli('127.0.0.1', 'root', '', 'rts');
+		$db = new mysqli('localhost', 'rts_user', 'sumet4631022', 'rts_db');
 		if ($db->connect_errno) {
 			die('DB connect error: ' . $db->connect_error);
 		}
