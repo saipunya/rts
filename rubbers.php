@@ -220,6 +220,18 @@ th { background:#eff6ff; color:#1e3a8a; position:sticky; top:0; }
 td.num { text-align:right; font-variant-numeric: tabular-nums; }
 .actions { display:flex; gap:6px; }
 .small { font-size:12px; color:#64748b; margin-top:4px; }
+
+/* added: nicer member chooser and dropdown */
+.member-chooser { grid-column: 1 / -1; position: relative; }
+.member-chooser .dropdown { 
+  position:absolute; left:0; right:0; top:100%; z-index:10; 
+  background:#fff; border:1px solid #e2e8f0; border-radius:8px; margin-top:4px; 
+  max-height:260px; overflow:auto; list-style:none; padding:4px 0;
+}
+.member-chooser .dropdown li { padding:8px 10px; cursor:pointer; }
+.member-chooser .dropdown li:hover { background:#f1f5f9; }
+.link-btn { background:transparent; color:#2563eb; border:none; cursor:pointer; padding:0 4px; }
+.tag { display:inline-block; padding:4px 8px; background:#eef2ff; color:#3730a3; border-radius:999px; font-size:12px; }
 </style>
 </head>
 <body>
@@ -232,85 +244,57 @@ td.num { text-align:right; font-variant-numeric: tabular-nums; }
   <div class="msg err"><?php echo e(implode(' | ', $errors)); ?></div>
 <?php endif; ?>
 
-<?php if (empty($form['ru_id'])): ?>
-  <!-- added: member search form (create mode only) -->
-  <form method="get" action="rubbers.php" style="margin:0 0 16px;display:flex;gap:8px;flex-wrap:wrap;">
-    <input type="text" name="msearch" placeholder="ค้นหาสมาชิก (ชื่อ / เลขที่ / กลุ่ม / ชั้น)" value="<?php echo e($msearch); ?>" style="flex:1;min-width:240px;">
-    <?php if ($member_id): ?>
-      <input type="hidden" name="member_id" value="<?php echo (int)$member_id; ?>">
-    <?php endif; ?>
-    <button type="submit">ค้นหา</button>
-    <?php if ($member_id): ?>
-      <a href="rubbers.php" style="align-self:center;">เริ่มใหม่</a>
-    <?php endif; ?>
-  </form>
-
-  <?php if ($memberSelectedRow): ?>
-    <!-- added: selected member summary -->
-    <div class="msg ok" style="margin-top:-8px;">
-      ใช้สมาชิก: #<?php echo (int)$memberSelectedRow['mem_id']; ?> |
-      <?php echo e($memberSelectedRow['mem_fullname']); ?> |
-      กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
-      เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
-      ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
-      <a href="rubbers.php" style="margin-left:12px;">เปลี่ยนสมาชิก</a>
-    </div>
-  <?php elseif ($msearch !== ''): ?>
-    <!-- added: search results -->
-    <?php
-      $membersFound = [];
-      $like = '%' . $msearch . '%';
-      $stm = $db->prepare("SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class
-                           FROM tbl_member
-                           WHERE mem_fullname LIKE ? OR mem_number LIKE ? OR mem_group LIKE ? OR mem_class LIKE ?
-                           ORDER BY mem_fullname ASC LIMIT 50");
-      $stm->bind_param('ssss', $like, $like, $like, $like);
-      $stm->execute();
-      $resM = $stm->get_result();
-      while ($rw = $resM->fetch_assoc()) $membersFound[] = $rw;
-      $stm->close();
-    ?>
-    <table style="margin-top:8px;">
-      <thead>
-        <tr>
-          <th>#</th><th>กลุ่ม</th><th>เลขที่</th><th>ชื่อ-สกุล</th><th>ชั้น</th><th>เลือก</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (!$membersFound): ?>
-          <tr><td colspan="6" style="text-align:center;color:#64748b;">ไม่พบสมาชิก</td></tr>
-        <?php else: foreach ($membersFound as $mm): ?>
-          <tr>
-            <td><?php echo (int)$mm['mem_id']; ?></td>
-            <td><?php echo e($mm['mem_group']); ?></td>
-            <td><?php echo e($mm['mem_number']); ?></td>
-            <td><?php echo e($mm['mem_fullname']); ?></td>
-            <td><?php echo e($mm['mem_class']); ?></td>
-            <td><a href="rubbers.php?member_id=<?php echo (int)$mm['mem_id']; ?>">เลือก</a></td>
-          </tr>
-        <?php endforeach; endif; ?>
-      </tbody>
-    </table>
-  <?php endif; ?>
-<?php endif; ?>
+<?php
+// removed: legacy GET-based member search UI. Replaced by inline search widget below.
+// (The section between `<?php if (empty($form['ru_id'])): ?>` and its endif has been deleted)
+?>
 
 <form method="post" autocomplete="off">
   <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
   <input type="hidden" name="action" value="save">
+  <!-- changed: always include ru_member_id, prefill if selected via GET -->
+  <input type="hidden" id="ru_member_id" name="ru_member_id" value="<?php echo !empty($memberSelectedRow['mem_id']) ? (int)$memberSelectedRow['mem_id'] : ''; ?>">
   <?php if (!empty($form['ru_id'])): ?>
     <input type="hidden" name="ru_id" value="<?php echo (int)$form['ru_id']; ?>">
-  <?php elseif (!empty($memberSelectedRow['mem_id'])): ?>
-    <!-- added: hidden member id -->
-    <input type="hidden" name="ru_member_id" value="<?php echo (int)$memberSelectedRow['mem_id']; ?>">
   <?php endif; ?>
   <div class="grid">
+
+    <?php if (empty($form['ru_id'])): ?>
+    <!-- added: inline member search/typeahead -->
+    <div class="member-chooser">
+      <label>ค้นหาสมาชิก
+        <input id="memberSearch" type="text" placeholder="พิมพ์ชื่อ / เลขที่ / กลุ่ม / ชั้น เพื่อค้นหา">
+      </label>
+      <ul id="memberResults" class="dropdown" hidden></ul>
+      <div id="memberSelected" class="small" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
+        <?php if (!empty($memberSelectedRow)): ?>
+          ใช้สมาชิก: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
+          <?php echo e($memberSelectedRow['mem_fullname']); ?> |
+          กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
+          เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
+          ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
+          <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <div><label>วันที่ <input type="date" name="ru_date" required value="<?php echo e($form['ru_date']); ?>"></label></div>
     <div><label>แลน <input name="ru_lan" required value="<?php echo e($form['ru_lan']); ?>"></label></div>
-    <!-- updated: readonly member-linked fields when creating with selected member -->
-    <div><label>กลุ่ม <input name="ru_group" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>"></label></div>
-    <div><label>เลขที่ <input name="ru_number" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>"></label></div>
-    <div><label>ชื่อ-สกุล <input name="ru_fullname" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>"></label></div>
-    <div><label>ชั้น <input name="ru_class" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>"></label></div>
+
+    <!-- updated: add IDs for JS and respect readonly when initially selected -->
+    <div><label>กลุ่ม
+      <input id="ru_group" name="ru_group" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
+    </label></div>
+    <div><label>เลขที่
+      <input id="ru_number" name="ru_number" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
+    </label></div>
+    <div><label>ชื่อ-สกุล
+      <input id="ru_fullname" name="ru_fullname" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
+    </label></div>
+    <div><label>ชั้น
+      <input id="ru_class" name="ru_class" required <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
+    </label></div>
 
     <div><label>ปริมาณ <input name="ru_quantity" required inputmode="decimal" value="<?php echo e($form['ru_quantity']); ?>"></label></div>
     <div><label>หุ้น <input name="ru_hoon" required inputmode="decimal" value="<?php echo e($form['ru_hoon']); ?>"></label></div>
@@ -390,5 +374,99 @@ td.num { text-align:right; font-variant-numeric: tabular-nums; }
     <?php endforeach; endif; ?>
   </tbody>
 </table>
+
+<!-- added: inline JS for member search/selection -->
+<script>
+(function(){
+  const inCreateMode = <?php echo json_encode(empty($form['ru_id'])); ?>;
+  if (!inCreateMode) return;
+
+  const q = document.getElementById('memberSearch');
+  const list = document.getElementById('memberResults');
+  const selectedBox = document.getElementById('memberSelected');
+  const clearBtn = document.getElementById('clearMember');
+  const hid = document.getElementById('ru_member_id');
+
+  const fGroup = document.getElementById('ru_group');
+  const fNumber = document.getElementById('ru_number');
+  const fName = document.getElementById('ru_fullname');
+  const fClass = document.getElementById('ru_class');
+
+  let t = null;
+
+  function hideList(){ list.hidden = true; list.innerHTML = ''; }
+  function lockFields(lock){
+    [fGroup, fNumber, fName, fClass].forEach(el => {
+      if (lock) el.setAttribute('readonly','');
+      else el.removeAttribute('readonly');
+    });
+  }
+  function renderSelected(m){
+    selectedBox.hidden = false;
+    selectedBox.innerHTML = `ใช้สมาชิก: <span class="tag">#${m.mem_id}</span> ${m.mem_fullname} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class} <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>`;
+    // re-bind clear after replacing innerHTML
+    selectedBox.querySelector('#clearMember').addEventListener('click', () => {
+      hid.value = '';
+      lockFields(false);
+      selectedBox.hidden = true;
+    });
+  }
+
+  function pick(m){
+    hid.value = m.mem_id;
+    fGroup.value = m.mem_group;
+    fNumber.value = m.mem_number;
+    fName.value  = m.mem_fullname;
+    fClass.value = m.mem_class;
+    lockFields(true);
+    renderSelected(m);
+    q.value = '';
+    hideList();
+  }
+
+  function search(term){
+    if (!term || term.length < 2){ hideList(); return; }
+    fetch('members_search.php?q='+encodeURIComponent(term))
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => {
+        if (!Array.isArray(rows) || rows.length === 0){ hideList(); return; }
+        list.innerHTML = rows.map(m => `
+          <li data-item='${JSON.stringify(m).replace(/'/g, "&apos;")}'>
+            <strong>${m.mem_fullname}</strong>
+            <div class="small">#${m.mem_id} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class}</div>
+          </li>`).join('');
+        list.hidden = false;
+      })
+      .catch(() => hideList());
+  }
+
+  q && q.addEventListener('input', (e) => {
+    clearTimeout(t);
+    t = setTimeout(() => search(e.target.value.trim()), 250);
+  });
+
+  list.addEventListener('click', (e) => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    try {
+      const m = JSON.parse(li.getAttribute('data-item').replace(/&apos;/g, "'"));
+      pick(m);
+    } catch (_) {}
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!list.contains(e.target) && e.target !== q) hideList();
+  });
+
+  if (clearBtn){
+    clearBtn.addEventListener('click', () => {
+      hid.value = '';
+      lockFields(false);
+      selectedBox.hidden = true;
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
