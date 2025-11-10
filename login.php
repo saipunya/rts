@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		} else {
 			$row = null;
 
-			// try tbl_user
-			if ($st = $db->prepare('SELECT * FROM tbl_user WHERE user_name = ? LIMIT 1')) {
+			 // updated: correct columns for tbl_user
+			if ($st = $db->prepare('SELECT user_id, user_username, user_password, user_fullname, user_level, user_status FROM tbl_user WHERE user_username = ? LIMIT 1')) {
 				$st->bind_param('s', $username);
 				$st->execute();
 				$res = $st->get_result();
@@ -43,16 +43,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			}
 
 			if ($row) {
-				// detect columns
-				$hash = $row['user_pass'] ?? ($row['user_password'] ?? ($row['password'] ?? ''));
+				 // updated: map real columns
+				$hash = $row['user_password'] ?? ($row['password'] ?? '');
 				$uid  = $row['user_id'] ?? ($row['id'] ?? null);
-				$uname= $row['user_name'] ?? ($row['username'] ?? $username);
-				$role = $row['user_role'] ?? ($row['role'] ?? null);
+				$uname_db = $row['user_username'] ?? ($row['username'] ?? $username);
+				$fullname = $row['user_fullname'] ?? ($row['fullname'] ?? $uname_db);
+				$level = $row['user_level'] ?? ($row['role'] ?? 'user');
+				$status = $row['user_status'] ?? ($row['status'] ?? 'active');
 
-				if ($hash !== '' && password_verify($password, $hash)) {
+				// added: status check
+				$active = in_array(strtolower($status), ['active','1','enabled','true'], true);
+
+				if (!$active) {
+					$errors[] = 'บัญชีถูกระงับ';
+				} elseif ($hash !== '' && password_verify($password, $hash)) {
 					$_SESSION['user_id'] = (int)$uid;
-					$_SESSION['user_name'] = (string)$uname;
-					if ($role !== null) $_SESSION['user_role'] = (string)$role;
+					$_SESSION['user_username'] = (string)$uname_db;
+					$_SESSION['user_name'] = (string)$fullname;
+					$_SESSION['user_role'] = (string)$level;
 
 					$redirect = $_GET['redirect'] ?? 'index.php';
 					if (strpos($redirect, '/') === 0) $redirect = ltrim($redirect, '/'); // simple safety
