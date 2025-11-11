@@ -338,7 +338,7 @@ if ($currentLan === 'all') {
 
 
 
-    <form method="post" autocomplete="off" class="card mb-4 form-wrap">
+    <form method="post" autocomplete="off" class="card mb-4 form-wrap" id="rubberForm">
       <div class="card-header d-flex justify-content-between align-items-center small">
         <span>ลาน: <?php echo ($currentLan === 'all') ? 'ทั้งหมด (เพิ่มใช้ลาน 1 เริ่มต้น)' : 'ลาน ' . (int)$currentLan; ?></span>
         <span class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'เพิ่มรายการใหม่'; ?></span>
@@ -462,7 +462,7 @@ if ($currentLan === 'all') {
       <div class="card-footer d-flex justify-content-between align-items-center">
         <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'สร้างรายการใหม่'; ?></small>
         <div>
-          <button type="submit" class="btn btn-primary px-4">บันทึก</button>
+          <button type="button" id="btnSave" class="btn btn-primary px-4">บันทึก</button>
           <?php if (!empty($form['ru_id'])): ?>
             <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิก</a>
           <?php endif; ?>
@@ -630,6 +630,37 @@ if ($currentLan === 'all') {
             selectedBox.hidden = true;
           });
         }
+      })();
+    </script>
+
+    <!-- new: prevent Enter submit; only save button triggers submit -->
+    <script>
+      (function() {
+        const form = document.getElementById('rubberForm');
+        const saveBtn = document.getElementById('btnSave');
+        if (!form || !saveBtn) return;
+
+        // block Enter key from submitting form
+        form.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && e.target && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+          }
+        });
+
+        // only allow submit via Save button (with HTML5 validation)
+        saveBtn.addEventListener('click', function() {
+          if (form.reportValidity && !form.reportValidity()) return;
+          if (form.requestSubmit) form.requestSubmit();
+          else form.submit();
+        });
+
+        // extra guard: prevent submits not coming from the Save button
+        form.addEventListener('submit', function(e) {
+          // when requestSubmit is used, submitter อาจไม่มี ให้ปล่อยผ่าน
+          if (e.submitter && e.submitter.id !== 'btnSave') {
+            e.preventDefault();
+          }
+        });
       })();
     </script>
 
