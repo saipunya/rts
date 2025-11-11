@@ -459,7 +459,7 @@ if ($currentLan === 'all') {
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">ปริมาณ</span>
-                  <input name="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
+                  <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
             
@@ -506,25 +506,43 @@ if ($currentLan === 'all') {
           <fieldset>
             <legend>ยอดเงินคงเหลือที่ได้รับ</legend>
             <div class="alert alert-info py-2">
-              ระบบจะคำนวณยอดเงินคงเหลือที่ได้รับจากข้อมูลข้างต้นให้อัตโนมัติ
-              <?php
-              // แสดงยอดเงินทั้งหมด (ราคาล่าสุด * ปริมาณ) เฉพาะเมื่อกรอกปริมาณ > 0
-              $latestPrice = 0.00;
-              $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
-              if ($res && ($r = $res->fetch_assoc())) {
+                <?php
+                // ดึงราคาล่าสุด
+                $latestPrice = 0.00;
+                $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+                if ($res && ($r = $res->fetch_assoc())) {
                 $latestPrice = (float)$r['pr_price'];
-              }
-              $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
-
-              if ($qty > 0 && $latestPrice > 0) {
-                $totalAmount = $qty * $latestPrice;
-                echo 'ยอดเงินทั้งหมด คือ ' . number_format($totalAmount, 2) .
-                     ' (ราคา ' . number_format($latestPrice, 2) .
-                     ' x ปริมาณ ' . number_format($qty, 2) . ')';
-              } else {
-                echo 'กรอกปริมาณเพื่อคำนวณยอดเงิน';
-              }
-              ?>
+                }
+                $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
+                $amount = ($qty > 0 && $latestPrice > 0) ? $qty * $latestPrice : 0;
+                ?>
+                <p class="mb-1 small text-muted">
+                ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
+                </p>
+                <p class="mb-0">
+                มูลค่ายาง = ราคา x ปริมาณ : <strong id="rubberAmount"><?php echo number_format($amount, 2); ?></strong> บาท
+                </p>
+                <script>
+                (function () {
+                  const priceEl = document.getElementById('latestPrice');
+                  const price = parseFloat(priceEl?.dataset.price || '0') || 0;
+                  const qtyInput = document.getElementById('ru_quantity');
+                  const amtEl = document.getElementById('rubberAmount');
+                  function fmt(n) {
+                  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                  }
+                  function calc() {
+                  if (!qtyInput || !amtEl) return;
+                  const q = parseFloat((qtyInput.value || '0').replace(/,/g, '')) || 0;
+                  const amt = (q > 0 && price > 0) ? q * price : 0;
+                  amtEl.textContent = fmt(amt);
+                  }
+                  if (qtyInput) {
+                  qtyInput.addEventListener('input', calc);
+                  calc();
+                  }
+                })();
+                </script>
             </div>
           </fieldset>
         </div>
