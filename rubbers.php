@@ -432,17 +432,17 @@ if ($currentLan === 'all') {
               </div>
             </div>
             <div class="row my-2">
-              <div class="col-md-2">
+              <div class="col-md-4">
                 <label class="form-label">เงินฝาก
                   <input name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
                 </label>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-4">
                 <label class="form-label">กู้ซื้อขาย
                   <input name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
                 </label>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-4">
                 <label class="form-label">ประกันภัย
                   <input name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
                 </label>
