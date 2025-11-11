@@ -8,9 +8,14 @@ $csrf = csrf_token();
 $default_saveby = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
 $today = date('Y-m-d');
 
-// new: lane from GET/POST (1..4)
-$currentLan = isset($_GET['lan']) ? (int)$_GET['lan'] : (isset($_POST['lan']) ? (int)$_POST['lan'] : 1);
-if (!in_array($currentLan, [1,2,3,4], true)) $currentLan = 1;
+// new: support lan=all
+$lanParam = $_GET['lan'] ?? ($_POST['lan'] ?? '1');
+if ($lanParam === 'all') {
+	$currentLan = 'all';
+} else {
+	$currentLan = (int)$lanParam;
+	if (!in_array($currentLan, [1,2,3,4], true)) $currentLan = 1;
+}
 
 // added: member selection & search variables
 $member_id = isset($_GET['member_id']) ? (int)$_GET['member_id'] : 0;
@@ -42,7 +47,7 @@ $db->query("CREATE TABLE IF NOT EXISTS tbl_rubber (
 $form = [
 	'ru_id' => null,
 	'ru_date' => $today,
-	'ru_lan' => (string)$currentLan, // changed: default follow current lane
+	'ru_lan' => (string)($currentLan === 'all' ? 1 : $currentLan), // changed: default 1 if 'all'
 	'ru_group' => '',
 	'ru_number' => '',
 	'ru_fullname' => '',
@@ -83,10 +88,10 @@ if (($_GET['action'] ?? '') === 'edit') {
 		$res = $st->get_result();
 		if ($row = $res->fetch_assoc()) {
 			$form = $row;
-			// new: sync nav lane with record on edit
-			if (isset($row['ru_lan']) && in_array((int)$row['ru_lan'], [1,2,3,4], true)) {
-				$currentLan = (int)$row['ru_lan'];
-			}
+				// keep nav lane on edit
+				if (isset($row['ru_lan']) && in_array((int)$row['ru_lan'], [1,2,3,4], true)) {
+					$currentLan = (int)$row['ru_lan'];
+				}
 		} else {
 			$errors[] = 'ไม่พบรายการสำหรับแก้ไข';
 		}
@@ -107,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				$st->bind_param('i',$id);
 				$st->execute();
 				$st->close();
-				header('Location: rubbers.php?lan='.(int)$currentLan.'&msg=' . urlencode('ลบรายการแล้ว')); // changed: keep lane
+				header('Location: rubbers.php?lan=' . ($currentLan === 'all' ? 'all' : (int)$currentLan) . '&msg=' . urlencode('ลบรายการแล้ว'));
 				exit;
 			}
 			$errors[] = 'ระบุรายการที่จะลบไม่ถูกต้อง';
@@ -157,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			}
 
 			// new: validate lane 1..4
-			$lanVal = isset($_POST['ru_lan']) ? (int)$_POST['ru_lan'] : $currentLan;
+			$lanVal = isset($_POST['ru_lan']) ? (int)$_POST['ru_lan'] : ($currentLan === 'all' ? 1 : $currentLan);
 			if (!in_array($lanVal, [1,2,3,4], true)) {
 				$errors[] = 'ลานไม่ถูกต้อง';
 			}
@@ -178,8 +183,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					);
 					$st->execute();
 					$st->close();
-					$lanRedirect = in_array((int)$data['ru_lan'], [1,2,3,4], true) ? (int)$data['ru_lan'] : (int)$currentLan;
-					header('Location: rubbers.php?lan='.$lanRedirect.'&msg=' . urlencode('บันทึกการแก้ไขแล้ว')); // changed
+					$lanRedirect = ($lanParam === 'all') ? 'all' : (int)$data['ru_lan'];
+					header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('บันทึกการแก้ไขแล้ว'));
 					exit;
 				} else {
 					$st = $db->prepare("INSERT INTO tbl_rubber
@@ -194,8 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					);
 					$st->execute();
 					$st->close();
-					$lanRedirect = in_array((int)$data['ru_lan'], [1,2,3,4], true) ? (int)$data['ru_lan'] : (int)$currentLan;
-					header('Location: rubbers.php?lan='.$lanRedirect.'&msg=' . urlencode('บันทึกข้อมูลแล้ว')); // changed
+					$lanRedirect = ($lanParam === 'all') ? 'all' : (int)$data['ru_lan'];
+					header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('บันทึกข้อมูลแล้ว'));
 					exit;
 				}
 			} else {
@@ -205,18 +210,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 }
 
-// ดึงข้อมูลรายการ (filter by lane)
+// ดึงข้อมูลรายการ (รองรับ all)
 $rows = [];
-$stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
-$lanStr = (string)$currentLan;
-$stl->bind_param('s', $lanStr);
-$stl->execute();
-$res = $stl->get_result();
-if ($res) {
-	while ($r = $res->fetch_assoc()) $rows[] = $r;
-	$res->free();
+if ($currentLan === 'all') {
+	$res = $db->query("SELECT * FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC");
+	if ($res) {
+		while ($r = $res->fetch_assoc()) $rows[] = $r;
+		$res->free();
+	}
+} else {
+	$stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
+	$lanStr = (string)$currentLan;
+	$stl->bind_param('s', $lanStr);
+	$stl->execute();
+	$res = $stl->get_result();
+	if ($res) {
+		while ($r = $res->fetch_assoc()) $rows[] = $r;
+		$res->free();
+	}
+	$stl->close();
 }
-$stl->close();
 ?>
 <!doctype html>
 <html lang="th">
@@ -239,13 +252,16 @@ $stl->close();
 <div class="container py-4">
 <h1 class="h4 mb-3">จัดการข้อมูลยางพารา</h1>
 
-<!-- new: lane nav -->
+<!-- nav: add 'ทั้งหมด' -->
 <nav class="mb-3">
   <ul class="nav nav-pills">
+	<li class="nav-item">
+	  <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">ทั้งหมด</a>
+	</li>
     <?php for ($i=1; $i<=4; $i++): ?>
       <li class="nav-item">
-        <a class="nav-link <?php echo $currentLan===$i ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
-          ลิงค์ <?php echo $i; ?> (ลาน <?php echo $i; ?>)
+        <a class="nav-link <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
+          (ลานที่ <?php echo $i; ?>)
         </a>
       </li>
     <?php endfor; ?>
@@ -265,7 +281,7 @@ $stl->close();
   <div class="card-body">
   <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
   <input type="hidden" name="action" value="save">
-  <input type="hidden" name="lan" value="<?php echo (int)$currentLan; ?>"> <!-- new: keep lane in POST -->
+  <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>"> <!-- keep lane/all -->
   <!-- changed: always include ru_member_id, prefill if selected via GET -->
   <input type="hidden" id="ru_member_id" name="ru_member_id" value="<?php echo !empty($memberSelectedRow['mem_id']) ? (int)$memberSelectedRow['mem_id'] : ''; ?>">
   <?php if (!empty($form['ru_id'])): ?>
@@ -306,9 +322,9 @@ $stl->close();
     <div class="col-md-2">
       <label class="form-label d-block">ลาน</label>
       <div class="form-control-plaintext fw-semibold">
-        ลาน <?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : (int)$currentLan; ?>
+        ลาน <?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>
       </div>
-      <input type="hidden" name="ru_lan" value="<?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : (int)$currentLan; ?>">
+      <input type="hidden" name="ru_lan" value="<?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>">
     </div>
 
     <div class="col-md-2">
@@ -380,7 +396,7 @@ $stl->close();
   <div class="mt-3">
     <button type="submit" class="btn btn-primary">บันทึก</button>
     <?php if (!empty($form['ru_id'])): ?>
-      <a href="rubbers.php?lan=<?php echo (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิกแก้ไข</a>
+      <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิกแก้ไข</a>
     <?php endif; ?>
   </div>
   </div>
@@ -427,11 +443,11 @@ $stl->close();
         <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
         <td>
           <div class="d-flex gap-1">
-            <a href="rubbers.php?lan=<?php echo (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a> <!-- changed -->
+            <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a>
             <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
               <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
               <input type="hidden" name="action" value="delete">
-              <input type="hidden" name="lan" value="<?php echo (int)$currentLan; ?>"> <!-- new -->
+              <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
               <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
               <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
             </form>
