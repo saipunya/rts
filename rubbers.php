@@ -462,6 +462,7 @@ if ($currentLan === 'all') {
                   <input name="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
+            
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">หุ้น</span>
@@ -501,6 +502,30 @@ if ($currentLan === 'all') {
             </div>
             <input type="hidden" name="ru_saveby" value="<?php echo e($form['ru_saveby']); ?>">
             <input type="hidden" name="ru_savedate" value="<?php echo e($form['ru_savedate']); ?>">
+          </fieldset>
+          <fieldset>
+            <legend>ยอดเงินคงเหลือที่ได้รับ</legend>
+            <div class="alert alert-info py-2">
+              ระบบจะคำนวณยอดเงินคงเหลือที่ได้รับจากข้อมูลข้างต้นให้อัตโนมัติ
+              <?php
+              // แสดงยอดเงินทั้งหมด (ราคาล่าสุด * ปริมาณ) เฉพาะเมื่อกรอกปริมาณ > 0
+              $latestPrice = 0.00;
+              $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+              if ($res && ($r = $res->fetch_assoc())) {
+                $latestPrice = (float)$r['pr_price'];
+              }
+              $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
+
+              if ($qty > 0 && $latestPrice > 0) {
+                $totalAmount = $qty * $latestPrice;
+                echo 'ยอดเงินทั้งหมด คือ ' . number_format($totalAmount, 2) .
+                     ' (ราคา ' . number_format($latestPrice, 2) .
+                     ' x ปริมาณ ' . number_format($qty, 2) . ')';
+              } else {
+                echo 'กรอกปริมาณเพื่อคำนวณยอดเงิน';
+              }
+              ?>
+            </div>
           </fieldset>
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
