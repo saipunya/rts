@@ -300,6 +300,12 @@ if ($currentLan === 'all') {
       cursor: pointer;
       padding: 0 .25rem;
     }
+
+    /* new compact form styles */
+    .form-wrap { max-width: 960px; margin: 0 auto; }
+    fieldset { border: 1px solid #e4e6eb; padding: .85rem 1.1rem 1rem; border-radius: .65rem; margin-bottom: 1rem; background:#fff; }
+    fieldset legend { font-size: .9rem; font-weight: 600; width: auto; padding: 0 .6rem; margin-bottom: .2rem; }
+    .num-group .input-group-text { min-width:70px; justify-content:center; }
   </style>
 </head>
 
@@ -332,7 +338,11 @@ if ($currentLan === 'all') {
 
 
 
-    <form method="post" autocomplete="off" class="card mb-4">
+    <form method="post" autocomplete="off" class="card mb-4 form-wrap">
+      <div class="card-header d-flex justify-content-between align-items-center small">
+        <span>ลาน: <?php echo ($currentLan === 'all') ? 'ทั้งหมด (เพิ่มใช้ลาน 1 เริ่มต้น)' : 'ลาน ' . (int)$currentLan; ?></span>
+        <span class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'เพิ่มรายการใหม่'; ?></span>
+      </div>
       <div class="card-body">
         <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
         <input type="hidden" name="action" value="save">
@@ -342,127 +352,122 @@ if ($currentLan === 'all') {
         <?php if (!empty($form['ru_id'])): ?>
           <input type="hidden" name="ru_id" value="<?php echo (int)$form['ru_id']; ?>">
         <?php endif; ?>
+        <input type="hidden" name="ru_lan" value="<?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>">
 
-        <div class="row g-3">
+        <?php if (empty($form['ru_id'])): ?>
+        <fieldset>
+          <legend>เลือกสมาชิก</legend>
+          <!-- member chooser (unchanged logic, only wrapper) -->
+          <div class="member-chooser">
+            <div class="input-group">
+              <span class="input-group-text">ค้นหา</span>
+              <input id="memberSearch" type="text" class="form-control" placeholder="ชื่อ / เลขที่ / กลุ่ม / ชั้น">
+            </div>
+            <ul id="memberResults" class="list-group mt-1" hidden></ul>
+            <div id="memberSelected" class="form-text mt-2" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
+              <?php if (!empty($memberSelectedRow)): ?>
+                ใช้สมาชิก: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
+                <?php echo e($memberSelectedRow['mem_fullname']); ?> |
+                กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
+                เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
+                ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
+                <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>
+              <?php endif; ?>
+            </div>
+          </div>
+        </fieldset>
+        <?php endif; ?>
 
-          <?php if (empty($form['ru_id'])): ?>
-            <!-- added: inline member search/typeahead -->
-            <div class="col-12 member-chooser">
-              <label class="form-label">ค้นหาสมาชิก</label>
+        <fieldset>
+          <legend>ข้อมูลพื้นฐาน</legend>
+          <div class="row g-3">
+            <div class="col-sm-4 col-md-3">
+              <label class="form-label">วันที่
+                <input type="date" name="ru_date" required class="form-control" value="<?php echo e($form['ru_date']); ?>">
+              </label>
+            </div>
+            <div class="col-sm-4 col-md-3">
+              <label class="form-label">กลุ่ม
+                <input id="ru_group" name="ru_group" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
+              </label>
+            </div>
+            <div class="col-sm-4 col-md-3">
+              <label class="form-label">เลขที่
+                <input id="ru_number" name="ru_number" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
+              </label>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">ชั้น
+                <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
+              </label>
+            </div>
+            <div class="col-md-9 col-sm-6">
+              <label class="form-label">ชื่อ-สกุล
+                <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>ข้อมูลตัวเลข</legend>
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 num-group">
+            <div class="col">
               <div class="input-group">
-                <span class="input-group-text">สมาชิก</span>
-                <input id="memberSearch" type="text" class="form-control" placeholder="พิมพ์ชื่อ / เลขที่ / กลุ่ม / ชั้น">
-              </div>
-              <ul id="memberResults" class="list-group mt-1" hidden></ul>
-              <div id="memberSelected" class="form-text mt-2" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
-                <?php if (!empty($memberSelectedRow)): ?>
-                  ใช้สมาชิก: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
-                  <?php echo e($memberSelectedRow['mem_fullname']); ?> |
-                  กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
-                  เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
-                  ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
-                  <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>
-                <?php endif; ?>
+                <span class="input-group-text">ปริมาณ</span>
+                <input name="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
               </div>
             </div>
+            <div class="col">
+              <div class="input-group">
+                <span class="input-group-text">หุ้น</span>
+                <input name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group">
+                <span class="input-group-text">เงินกู้</span>
+                <input name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group">
+                <span class="input-group-text">หนี้สั้น</span>
+                <input name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group">
+                <span class="input-group-text">เงินฝาก</span>
+                <input name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group">
+                <span class="input-group-text">กู้ซื้อขาย</span>
+                <input name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group">
+                <span class="input-group-text">ประกันภัย</span>
+                <input name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="ru_saveby" value="<?php echo e($form['ru_saveby']); ?>">
+          <input type="hidden" name="ru_savedate" value="<?php echo e($form['ru_savedate']); ?>">
+        </fieldset>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'สร้างรายการใหม่'; ?></small>
+        <div>
+          <button type="submit" class="btn btn-primary px-4">บันทึก</button>
+          <?php if (!empty($form['ru_id'])): ?>
+            <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิก</a>
           <?php endif; ?>
-
-          <div class="col-md-2">
-            <label class="form-label">วันที่
-              <input type="date" name="ru_date" required class="form-control" value="<?php echo e($form['ru_date']); ?>">
-            </label>
-          </div>
-
-          <!-- changed: lock lane to link -->
-          <div class="col-md-2">
-            <label class="form-label d-block">ลาน</label>
-            <div class="form-control-plaintext fw-semibold">
-              ลาน <?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>
-            </div>
-            <input type="hidden" name="ru_lan" value="<?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>">
-          </div>
-          <div class="container">
-            <div class="row my-2">
-              <div class="col-md-4">
-                <label class="form-label">กลุ่ม
-                  <input id="ru_group" name="ru_group" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
-                </label>
-              </div>
-              <div class="col-md-8">
-                <label class="form-label">เลขที่
-                  <input id="ru_number" name="ru_number" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
-                </label>
-              </div>
-            </div>
-            <div class="row my-2">
-              <div class="col-md-12">
-                <label class="form-label">ชื่อ-สกุล
-                  <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
-              </div>
-            </div>
-            <div class="row my-2">
-              <div class="col-md-4">
-                <label class="form-label">ชั้น
-                  <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
-                </label>
-              </div>
-
-
-              <div class="col-md-8">
-                <label class="form-label">ปริมาณยาง
-                  <input name="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
-                </label>
-              </div>
-            </div>
-            <div class="row my-2">
-              <div class="col-md-4">
-                <label class="form-label">หุ้น
-                  <input name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
-                </label>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">เงินกู้
-                  <input name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
-                </label>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">หนี้ค้างสั้น
-                  <input name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
-                </label>
-              </div>
-            </div>
-            <div class="row my-2">
-              <div class="col-md-4">
-                <label class="form-label">เงินฝาก
-                  <input name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
-                </label>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">กู้ซื้อขาย
-                  <input name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
-                </label>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">ประกันภัย
-                  <input name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
-                </label>
-              </div>
-            </div>
-            <input name="ru_saveby" type="hidden" class="form-control" value="<?php echo e($form['ru_saveby']); ?>">
-            <input type="hidden" name="ru_savedate" class="form-control" value="<?php echo e($form['ru_savedate']); ?>">
-
-          </div>
-
-          <div class="small mt-3 text-muted">
-            <?php echo e(!empty($form['ru_id']) ? 'แก้ไขรายการ #' . (int)$form['ru_id'] : 'เพิ่มรายการใหม่'); ?>
-          </div>
-          <div class="mt-3">
-            <button type="submit" class="btn btn-primary">บันทึก</button>
-            <?php if (!empty($form['ru_id'])): ?>
-              <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิกแก้ไข</a>
-            <?php endif; ?>
-          </div>
         </div>
+      </div>
     </form>
 
     <table class="table table-striped table-hover table-bordered">
