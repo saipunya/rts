@@ -425,44 +425,43 @@ if ($currentLan === 'all') {
           <fieldset>
             <legend>ข้อมูลพื้นฐาน</legend>
             <div class="row g-3">
-              <div class="col-sm-4 col-md-3">
+              <div class="col-md-3">
                 <label class="form-label">วันที่
                   <input type="date" name="ru_date" required class="form-control" value="<?php echo e($form['ru_date']); ?>">
                 </label>
               </div>
-              <div class="col-sm-4 col-md-3">
+              <div class=" col-md-3">
                 <label class="form-label">กลุ่ม
                   <input id="ru_group" name="ru_group" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
                 </label>
               </div>
-              <div class="col-sm-4 col-md-3">
+              <div class=" col-md-3">
                 <label class="form-label">เลขที่
                   <input id="ru_number" name="ru_number" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
                 </label>
               </div>
-              <div class="col-md-3 col-sm-6">
+              <div class="col-md-3">
                 <label class="form-label">ชั้น
                   <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
                 </label>
               </div>
-              <div class="col-md-9 col-sm-6">
+              <div class="col-md-9">
                 <label class="form-label">ชื่อ-สกุล
                   <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
                 </label>
               </div>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>ข้อมูลตัวเลข</legend>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 num-group">
-              <div class="col">
+              <div class="col-md-3">
                 <div class="input-group">
                   <span class="input-group-text">ปริมาณ</span>
                   <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
-            
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>การหัก</legend>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 num-group">
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">หุ้น</span>
@@ -522,6 +521,43 @@ if ($currentLan === 'all') {
                 <p class="mb-0">
                 มูลค่ายาง = ราคา x ปริมาณ : <strong id="rubberAmount"><?php echo number_format($amount, 2); ?></strong> บาท
                 </p>
+
+                <?php
+                $deductTotal =
+                  (float)$form['ru_hoon'] +
+                  (float)$form['ru_loan'] +
+                  (float)$form['ru_shortdebt'] +
+                  (float)$form['ru_deposit'] +
+                  (float)$form['ru_tradeloan'] +
+                  (float)$form['ru_insurance'];
+                ?>
+                <p class="mt-2 mb-0">
+                  ยอดหักรวม: <strong id="totalDeduct"><?php echo number_format($deductTotal, 2); ?></strong> บาท
+                </p>
+                <script>
+                  (function () {
+                  const fields = ['ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance'];
+                  const out = document.getElementById('totalDeduct');
+                  function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+                  function calc(){
+                    let sum = 0;
+                    fields.forEach(id=>{
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    const v = parseFloat((el.value||'0').replace(/,/g,'')) || 0;
+                    sum += v;
+                    });
+                    if(out) out.textContent = fmt(sum);
+                  }
+                  fields.forEach(id=>{
+                    const el = document.getElementById(id);
+                    if(el) el.addEventListener('input', calc);
+                  });
+                  calc();
+                  })();
+                </script>
+
+
                 <script>
                 (function () {
                   const priceEl = document.getElementById('latestPrice');
