@@ -43,10 +43,18 @@ $db->query("CREATE TABLE IF NOT EXISTS tbl_rubber (
 	ru_deposit DECIMAL(18,2) NOT NULL,
 	ru_tradeloan DECIMAL(18,2) NOT NULL,
 	ru_insurance DECIMAL(18,2) NOT NULL,
+  ru_value DECIMAL(18,2) NOT NULL DEFAULT 0.00,      -- added
+  ru_expend DECIMAL(18,2) NOT NULL DEFAULT 0.00,     -- added
+  ru_netvalue DECIMAL(18,2) NOT NULL DEFAULT 0.00,   -- added
 	ru_saveby VARCHAR(255) NOT NULL,
 	ru_savedate DATE NOT NULL,
 	PRIMARY KEY (ru_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;");
+
+// added: ensure columns exist on old schema
+$db->query("ALTER TABLE tbl_rubber ADD COLUMN IF NOT EXISTS ru_value DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+$db->query("ALTER TABLE tbl_rubber ADD COLUMN IF NOT EXISTS ru_expend DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+$db->query("ALTER TABLE tbl_rubber ADD COLUMN IF NOT EXISTS ru_netvalue DECIMAL(18,2) NOT NULL DEFAULT 0.00");
 
 // เตรียมค่าเริ่มต้นของฟอร์ม
 $form = [
@@ -173,15 +181,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       $data['ru_lan'] = (string)$lanVal;
 
+      // new: compute value/expend/netvalue using latest price
+      $latestPrice = 0.0;
+      if ($res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1")) {
+        if ($pr = $res->fetch_assoc()) $latestPrice = (float)$pr['pr_price'];
+        $res->free();
+      }
+      $qty = (float)$data['ru_quantity'];
+      $value  = $qty * $latestPrice;
+      $expend = (float)$data['ru_hoon'] + (float)$data['ru_loan'] + (float)$data['ru_shortdebt'] + (float)$data['ru_deposit'] + (float)$data['ru_tradeloan'] + (float)$data['ru_insurance'];
+      $net    = $value - $expend;
+
+      $data['ru_value']    = number_format((float)$value, 2, '.', '');
+      $data['ru_expend']   = number_format((float)$expend, 2, '.', '');
+      $data['ru_netvalue'] = number_format((float)$net, 2, '.', '');
+
       if (!$errors) {
         $id = isset($_POST['ru_id']) && $_POST['ru_id'] !== '' ? (int)$_POST['ru_id'] : 0;
         if ($id > 0) {
           $st = $db->prepare("UPDATE tbl_rubber SET
 						ru_date=?, ru_lan=?, ru_group=?, ru_number=?, ru_fullname=?, ru_class=?, ru_quantity=?,
 						ru_hoon=?, ru_loan=?, ru_shortdebt=?, ru_deposit=?, ru_tradeloan=?, ru_insurance=?,
+            ru_value=?, ru_expend=?, ru_netvalue=?,  -- added
 						ru_saveby=?, ru_savedate=? WHERE ru_id=?");
           $st->bind_param(
-            str_repeat('s', 15) . 'i',
+            str_repeat('s', 18) . 'i',
             $data['ru_date'],
             $data['ru_lan'],
             $data['ru_group'],
@@ -195,6 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data['ru_deposit'],
             $data['ru_tradeloan'],
             $data['ru_insurance'],
+            $data['ru_value'], $data['ru_expend'], $data['ru_netvalue'],
             $data['ru_saveby'],
             $data['ru_savedate'],
             $id
@@ -207,10 +232,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
           $st = $db->prepare("INSERT INTO tbl_rubber
 						(ru_date, ru_lan, ru_group, ru_number, ru_fullname, ru_class, ru_quantity,
-						 ru_hoon, ru_loan, ru_shortdebt, ru_deposit, ru_tradeloan, ru_insurance, ru_saveby, ru_savedate)
-						VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						 ru_hoon, ru_loan, ru_shortdebt, ru_deposit, ru_tradeloan, ru_insurance,
+             ru_value, ru_expend, ru_netvalue,  -- added
+						 ru_saveby, ru_savedate)
+						VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
           $st->bind_param(
-            str_repeat('s', 15),
+            str_repeat('s', 18),
             $data['ru_date'],
             $data['ru_lan'],
             $data['ru_group'],
@@ -224,6 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data['ru_deposit'],
             $data['ru_tradeloan'],
             $data['ru_insurance'],
+            $data['ru_value'], $data['ru_expend'], $data['ru_netvalue'],
             $data['ru_saveby'],
             $data['ru_savedate']
           );
