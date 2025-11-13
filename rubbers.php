@@ -493,37 +493,37 @@ if ($currentLan === 'all') {
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">หุ้น</span>
-                  <input name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
+                  <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">เงินกู้</span>
-                  <input name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
+                  <input id="ru_loan" name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">หนี้สั้น</span>
-                  <input name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
+                  <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">เงินฝาก</span>
-                  <input name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
+                  <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">กู้ซื้อขาย</span>
-                  <input name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
+                  <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
                   <span class="input-group-text">ประกันภัย</span>
-                  <input name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
+                  <input id="ru_insurance" name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
                 </div>
               </div>
             </div>
@@ -537,20 +537,11 @@ if ($currentLan === 'all') {
                 // ดึงราคาล่าสุด
                 $latestPrice = 0.00;
                 $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
-                if ($res && ($r = $res->fetch_assoc())) {
-                $latestPrice = (float)$r['pr_price'];
-                }
+                if ($res && ($r = $res->fetch_assoc())) { $latestPrice = (float)$r['pr_price']; }
                 $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
                 $amount = ($qty > 0 && $latestPrice > 0) ? $qty * $latestPrice : 0;
-                ?>
-                <p class="mb-1 small text-muted">
-                ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
-                </p>
-                <p class="mb-0">
-                มูลค่ายาง = ราคา x ปริมาณ : <strong id="rubberAmount"><?php echo number_format($amount, 2); ?></strong> บาท
-                </p>
 
-                <?php
+                // รวมยอดหักเริ่มต้น
                 $deductTotal =
                   (float)$form['ru_hoon'] +
                   (float)$form['ru_loan'] +
@@ -558,54 +549,62 @@ if ($currentLan === 'all') {
                   (float)$form['ru_deposit'] +
                   (float)$form['ru_tradeloan'] +
                   (float)$form['ru_insurance'];
+
+                // ค่าเริ่มต้นสำหรับแสดงผล (ถ้ามีค่าจากฐานข้อมูลให้ใช้ค่านั้น)
+                $initialRuValue  = isset($form['ru_value'])    ? (float)$form['ru_value']    : $amount;
+                $initialExpend   = isset($form['ru_expend'])   ? (float)$form['ru_expend']   : $deductTotal;
+                $initialNetValue = isset($form['ru_netvalue']) ? (float)$form['ru_netvalue'] : ($initialRuValue - $initialExpend);
                 ?>
-                <p class="mt-2 mb-0">
-                  ยอดหักรวม: <strong id="totalDeduct"><?php echo number_format($deductTotal, 2); ?></strong> บาท
+                <p class="mb-1 small text-muted">
+                  ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
                 </p>
+                <p class="mb-1">
+                  มูลค่ายาง (ru_value) = ราคา x ปริมาณ: <strong id="ruValue"><?php echo number_format($initialRuValue, 2); ?></strong> บาท
+                </p>
+                <p class="mb-1">
+                  ยอดหักรวม (ru_expend): <strong id="ruExpend"><?php echo number_format($initialExpend, 2); ?></strong> บาท
+                </p>
+                <p class="mb-0">
+                  ยอดสุทธิ (ru_netvalue) = ru_value − ru_expend: <strong id="ruNetValue"><?php echo number_format($initialNetValue, 2); ?></strong> บาท
+                </p>
+
                 <script>
                   (function () {
-                  const fields = ['ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance'];
-                  const out = document.getElementById('totalDeduct');
-                  function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
-                  function calc(){
-                    let sum = 0;
-                    fields.forEach(id=>{
-                    const el = document.getElementById(id);
-                    if(!el) return;
-                    const v = parseFloat((el.value||'0').replace(/,/g,'')) || 0;
-                    sum += v;
+                    const priceEl = document.getElementById('latestPrice');
+                    const price = parseFloat(priceEl?.dataset.price || '0') || 0;
+
+                    const qtyInput = document.getElementById('ru_quantity');
+                    const fields = ['ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance'];
+
+                    const elValue  = document.getElementById('ruValue');
+                    const elExpend = document.getElementById('ruExpend');
+                    const elNet    = document.getElementById('ruNetValue');
+
+                    function num(v){ return parseFloat((v || '0').toString().replace(/,/g,'')) || 0; }
+                    function fmt(n){ return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+                    function calc(){
+                      const q = qtyInput ? num(qtyInput.value) : 0;
+                      const ru_value = q * price;
+                      let ru_expend = 0;
+                      fields.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) ru_expend += num(el.value);
+                      });
+                      const ru_net = ru_value - ru_expend;
+
+                      if (elValue)  elValue.textContent  = fmt(ru_value);
+                      if (elExpend) elExpend.textContent = fmt(ru_expend);
+                      if (elNet)    elNet.textContent    = fmt(ru_net);
+                    }
+
+                    if (qtyInput) qtyInput.addEventListener('input', calc);
+                    fields.forEach(id => {
+                      const el = document.getElementById(id);
+                      if (el) el.addEventListener('input', calc);
                     });
-                    if(out) out.textContent = fmt(sum);
-                  }
-                  fields.forEach(id=>{
-                    const el = document.getElementById(id);
-                    if(el) el.addEventListener('input', calc);
-                  });
-                  calc();
+                    calc();
                   })();
-                </script>
-
-
-                <script>
-                (function () {
-                  const priceEl = document.getElementById('latestPrice');
-                  const price = parseFloat(priceEl?.dataset.price || '0') || 0;
-                  const qtyInput = document.getElementById('ru_quantity');
-                  const amtEl = document.getElementById('rubberAmount');
-                  function fmt(n) {
-                  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                  }
-                  function calc() {
-                  if (!qtyInput || !amtEl) return;
-                  const q = parseFloat((qtyInput.value || '0').replace(/,/g, '')) || 0;
-                  const amt = (q > 0 && price > 0) ? q * price : 0;
-                  amtEl.textContent = fmt(amt);
-                  }
-                  if (qtyInput) {
-                  qtyInput.addEventListener('input', calc);
-                  calc();
-                  }
-                })();
                 </script>
             </div>
           </fieldset>
