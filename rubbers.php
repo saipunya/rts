@@ -409,6 +409,9 @@ if ($currentLan === 'all') {
           </li>
         <?php endfor; ?>
       </ul>
+      <div class="div">
+        <a href="rubbers.php"><input type="button" value="กลับหน้าหลัก" class="btn-sm btn-info"></a>
+      </div>
     </nav>
 
     <?php if ($msg): ?>
@@ -751,6 +754,9 @@ if ($currentLan === 'all') {
         endif; ?>
       </tbody>
     </table>
+    <div class="row my-2 text-center">
+      <a href="rubbers.php"><input type="button" value="กลับหน้าหลัก" class="btn-sm btn-info"></a>
+    </div>
 
     <?php if ($currentLan !== 'all'): ?>
       <!-- added: inline JS for member search/selection (แสดงเฉพาะโหมดเพิ่ม/แก้ไข) -->
