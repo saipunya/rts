@@ -643,7 +643,7 @@ if ($currentLan === 'all') {
         <div class="card-body">
           <form method="get" class="row gy-3 gx-3">
             <input type="hidden" name="lan" value="all">
-            <div class="col-md-5">
+            <div class="col-md-4">
               <label class="form-label mb-1">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
               <div class="input-group">
                 <span class="input-group-text">ค้นหา</span>
@@ -661,7 +661,7 @@ if ($currentLan === 'all') {
               <label class="form-label mb-1">ช่วงวันที่ (ถึง)</label>
               <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
             </div>
-            <div class="col-md-1 d-flex align-items-end">
+            <div class="col-md-2 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100">ตกลง</button>
             </div>
           </form>
