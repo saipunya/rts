@@ -733,6 +733,8 @@ if ($currentLan === 'all') {
           const fNumber = document.getElementById('ru_number');
           const fName = document.getElementById('ru_fullname');
           const fClass = document.getElementById('ru_class');
+          // new: reference quantity field for focusing
+          const fQty = document.getElementById('ru_quantity');
 
           let t = null;
 
@@ -769,6 +771,8 @@ if ($currentLan === 'all') {
             renderSelected(m);
             q.value = '';
             hideList();
+            // new: focus quantity after member selection
+            if (fQty) { fQty.focus(); fQty.select(); }
           }
 
           function search(term) {
@@ -817,6 +821,11 @@ if ($currentLan === 'all') {
               lockFields(false);
               selectedBox.hidden = true;
             });
+          }
+
+          // new: if member already preselected from server, focus quantity
+          if (hid.value && fQty) {
+            setTimeout(() => { fQty.focus(); fQty.select(); }, 50);
           }
         })();
       </script>
