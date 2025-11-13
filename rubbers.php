@@ -473,10 +473,15 @@ if ($currentLan === 'all') {
                   <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
                 </label>
               </div>
+             
+              
+            </div>
+            <div class="row my-2">
               <div class="col-md-9">
-                <label class="form-label">ชื่อ-สกุล
+              <div class="input-group">
+              <span class="input-group-text">ชื่อ-สกุล</span>
                   <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
-                </label>
+                </div>
               </div>
               <div class="col-md-3">
                 <div class="input-group">
@@ -484,7 +489,7 @@ if ($currentLan === 'all') {
                   <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
-            </div>
+              </div>
           </fieldset>
 
           <fieldset>
