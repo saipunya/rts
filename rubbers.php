@@ -409,9 +409,6 @@ if ($currentLan === 'all') {
           </li>
         <?php endfor; ?>
       </ul>
-      <div class="div">
-        <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
-      </div>
     </nav>
 
     <?php if ($msg): ?>
