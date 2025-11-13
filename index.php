@@ -150,7 +150,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<!-- Call to action -->
 	<div class="row mt-4">
 		<div class="col-12 text-center">
-			<p>ต้องการเพิ่มข้อมูลการรวบรวมยาง? <a href="#" class="btn btn-cta">บันทึกข้อมูล</a></p>
+			<p>ต้องการเพิ่มข้อมูลการรวบรวมยาง? <a href="rubbers.php" class="btn btn-cta">บันทึกข้อมูล</a></p>
 		</div>
 	</div>
 </div>
