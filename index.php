@@ -150,7 +150,12 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<!-- Call to action -->
 	<div class="row mt-4">
 		<div class="col-12 text-center">
-			<p>ต้องการเพิ่มข้อมูลการรวบรวมยาง? <a href="rubbers.php" class="btn btn-cta">บันทึกข้อมูล</a></p>
+			<?php
+			if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+			$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
+			$target = $logged_in ? 'rubbers.php' : 'login.php?redirect=' . urlencode('rubbers.php');
+			?>
+			<p>ต้องการเพิ่มข้อมูลการรวบรวมยาง? <a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-cta">บันทึกข้อมูล</a></p>
 		</div>
 	</div>
 </div>

@@ -388,6 +388,16 @@ if ($currentLan === 'all') {
     fieldset { border: 1px solid #e4e6eb; padding: .85rem 1.1rem 1rem; border-radius: .65rem; margin-bottom: 1rem; background:#fff; }
     fieldset legend { font-size: .9rem; font-weight: 600; width: auto; padding: 0 .6rem; margin-bottom: .2rem; }
     .num-group .input-group-text { min-width:70px; justify-content:center; }
+
+    /* added: table polish */
+    .table-responsive .table thead.sticky-header th {
+      position: sticky; top: 0; z-index: 3;
+      background: var(--bs-light);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+    }
+    .table td.text-end, .table th.text-end { font-variant-numeric: tabular-nums; }
+    .table-hover tbody tr:hover td { background-color: rgba(13,110,253,.04); }
+    .table caption { color:#6c757d; padding-left:.5rem; }
   </style>
 </head>
 
@@ -693,31 +703,39 @@ if ($currentLan === 'all') {
       </div>
     <?php endif; ?>
 
-    <table class="table table-striped table-hover table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>วันที่</th>
-          <th>ลาน</th>
-          <th>กลุ่ม</th>
-          <th>เลขที่</th>
-          <th>ชื่อ-สกุล</th>
-          <th>ชั้น</th>
-          <th class="text-end">ปริมาณ</th>
-          <th class="text-end">หุ้น</th>
-          <th class="text-end">เงินกู้</th>
-          <th class="text-end">หนี้สั้น</th>
-          <th class="text-end">เงินฝาก</th>
-          <th class="text-end">กู้ซื้อขาย</th>
-          <th class="text-end">ประกันภัย</th>
-          <th>จัดการ</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (!$rows): ?>
+    <!-- ตาราง -->
+    <div class="table-responsive rounded-3 border shadow-sm">
+      <table class="table table-sm table-hover align-middle caption-top">
+        <caption>
+          ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ
+          <span class="ms-2 text-muted">
+            <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
+          </span>
+        </caption>
+        <thead class="table-light sticky-header">
           <tr>
-            <td colspan="17" style="text-align:center;color:#64748b;padding:20px;">ยังไม่มีข้อมูล</td>
+            <th>ID</th>
+            <th>วันที่</th>
+            <th>ลาน</th>
+            <th>กลุ่ม</th>
+            <th>เลขที่</th>
+            <th>ชื่อ-สกุล</th>
+            <th>ชั้น</th>
+            <th class="text-end">ปริมาณ</th>
+            <th class="text-end">หุ้น</th>
+            <th class="text-end">เงินกู้</th>
+            <th class="text-end">หนี้สั้น</th>
+            <th class="text-end">เงินฝาก</th>
+            <th class="text-end">กู้ซื้อขาย</th>
+            <th class="text-end">ประกันภัย</th>
+            <th>จัดการ</th>
           </tr>
+        </thead>
+        <tbody>
+          <?php if (!$rows): ?>
+            <tr>
+              <td colspan="17" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
+            </tr>
           <?php else: foreach ($rows as $r): ?>
             <tr>
               <td><?php echo (int)$r['ru_id']; ?></td>
@@ -747,10 +765,11 @@ if ($currentLan === 'all') {
                 </div>
               </td>
             </tr>
-        <?php endforeach;
-        endif; ?>
-      </tbody>
-    </table>
+          <?php endforeach; endif; ?>
+        </tbody>
+      </table>
+    </div>
+
     <div class="row my-2 text-center">
       <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
     </div>
