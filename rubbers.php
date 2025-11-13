@@ -396,7 +396,7 @@ if ($currentLan === 'all') {
     <h1 class="h4 mb-3">จัดการข้อมูลยางพารา</h1>
 
     <!-- nav: add 'ทั้งหมด' -->
-    <nav class="mb-3">
+    <nav class="mb-3 d-flex justify-align-content-around align-items-center">
       <ul class="nav nav-pills">
         <li class="nav-item">
           <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">ทั้งหมด</a>
@@ -410,7 +410,7 @@ if ($currentLan === 'all') {
         <?php endfor; ?>
       </ul>
       <div class="div">
-        <a href="rubbers.php"><input type="button" value="กลับหน้าหลัก" class="btn-sm btn-info"></a>
+        <a href="rubbers.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
       </div>
     </nav>
 
@@ -755,7 +755,7 @@ if ($currentLan === 'all') {
       </tbody>
     </table>
     <div class="row my-2 text-center">
-      <a href="rubbers.php"><input type="button" value="กลับหน้าหลัก" class="btn-sm btn-info"></a>
+      <a href="rubbers.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
     </div>
 
     <?php if ($currentLan !== 'all'): ?>
