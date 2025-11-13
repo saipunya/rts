@@ -316,6 +316,15 @@ if ($currentLan === 'all') {
     $res->free();
   }
   if (!empty($st)) $st->close();
+
+  // new: aggregate summary
+  $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
+  foreach ($rows as $ag) {
+    $sumQty    += (float)$ag['ru_quantity'];
+    $sumValue  += (float)$ag['ru_value'];
+    $sumExpend += (float)$ag['ru_expend'];
+    $sumNet    += (float)$ag['ru_netvalue'];
+  }
 } else {
   $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
   $lanStr = (string)$currentLan;
@@ -625,34 +634,61 @@ if ($currentLan === 'all') {
         </div>
       </form>
     <?php else: ?>
-      <!-- new: ฟอร์มค้นหาเมื่ออยู่ลิงก์ "ทั้งหมด" -->
-      <div class="card mb-3 form-wrap">
-        <div class="card-header small">ค้นหาข้อมูลทุกลาน</div>
+      <!-- improved search layout -->
+      <div class="card mb-4 form-wrap">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="small fw-semibold">ค้นหาข้อมูลทุกลาน</span>
+          <span class="small text-muted">แสดงผล <?php echo count($rows); ?> รายการ</span>
+        </div>
         <div class="card-body">
-          <form method="get" class="row g-2 align-items-end">
+          <form method="get" class="row gy-3 gx-3">
             <input type="hidden" name="lan" value="all">
-            <div class="col-sm-6 col-md-4">
-              <label class="form-label">คำค้น (กลุ่ม/เลขที่/ชื่อ/ชั้น)
+            <div class="col-md-5">
+              <label class="form-label mb-1">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
+              <div class="input-group">
+                <span class="input-group-text">ค้นหา</span>
                 <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
-              </label>
-            </div>
-            <div class="col-sm-3 col-md-2">
-              <label class="form-label">ตั้งแต่วันที่
-                <input type="date" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
-              </label>
-            </div>
-            <div class="col-sm-3 col-md-2">
-              <label class="form-label">ถึงวันที่
-                <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
-              </label>
-            </div>
-            <div class="col-sm-12 col-md-4">
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">ค้นหา</button>
-                <a href="rubbers.php?lan=all" class="btn btn-outline-secondary">ล้าง</a>
+                <?php if ($search !== ''): ?>
+                  <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">ล้าง</a>
+                <?php endif; ?>
               </div>
             </div>
+            <div class="col-md-3">
+              <label class="form-label mb-1">ช่วงวันที่ (จาก)</label>
+              <input type="date" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label mb-1">ช่วงวันที่ (ถึง)</label>
+              <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary w-100">ตกลง</button>
+            </div>
           </form>
+
+          <!-- summary badges -->
+          <div class="mt-3 d-flex flex-wrap gap-2">
+            <div class="badge bg-secondary text-wrap p-2">
+              ปริมาณรวม: <?php echo number_format($sumQty,2); ?> กก.
+            </div>
+            <div class="badge bg-info text-dark text-wrap p-2">
+              มูลค่า (ru_value): <?php echo number_format($sumValue,2); ?> ฿
+            </div>
+            <div class="badge bg-warning text-dark text-wrap p-2">
+              หักรวม (ru_expend): <?php echo number_format($sumExpend,2); ?> ฿
+            </div>
+            <div class="badge bg-success text-wrap p-2">
+              สุทธิ (ru_netvalue): <?php echo number_format($sumNet,2); ?> ฿
+            </div>
+          </div>
+          <?php if ($search || $date_from || $date_to): ?>
+            <div class="mt-2 small text-muted">
+              เงื่อนไข: 
+              <?php echo $search ? 'คำค้น="'.e($search).'" ' : ''; ?>
+              <?php echo $date_from ? 'จาก '.e($date_from).' ' : ''; ?>
+              <?php echo $date_to ? 'ถึง '.e($date_to).' ' : ''; ?>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     <?php endif; ?>
