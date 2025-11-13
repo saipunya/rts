@@ -559,13 +559,13 @@ if ($currentLan === 'all') {
                   ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
                 </p>
                 <p class="mb-1">
-                  มูลค่ายาง (ru_value) = ราคา x ปริมาณ: <strong id="ruValue"><?php echo number_format($initialRuValue, 2); ?></strong> บาท
+                  มูลค่ายาง = ราคา x ปริมาณ: <strong id="ruValue"><?php echo number_format($initialRuValue, 2); ?></strong> บาท
                 </p>
                 <p class="mb-1">
-                  ยอดหักรวม (ru_expend): <strong id="ruExpend"><?php echo number_format($initialExpend, 2); ?></strong> บาท
+                  ยอดหักรวม: <strong id="ruExpend"><?php echo number_format($initialExpend, 2); ?></strong> บาท
                 </p>
                 <p class="mb-0">
-                  ยอดสุทธิ (ru_netvalue) = ru_value − ru_expend: <strong id="ruNetValue"><?php echo number_format($initialNetValue, 2); ?></strong> บาท
+                  ยอดสุทธิ : <strong id="ruNetValue"><?php echo number_format($initialNetValue, 2); ?></strong> บาท
                 </p>
 
                 <script>
