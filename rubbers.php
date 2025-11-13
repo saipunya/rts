@@ -396,7 +396,7 @@ if ($currentLan === 'all') {
     <h1 class="h4 mb-3">จัดการข้อมูลยางพารา</h1>
 
     <!-- nav: add 'ทั้งหมด' -->
-    <nav class="container mb-3 d-flex justify-content-between align-items-center">
+    <nav class="container-md mb-3 d-flex justify-content-between align-items-center">
       <ul class="nav nav-pills">
         <li class="nav-item">
           <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">ทั้งหมด</a>
