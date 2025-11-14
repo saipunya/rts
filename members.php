@@ -6,10 +6,22 @@ include 'header.php';
 // fetch messages
 $msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
 
+// search query (optional)
+$q = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
+
 // fetch members
-$stmt = $mysqli->prepare("SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class, mem_saveby, mem_savedate FROM tbl_member ORDER BY mem_id ASC");
-if (!$stmt) {
-    die('Prepare failed: ' . $mysqli->error);
+if ($q !== '' && mb_strlen($q) >= 2) {
+    $like = '%' . $q . '%';
+    $stmt = $mysqli->prepare("SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class, mem_saveby, mem_savedate FROM tbl_member WHERE mem_fullname LIKE ? OR mem_number LIKE ? OR mem_group LIKE ? OR mem_class LIKE ? ORDER BY mem_id ASC");
+    if (!$stmt) {
+        die('Prepare failed: ' . $mysqli->error);
+    }
+    $stmt->bind_param('ssss', $like, $like, $like, $like);
+} else {
+    $stmt = $mysqli->prepare("SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class, mem_saveby, mem_savedate FROM tbl_member ORDER BY mem_id ASC");
+    if (!$stmt) {
+        die('Prepare failed: ' . $mysqli->error);
+    }
 }
 $stmt->execute();
 $result = $stmt->get_result();
@@ -25,6 +37,22 @@ $stmt->close();
             <a href="member_form.php?action=create" class="btn btn-success">เพิ่มสมาชิก</a>
         </div>
     </div>
+
+    <!-- Search form -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <form method="get" class="row g-2">
+                <div class="col-auto">
+                    <input type="text" name="q" class="form-control" placeholder="ค้นหาสมาชิก (อย่างน้อย 2 ตัวอักษร)" value="<?php echo htmlspecialchars($q); ?>">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">ค้นหา</button>
+                    <a href="members.php" class="btn btn-secondary">ล้าง</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <?php if ($msg): ?>
         <div class="alert alert-info"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>

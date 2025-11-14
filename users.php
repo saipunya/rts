@@ -1,5 +1,4 @@
 <?php
-// ...existing code...
 require_once 'functions.php';
 require_admin();
 include 'header.php';
@@ -7,10 +6,22 @@ include 'header.php';
 // fetch messages
 $msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
 
+// search query (optional)
+$q = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
+
 // fetch users (use actual table name tbl_user)
-$stmt = $mysqli->prepare("SELECT user_id, user_username, user_fullname, user_level, user_status FROM tbl_user ORDER BY user_id ASC");
-if (!$stmt) {
-    die('Prepare failed: ' . $mysqli->error);
+if ($q !== '' && mb_strlen($q) >= 2) {
+    $like = '%' . $q . '%';
+    $stmt = $mysqli->prepare("SELECT user_id, user_username, user_fullname, user_level, user_status FROM tbl_user WHERE user_username LIKE ? OR user_fullname LIKE ? ORDER BY user_id ASC");
+    if (!$stmt) {
+        die('Prepare failed: ' . $mysqli->error);
+    }
+    $stmt->bind_param('ss', $like, $like);
+} else {
+    $stmt = $mysqli->prepare("SELECT user_id, user_username, user_fullname, user_level, user_status FROM tbl_user ORDER BY user_id ASC");
+    if (!$stmt) {
+        die('Prepare failed: ' . $mysqli->error);
+    }
 }
 $stmt->execute();
 $result = $stmt->get_result();
@@ -24,6 +35,21 @@ $stmt->close();
         </div>
         <div class="col-6 text-end">
             <a href="user_form.php?action=create" class="btn btn-success">Create User</a>
+        </div>
+    </div>
+
+    <!-- Search form -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <form method="get" class="row g-2">
+                <div class="col-auto">
+                    <input type="text" name="q" class="form-control" placeholder="Search users (min 2 chars)" value="<?php echo htmlspecialchars($q); ?>">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a href="users.php" class="btn btn-secondary">Clear</a>
+                </div>
+            </form>
         </div>
     </div>
 
