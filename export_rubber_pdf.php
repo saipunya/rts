@@ -57,6 +57,29 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
+// new: prepare Thai font embedding (TH Sarabun New)
+$fontDir     = __DIR__ . '/assets/fonts';
+$mainFontTtf = $fontDir . '/THSarabunNew.ttf';
+$boldFontTtf = $fontDir . '/THSarabunNew-Bold.ttf';
+$hasThaiFont = file_exists($mainFontTtf);
+
+$fontCss = $hasThaiFont
+  ? "
+  @font-face {
+    font-family: 'THSarabunNew';
+    src: url('assets/fonts/THSarabunNew.ttf') format('truetype');
+    font-weight: normal; font-style: normal;
+  }
+  @font-face {
+    font-family: 'THSarabunNew';
+    src: url('assets/fonts/THSarabunNew-Bold.ttf') format('truetype');
+    font-weight: bold; font-style: normal;
+  }
+  body { font-family: 'THSarabunNew', DejaVu Sans, sans-serif; font-size: 14px; color: #111; }
+  "
+  : "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; }";
+
+// inject CSS with Thai font (replace the old body font rule)
 $html = '
 <!doctype html>
 <html lang="th">
@@ -64,7 +87,7 @@ $html = '
   <meta charset="UTF-8">
   <style>
     @page { margin: 16mm 14mm; }
-    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; }
+    ' . $fontCss . '
     h1 { font-size: 16px; margin: 0 0 6px; }
     .meta { font-size: 11px; color: #555; margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; }
@@ -145,7 +168,13 @@ $html = '
 ';
 
 $options = new Options();
-$options->set('isRemoteEnabled', true); // safe default
+$options->set('isRemoteEnabled', true);
+// new: allow loading local assets (fonts) and set default Thai font when available
+$options->setChroot(__DIR__);
+if ($hasThaiFont) {
+  $options->set('defaultFont', 'THSarabunNew');
+}
+
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
 $dompdf->setPaper('A5', 'portrait'); // compact sheet; change to A4 if preferred
