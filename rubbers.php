@@ -846,7 +846,16 @@ if ($currentLan === 'all') {
                 .then(r => r.ok ? r.json() : [])
                 .then(rows => {
                   if (!Array.isArray(rows) || rows.length === 0) {
-                    hideList();
+                    // show a helpful action when no results found
+                    list.innerHTML = `
+                      <li class="list-group-item list-group-item-secondary">
+                        ไม่พบสมาชิกที่ตรงกับ "${term.replace(/</g,'&lt;').replace(/>/g,'&gt;')}"
+                      </li>
+                      <li class="list-group-item text-center">
+                        <a class="btn btn-sm btn-success" href="member_form.php?action=create&q=${encodeURIComponent(term)}">เพิ่มสมาชิก</a>
+                      </li>
+                    `;
+                    list.hidden = false;
                     return;
                   }
                   list.innerHTML = rows.map(m => `
