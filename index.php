@@ -78,6 +78,30 @@ if ($stmt) {
 // added: safe display for latest price date
 $latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
 
+// added: compute latest rubber collection date and totals for that date
+$stmt = $db->prepare("SELECT ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 1");
+if ($stmt) {
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    $latest_rubber_date = $row ? $row['ru_date'] : null;
+} else {
+    $latest_rubber_date = null;
+}
+$latest_rubber_date_text = $latest_rubber_date ? thai_date_format($latest_rubber_date) : '-';
+
+// Sum totals for the latest collection round (match by ru_date)
+$latest_total_quantity = 0;
+$latest_total_value = 0;
+if ($latest_rubber_date) {
+    foreach ($listings as $it) {
+        if ($it['posted'] === $latest_rubber_date) {
+            $latest_total_quantity += $it['quantity'];
+            $latest_total_value += $it['price'];
+        }
+    }
+}
+
 // Read filters from GET
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
 $filter_location = isset($_GET['location']) ? trim($_GET['location']) : '';
@@ -131,13 +155,13 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ปริมาณรวม</div>
-				<div class="value display-4"> 1,300 kg</div>
+				<div class="value display-4"> <?php echo number_format($latest_total_quantity,2); ?> kg</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ยอดเงินรวม</div>
-				<div class="value display-4">12,500 ฿</div>
+				<div class="value display-4"><?php echo number_format($latest_total_value,2); ?> ฿</div>
 			</div>
 		</div>
 	</div>
