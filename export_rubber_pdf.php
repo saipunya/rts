@@ -119,83 +119,126 @@ $html = '
 <head>
   <meta charset="UTF-8">
   <style>
-    @page { margin: 16mm 14mm; }
+    @page { margin: 10mm 8mm; }
     ' . $fontCss . '
-    h1 { font-size: 16px; margin: 0 0 6px; }
-    .meta { font-size: 11px; color: #555; margin-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 6px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+
+    /* Two-column layout for the page body */
+    .columns {
+      -webkit-columns: 2;
+      -moz-columns: 2;
+      columns: 2;
+      column-gap: 12px;
+    }
+
+    /* Prevent important blocks from being split between columns/pages */
+    .col-block {
+      break-inside: avoid-column;
+      -webkit-column-break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 6px;
+      display: inline-block; /* keeps width relative to column */
+      width: 100%;
+    }
+
+    body { font-size: 11px; line-height: 1.12; color: #111; }
+    h1 { font-size: 15px; margin: 0 0 6px; }
+    .meta { font-size: 10px; color: #555; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 0 0 6px; }
+    th, td { padding: 4px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
     .no-border td { border: 0; padding: 2px 0; }
     .text-end { text-align: right; }
     .muted { color: #666; }
-    .box { border: 1px solid #ccc; border-radius: 6px; padding: 8px 10px; margin-top: 8px; }
+    .box { border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; margin-top: 6px; }
     .totals td { font-weight: bold; }
+
+    /* Signature styles */
+    .signature-table td { vertical-align: bottom; padding-top: 8px; }
+    .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
+    .sig-caption { font-size: 10px; color: #666; margin-top: 4px; }
+    .sig-name { font-size: 11px; margin-top: 6px; }
+
+    /* Ensure header area spans both columns by placing it outside the columns container */
+    .full-width { display: block; width: 100%; }
   </style>
 </head>
 <body>
-  <h1>ใบสรุปการรับยาง (รายคน)</h1>
-  <div class="meta">
+  <h1 class="full-width">ใบสรุปการรับยาง (รายคน)</h1>
+  <div class="meta full-width">
     เลขที่รายการ: '.(int)$row['ru_id'].' | พิมพ์เมื่อ: '.e($printedAt).'
   </div>
 
-  <table>
-    <tr>
-      <td>วันที่</td>
-      <td>'.e($row['ru_date']).'</td>
-      <td>ลาน</td>
-      <td>'.e($row['ru_lan']).'</td>
-    </tr>
-    <tr>
-      <td>กลุ่ม</td>
-      <td>'.e($row['ru_group']).'</td>
-      <td>เลขที่</td>
-      <td>'.e($row['ru_number']).'</td>
-    </tr>
-    <tr>
-      <td>ชื่อ-สกุล</td>
-      <td>'.e($row['ru_fullname']).'</td>
-      <td>ชั้น</td>
-      <td>'.e($row['ru_class']).'</td>
-    </tr>
-  </table>
+  <div class="columns">
 
-  <div class="box">
-    <table class="no-border">
-      <tr>
-        <td>ปริมาณ (กก.)</td>
-        <td class="text-end">'.nf($qty).'</td>
-      </tr>
-      <tr>
-        <td>ราคา/กก. (อนุมาน)</td>
-        <td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td>
-      </tr>
-      <tr>
-        <td class="muted">มูลค่า</td>
-        <td class="text-end">'.nf($value).'</td>
-      </tr>
-    </table>
+    <div class="col-block">
+      <table>
+        <tr>
+          <td>วันที่</td>
+          <td>'.e($row['ru_date']).'</td>
+          <td>ลาน</td>
+          <td>'.e($row['ru_lan']).'</td>
+        </tr>
+        <tr>
+          <td>กลุ่ม</td>
+          <td>'.e($row['ru_group']).'</td>
+          <td>เลขที่</td>
+          <td>'.e($row['ru_number']).'</td>
+        </tr>
+        <tr>
+          <td>ชื่อ-สกุล</td>
+          <td>'.e($row['ru_fullname']).'</td>
+          <td>ชั้น</td>
+          <td>'.e($row['ru_class']).'</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="col-block box">
+      <table class="no-border">
+        <tr>
+          <td>ปริมาณ (กก.)</td>
+          <td class="text-end">'.nf($qty).'</td>
+        </tr>
+        <tr>
+          <td>ราคา/กก. (อนุมาน)</td>
+          <td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td>
+        </tr>
+        <tr>
+          <td class="muted">มูลค่า</td>
+          <td class="text-end">'.nf($value).'</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="col-block box">
+      <table>
+        <tr><th colspan="2">รายละเอียดการหัก</th></tr>
+        <tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>
+        <tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>
+        <tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>
+        <tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>
+        <tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>
+        <tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>
+        <tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>
+        <tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>
+      </table>
+    </div>
+
+    <div class="col-block">
+      <table class="no-border signature-table">
+        <tr>
+          <td style="width:60%">
+            <div class="sig-line"></div>
+            <div class="sig-caption">(ลงลายมือชื่อผู้บันทึก)</div>
+            <div class="sig-name">'.e($row['ru_saveby']).'</div>
+          </td>
+          <td class="text-end" style="width:40%">
+            วันที่บันทึก:<br>'.e($row['ru_savedate']).'
+          </td>
+        </tr>
+      </table>
+    </div>
+
   </div>
-
-  <div class="box">
-    <table>
-      <tr><th colspan="2">รายละเอียดการหัก</th></tr>
-      <tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>
-      <tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>
-      <tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>
-      <tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>
-      <tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>
-      <tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>
-      <tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>
-      <tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>
-    </table>
-  </div>
-
-  <table class="no-border" style="margin-top:10px;">
-    <tr>
-      <td>บันทึกโดย: '.e($row['ru_saveby']).'</td>
-      <td class="text-end">วันที่บันทึก: '.e($row['ru_savedate']).'</td>
-    </tr>
-  </table>
 </body>
 </html>
 ';
