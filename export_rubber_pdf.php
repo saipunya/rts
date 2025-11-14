@@ -57,25 +57,26 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
-// new: prepare Thai font embedding (TH Sarabun New)
+// new: prepare Thai font embedding (use Sarabun fonts available in assets/fonts)
 $fontDir     = __DIR__ . '/assets/fonts';
-$mainFontTtf = $fontDir . '/THSarabunNew.ttf';
-$boldFontTtf = $fontDir . '/THSarabunNew-Bold.ttf';
-$hasThaiFont = file_exists($mainFontTtf);
+// prefer Sarabun fonts that exist in the repository
+$mainFontTtf = $fontDir . '/Sarabun-Regular.ttf';
+$boldFontTtf = $fontDir . '/Sarabun-Bold.ttf';
+$hasThaiFont = file_exists($mainFontTtf) && file_exists($boldFontTtf);
 
 $fontCss = $hasThaiFont
   ? "
   @font-face {
-    font-family: 'THSarabunNew';
-    src: url('assets/fonts/THSarabunNew.ttf') format('truetype');
+    font-family: 'Sarabun';
+    src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
     font-weight: normal; font-style: normal;
   }
   @font-face {
-    font-family: 'THSarabunNew';
-    src: url('assets/fonts/THSarabunNew-Bold.ttf') format('truetype');
+    font-family: 'Sarabun';
+    src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
     font-weight: bold; font-style: normal;
   }
-  body { font-family: 'THSarabunNew', DejaVu Sans, sans-serif; font-size: 14px; color: #111; }
+  body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; }
   "
   : "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; }";
 
@@ -172,7 +173,7 @@ $options->set('isRemoteEnabled', true);
 // new: allow loading local assets (fonts) and set default Thai font when available
 $options->setChroot(__DIR__);
 if ($hasThaiFont) {
-  $options->set('defaultFont', 'THSarabunNew');
+  $options->set('defaultFont', 'Sarabun');
 }
 
 $dompdf = new Dompdf($options);
