@@ -69,9 +69,16 @@ foreach ($rows as $r) {
   $sumNet    += (float)($r['ru_netvalue'] ?? 0);
 }
 
+// ensure temp/font dirs exist
+$tmpDir = __DIR__ . '/tmp';
+if (!is_dir($tmpDir)) @mkdir($tmpDir, 0777, true);
+$fontDir = __DIR__ . '/fonts'; // optional custom fonts
+
 // minimal mPDF init (Thai support if fonts copied to /fonts)
 $mpdf = new \Mpdf\Mpdf([
-  'tempDir' => __DIR__ . '/tmp',
+  'tempDir' => $tmpDir,
+  // change default font if you add THSarabunNew to /fonts
+  // 'fontDir' => [$fontDir, \Mpdf\Config\ConfigVariables::getDefaults()['fontDir']],
   'default_font' => 'dejavusans', // switch to 'thsarabun' if you add Thai fonts
 ]);
 
