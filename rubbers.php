@@ -333,6 +333,101 @@ if ($conds) {
 }
 
 // If export requested, fetch all matching rows (no pagination) and output CSV
+if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
+  // prepare overall totals
+  $totSql = "SELECT SUM(ru_quantity) AS total_qty, SUM(ru_value) AS total_value, SUM(ru_netvalue) AS total_net FROM tbl_rubber" . $where;
+  $overall = ['total_qty' => 0, 'total_value' => 0, 'total_net' => 0];
+  if ($conds) {
+    $stt = $db->prepare($totSql);
+    if ($stt) {
+      $stt->bind_param($types, ...$binds);
+      $stt->execute();
+      $rt = $stt->get_result();
+      if ($rtt = $rt->fetch_assoc()) $overall = $rtt;
+      $rt->free();
+      $stt->close();
+    }
+  } else {
+    $rt = $db->query($totSql);
+    if ($rt && ($rtt = $rt->fetch_assoc())) $overall = $rtt;
+  }
+
+  // prepare per-lan breakdown (when viewing all lanes, show all; otherwise show only currentLan)
+  $byLan = [];
+  $bySql = "SELECT ru_lan, SUM(ru_quantity) AS qty, SUM(ru_value) AS value, SUM(ru_netvalue) AS net FROM tbl_rubber" . $where . " GROUP BY ru_lan ORDER BY ru_lan";
+  if ($conds) {
+    $stb = $db->prepare($bySql);
+    if ($stb) {
+      $stb->bind_param($types, ...$binds);
+      $stb->execute();
+      $rb = $stb->get_result();
+      while ($rowb = $rb->fetch_assoc()) $byLan[] = $rowb;
+      $rb->free();
+      $stb->close();
+    }
+  } else {
+    $rb = $db->query($bySql);
+    if ($rb) while ($rowb = $rb->fetch_assoc()) $byLan[] = $rowb;
+  }
+
+  // build HTML for PDF
+  $title = 'สรุปน้ำหนักยางพารา';
+  $generatedAt = date('Y-m-d H:i:s');
+  $filterDesc = ($currentLan === 'all') ? 'ทุกลาน' : 'ลาน '.(int)$currentLan;
+  if ($search) $filterDesc .= ' | ค้นหา: '.e($search);
+  if ($date_from) $filterDesc .= ' | จาก: '.e($date_from);
+  if ($date_to) $filterDesc .= ' | ถึง: '.e($date_to);
+
+  $html = '<!doctype html><html lang="th"><head><meta charset="utf-8"><style>';
+  $html .= 'body{font-family:dejavusans, sans-serif;font-size:12px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:6px;text-align:right}th.left,td.left{text-align:left}h1{font-size:16px}</style></head><body>';
+  $html .= '<h1>'.e($title).'</h1>';
+  $html .= '<div style="margin-bottom:8px;color:#555">'.$filterDesc.'<br>สร้างวันที่: '.e($generatedAt).'</div>';
+
+  $html .= '<h2>สรุปรวม</h2>';
+  $html .= '<table><tr><th class="left">รายการ</th><th>ปริมาณ (กก.)</th><th>มูลค่า (฿)</th><th>สุทธิ (฿)</th></tr>';
+  $html .= '<tr><td class="left">รวม</td><td>'.number_format((float)$overall['total_qty'],2).'</td><td>'.number_format((float)$overall['total_value'],2).'</td><td>'.number_format((float)$overall['total_net'],2).'</td></tr>';
+  $html .= '</table>';
+
+  $html .= '<h2 class="mt-3">แยกตามลาน</h2>';
+  $html .= '<table><tr><th class="left">ลาน</th><th>ปริมาณ (กก.)</th><th>มูลค่า (฿)</th><th>สุทธิ (฿)</th></tr>';
+  if ($byLan) {
+    foreach ($byLan as $b) {
+      $html .= '<tr><td class="left">'.e($b['ru_lan']).'</td><td>'.number_format((float)$b['qty'],2).'</td><td>'.number_format((float)$b['value'],2).'</td><td>'.number_format((float)$b['net'],2).'</td></tr>';
+    }
+  } else {
+    $html .= '<tr><td class="left" colspan="4">ไม่มีข้อมูล</td></tr>';
+  }
+  $html .= '</table>';
+  $html .= '</body></html>';
+
+  // try to use mpdf if available
+  if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+    try {
+      $mpdf = new \Mpdf\Mpdf(['format' => 'A4']);
+      // use a font capable of Thai if available; dejavusans is common
+      $mpdf->WriteHTML($html);
+      $mpdf->Output('rubbers_summary.pdf', 'D');
+      exit;
+    } catch (\Throwable $e) {
+      // fallback to HTML output with message
+      header('Content-Type: text/html; charset=utf-8');
+      echo '<h3>เกิดข้อผิดพลาดในการสร้าง PDF: '.e($e->getMessage()).'</h3>';
+      echo $html;
+      exit;
+    }
+  }
+
+  // fallback: show HTML with instructions to install mpdf
+  header('Content-Type: text/html; charset=utf-8');
+  echo '<h3>ไม่พบไลบรารีสำหรับสร้าง PDF</h3>';
+  echo '<p>ติดตั้งด้วยคำสั่ง Composer ในโฟลเดอร์โปรเจค: <code>composer require mpdf/mpdf</code></p>';
+  echo '<p>หรือบันทึกหน้านี้เป็น PDF ผ่านเบราว์เซอร์</p>';
+  echo $html;
+  exit;
+}
+
+// existing CSV export follows...
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
   $csvSql = "SELECT * FROM tbl_rubber" . $where . " ORDER BY ru_date DESC, ru_id DESC";
   if ($conds) {
@@ -785,6 +880,7 @@ if ($page > $totalPages) $page = $totalPages;
                 <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
               </span>
               <a href="?lan=<?php echo e($currentLan); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>&export=csv" class="btn btn-sm btn-outline-primary ms-2">Export CSV</a>
+              <a href="?lan=<?php echo e($currentLan); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>&export=pdf" class="btn btn-sm btn-outline-primary ms-2">Export PDF</a>
             </caption>
             <thead class="table-light sticky-header">
               <tr>
