@@ -783,44 +783,38 @@ if ($page > $totalPages) $page = $totalPages;
                 <th>กลุ่ม</th>
                 <th>เลขที่</th>
                 <th>ชื่อ-สกุล</th>
-                <th>ชั้น</th>
                 <th class="text-end">ปริมาณ</th>
-                <th class="text-end">หุ้น</th>
-                <th class="text-end">เงินกู้</th>
-                <th class="text-end">หนี้สั้น</th>
-                <th class="text-end">เงินฝาก</th>
-                <th class="text-end">กู้ซื้อขาย</th>
-                <th class="text-end">ประกันภัย</th>
                 <th class="text-end">มูลค่า</th>
-                <th class="text-end">หักรวม</th>
+                <th class="text-end">ยอดสุทธิ</th>
                 <th>จัดการ</th>
               </tr>
             </thead>
             <tbody>
               <?php if (!$rows): ?>
                 <tr>
-                  <td colspan="17" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
+                  <td colspan="10" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
                 </tr>
               <?php else: foreach ($rows as $r): ?>
+                <?php
+                  // prepare a small JSON payload for modal (include Thai-formatted dates)
+                  $payload = $r;
+                  $payload['ru_date_th'] = isset($r['ru_date']) ? thai_date_format($r['ru_date']) : '';
+                  $payload['ru_savedate_th'] = isset($r['ru_savedate']) ? thai_date_format($r['ru_savedate']) : '';
+                  $dataAttr = htmlspecialchars(json_encode($payload, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
+                ?>
                 <tr>
                   <td><?php echo (int)$r['ru_id']; ?></td>
-                  <td><?php echo e($r['ru_date']); ?></td>
+                  <td><?php echo e(thai_date_format($r['ru_date'])); ?></td>
                   <td><?php echo e($r['ru_lan']); ?></td>
                   <td><?php echo e($r['ru_group']); ?></td>
                   <td><?php echo e($r['ru_number']); ?></td>
                   <td><?php echo e($r['ru_fullname']); ?></td>
-                  <td><?php echo e($r['ru_class']); ?></td>
                   <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_shortdebt'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
                   <td class="text-end"><?php echo number_format((float)$r['ru_value'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_expend'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_netvalue'], 2); ?></td>
                   <td>
                     <div class="d-flex gap-1">
+                      <button type="button" class="btn btn-sm btn-info btn-details" data-bs-toggle="modal" data-bs-target="#detailModal" data-item="<?php echo $dataAttr; ?>">รายละเอียด</button>
                       <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a>
                       <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
                         <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
@@ -856,6 +850,63 @@ if ($page > $totalPages) $page = $totalPages;
       <div class="row my-2 text-center">
         <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
       </div>
+
+      <!-- Details modal -->
+      <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">รายละเอียดรายการ</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div id="detailBody">กำลังโหลด...</div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function(){
+          function esc(s){ return String(s===null||s===undefined?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+          document.addEventListener('click', function(e){
+            var btn = e.target.closest('.btn-details');
+            if (!btn) return;
+            var raw = btn.getAttribute('data-item') || '{}';
+            try {
+              var obj = JSON.parse(raw);
+            } catch(err){
+              document.getElementById('detailBody').innerHTML = '<div class="alert alert-danger">ข้อผิดพลาดในการอ่านข้อมูล</div>';
+              return;
+            }
+            var html = '<table class="table table-sm table-bordered">';
+            html += '<tr><th class="w-25">ID</th><td>'+esc(obj.ru_id)+'</td></tr>';
+            html += '<tr><th>วันที่</th><td>'+esc(obj.ru_date_th || obj.ru_date)+'</td></tr>';
+            html += '<tr><th>ลาน</th><td>'+esc(obj.ru_lan)+'</td></tr>';
+            html += '<tr><th>กลุ่ม</th><td>'+esc(obj.ru_group)+'</td></tr>';
+            html += '<tr><th>เลขที่</th><td>'+esc(obj.ru_number)+'</td></tr>';
+            html += '<tr><th>ชื่อ-สกุล</th><td>'+esc(obj.ru_fullname)+'</td></tr>';
+            html += '<tr><th>ชั้น</th><td>'+esc(obj.ru_class)+'</td></tr>';
+            html += '<tr><th>ปริมาณ</th><td class="text-end">'+esc(parseFloat(obj.ru_quantity).toFixed(2))+'</td></tr>';
+            html += '<tr><th>หุ้น</th><td class="text-end">'+esc(parseFloat(obj.ru_hoon).toFixed(2))+'</td></tr>';
+            html += '<tr><th>เงินกู้</th><td class="text-end">'+esc(parseFloat(obj.ru_loan).toFixed(2))+'</td></tr>';
+            html += '<tr><th>หนี้สั้น</th><td class="text-end">'+esc(parseFloat(obj.ru_shortdebt).toFixed(2))+'</td></tr>';
+            html += '<tr><th>เงินฝาก</th><td class="text-end">'+esc(parseFloat(obj.ru_deposit).toFixed(2))+'</td></tr>';
+            html += '<tr><th>กู้ซื้อขาย</th><td class="text-end">'+esc(parseFloat(obj.ru_tradeloan).toFixed(2))+'</td></tr>';
+            html += '<tr><th>ประกันภัย</th><td class="text-end">'+esc(parseFloat(obj.ru_insurance).toFixed(2))+'</td></tr>';
+            html += '<tr><th>มูลค่า</th><td class="text-end">'+esc(parseFloat(obj.ru_value).toFixed(2))+'</td></tr>';
+            html += '<tr><th>หักรวม</th><td class="text-end">'+esc(parseFloat(obj.ru_expend).toFixed(2))+'</td></tr>';
+            html += '<tr><th>สุทธิ</th><td class="text-end">'+esc(parseFloat(obj.ru_netvalue).toFixed(2))+'</td></tr>';
+            html += '<tr><th>บันทึกโดย</th><td>'+esc(obj.ru_saveby || '')+'</td></tr>';
+            html += '<tr><th>วันที่บันทึก</th><td>'+esc(obj.ru_savedate_th || obj.ru_savedate || '')+'</td></tr>';
+            html += '</table>';
+            document.getElementById('detailBody').innerHTML = html;
+          });
+        })();
+      </script>
 
       <?php if ($currentLan !== 'all'): ?>
         <!-- added: inline JS for member search/selection (แสดงเฉพาะโหมดเพิ่ม/แก้ไข) -->
