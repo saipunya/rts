@@ -57,10 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				if (!$active) {
 					$errors[] = 'บัญชีถูกระงับ';
 				} elseif ($hash !== '' && password_verify($password, $hash)) {
+					// set session keys expected by the rest of the app
 					$_SESSION['user_id'] = (int)$uid;
 					$_SESSION['user_username'] = (string)$uname_db;
-					$_SESSION['user_name'] = (string)$fullname;
-					$_SESSION['user_role'] = (string)$level;
+					$_SESSION['user_fullname'] = (string)$fullname;
+					$_SESSION['user_level'] = (string)$level;
+					$_SESSION['user_status'] = (string)$status;
 
 					$redirect = $_GET['redirect'] ?? 'index.php';
 					if (strpos($redirect, '/') === 0) $redirect = ltrim($redirect, '/'); // simple safety

@@ -32,5 +32,23 @@ $cu = current_user();
             </div>
         </div>
     </div>
+
+    <!-- Admin-only users management card -->
+    <?php if (is_admin()): ?>
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card p-3">
+                <h5>Users Management</h5>
+                <p>ส่วนจัดการผู้ใช้ สำหรับผู้ดูแลระบบ</p>
+                <ul>
+                    <li><a href="users.php">รายการผู้ใช้</a></li>
+                    <li><a href="user_form.php">เพิ่มผู้ใช้ใหม่</a></li>
+                    <li><a href="users.php?search=1">ค้นหาผู้ใช้</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
 </div>
 <?php include 'footer.php'; ?>

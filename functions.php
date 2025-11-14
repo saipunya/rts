@@ -17,6 +17,14 @@ function db(): mysqli {
 	return $db;
 }
 
+// Backwards compatibility: expose a global $mysqli variable many files expect
+// and a USER_TABLE constant for the users table name.
+if (!defined('USER_TABLE')) {
+	define('USER_TABLE', 'tbl_user');
+}
+// Provide $mysqli global for older code that uses it
+$GLOBALS['mysqli'] = db();
+
 function e($v): string {
 	return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 }
