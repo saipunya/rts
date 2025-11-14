@@ -5,7 +5,8 @@ $db = db();
 $errors = [];
 $msg = $_GET['msg'] ?? '';
 $csrf = csrf_token();
-$default_saveby = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
+$cu = current_user();
+$default_saveby = $cu['user_fullname'];
 $today = date('Y-m-d');
 
 // new: support lan=all
@@ -195,6 +196,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $data['ru_value']    = number_format((float)$value, 2, '.', '');
       $data['ru_expend']   = number_format((float)$expend, 2, '.', '');
       $data['ru_netvalue'] = number_format((float)$net, 2, '.', '');
+
+      // override saveby to current logged-in user
+      $cu2 = current_user();
+      $data['ru_saveby'] = $cu2['user_fullname'] ?? $cu2['user_username'] ?? 'system';
 
       if (!$errors) {
         $id = isset($_POST['ru_id']) && $_POST['ru_id'] !== '' ? (int)$_POST['ru_id'] : 0;
