@@ -60,6 +60,21 @@ $cu = current_user();
             </div>
         </div>
     </div>
+
+    <!-- Prices management (admin only) -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card p-3 border-warning">
+                <h5>Admin: Prices Management</h5>
+                <p>จัดการราคายาง (เฉพาะผู้ดูแลระบบ)</p>
+                <ul>
+                    <li><a href="prices.php">รายการราคายาง</a></li>
+                    <li><a href="price_form.php?action=create">เพิ่มราคายาง</a></li>
+                    <li><a href="price_form.php?action=edit&id=1">แก้ไขราคายาง (ตัวอย่าง)</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <?php endif; ?>
 </div>
 <?php include 'footer.php'; ?>
