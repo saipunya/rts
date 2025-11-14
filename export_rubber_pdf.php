@@ -76,9 +76,9 @@ $fontCss = $hasThaiFont
     src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
     font-weight: bold; font-style: normal;
   }
-  body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; }
+  body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.2; }
   "
-  : "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; }";
+  : "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.2; }";
 
 // inject CSS with Thai font (replace the old body font rule)
 $html = '
@@ -176,9 +176,17 @@ if ($hasThaiFont) {
   $options->set('defaultFont', 'Sarabun');
 }
 
+// Disable font subsetting which can cause Thai combining characters (สระ/วรรณยุกต์) to render incorrectly
+// Set both the likely option names to cover dompdf versions
+$options->set('isFontSubsettingEnabled', false);
+$options->set('enable_font_subsetting', false);
+// Enable the html5 parser for better layout/typography handling
+$options->set('isHtml5ParserEnabled', true);
+
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
-$dompdf->setPaper('A5', 'portrait'); // compact sheet; change to A4 if preferred
+// Set to A4 landscape (แนวนอน)
+$dompdf->setPaper('A4', 'landscape'); // was A5 portrait
 $dompdf->render();
 
 $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
