@@ -6,6 +6,9 @@ require_once __DIR__ . '/functions.php';
 // optional debug view: use ?debug=1 to print HTML instead of PDF
 $debug = isset($_GET['debug']) && $_GET['debug'] !== '0';
 if ($debug) { ini_set('display_errors', '1'); error_reporting(E_ALL); }
+// add: raise limits to reduce render-time 500 errors
+@ini_set('memory_limit', '256M');
+@set_time_limit(60);
 mb_internal_encoding('UTF-8');
 
 // readable error response
@@ -108,25 +111,25 @@ $condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt))
 // replace previous hard-coded font detection with automatic scan of /fonts
 $fontDir = __DIR__ . '/fonts';
 
-// helper: map common weight tokens to numeric weight
+// helper: map common weight tokens to numeric weight (compatible with PHP 7.x)
 function mapWeight(string $name): int {
   $n = strtolower($name);
-  if (str_contains($n, 'thin')) return 100;
-  if (str_contains($n, 'extralight') || str_contains($n, 'ultralight')) return 200;
-  if (str_contains($n, 'light')) return 300;
-  if (str_contains($n, 'regular') || str_contains($n, 'normal') || str_contains($n, 'book')) return 400;
-  if (str_contains($n, 'medium')) return 500;
-  if (str_contains($n, 'semibold') || str_contains($n, 'demibold')) return 600;
-  if (str_contains($n, 'bold')) return 700;
-  if (str_contains($n, 'extrabold') || str_contains($n, 'ultrabold')) return 800;
-  if (str_contains($n, 'black') || str_contains($n, 'heavy')) return 900;
+  if (strpos($n, 'thin') !== false) return 100;
+  if (strpos($n, 'extralight') !== false || strpos($n, 'ultralight') !== false) return 200;
+  if (strpos($n, 'light') !== false) return 300;
+  if (strpos($n, 'regular') !== false || strpos($n, 'normal') !== false || strpos($n, 'book') !== false) return 400;
+  if (strpos($n, 'medium') !== false) return 500;
+  if (strpos($n, 'semibold') !== false || strpos($n, 'demibold') !== false) return 600;
+  if (strpos($n, 'bold') !== false) return 700;
+  if (strpos($n, 'extrabold') !== false || strpos($n, 'ultrabold') !== false) return 800;
+  if (strpos($n, 'black') !== false || strpos($n, 'heavy') !== false) return 900;
   return 400;
 }
 
-// helper: detect italic
+// helper: detect italic (compatible with PHP 7.x)
 function isItalic(string $name): bool {
   $n = strtolower($name);
-  return (str_contains($n, 'italic') || str_contains($n, 'oblique'));
+  return (strpos($n, 'italic') !== false || strpos($n, 'oblique') !== false);
 }
 
 // helper: derive family name from filename (strip common weight/style tokens)
@@ -138,15 +141,15 @@ function familyFromFilename(string $basename): string {
   return trim($name);
 }
 
-// scan fonts directory
+// scan fonts directory (robust glob handling)
 $fontsByFamily = [];
 $fontCss = '';
 if (is_dir($fontDir)) {
-  $files = array_merge(
-    glob($fontDir.'/*.ttf'),
-    glob($fontDir.'/*.otf'),
-    glob($fontDir.'/*.tff') // common typo extension
-  );
+  $ttf = glob($fontDir.'/*.ttf') ?: [];
+  $otf = glob($fontDir.'/*.otf') ?: [];
+  $tff = glob($fontDir.'/*.tff') ?: []; // common typo extension
+  $files = array_merge($ttf, $otf, $tff);
+
   foreach ($files as $file) {
     $base = basename($file);
     $family = familyFromFilename($base);
@@ -155,7 +158,7 @@ if (is_dir($fontDir)) {
     $style  = isItalic($base) ? 'italic' : 'normal';
     $fontsByFamily[$family][] = ['file' => $base, 'weight' => $weight, 'style' => $style];
   }
-  // build @font-face css
+
   foreach ($fontsByFamily as $family => $items) {
     foreach ($items as $it) {
       $ext = strtolower(pathinfo($it['file'], PATHINFO_EXTENSION));
