@@ -28,11 +28,27 @@ body {
 </style>
 
 <?php
-// Sample data (would be replaced with DB calls in production)
-$listings = [
-	['id'=>1,'seller'=>'Chaichan Farm','type'=>'Natural','quantity'=>2000,'unit'=>'kg','price'=>45,'location'=>'Surin','posted'=>'2025-11-01'],
-	['id'=>2,'seller'=>'Srisuk Co.','type'=>'RSS','quantity'=>1200,'unit'=>'kg','price'=>48,'location'=>'Nakhon Ratchasima','posted'=>'2025-11-03'],
-];
+// Load recent entries from tbl_rubber and map to listing fields used by the table
+$listings = [];
+$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_expend, ru_number, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $listings[] = [
+            'id' => (int)$row['ru_id'],
+            'seller' => $row['ru_fullname'],
+            'member_no' => $row['ru_number'],
+            'type' => $row['ru_class'],
+            'quantity' => (float)$row['ru_quantity'],
+            'unit' => 'kg',
+            'price' => (float)$row['ru_netvalue'],
+            'location' => $row['ru_group'],
+            'deductions' => isset($row['ru_expend']) ? (float)$row['ru_expend'] : 0.0,
+            'posted' => $row['ru_date'],
+        ];
+    }
+    $res->free();
+}
+
 // late price from tbl_price
 $stmt = $db->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
 if ($stmt) {
@@ -64,6 +80,30 @@ if ($stmt) {
 // added: safe display for latest price date
 $latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
 
+// added: compute latest rubber collection date and totals for that date
+$stmt = $db->prepare("SELECT ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 1");
+if ($stmt) {
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    $latest_rubber_date = $row ? $row['ru_date'] : null;
+} else {
+    $latest_rubber_date = null;
+}
+$latest_rubber_date_text = $latest_rubber_date ? thai_date_format($latest_rubber_date) : '-';
+
+// Sum totals for the latest collection round (match by ru_date)
+$latest_total_quantity = 0;
+$latest_total_value = 0;
+if ($latest_rubber_date) {
+    foreach ($listings as $it) {
+        if ($it['posted'] === $latest_rubber_date) {
+            $latest_total_quantity += $it['quantity'];
+            $latest_total_value += $it['price'];
+        }
+    }
+}
+
 // Read filters from GET
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
 $filter_location = isset($_GET['location']) ? trim($_GET['location']) : '';
@@ -88,6 +128,22 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 ?>
 
 <div class="container-xl my-5">
+	<?php
+	if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+	$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
+	$username = $_SESSION['username'] ?? ($_SESSION['user_name'] ?? '');
+	?>
+	<div class="d-flex justify-content-end mb-3">
+		<ul class="nav">
+			<li class="nav-item"><a class="nav-link" href="dashboard.php">หน้าจัดการข้อมูล</a></li>
+			<?php if ($logged_in): ?>
+				<li class="nav-item"><a class="nav-link" href="rubbers.php?lan=all">ข้อมูลยางทั้งหมด</a></li>
+				<li class="nav-item"><a class="nav-link" href="logout.php">ออกจากระบบ<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a></li>
+			<?php else: ?>
+				<li class="nav-item"><a class="nav-link" href="login.php">เข้าสู่ระบบ</a></li> 
+			<?php endif; ?>
+		</ul>
+	</div>
 	<!-- Quick stats -->
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
@@ -101,13 +157,13 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ปริมาณรวม</div>
-				<div class="value display-4"> 1,300 kg</div>
+				<div class="value display-4"> <?php echo number_format($latest_total_quantity,2); ?> kg</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ยอดเงินรวม</div>
-				<div class="value display-4">12,500 ฿</div>
+				<div class="value display-4"><?php echo number_format($latest_total_value,2); ?> ฿</div>
 			</div>
 		</div>
 	</div>
@@ -117,32 +173,32 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row">
 		<div class="col-12">
 				<div class="table-responsive">
-					<table class="table table-striped table-hover">
+					<table class="table table-striped table-hover datatable w-100">
 						<thead>
 							<tr>
-								<th>#</th>
-								<th>ผู้ขาย</th>
-								<th>ประเภท</th>
+									<th>เลขที่สมาชิก</th>
+									<th>ผู้ขาย</th>
+									<th>ประเภท</th>
 								<th>ปริมาณ</th>
                                 <th>จำนวนเงิน</th>
 								<th>รายการหัก</th>
-								<th>ประกาศเมื่อ</th>
+								<th>เมื่อ</th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php foreach ($filtered as $item): ?>
-								<tr>
-									<td><?php echo (int)$item['id']; ?></td>
-									<td><?php echo htmlspecialchars($item['seller']); ?></td>
-									<td>สมาชิก</td>
-									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
-									<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
-									<td><?php echo htmlspecialchars($item['location']); ?></td>
-									<td><?php echo htmlspecialchars($item['posted']); ?></td>
-								</tr>
+									<tr>
+									<td><?php echo htmlspecialchars($item['member_no'] ?? '-'); ?></td>
+									<td class="text-nowrap"><?php echo htmlspecialchars($item['seller']); ?></td>
+									<td><?php echo htmlspecialchars($item['type']); ?></td>
+								<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
+								<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
+								<td><?php echo number_format($item['deductions'],2); ?></td>
+								<td><?php echo htmlspecialchars(thai_date_format($item['posted'])); ?></td>
+							</tr>
 							<?php endforeach; ?>
 						</tbody>
-					</table>
+				</table>
 				</div>
 		</div>
 	</div>

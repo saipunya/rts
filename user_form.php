@@ -18,7 +18,8 @@ if ($action === 'edit') {
         header('Location: users.php?msg=' . urlencode('Invalid user id'));
         exit;
     }
-    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_fullname, user_level, user_status FROM users WHERE user_id = ? LIMIT 1');
+    // use central USER_TABLE constant to avoid mismatched table names
+    $stmt = $mysqli->prepare('SELECT user_id, user_username, user_fullname, user_level, user_status FROM ' . USER_TABLE . ' WHERE user_id = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }

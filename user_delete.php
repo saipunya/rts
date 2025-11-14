@@ -13,9 +13,14 @@ if ($id <= 0) {
     exit;
 }
 
-// Optional: prevent deleting the last admin (not implemented here)
+// Prevent deleting currently logged-in admin
+if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === $id) {
+    header('Location: users.php?msg=' . urlencode('Cannot delete currently logged-in user'));
+    exit;
+}
 
-$stmt = $mysqli->prepare('DELETE FROM users WHERE user_id = ? LIMIT 1');
+// Use central USER_TABLE constant
+$stmt = $mysqli->prepare('DELETE FROM ' . USER_TABLE . ' WHERE user_id = ? LIMIT 1');
 if (!$stmt) {
     die('Prepare failed: ' . $mysqli->error);
 }
