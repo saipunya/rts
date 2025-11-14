@@ -3,20 +3,26 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/functions.php';
 
-// robust autoload discovery
+// optional debug view: use ?debug=1 to print HTML instead of PDF
+$debug = isset($_GET['debug']) && $_GET['debug'] !== '0';
+if ($debug) { ini_set('display_errors', '1'); error_reporting(E_ALL); }
+mb_internal_encoding('UTF-8');
+
+// readable error response
 function fail($msg) {
   http_response_code(500);
   header('Content-Type: text/html; charset=utf-8');
   echo '<!doctype html><meta charset="utf-8"><title>Export PDF Error</title><div style="font-family:Arial,sans-serif;padding:16px">';
   echo '<h3>ไม่สามารถส่งออกเป็น PDF</h3><p style="color:#b00020">'.$msg.'</p>';
   echo '<ol><li>รัน: <code>composer require dompdf/dompdf</code> ในโฟลเดอร์ /C:/xampp/htdocs/rts</li>';
-  echo '<li>ตรวจสอบว่าไฟล์ <code>/C:/xampp/htdocs/rts/vendor/autoload.php</code> มีอยู่</li>';
-  echo '<li>เปิดใช้งาน PHP extensions mbstring และ gd ใน XAMPP</li></ol></div>';
+  echo '<li>ตรวจสอบไฟล์ <code>/C:/xampp/htdocs/rts/vendor/autoload.php</code> มีอยู่</li>';
+  echo '<li>เปิดใช้งาน PHP extensions <code>mbstring</code> และ <code>gd</code> แล้วรีสตาร์ท Apache</li></ol></div>';
   exit;
 }
 
+// find Composer autoload
 $autoload = null;
-foreach ([__DIR__.'/vendor/autoload.php', __DIR__.'/../vendor/autoload.php', dirname(__DIR__).'/vendor/autoload.php'] as $cand) {
+foreach ([__DIR__.'/vendor/autoload.php', dirname(__DIR__).'/vendor/autoload.php'] as $cand) {
   if (is_file($cand)) { $autoload = $cand; break; }
 }
 if (!$autoload) fail('ไม่พบไฟล์ vendor/autoload.php');
@@ -24,148 +30,195 @@ if (!$autoload) fail('ไม่พบไฟล์ vendor/autoload.php');
 require_once $autoload;
 if (!class_exists('Dompdf\\Dompdf')) fail('ไม่พบคลาส Dompdf โปรดติดตั้งแพ็คเกจ dompdf/dompdf');
 
-// read filters
-$lanParam   = $_GET['lan'] ?? 'all';
-$search     = trim((string)($_GET['search'] ?? ''));
-$date_from  = trim((string)($_GET['date_from'] ?? ''));
-$date_to    = trim((string)($_GET['date_to'] ?? ''));
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+$db = db();
+
+// read filters (same as rubbers.php)
+$lanParam  = $_GET['lan'] ?? 'all';
+$search    = trim((string)($_GET['search'] ?? ''));
+$date_from = trim((string)($_GET['date_from'] ?? ''));
+$date_to   = trim((string)($_GET['date_to'] ?? ''));
 
 $currentLan = ($lanParam === 'all') ? 'all' : (int)$lanParam;
 if ($currentLan !== 'all' && !in_array($currentLan, [1,2,3,4], true)) $currentLan = 1;
 
-// build query (reuse logic)
-$rows = [];
-if ($currentLan === 'all') {
-  $conds = [];
-  $binds = [];
-  $types = '';
-  if ($search !== '') {
-    $like = '%' . $search . '%';
-    $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
-    $types .= 'ssss';
-    array_push($binds, $like, $like, $like, $like);
-  }
-  if ($date_from !== '' && DateTime::createFromFormat('Y-m-d', $date_from)) {
-    $conds[] = 'ru_date >= ?';
-    $types .= 's';
-    $binds[] = $date_from;
-  }
-  if ($date_to !== '' && DateTime::createFromFormat('Y-m-d', $date_to)) {
-    $conds[] = 'ru_date <= ?';
-    $types .= 's';
-    $binds[] = $date_to;
-  }
-  $sql = "SELECT * FROM tbl_rubber";
-  if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
-  $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
-  if ($conds) {
-    $st = $db->prepare($sql);
-    $st->bind_param($types, ...$binds);
-    $st->execute();
-    $res = $st->get_result();
-  } else {
-    $res = $db->query($sql);
-  }
-  if ($res) { while ($r = $res->fetch_assoc()) $rows[] = $r; $res->free(); }
-  if (!empty($st)) $st->close();
-} else {
-  $st = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan=? ORDER BY ru_date DESC, ru_id DESC");
-  $lanStr = (string)$currentLan;
-  $st->bind_param('s', $lanStr);
+// build query with optional filters
+$rows  = [];
+$conds = [];
+$binds = [];
+$types = '';
+
+if ($currentLan !== 'all') { $conds[] = 'ru_lan = ?'; $types .= 's'; $binds[] = (string)$currentLan; }
+if ($search !== '') {
+  $like = '%' . $search . '%';
+  $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
+  $types .= 'ssss'; array_push($binds, $like, $like, $like, $like);
+}
+if ($date_from !== '') {
+  $df = DateTime::createFromFormat('Y-m-d', $date_from);
+  if ($df && $df->format('Y-m-d') === $date_from) { $conds[] = 'ru_date >= ?'; $types .= 's'; $binds[] = $date_from; }
+}
+if ($date_to !== '') {
+  $dt = DateTime::createFromFormat('Y-m-d', $date_to);
+  if ($dt && $dt->format('Y-m-d') === $date_to) { $conds[] = 'ru_date <= ?'; $types .= 's'; $binds[] = $date_to; }
+}
+
+$sql = "SELECT * FROM tbl_rubber";
+if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
+$sql .= ' ORDER BY ru_date DESC, ru_id DESC';
+
+$st = null; $res = null;
+if ($conds) {
+  $st = $db->prepare($sql);
+  if (!$st) fail('เตรียมคำสั่ง SQL ล้มเหลว: '.$db->error);
+  $st->bind_param($types, ...$binds);
   $st->execute();
   $res = $st->get_result();
-  if ($res) { while ($r = $res->fetch_assoc()) $rows[] = $r; $res->free(); }
-  $st->close();
+} else {
+  $res = $db->query($sql);
+}
+if (!$res) fail('ดึงข้อมูลล้มเหลว: '.$db->error);
+
+while ($r = $res->fetch_assoc()) $rows[] = $r;
+$res->free();
+if ($st) $st->close();
+
+// aggregate totals
+$sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
+foreach ($rows as $ag) {
+  $sumQty    += (float)$ag['ru_quantity'];
+  $sumValue  += isset($ag['ru_value'])    ? (float)$ag['ru_value']    : 0.0;
+  $sumExpend += isset($ag['ru_expend'])   ? (float)$ag['ru_expend']   : 0.0;
+  $sumNet    += isset($ag['ru_netvalue']) ? (float)$ag['ru_netvalue'] : 0.0;
 }
 
-// summary
-$sumQty=0;$sumValue=0;$sumExpend=0;$sumNet=0;
-foreach ($rows as $r) {
-  $sumQty    += (float)$r['ru_quantity'];
-  $sumValue  += (float)($r['ru_value'] ?? 0);
-  $sumExpend += (float)($r['ru_expend'] ?? 0);
-  $sumNet    += (float)($r['ru_netvalue'] ?? 0);
-}
+function fmt2($n){ return number_format((float)$n, 2); }
+function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
-$html = '<h3 style="text-align:center">รายงานข้อมูลยางพารา '.($currentLan==='all'?'ทุกลาน':'ลาน '.$currentLan).'</h3>';
+$title    = 'รายงานข้อมูลยางพารา';
+$subtitle = ($currentLan === 'all') ? 'ทุกลาน' : ('ลาน ' . $currentLan);
+$condTxt  = [];
+if ($search !== '')    $condTxt[] = 'คำค้น "' . h($search) . '"';
+if ($date_from !== '') $condTxt[] = 'จาก ' . h($date_from);
+if ($date_to   !== '') $condTxt[] = 'ถึง '  . h($date_to);
+$condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt)) : '';
 
-if ($search || $date_from || $date_to) {
-  $html .= '<p style="font-size:10pt;">เงื่อนไข: '
-    . ($search ? 'คำค้น="'.htmlspecialchars($search,ENT_QUOTES).'" ' : '')
-    . ($date_from ? 'จาก '.$date_from.' ' : '')
-    . ($date_to ? 'ถึง '.$date_to.' ' : '')
-    . '</p>';
-}
-
-$html .= '<table width="100%" border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;font-size:10pt;">
-<thead>
-<tr style="background:#f0f0f0;">
-  <th>ID</th>
-  <th>วันที่</th>
-  <th>ลาน</th>
-  <th>กลุ่ม</th>
-  <th>เลขที่</th>
-  <th>ชื่อ-สกุล</th>
-  <th>ชั้น</th>
-  <th>ปริมาณ</th>
-  <th>มูลค่า</th>
-  <th>หักรวม</th>
-  <th>สุทธิ</th>
-</tr>
-</thead><tbody>';
-
+$html = '
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { margin: 20px 24px; }
+  body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .muted { color: #666; font-size: 11px; }
+  .summary { margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 6px 5px; }
+  tbody td { border-bottom: 1px solid #eee; padding: 5px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .footer { margin-top: 8px; font-size: 11px; color:#555; }
+</style>
+</head>
+<body>
+  <h1>'.h($title).'</h1>
+  <div class="muted">'.h($subtitle).'</div>
+  '.($condStr ? '<div class="muted">'.$condStr.'</div>' : '').'
+  <div class="summary">
+    <div class="badge">จำนวนรายการ: '.count($rows).'</div>
+    <div class="badge">ปริมาณรวม: '.fmt2($sumQty).' กก.</div>
+    <div class="badge">มูลค่า: '.fmt2($sumValue).' ฿</div>
+    <div class="badge">หักรวม: '.fmt2($sumExpend).' ฿</div>
+    <div class="badge">สุทธิ: '.fmt2($sumNet).' ฿</div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>วันที่</th>
+        <th>ลาน</th>
+        <th>กลุ่ม</th>
+        <th>เลขที่</th>
+        <th>ชื่อ-สกุล</th>
+        <th>ชั้น</th>
+        <th class="num">ปริมาณ</th>
+        <th class="num">หุ้น</th>
+        <th class="num">เงินกู้</th>
+        <th class="num">หนี้สั้น</th>
+        <th class="num">เงินฝาก</th>
+        <th class="num">กู้ซื้อขาย</th>
+        <th class="num">ประกันภัย</th>
+        <th class="num">มูลค่า</th>
+        <th class="num">หักรวม</th>
+        <th class="num">สุทธิ</th>
+      </tr>
+    </thead>
+    <tbody>';
 if (!$rows) {
-  $html .= '<tr><td colspan="11" style="text-align:center;color:#888;">ไม่มีข้อมูล</td></tr>';
+  $html .= '<tr><td colspan="17" class="muted">ไม่มีข้อมูล</td></tr>';
 } else {
   foreach ($rows as $r) {
-    $html .= '<tr>'
-      . '<td>'.$r['ru_id'].'</td>'
-      . '<td>'.$r['ru_date'].'</td>'
-      . '<td>'.$r['ru_lan'].'</td>'
-      . '<td>'.htmlspecialchars($r['ru_group']).'</td>'
-      . '<td>'.htmlspecialchars($r['ru_number']).'</td>'
-      . '<td>'.htmlspecialchars($r['ru_fullname']).'</td>'
-      . '<td>'.htmlspecialchars($r['ru_class']).'</td>'
-      . '<td style="text-align:right;">'.number_format((float)$r['ru_quantity'],2).'</td>'
-      . '<td style="text-align:right;">'.number_format((float)($r['ru_value'] ?? 0),2).'</td>'
-      . '<td style="text-align:right;">'.number_format((float)($r['ru_expend'] ?? 0),2).'</td>'
-      . '<td style="text-align:right;">'.number_format((float)($r['ru_netvalue'] ?? 0),2).'</td>'
-      . '</tr>';
+    $html .= '
+      <tr>
+        <td>'.(int)$r['ru_id'].'</td>
+        <td>'.h($r['ru_date']).'</td>
+        <td>'.h($r['ru_lan']).'</td>
+        <td>'.h($r['ru_group']).'</td>
+        <td>'.h($r['ru_number']).'</td>
+        <td>'.h($r['ru_fullname']).'</td>
+        <td>'.h($r['ru_class']).'</td>
+        <td class="num">'.fmt2($r['ru_quantity']).'</td>
+        <td class="num">'.fmt2($r['ru_hoon']).'</td>
+        <td class="num">'.fmt2($r['ru_loan']).'</td>
+        <td class="num">'.fmt2($r['ru_shortdebt']).'</td>
+        <td class="num">'.fmt2($r['ru_deposit']).'</td>
+        <td class="num">'.fmt2($r['ru_tradeloan']).'</td>
+        <td class="num">'.fmt2($r['ru_insurance']).'</td>
+        <td class="num">'.fmt2($r['ru_value']    ?? 0).'</td>
+        <td class="num">'.fmt2($r['ru_expend']   ?? 0).'</td>
+        <td class="num">'.fmt2($r['ru_netvalue'] ?? 0).'</td>
+      </tr>';
   }
 }
+$html .= '
+    </tbody>
+  </table>
+  <div class="footer">พิมพ์เมื่อ: '.date('Y-m-d H:i').'</div>
+</body>
+</html>';
 
-$html .= '</tbody>';
-$html .= '<tfoot><tr style="background:#fafafa;font-weight:bold;">'
-  . '<td colspan="7" style="text-align:right;">รวม</td>'
-  . '<td style="text-align:right;">'.number_format($sumQty,2).'</td>'
-  . '<td style="text-align:right;">'.number_format($sumValue,2).'</td>'
-  . '<td style="text-align:right;">'.number_format($sumExpend,2).'</td>'
-  . '<td style="text-align:right;">'.number_format($sumNet,2).'</td>'
-  . '</tr></tfoot>';
-$html .= '</table>';
+// debug: show HTML to verify page renders
+if ($debug) {
+  header('Content-Type: text/html; charset=utf-8');
+  echo $html;
+  exit;
+}
 
-use Dompdf\Dompdf;
-use Dompdf\Options;
-
-// dompdf options
+// dompdf options and render
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', false);
 $options->set('defaultFont', 'DejaVu Sans');
-// optional: restrict file access to project root
 $options->set('chroot', __DIR__);
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
+// pick landscape if many columns
 $dompdf->setPaper('A4', 'landscape');
 
-// render
-$dompdf->render();
+try {
+  $dompdf->render();
+} catch (Throwable $e) {
+  fail('DomPDF render ล้มเหลว: ' . $e->getMessage());
+}
 
-// clean any previous output to avoid header issues
-if (ob_get_length()) { ob_end_clean(); }
+// ensure no prior output before streaming
+if (ob_get_length()) { @ob_end_clean(); }
 
-// stream inline (Attachment=false)
 $filename = 'rubbers_' . ($currentLan === 'all' ? 'all' : 'lan'.$currentLan) . '.pdf';
 $dompdf->stream($filename, ['Attachment' => false]);
 exit;
