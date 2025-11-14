@@ -105,39 +105,79 @@ if ($date_from !== '') $condTxt[] = 'จาก ' . h($date_from);
 if ($date_to   !== '') $condTxt[] = 'ถึง '  . h($date_to);
 $condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt)) : '';
 
-// add: detect available local Thai TTF fonts (prefer THSarabunNew, fallback to NotoSansThai)
+// replace previous hard-coded font detection with automatic scan of /fonts
 $fontDir = __DIR__ . '/fonts';
-$fontCandidates = [
-  ['family' => 'THSarabunNew', 'regular' => $fontDir . '/THSarabunNew.ttf',        'bold' => $fontDir . '/THSarabunNew-Bold.ttf'],
-  ['family' => 'NotoSansThai', 'regular' => $fontDir . '/NotoSansThai-Regular.ttf', 'bold' => $fontDir . '/NotoSansThai-Bold.ttf'],
-];
-$thaiFontFamily = null;
-$thaiRegularFile = null;
-$thaiBoldFile = null;
-foreach ($fontCandidates as $fc) {
-  if (is_file($fc['regular'])) {
-    $thaiFontFamily = $fc['family'];
-    $thaiRegularFile = $fc['regular'];
-    $thaiBoldFile = is_file($fc['bold']) ? $fc['bold'] : null;
-    break;
+
+// helper: map common weight tokens to numeric weight
+function mapWeight(string $name): int {
+  $n = strtolower($name);
+  if (str_contains($n, 'thin')) return 100;
+  if (str_contains($n, 'extralight') || str_contains($n, 'ultralight')) return 200;
+  if (str_contains($n, 'light')) return 300;
+  if (str_contains($n, 'regular') || str_contains($n, 'normal') || str_contains($n, 'book')) return 400;
+  if (str_contains($n, 'medium')) return 500;
+  if (str_contains($n, 'semibold') || str_contains($n, 'demibold')) return 600;
+  if (str_contains($n, 'bold')) return 700;
+  if (str_contains($n, 'extrabold') || str_contains($n, 'ultrabold')) return 800;
+  if (str_contains($n, 'black') || str_contains($n, 'heavy')) return 900;
+  return 400;
+}
+
+// helper: detect italic
+function isItalic(string $name): bool {
+  $n = strtolower($name);
+  return (str_contains($n, 'italic') || str_contains($n, 'oblique'));
+}
+
+// helper: derive family name from filename (strip common weight/style tokens)
+function familyFromFilename(string $basename): string {
+  $name = preg_replace('/\.(ttf|otf)$/i', '', $basename);
+  $tokens = ['-Thin','-ExtraLight','-UltraLight','-Light','-Regular','-Book','-Normal','-Medium','-SemiBold','-DemiBold','-Bold','-ExtraBold','-UltraBold','-Black','-Heavy','-Italic','-Oblique',
+             ' Thin',' ExtraLight',' UltraLight',' Light',' Regular',' Book',' Normal',' Medium',' SemiBold',' DemiBold',' Bold',' ExtraBold',' UltraBold',' Black',' Heavy',' Italic',' Oblique'];
+  $name = str_replace($tokens, '', $name);
+  return trim($name);
+}
+
+// scan fonts directory
+$fontsByFamily = [];
+$fontCss = '';
+if (is_dir($fontDir)) {
+  foreach (glob($fontDir.'/*.{ttf,otf}', GLOB_BRACE) as $file) {
+    $base = basename($file);
+    $family = familyFromFilename($base);
+    if ($family === '') continue;
+    $weight = mapWeight($base);
+    $style  = isItalic($base) ? 'italic' : 'normal';
+    $fontsByFamily[$family][] = ['file' => $base, 'weight' => $weight, 'style' => $style];
+  }
+  // build @font-face css
+  foreach ($fontsByFamily as $family => $items) {
+    foreach ($items as $it) {
+      $fmt = preg_match('/\.otf$/i', $it['file']) ? 'opentype' : 'truetype';
+      $fontCss .= '@font-face{font-family:"'.$family.'";font-style:'.$it['style'].';font-weight:'.$it['weight'].';src:url("fonts/'.$it['file'].'") format("'.$fmt.'");}'."\n";
+    }
   }
 }
-$hasThaiFonts = $thaiFontFamily !== null;
 
-$html = '
-<!doctype html>
-<html lang="th">
-<head>
-<meta charset="utf-8">
-<style>
+// pick default Thai family (prefer THSarabunNew, Sarabun, NotoSansThai)
+$preferredFamilies = ['THSarabunNew','Sarabun','NotoSansThai'];
+$defaultFamily = null;
+foreach ($preferredFamilies as $pf) {
+  if (isset($fontsByFamily[$pf])) { $defaultFamily = $pf; break; }
+}
+if (!$defaultFamily && $fontsByFamily) {
+  $keys = array_keys($fontsByFamily);
+  $defaultFamily = $keys[0];
+}
+$hasThaiFonts = (bool)$defaultFamily;
+
+// build CSS and HTML (inject $fontCss and selected family)
+$style = '
   @page { margin: 20px 24px; }
-  /* Thai font faces from local /fonts (dompdf requires TTF/OTF; Google Fonts woff2 is not supported) */
-  '.($hasThaiFonts ? '
-  @font-face { font-family: "'.$thaiFontFamily.'"; font-style: normal; font-weight: 400; src: url("fonts/'.basename($thaiRegularFile).'") format("truetype"); }
-  '.($thaiBoldFile ? '@font-face { font-family: "'.$thaiFontFamily.'"; font-style: normal; font-weight: 700; src: url("fonts/'.basename($thaiBoldFile).'") format("truetype"); }' : '').'
-  ' : '').'
-  body { font-family: '.($hasThaiFonts ? '"'.$thaiFontFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.35; }
-  h1 { font-size: 18px; margin: 0 0 4px; '.($thaiBoldFile ? 'font-weight:700;' : '').' }
+  '.$fontCss.'
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.45; }
+  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
   .muted { color: #666; font-size: 11px; }
   .summary { margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
   .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; }
@@ -146,10 +186,17 @@ $html = '
   tbody td { border-bottom: 1px solid #eee; padding: 5px; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .footer { margin-top: 8px; font-size: 11px; color:#555; }
-</style>
+';
+
+$html = '
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>'.$style.'</style>
 </head>
 <body>
-  '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: Dompdf ไม่รองรับ Google Fonts (woff2) โปรดวางไฟล์ TTF ไว้ในโฟลเดอร์ /fonts เช่น THSarabunNew หรือ NotoSansThai</div>' : '').'
+  '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: ไม่พบฟอนต์ไทยในโฟลเดอร์ /fonts จะใช้ DejaVu Sans</div>' : '').'
   <h1>'.h($title).'</h1>
   <div class="muted">'.h($subtitle).'</div>
   '.($condStr ? '<div class="muted">'.$condStr.'</div>' : '').'
@@ -223,16 +270,15 @@ if ($debug) {
   exit;
 }
 
-// dompdf options and render
+// dompdf options (ensure fonts load from local chroot)
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
-// keep remote disabled: Google Fonts typically serve woff2 which dompdf can't use
 $options->set('isRemoteEnabled', false);
 $options->set('chroot', __DIR__);
-// changed: prefer Thai font when available
-$options->set('defaultFont', $hasThaiFonts ? $thaiFontFamily : 'DejaVu Sans');
+// set defaultFont to selected Thai family if available
+$options->set('defaultFont', $hasThaiFonts ? $defaultFamily : 'DejaVu Sans');
 
-// add: writable font cache to avoid Windows permission issues
+// keep font cache for Windows
 $fontCacheDir = __DIR__ . '/storage/font_cache';
 if (!is_dir($fontCacheDir)) { @mkdir($fontCacheDir, 0777, true); }
 $options->set('fontCache', $fontCacheDir);
