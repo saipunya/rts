@@ -88,6 +88,22 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 ?>
 
 <div class="container-xl my-5">
+	<?php
+	if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+	$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
+	$username = $_SESSION['username'] ?? ($_SESSION['user_name'] ?? '');
+	?>
+	<div class="d-flex justify-content-end mb-3">
+		<ul class="nav">
+			<li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+			<?php if ($logged_in): ?>
+				<li class="nav-item"><a class="nav-link" href="rubbers.php?lan=all">ข้อมูลยางทั้งหมด</a></li>
+				<li class="nav-item"><a class="nav-link" href="logout.php">Logout<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a></li>
+			<?php else: ?>
+				<li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
+			<?php endif; ?>
+		</ul>
+	</div>
 	<!-- Quick stats -->
 	<div class="row mb-3">
 		<div class="col-sm-4 mb-3">
