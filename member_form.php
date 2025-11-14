@@ -1,6 +1,6 @@
 <?php
 require_once 'functions.php';
-require_admin();
+require_login();
 include 'header.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'create';
