@@ -30,7 +30,7 @@ body {
 <?php
 // Load recent entries from tbl_rubber and map to listing fields used by the table
 $listings = [];
-$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
+$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_expend, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $listings[] = [
@@ -41,6 +41,7 @@ if ($res) {
             'unit' => 'kg',
             'price' => (float)$row['ru_netvalue'],
             'location' => $row['ru_group'],
+            'deductions' => isset($row['ru_expend']) ? (float)$row['ru_expend'] : 0.0,
             'posted' => $row['ru_date'],
         ];
     }
@@ -191,7 +192,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 									<td>สมาชิก</td>
 									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
 									<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
-									<td><?php echo htmlspecialchars($item['location']); ?></td>
+									<td><?php echo number_format($item['deductions'],2); ?></td>
 									<td><?php echo htmlspecialchars(thai_date_format($item['posted'])); ?></td>
 								</tr>
 							<?php endforeach; ?>
