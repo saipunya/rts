@@ -105,6 +105,25 @@ if ($date_from !== '') $condTxt[] = 'จาก ' . h($date_from);
 if ($date_to   !== '') $condTxt[] = 'ถึง '  . h($date_to);
 $condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt)) : '';
 
+// add: detect available local Thai TTF fonts (prefer THSarabunNew, fallback to NotoSansThai)
+$fontDir = __DIR__ . '/fonts';
+$fontCandidates = [
+  ['family' => 'THSarabunNew', 'regular' => $fontDir . '/THSarabunNew.ttf',        'bold' => $fontDir . '/THSarabunNew-Bold.ttf'],
+  ['family' => 'NotoSansThai', 'regular' => $fontDir . '/NotoSansThai-Regular.ttf', 'bold' => $fontDir . '/NotoSansThai-Bold.ttf'],
+];
+$thaiFontFamily = null;
+$thaiRegularFile = null;
+$thaiBoldFile = null;
+foreach ($fontCandidates as $fc) {
+  if (is_file($fc['regular'])) {
+    $thaiFontFamily = $fc['family'];
+    $thaiRegularFile = $fc['regular'];
+    $thaiBoldFile = is_file($fc['bold']) ? $fc['bold'] : null;
+    break;
+  }
+}
+$hasThaiFonts = $thaiFontFamily !== null;
+
 $html = '
 <!doctype html>
 <html lang="th">
@@ -112,8 +131,13 @@ $html = '
 <meta charset="utf-8">
 <style>
   @page { margin: 20px 24px; }
-  body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; }
-  h1 { font-size: 18px; margin: 0 0 4px; }
+  /* Thai font faces from local /fonts (dompdf requires TTF/OTF; Google Fonts woff2 is not supported) */
+  '.($hasThaiFonts ? '
+  @font-face { font-family: "'.$thaiFontFamily.'"; font-style: normal; font-weight: 400; src: url("fonts/'.basename($thaiRegularFile).'") format("truetype"); }
+  '.($thaiBoldFile ? '@font-face { font-family: "'.$thaiFontFamily.'"; font-style: normal; font-weight: 700; src: url("fonts/'.basename($thaiBoldFile).'") format("truetype"); }' : '').'
+  ' : '').'
+  body { font-family: '.($hasThaiFonts ? '"'.$thaiFontFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.35; }
+  h1 { font-size: 18px; margin: 0 0 4px; '.($thaiBoldFile ? 'font-weight:700;' : '').' }
   .muted { color: #666; font-size: 11px; }
   .summary { margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
   .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; }
@@ -125,6 +149,7 @@ $html = '
 </style>
 </head>
 <body>
+  '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: Dompdf ไม่รองรับ Google Fonts (woff2) โปรดวางไฟล์ TTF ไว้ในโฟลเดอร์ /fonts เช่น THSarabunNew หรือ NotoSansThai</div>' : '').'
   <h1>'.h($title).'</h1>
   <div class="muted">'.h($subtitle).'</div>
   '.($condStr ? '<div class="muted">'.$condStr.'</div>' : '').'
@@ -201,9 +226,11 @@ if ($debug) {
 // dompdf options and render
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
+// keep remote disabled: Google Fonts typically serve woff2 which dompdf can't use
 $options->set('isRemoteEnabled', false);
-$options->set('defaultFont', 'DejaVu Sans');
 $options->set('chroot', __DIR__);
+// changed: prefer Thai font when available
+$options->set('defaultFont', $hasThaiFonts ? $thaiFontFamily : 'DejaVu Sans');
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
