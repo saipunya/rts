@@ -34,6 +34,7 @@ $stmt->close();
             <h3>สมาชิกสหกรณ์</h3>
         </div>
         <div class="col-6 text-end">
+            <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
             <a href="member_form.php?action=create" class="btn btn-success">เพิ่มสมาชิก</a>
         </div>
     </div>
@@ -145,4 +146,4 @@ $stmt->close();
 })();
 </script>
 
-<?php include 'footer.php';
+<?php include 'footer.php'; ?>
