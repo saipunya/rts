@@ -175,7 +175,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 					<table class="table table-striped table-hover datatable w-100">
 						<thead>
 							<tr>
-								<th>#</th>
+								<th>เลขที่สมาชิก</th>
 								<th>ผู้ขาย</th>
 								<th>ประเภท</th>
 								<th>ปริมาณ</th>
@@ -187,7 +187,13 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 						<tbody>
 							<?php foreach ($filtered as $item): ?>
 								<tr>
-									<td><?php echo (int)$item['id']; ?></td>
+
+									<td><?php
+										$memberNo = $item['ru_number'] ?? $item['member_id'] ?? $item['member'] ?? $item['seller_id'] ?? $item['id'] ?? null;
+										echo ($memberNo !== null && $memberNo !== '') ? htmlspecialchars((string)$memberNo) : '-';
+									?></td>
+
+
 									<td><?php echo htmlspecialchars($item['seller']); ?></td>
 									<td>สมาชิก</td>
 									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
