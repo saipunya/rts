@@ -734,6 +734,10 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 พิมพ์ PDF
               </button>
             <?php endif; ?>
+            <!-- new: CSV export (per-row) -->
+            <a href="export_rubbers_csv.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success ms-2">
+              ส่งออก CSV
+            </a>
           <?php endif; ?>
         </caption>
         <thead class="table-light sticky-header">
@@ -786,6 +790,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                     <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
                     <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
                   </form>
+                  <?php if ($hasDompdf): ?>
+                    <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">PDF</a>
+                  <?php else: ?>
+                    <button class="btn btn-sm btn-outline-secondary" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">PDF</button>
+                  <?php endif; ?>
                 </div>
               </td>
             </tr>
