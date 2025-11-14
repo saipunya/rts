@@ -232,6 +232,11 @@ $options->set('chroot', __DIR__);
 // changed: prefer Thai font when available
 $options->set('defaultFont', $hasThaiFonts ? $thaiFontFamily : 'DejaVu Sans');
 
+// add: writable font cache to avoid Windows permission issues
+$fontCacheDir = __DIR__ . '/storage/font_cache';
+if (!is_dir($fontCacheDir)) { @mkdir($fontCacheDir, 0777, true); }
+$options->set('fontCache', $fontCacheDir);
+
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
 // pick landscape if many columns
