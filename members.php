@@ -64,6 +64,13 @@ $stmt->close();
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <div class="container">
+            <div class="row my-2">
+                <div class="col-12 text-center">
+                    <a href="dashboard.php" class="btn btn-secondary">กลับไปหน้าหลัก</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <?php include 'footer.php';
