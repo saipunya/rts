@@ -113,99 +113,94 @@ if ($hasKanit) {
   $preferredFontName = 'DejaVu Sans';
 }
 
-// build one receipt card and print it twice (2 แถว)
+// build one receipt card with two side-by-side columns using inline td widths (dompdf-friendly)
 $card = '<div class="card">'
   . '<h1 class="full-width">ใบสรุปการรับยาง (รายคน)</h1>'
   . '<div class="meta full-width">เลขที่รายการ: '.(int)$row['ru_id'].' | พิมพ์เมื่อ: '.e($printedAt).'</div>'
-  . '<div class="columns">'
-
-  // left column
-  . '<div class="left">'
-    . '<div class="col-block">'
-      . '<table>'
-        . '<tr><td>วันที่</td><td>'.e($row['ru_date']).'</td><td>ลาน</td><td>'.e($row['ru_lan']).'</td></tr>'
+  . '<table class="columns" width="100%" cellspacing="0" cellpadding="0">'
+  . '<tr>'
+    // left column: member + totals
+    . '<td style="width:50%; vertical-align:top; padding-right:10px;">'
+      . '<table style="width:100%;">'
+        . '<tr><td style="width:25%">วันที่</td><td style="width:25%">'.e($row['ru_date']).'</td><td style="width:25%">ลาน</td><td style="width:25%">'.e($row['ru_lan']).'</td></tr>'
         . '<tr><td>กลุ่ม</td><td>'.e($row['ru_group']).'</td><td>เลขที่</td><td>'.e($row['ru_number']).'</td></tr>'
         . '<tr><td>ชื่อ-สกุล</td><td>'.e($row['ru_fullname']).'</td><td>ชั้น</td><td>'.e($row['ru_class']).'</td></tr>'
       . '</table>'
-    . '</div>'
 
-    . '<div class="col-block box">'
-      . '<table class="no-border">'
-        . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
-        . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
-        . '<tr><td class="muted">มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
-      . '</table>'
-    . '</div>'
+      . '<div class="col-block box">'
+        . '<table class="no-border" style="width:100%;">'
+          . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
+          . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
+          . '<tr><td class="muted">มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
+          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
+          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
+        . '</table>'
+      . '</div>'
 
-    . '<div class="col-block">'
-      . '<table class="no-border signature-table">'
-        . '<tr>'
-          . '<td style="width:60%">'
-            . '<div class="sig-line"></div>'
-            . '<div class="sig-caption">(ลงลายมือชื่อผู้บันทึก)</div>'
-            . '<div class="sig-name">'.e($row['ru_saveby']).'</div>'
-          . '</td>'
-          . '<td class="text-end" style="width:40%">วันที่บันทึก:<br>'.e($row['ru_savedate']).'</td>'
-        . '</tr>'
-      . '</table>'
-    . '</div>'
-  . '</div>'
+      . '<div class="col-block">'
+        . '<table class="no-border signature-table" style="width:100%;">'
+          . '<tr>'
+            . '<td style="width:60%">'
+              . '<div class="sig-line"></div>'
+              . '<div class="sig-caption">(ลงลายมือชื่อผู้บันทึก)</div>'
+              . '<div class="sig-name">'.e($row['ru_saveby']).'</div>'
+            . '</td>'
+            . '<td class="text-end" style="width:40%">วันที่บันทึก:<br>'.e($row['ru_savedate']).'</td>'
+          . '</tr>'
+        . '</table>'
+      . '</div>'
+    . '</td>'
 
-  // right column (deductions)
-  . '<div class="right">'
-    . '<div class="col-block box">'
-      . '<table>'
-        . '<tr><th colspan="2">รายละเอียดการหัก</th></tr>'
-        . '<tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>'
-        . '<tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>'
-        . '<tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>'
-        . '<tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>'
-        . '<tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>'
-        . '<tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>'
-        . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
-        . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
-      . '</table>'
-    . '</div>'
-  . '</div>'
-
-  . '</div>'
+    // right column: deductions
+    . '<td style="width:50%; vertical-align:top; padding-left:10px;">'
+      . '<div class="col-block box">'
+        . '<table style="width:100%;">'
+          . '<tr><th colspan="2">รายละเอียดการหัก</th></tr>'
+          . '<tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>'
+          . '<tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>'
+          . '<tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>'
+          . '<tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>'
+          . '<tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>'
+          . '<tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>'
+          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
+          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
+        . '</table>'
+      . '</div>'
+    . '</td>'
+  . '</tr>'
+  . '</table>'
 . '</div>';
 
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>
 @page { margin: 8mm 6mm; }
 ' . $fontCss . '
 
-/* two stacked cards */
-.container { display: flex; flex-direction: column; gap: 8px; height: 100%; box-sizing: border-box; }
-.card { box-sizing: border-box; padding: 8px; border: 0; }
+/* single page with two side-by-side columns using table layout */
+.container { display: block; box-sizing: border-box; }
+.card { box-sizing: border-box; padding: 6px; }
+.columns { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.columns td { vertical-align: top; }
+.left { width: 50%; }
+.right { width: 50%; }
 
-/* columns inside each card */
-.columns { display: flex; gap: 12px; }
-.left { flex: 1 1 60%; }
-.right { flex: 0 0 40%; }
-
-body { font-size: 12px; line-height: 1.14; color: #111; }
-h1 { font-size: 16px; margin: 0 0 6px; }
-.meta { font-size: 11px; color: #555; margin-bottom: 6px; }
-.table { width: 100%; border-collapse: collapse; }
+body { font-size: 13px; line-height: 1.14; color: #111; }
+h1 { font-size: 18px; margin: 0 0 6px; }
+.meta { font-size: 12px; color: #555; margin-bottom: 8px; }
 table { width: 100%; border-collapse: collapse; margin: 0 0 6px; }
-th, td { padding: 5px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+th, td { padding: 6px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
 .no-border td { border: 0; padding: 2px 0; }
 .text-end { text-align: right; }
 .muted { color: #666; }
 .box { border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; margin-top: 6px; }
 .totals td { font-weight: bold; }
-
-/* Signature styles */
 .signature-table td { vertical-align: bottom; padding-top: 8px; }
 .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
-.sig-caption { font-size: 10px; color: #666; margin-top: 4px; }
-.sig-name { font-size: 11px; margin-top: 6px; }
-
+.sig-caption { font-size: 11px; color: #666; margin-top: 4px; }
+.sig-name { font-size: 12px; margin-top: 6px; }
 .full-width { display: block; width: 100%; }
 </style></head><body>
   <div class="container">'
-    . $card . $card . '
+    . $card . '
   </div>
 </body></html>';
 
