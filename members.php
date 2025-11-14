@@ -35,6 +35,7 @@ $stmt->close();
         </div>
         <div class="col-6 text-end">
             <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
+            <a href="rubbers.php" class="btn btn-info">หน้ารวบรวมยาง</a>
             <a href="member_form.php?action=create" class="btn btn-success">เพิ่มสมาชิก</a>
         </div>
     </div>
