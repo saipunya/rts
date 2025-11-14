@@ -44,5 +44,22 @@ $cu = current_user();
             </div>
         </div>
     </div>
+
+    <!-- User management (admin only) -->
+    <?php if (function_exists('is_admin') && is_admin()): ?>
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card p-3 border-danger">
+                <h5>Admin: User Management</h5>
+                <p>จัดการบัญชีผู้ใช้งาน (เฉพาะผู้ดูแลระบบ)</p>
+                <ul>
+                    <li><a href="users.php">รายการผู้ใช้งาน</a></li>
+                    <li><a href="user_form.php?action=create">สร้างผู้ใช้ใหม่</a></li>
+                    <li><a href="users_search.php">ค้นหาผู้ใช้งาน</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 <?php include 'footer.php'; ?>
