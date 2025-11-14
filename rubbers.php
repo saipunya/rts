@@ -8,6 +8,9 @@ $csrf = csrf_token();
 $default_saveby = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
 $today = date('Y-m-d');
 
+// add: dompdf availability check
+$hasDompdf = file_exists(__DIR__ . '/vendor/autoload.php');
+
 // new: support lan=all
 $lanParam = $_GET['lan'] ?? ($_POST['lan'] ?? '1');
 if ($lanParam === 'all') {
@@ -721,10 +724,16 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
           </span>
           <?php if (!empty($rows)): ?>
-            <!-- new: PDF export button -->
-            <a href="export_rubbers_pdf.php?<?php echo $exportQuery; ?>" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-              พิมพ์ PDF
-            </a>
+            <!-- pdf export button shown only if dompdf installed -->
+            <?php if ($hasDompdf): ?>
+              <a href="export_rubbers_pdf.php?<?php echo $exportQuery; ?>" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                พิมพ์ PDF
+              </a>
+            <?php else: ?>
+              <button type="button" class="btn btn-sm btn-outline-secondary ms-2" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
+                พิมพ์ PDF
+              </button>
+            <?php endif; ?>
           <?php endif; ?>
         </caption>
         <thead class="table-light sticky-header">

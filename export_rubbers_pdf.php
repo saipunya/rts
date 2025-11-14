@@ -1,10 +1,28 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/functions.php';
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/functions.php';
 
-$db = db();
+// robust autoload discovery
+function fail($msg) {
+  http_response_code(500);
+  header('Content-Type: text/html; charset=utf-8');
+  echo '<!doctype html><meta charset="utf-8"><title>Export PDF Error</title><div style="font-family:Arial,sans-serif;padding:16px">';
+  echo '<h3>ไม่สามารถส่งออกเป็น PDF</h3><p style="color:#b00020">'.$msg.'</p>';
+  echo '<ol><li>รัน: <code>composer require dompdf/dompdf</code> ในโฟลเดอร์ /C:/xampp/htdocs/rts</li>';
+  echo '<li>ตรวจสอบว่าไฟล์ <code>/C:/xampp/htdocs/rts/vendor/autoload.php</code> มีอยู่</li>';
+  echo '<li>เปิดใช้งาน PHP extensions mbstring และ gd ใน XAMPP</li></ol></div>';
+  exit;
+}
+
+$autoload = null;
+foreach ([__DIR__.'/vendor/autoload.php', __DIR__.'/../vendor/autoload.php', dirname(__DIR__).'/vendor/autoload.php'] as $cand) {
+  if (is_file($cand)) { $autoload = $cand; break; }
+}
+if (!$autoload) fail('ไม่พบไฟล์ vendor/autoload.php');
+
+require_once $autoload;
+if (!class_exists('Dompdf\\Dompdf')) fail('ไม่พบคลาส Dompdf โปรดติดตั้งแพ็คเกจ dompdf/dompdf');
 
 // read filters
 $lanParam   = $_GET['lan'] ?? 'all';
@@ -69,19 +87,6 @@ foreach ($rows as $r) {
   $sumNet    += (float)($r['ru_netvalue'] ?? 0);
 }
 
-// ensure temp/font dirs exist
-$tmpDir = __DIR__ . '/tmp';
-if (!is_dir($tmpDir)) @mkdir($tmpDir, 0777, true);
-$fontDir = __DIR__ . '/fonts'; // optional custom fonts
-
-// minimal mPDF init (Thai support if fonts copied to /fonts)
-$mpdf = new \Mpdf\Mpdf([
-  'tempDir' => $tmpDir,
-  // change default font if you add THSarabunNew to /fonts
-  // 'fontDir' => [$fontDir, \Mpdf\Config\ConfigVariables::getDefaults()['fontDir']],
-  'default_font' => 'dejavusans', // switch to 'thsarabun' if you add Thai fonts
-]);
-
 $html = '<h3 style="text-align:center">รายงานข้อมูลยางพารา '.($currentLan==='all'?'ทุกลาน':'ลาน '.$currentLan).'</h3>';
 
 if ($search || $date_from || $date_to) {
@@ -139,6 +144,28 @@ $html .= '<tfoot><tr style="background:#fafafa;font-weight:bold;">'
   . '</tr></tfoot>';
 $html .= '</table>';
 
-$mpdf->SetTitle('รายงานข้อมูลยางพารา');
-$mpdf->WriteHTML($html);
-$mpdf->Output('rubbers_report.pdf', \Mpdf\Output\Destination::INLINE);
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+// dompdf options
+$options = new Options();
+$options->set('isHtml5ParserEnabled', true);
+$options->set('isRemoteEnabled', false);
+$options->set('defaultFont', 'DejaVu Sans');
+// optional: restrict file access to project root
+$options->set('chroot', __DIR__);
+
+$dompdf = new Dompdf($options);
+$dompdf->loadHtml($html, 'UTF-8');
+$dompdf->setPaper('A4', 'landscape');
+
+// render
+$dompdf->render();
+
+// clean any previous output to avoid header issues
+if (ob_get_length()) { ob_end_clean(); }
+
+// stream inline (Attachment=false)
+$filename = 'rubbers_' . ($currentLan === 'all' ? 'all' : 'lan'.$currentLan) . '.pdf';
+$dompdf->stream($filename, ['Attachment' => false]);
+exit;
