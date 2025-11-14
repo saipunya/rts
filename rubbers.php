@@ -268,75 +268,134 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// ดึงข้อมูลรายการ (รองรับ all + filters)
+// ดึงข้อมูลรายการ (รองรับ all + filters) + pagination + export CSV
 $rows = [];
-if ($currentLan === 'all') {
-  $conds = [];
-  $binds = [];
-  $types = '';
+$page = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 25;
+$offset = ($page - 1) * $perPage;
 
-  if ($search !== '') {
-    $like = '%' . $search . '%';
-    $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
-    $types .= 'ssss';
-    array_push($binds, $like, $like, $like, $like);
+// Build common conditions
+$conds = [];
+$binds = [];
+$types = '';
+if ($currentLan !== 'all') {
+  $conds[] = 'ru_lan = ?';
+  $types .= 's';
+  $binds[] = (string)$currentLan;
+}
+if ($search !== '') {
+  $like = '%' . $search . '%';
+  $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
+  $types .= 'ssss';
+  array_push($binds, $like, $like, $like, $like);
+}
+if ($date_from !== '') {
+  $df = DateTime::createFromFormat('Y-m-d', $date_from);
+  if ($df && $df->format('Y-m-d') === $date_from) {
+    $conds[] = 'ru_date >= ?';
+    $types .= 's';
+    $binds[] = $date_from;
   }
-  if ($date_from !== '') {
-    $df = DateTime::createFromFormat('Y-m-d', $date_from);
-    if ($df && $df->format('Y-m-d') === $date_from) {
-      $conds[] = 'ru_date >= ?';
-      $types .= 's';
-      $binds[] = $date_from;
-    }
+}
+if ($date_to !== '') {
+  $dt = DateTime::createFromFormat('Y-m-d', $date_to);
+  if ($dt && $dt->format('Y-m-d') === $date_to) {
+    $conds[] = 'ru_date <= ?';
+    $types .= 's';
+    $binds[] = $date_to;
   }
-  if ($date_to !== '') {
-    $dt = DateTime::createFromFormat('Y-m-d', $date_to);
-    if ($dt && $dt->format('Y-m-d') === $date_to) {
-      $conds[] = 'ru_date <= ?';
-      $types .= 's';
-      $binds[] = $date_to;
-    }
-  }
+}
 
-  $sql = "SELECT * FROM tbl_rubber";
-  if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
-  $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
+$where = $conds ? ' WHERE ' . implode(' AND ', $conds) : '';
 
-  if ($conds) {
-    $st = $db->prepare($sql);
-    $st->bind_param($types, ...$binds);
-    $st->execute();
-    $res = $st->get_result();
-  } else {
-    $res = $db->query($sql);
-  }
-
-  if ($res) {
-    while ($r = $res->fetch_assoc()) $rows[] = $r;
-    $res->free();
-  }
-  if (!empty($st)) $st->close();
-
-  // new: aggregate summary
-  $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
-  foreach ($rows as $ag) {
-    $sumQty    += (float)$ag['ru_quantity'];
-    $sumValue  += (float)$ag['ru_value'];
-    $sumExpend += (float)$ag['ru_expend'];
-    $sumNet    += (float)$ag['ru_netvalue'];
+// Count total for pagination
+$countSql = "SELECT COUNT(*) AS cnt FROM tbl_rubber" . $where;
+$totalRows = 0;
+if ($conds) {
+  $stc = $db->prepare($countSql);
+  if ($stc) {
+    // bind params
+    $stc->bind_param($types, ...$binds);
+    $stc->execute();
+    $rc = $stc->get_result();
+    $totalRows = (int)($rc->fetch_assoc()['cnt'] ?? 0);
+    $rc->free();
+    $stc->close();
   }
 } else {
-  $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
-  $lanStr = (string)$currentLan;
-  $stl->bind_param('s', $lanStr);
-  $stl->execute();
-  $res = $stl->get_result();
-  if ($res) {
-    while ($r = $res->fetch_assoc()) $rows[] = $r;
-    $res->free();
-  }
-  $stl->close();
+  $rc = $db->query($countSql);
+  if ($rc) { $totalRows = (int)($rc->fetch_assoc()['cnt'] ?? 0); }
 }
+
+// If export requested, fetch all matching rows (no pagination) and output CSV
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+  $csvSql = "SELECT * FROM tbl_rubber" . $where . " ORDER BY ru_date DESC, ru_id DESC";
+  if ($conds) {
+    $stx = $db->prepare($csvSql);
+    $stx->bind_param($types, ...$binds);
+    $stx->execute();
+    $resx = $stx->get_result();
+  } else {
+    $resx = $db->query($csvSql);
+  }
+  header('Content-Type: text/csv; charset=utf-8');
+  header('Content-Disposition: attachment; filename="rubbers_export.csv"');
+  $out = fopen('php://output', 'w');
+  // BOM for Excel
+  echo "\xEF\xBB\xBF";
+  fputcsv($out, ['ru_id','ru_date','ru_lan','ru_group','ru_number','ru_fullname','ru_class','ru_quantity','ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance','ru_value','ru_expend','ru_netvalue','ru_saveby','ru_savedate']);
+  if ($resx) {
+    while ($r = $resx->fetch_assoc()) {
+      fputcsv($out, [
+        $r['ru_id'],$r['ru_date'],$r['ru_lan'],$r['ru_group'],$r['ru_number'],$r['ru_fullname'],$r['ru_class'],$r['ru_quantity'],$r['ru_hoon'],$r['ru_loan'],$r['ru_shortdebt'],$r['ru_deposit'],$r['ru_tradeloan'],$r['ru_insurance'],$r['ru_value'],$r['ru_expend'],$r['ru_netvalue'],$r['ru_saveby'],$r['ru_savedate']
+      ]);
+    }
+    $resx->free();
+  }
+  if (!empty($stx)) $stx->close();
+  fclose($out);
+  exit;
+}
+
+// Fetch paginated rows
+$sql = "SELECT * FROM tbl_rubber" . $where . " ORDER BY ru_date DESC, ru_id DESC LIMIT ? OFFSET ?";
+if ($conds) {
+  $st = $db->prepare($sql);
+  if ($st) {
+    // bind dynamic types + two ints
+    $types2 = $types . 'ii';
+    $bindParams = array_merge($binds, [$perPage, $offset]);
+    $st->bind_param($types2, ...$bindParams);
+    $st->execute();
+    $res = $st->get_result();
+  }
+} else {
+  $st = $db->prepare($sql);
+  if ($st) {
+    $st->bind_param('ii', $perPage, $offset);
+    $st->execute();
+    $res = $st->get_result();
+  }
+}
+if (isset($res) && $res) {
+  while ($r = $res->fetch_assoc()) $rows[] = $r;
+  if (isset($res)) $res->free();
+}
+if (!empty($st)) $st->close();
+
+// new: aggregate summary from current (paginated) rows as before
+$sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
+foreach ($rows as $ag) {
+  $sumQty    += (float)$ag['ru_quantity'];
+  $sumValue  += (float)$ag['ru_value'];
+  $sumExpend += (float)$ag['ru_expend'];
+  $sumNet    += (float)$ag['ru_netvalue'];
+}
+
+// pagination helpers
+$totalPages = $perPage > 0 ? (int)ceil($totalRows / $perPage) : 1;
+// ensure current page bounds
+if ($page > $totalPages) $page = $totalPages;
 ?>
 <!doctype html>
 <html lang="th">
@@ -714,6 +773,7 @@ if ($currentLan === 'all') {
               <span class="ms-2 text-muted">
                 <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
               </span>
+              <a href="?lan=<?php echo e($currentLan); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>&export=csv" class="btn btn-sm btn-outline-primary ms-2">Export CSV</a>
             </caption>
             <thead class="table-light sticky-header">
               <tr>
@@ -731,6 +791,8 @@ if ($currentLan === 'all') {
                 <th class="text-end">เงินฝาก</th>
                 <th class="text-end">กู้ซื้อขาย</th>
                 <th class="text-end">ประกันภัย</th>
+                <th class="text-end">มูลค่า</th>
+                <th class="text-end">หักรวม</th>
                 <th>จัดการ</th>
               </tr>
             </thead>
@@ -755,6 +817,8 @@ if ($currentLan === 'all') {
                   <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
                   <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
                   <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_value'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_expend'], 2); ?></td>
                   <td>
                     <div class="d-flex gap-1">
                       <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a>
@@ -773,6 +837,21 @@ if ($currentLan === 'all') {
           </table>
         </div>
       </div>
+
+      <!-- Pagination -->
+      <?php if ($totalPages > 1): ?>
+        <nav class="mt-3">
+          <ul class="pagination justify-content-center">
+            <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+              <li class="page-item <?php echo ($p === $page) ? 'active' : ''; ?>">
+                <a class="page-link" href="?lan=<?php echo e($currentLan); ?>&search=<?php echo urlencode($search); ?>&date_from=<?php echo urlencode($date_from); ?>&date_to=<?php echo urlencode($date_to); ?>&page=<?php echo $p; ?>">
+                  <?php echo $p; ?>
+                </a>
+              </li>
+            <?php endfor; ?>
+          </ul>
+        </nav>
+      <?php endif; ?>
 
       <div class="row my-2 text-center">
         <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>

@@ -56,7 +56,6 @@ $cu = current_user();
                     <div class="row gy-2">
                         <div class="col-auto"><a href="members.php" class="btn btn-success btn-sm">รายการสมาชิก</a></div>
                         <div class="col-auto"><a href="member_form.php?action=create" class="btn btn-outline-success btn-sm">เพิ่มสมาชิก</a></div>
-                        <div class="col-auto"><a href="members_search.php" class="btn btn-outline-secondary btn-sm">ค้นหาสมาชิก</a></div>
                     </div>
                 </div>
             </div>
@@ -71,7 +70,6 @@ $cu = current_user();
                     <div class="d-flex flex-wrap gap-2">
                         <a href="users.php" class="btn btn-danger btn-sm">รายการผู้ใช้งาน</a>
                         <a href="user_form.php?action=create" class="btn btn-outline-danger btn-sm">สร้างผู้ใช้ใหม่</a>
-                        <a href="users_search.php" class="btn btn-outline-secondary btn-sm">ค้นหาผู้ใช้งาน</a>
                     </div>
                 </div>
             </div>
@@ -85,7 +83,6 @@ $cu = current_user();
                     <div class="d-flex flex-wrap gap-2">
                         <a href="prices.php" class="btn btn-warning btn-sm">รายการราคายาง</a>
                         <a href="price_form.php?action=create" class="btn btn-outline-warning btn-sm">เพิ่มราคายาง</a>
-                        <a href="price_form.php" class="btn btn-outline-secondary btn-sm">ฟอร์มราคา</a>
                     </div>
                 </div>
             </div>

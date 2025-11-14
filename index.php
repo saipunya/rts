@@ -28,11 +28,25 @@ body {
 </style>
 
 <?php
-// Sample data (would be replaced with DB calls in production)
-$listings = [
-	['id'=>1,'seller'=>'Chaichan Farm','type'=>'Natural','quantity'=>2000,'unit'=>'kg','price'=>45,'location'=>'Surin','posted'=>'2025-11-01'],
-	['id'=>2,'seller'=>'Srisuk Co.','type'=>'RSS','quantity'=>1200,'unit'=>'kg','price'=>48,'location'=>'Nakhon Ratchasima','posted'=>'2025-11-03'],
-];
+// Load recent entries from tbl_rubber and map to listing fields used by the table
+$listings = [];
+$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $listings[] = [
+            'id' => (int)$row['ru_id'],
+            'seller' => $row['ru_fullname'],
+            'type' => $row['ru_class'],
+            'quantity' => (float)$row['ru_quantity'],
+            'unit' => 'kg',
+            'price' => (float)$row['ru_netvalue'],
+            'location' => $row['ru_group'],
+            'posted' => $row['ru_date'],
+        ];
+    }
+    $res->free();
+}
+
 // late price from tbl_price
 $stmt = $db->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
 if ($stmt) {
@@ -95,12 +109,12 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	?>
 	<div class="d-flex justify-content-end mb-3">
 		<ul class="nav">
-			<li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
+			<li class="nav-item"><a class="nav-link" href="dashboard.php">หน้าจัดการข้อมูล</a></li>
 			<?php if ($logged_in): ?>
 				<li class="nav-item"><a class="nav-link" href="rubbers.php?lan=all">ข้อมูลยางทั้งหมด</a></li>
-				<li class="nav-item"><a class="nav-link" href="logout.php">Logout<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a></li>
+				<li class="nav-item"><a class="nav-link" href="logout.php">ออกจากระบบ<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a></li>
 			<?php else: ?>
-				<li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
+				<li class="nav-item"><a class="nav-link" href="login.php">เข้าสู่ระบบ</a></li> 
 			<?php endif; ?>
 		</ul>
 	</div>
@@ -154,7 +168,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
 									<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
 									<td><?php echo htmlspecialchars($item['location']); ?></td>
-									<td><?php echo htmlspecialchars($item['posted']); ?></td>
+									<td><?php echo htmlspecialchars(thai_date_format($item['posted'])); ?></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>
