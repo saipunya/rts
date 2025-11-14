@@ -555,11 +555,17 @@ if ($page > $totalPages) $page = $totalPages;
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">ชั้น
-                    <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
+                    <select id="ru_class" name="ru_class" required class="form-select" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'disabled'; ?>>
+                      <option value="">++โปรดเลือก++</option>
+                      <option value="member" <?php if (isset($form['ru_class']) && $form['ru_class'] === 'member') echo 'selected'; ?>>สมาชิก</option>
+                      <option value="general" <?php if (isset($form['ru_class']) && $form['ru_class'] === 'general') echo 'selected'; ?>>เกษตรกรทั่วไป</option>
+                    </select>
+                    <?php if (empty($form['ru_id']) && $memberSelectedRow): ?>
+                      <!-- when disabled, include hidden input so value is submitted -->
+                      <input type="hidden" name="ru_class" value="<?php echo e($form['ru_class']); ?>">
+                    <?php endif; ?>
                   </label>
                 </div>
-               
-                
               </div>
               <div class="row my-2">
                 <div class="col-md-9">
