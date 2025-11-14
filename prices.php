@@ -22,6 +22,9 @@ $stmt->close();
             <h3>ราคายาง (Price list)</h3>
         </div>
         <div class="col-6 text-end">
+            <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
+                <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
+            <?php endif; ?>
             <a href="price_form.php?action=create" class="btn btn-success">เพิ่มราคายาง</a>
         </div>
     </div>

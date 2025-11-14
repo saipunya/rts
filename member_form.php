@@ -40,6 +40,9 @@ if ($action === 'edit') {
             <h3><?php echo $action === 'edit' ? 'แก้ไขสมาชิก' : 'เพิ่มสมาชิก'; ?></h3>
         </div>
         <div class="col-6 text-end">
+            <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
+                <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
+            <?php endif; ?>
             <a href="members.php" class="btn btn-secondary">กลับไปหน้ารายการ</a>
         </div>
     </div>

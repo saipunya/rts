@@ -53,6 +53,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="prices.php">ราคายาง</a>
                             </li>
+                            <?php if (function_exists('is_admin') && is_admin()): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="users.php">Users</a>
+                                </li>
+                            <?php endif; ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Features</a>
                             </li>

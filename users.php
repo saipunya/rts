@@ -34,6 +34,9 @@ $stmt->close();
             <h3>Users</h3>
         </div>
         <div class="col-6 text-end">
+            <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
+                <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
+            <?php endif; ?>
             <a href="user_form.php?action=create" class="btn btn-success">Create User</a>
         </div>
     </div>
