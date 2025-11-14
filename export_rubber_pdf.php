@@ -57,15 +57,44 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
-// new: prepare Thai font embedding (use Sarabun fonts available in assets/fonts)
+// new: prepare Thai font embedding (prefer Kanit if present, fallback to Sarabun)
+$assetFontDirs = [__DIR__ . '/assets/fonts', __DIR__ . '/fonts'];
+$kanitRegular = null;
+$kanitBold = null;
+foreach ($assetFontDirs as $d) {
+  if (file_exists($d . '/Kanit-Regular.ttf') && file_exists($d . '/Kanit-Bold.ttf')) {
+    $kanitRegular = $d . '/Kanit-Regular.ttf';
+    $kanitBold = $d . '/Kanit-Bold.ttf';
+    $kanitWebPath = str_replace(__DIR__ . '/', '', $d) . '/';
+    break;
+  }
+}
+
 $fontDir     = __DIR__ . '/assets/fonts';
 // prefer Sarabun fonts that exist in the repository
 $mainFontTtf = $fontDir . '/Sarabun-Regular.ttf';
 $boldFontTtf = $fontDir . '/Sarabun-Bold.ttf';
-$hasThaiFont = file_exists($mainFontTtf) && file_exists($boldFontTtf);
+$hasSarabun = file_exists($mainFontTtf) && file_exists($boldFontTtf);
+$hasKanit = $kanitRegular !== null && $kanitBold !== null;
 
-$fontCss = $hasThaiFont
-  ? "
+if ($hasKanit) {
+  // use Kanit from the detected folder
+  $fontCss = "
+  @font-face {
+    font-family: 'Kanit';
+    src: url('" . $kanitWebPath . "Kanit-Regular.ttf') format('truetype');
+    font-weight: normal; font-style: normal;
+  }
+  @font-face {
+    font-family: 'Kanit';
+    src: url('" . $kanitWebPath . "Kanit-Bold.ttf') format('truetype');
+    font-weight: bold; font-style: normal;
+  }
+  body { font-family: 'Kanit', 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
+  ";
+  $preferredFontName = 'Kanit';
+} elseif ($hasSarabun) {
+  $fontCss = "
   @font-face {
     font-family: 'Sarabun';
     src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
@@ -76,11 +105,14 @@ $fontCss = $hasThaiFont
     src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
     font-weight: bold; font-style: normal;
   }
-  body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.2; }
-  "
-  : "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.2; }";
+  body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
+  ";
+  $preferredFontName = 'Sarabun';
+} else {
+  $fontCss = "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.25; }";
+  $preferredFontName = 'DejaVu Sans';
+}
 
-// inject CSS with Thai font (replace the old body font rule)
 $html = '
 <!doctype html>
 <html lang="th">
@@ -172,12 +204,12 @@ $options = new Options();
 $options->set('isRemoteEnabled', true);
 // new: allow loading local assets (fonts) and set default Thai font when available
 $options->setChroot(__DIR__);
-if ($hasThaiFont) {
-  $options->set('defaultFont', 'Sarabun');
+if (!empty($preferredFontName)) {
+  $options->set('defaultFont', $preferredFontName);
 }
 
 // Disable font subsetting which can cause Thai combining characters (สระ/วรรณยุกต์) to render incorrectly
-// Set both the likely option names to cover dompdf versions
+// Set both common option names to cover dompdf versions
 $options->set('isFontSubsettingEnabled', false);
 $options->set('enable_font_subsetting', false);
 // Enable the html5 parser for better layout/typography handling
