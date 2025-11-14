@@ -189,7 +189,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<tr>
 
 									<td><?php
-										$memberNo = $item['ru_number'];
+										$memberNo = $item['mem_number'];
 										echo ($memberNo !== null && $memberNo !== '') ? htmlspecialchars((string)$memberNo) : '-';
 									?></td>
 
