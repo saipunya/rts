@@ -113,128 +113,101 @@ if ($hasKanit) {
   $preferredFontName = 'DejaVu Sans';
 }
 
-$html = '
-<!doctype html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    @page { margin: 10mm 8mm; }
-    ' . $fontCss . '
+// build one receipt card and print it twice (2 แถว)
+$card = '<div class="card">'
+  . '<h1 class="full-width">ใบสรุปการรับยาง (รายคน)</h1>'
+  . '<div class="meta full-width">เลขที่รายการ: '.(int)$row['ru_id'].' | พิมพ์เมื่อ: '.e($printedAt).'</div>'
+  . '<div class="columns">'
 
-    /* Two-column flex layout: left content + right deductions column */
-    .columns { display: flex; gap: 14px; }
-    .left { flex: 1 1 60%; }
-    .right { flex: 0 0 40%; }
+  // left column
+  . '<div class="left">'
+    . '<div class="col-block">'
+      . '<table>'
+        . '<tr><td>วันที่</td><td>'.e($row['ru_date']).'</td><td>ลาน</td><td>'.e($row['ru_lan']).'</td></tr>'
+        . '<tr><td>กลุ่ม</td><td>'.e($row['ru_group']).'</td><td>เลขที่</td><td>'.e($row['ru_number']).'</td></tr>'
+        . '<tr><td>ชื่อ-สกุล</td><td>'.e($row['ru_fullname']).'</td><td>ชั้น</td><td>'.e($row['ru_class']).'</td></tr>'
+      . '</table>'
+    . '</div>'
 
-    body { font-size: 15px; line-height: 1.18; color: #111; }
-    h1 { font-size: 18px; margin: 0 0 8px; }
-    .meta { font-size: 12px; color: #555; margin-bottom: 8px; }
-    table { width: 100%; border-collapse: collapse; margin: 0 0 8px; }
-    th, td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
-    .no-border td { border: 0; padding: 2px 0; }
-    .text-end { text-align: right; }
-    .muted { color: #666; }
-    .box { border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-top: 6px; }
-    .totals td { font-weight: bold; }
+    . '<div class="col-block box">'
+      . '<table class="no-border">'
+        . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
+        . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
+        . '<tr><td class="muted">มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
+      . '</table>'
+    . '</div>'
 
-    /* Signature styles */
-    .signature-table td { vertical-align: bottom; padding-top: 10px; }
-    .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 22px; display: block; }
-    .sig-caption { font-size: 11px; color: #666; margin-top: 6px; }
-    .sig-name { font-size: 12px; margin-top: 8px; }
+    . '<div class="col-block">'
+      . '<table class="no-border signature-table">'
+        . '<tr>'
+          . '<td style="width:60%">'
+            . '<div class="sig-line"></div>'
+            . '<div class="sig-caption">(ลงลายมือชื่อผู้บันทึก)</div>'
+            . '<div class="sig-name">'.e($row['ru_saveby']).'</div>'
+          . '</td>'
+          . '<td class="text-end" style="width:40%">วันที่บันทึก:<br>'.e($row['ru_savedate']).'</td>'
+        . '</tr>'
+      . '</table>'
+    . '</div>'
+  . '</div>'
 
-    /* Ensure header area spans full width above columns */
-    .full-width { display: block; width: 100%; }
-  </style>
-</head>
-<body>
-  <h1 class="full-width">ใบสรุปการรับยาง (รายคน)</h1>
-  <div class="meta full-width">
-    เลขที่รายการ: '.(int)$row['ru_id'].' | พิมพ์เมื่อ: '.e($printedAt).'
+  // right column (deductions)
+  . '<div class="right">'
+    . '<div class="col-block box">'
+      . '<table>'
+        . '<tr><th colspan="2">รายละเอียดการหัก</th></tr>'
+        . '<tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>'
+        . '<tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>'
+        . '<tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>'
+        . '<tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>'
+        . '<tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>'
+        . '<tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>'
+        . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
+        . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
+      . '</table>'
+    . '</div>'
+  . '</div>'
+
+  . '</div>'
+. '</div>';
+
+$html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>
+@page { margin: 8mm 6mm; }
+' . $fontCss . '
+
+/* two stacked cards */
+.container { display: flex; flex-direction: column; gap: 8px; height: 100%; box-sizing: border-box; }
+.card { box-sizing: border-box; padding: 8px; border: 0; }
+
+/* columns inside each card */
+.columns { display: flex; gap: 12px; }
+.left { flex: 1 1 60%; }
+.right { flex: 0 0 40%; }
+
+body { font-size: 12px; line-height: 1.14; color: #111; }
+h1 { font-size: 16px; margin: 0 0 6px; }
+.meta { font-size: 11px; color: #555; margin-bottom: 6px; }
+.table { width: 100%; border-collapse: collapse; }
+table { width: 100%; border-collapse: collapse; margin: 0 0 6px; }
+th, td { padding: 5px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+.no-border td { border: 0; padding: 2px 0; }
+.text-end { text-align: right; }
+.muted { color: #666; }
+.box { border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; margin-top: 6px; }
+.totals td { font-weight: bold; }
+
+/* Signature styles */
+.signature-table td { vertical-align: bottom; padding-top: 8px; }
+.sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
+.sig-caption { font-size: 10px; color: #666; margin-top: 4px; }
+.sig-name { font-size: 11px; margin-top: 6px; }
+
+.full-width { display: block; width: 100%; }
+</style></head><body>
+  <div class="container">'
+    . $card . $card . '
   </div>
-
-  <div class="columns">
-
-    <div class="left">
-
-      <div class="col-block">
-        <table>
-          <tr>
-            <td>วันที่</td>
-            <td>'.e($row['ru_date']).'</td>
-            <td>ลาน</td>
-            <td>'.e($row['ru_lan']).'</td>
-          </tr>
-          <tr>
-            <td>กลุ่ม</td>
-            <td>'.e($row['ru_group']).'</td>
-            <td>เลขที่</td>
-            <td>'.e($row['ru_number']).'</td>
-          </tr>
-          <tr>
-            <td>ชื่อ-สกุล</td>
-            <td>'.e($row['ru_fullname']).'</td>
-            <td>ชั้น</td>
-            <td>'.e($row['ru_class']).'</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="col-block box">
-        <table class="no-border">
-          <tr>
-            <td>ปริมาณ (กก.)</td>
-            <td class="text-end">'.nf($qty).'</td>
-          </tr>
-          <tr>
-            <td>ราคา/กก. (อนุมาน)</td>
-            <td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td>
-          </tr>
-          <tr>
-            <td class="muted">มูลค่า</td>
-            <td class="text-end">'.nf($value).'</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="col-block">
-        <table class="no-border signature-table">
-          <tr>
-            <td style="width:60%">
-              <div class="sig-line"></div>
-              <div class="sig-caption">(ลงลายมือชื่อผู้บันทึก)</div>
-              <div class="sig-name">'.e($row['ru_saveby']).'</div>
-            </td>
-            <td class="text-end" style="width:40%">
-              วันที่บันทึก:<br>'.e($row['ru_savedate']).'
-            </td>
-          </tr>
-        </table>
-      </div>
-
-    </div>
-
-    <div class="right">
-      <div class="col-block box">
-        <table>
-          <tr><th colspan="2">รายละเอียดการหัก</th></tr>
-          <tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>
-          <tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>
-          <tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>
-          <tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>
-          <tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>
-          <tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>
-          <tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>
-          <tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</body>
-</html>
-';
+</body></html>';
 
 $options = new Options();
 $options->set('isRemoteEnabled', true);
