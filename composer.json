@@ -1,12 +1,5 @@
 {
-  "require": {
-    "mpdf/mpdf": "^7.1"
-  },
-  "config": {
-    "platform": {
-      "php": "7.4.0"
+    "require": {
+        "dompdf/dompdf": "^3.1"
     }
-  },
-  "prefer-stable": true
 }
-
