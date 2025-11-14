@@ -30,12 +30,13 @@ body {
 <?php
 // Load recent entries from tbl_rubber and map to listing fields used by the table
 $listings = [];
-$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_expend, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
+$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_expend, ru_number, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $listings[] = [
             'id' => (int)$row['ru_id'],
             'seller' => $row['ru_fullname'],
+            'member_no' => $row['ru_number'],
             'type' => $row['ru_class'],
             'quantity' => (float)$row['ru_quantity'],
             'unit' => 'kg',
@@ -175,9 +176,10 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 					<table class="table table-striped table-hover datatable w-100">
 						<thead>
 							<tr>
-								<th>เลขที่สมาชิก</th>
-								<th>ผู้ขาย</th>
-								<th>ประเภท</th>
+									<th>#</th>
+									<th>เลขที่สมาชิก</th>
+									<th>ผู้ขาย</th>
+									<th>ประเภท</th>
 								<th>ปริมาณ</th>
                                 <th>จำนวนเงิน</th>
 								<th>รายการหัก</th>
@@ -186,24 +188,19 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 						</thead>
 						<tbody>
 							<?php foreach ($filtered as $item): ?>
-								<tr>
-
-									<td><?php
-										$memberNo = $item['mem_number'];
-										echo ($memberNo !== null && $memberNo !== '') ? htmlspecialchars((string)$memberNo) : '-';
-									?></td>
-
-
+									<tr>
+									<td><?php echo (int)$item['id']; ?></td>
+									<td><?php echo htmlspecialchars($item['member_no'] ?? '-'); ?></td>
 									<td><?php echo htmlspecialchars($item['seller']); ?></td>
 									<td><?php echo htmlspecialchars($item['type']); ?></td>
-									<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
-									<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
-									<td><?php echo number_format($item['deductions'],2); ?></td>
-									<td><?php echo htmlspecialchars(thai_date_format($item['posted'])); ?></td>
-								</tr>
+								<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
+								<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
+								<td><?php echo number_format($item['deductions'],2); ?></td>
+								<td><?php echo htmlspecialchars(thai_date_format($item['posted'])); ?></td>
+							</tr>
 							<?php endforeach; ?>
 						</tbody>
-					</table>
+				</table>
 				</div>
 		</div>
 	</div>
