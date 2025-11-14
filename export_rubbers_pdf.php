@@ -131,7 +131,7 @@ function isItalic(string $name): bool {
 
 // helper: derive family name from filename (strip common weight/style tokens)
 function familyFromFilename(string $basename): string {
-  $name = preg_replace('/\.(ttf|otf)$/i', '', $basename);
+  $name = preg_replace('/\.(ttf|otf|tff)$/i', '', $basename);
   $tokens = ['-Thin','-ExtraLight','-UltraLight','-Light','-Regular','-Book','-Normal','-Medium','-SemiBold','-DemiBold','-Bold','-ExtraBold','-UltraBold','-Black','-Heavy','-Italic','-Oblique',
              ' Thin',' ExtraLight',' UltraLight',' Light',' Regular',' Book',' Normal',' Medium',' SemiBold',' DemiBold',' Bold',' ExtraBold',' UltraBold',' Black',' Heavy',' Italic',' Oblique'];
   $name = str_replace($tokens, '', $name);
@@ -142,7 +142,12 @@ function familyFromFilename(string $basename): string {
 $fontsByFamily = [];
 $fontCss = '';
 if (is_dir($fontDir)) {
-  foreach (glob($fontDir.'/*.{ttf,otf}', GLOB_BRACE) as $file) {
+  $files = array_merge(
+    glob($fontDir.'/*.ttf'),
+    glob($fontDir.'/*.otf'),
+    glob($fontDir.'/*.tff') // common typo extension
+  );
+  foreach ($files as $file) {
     $base = basename($file);
     $family = familyFromFilename($base);
     if ($family === '') continue;
@@ -153,7 +158,8 @@ if (is_dir($fontDir)) {
   // build @font-face css
   foreach ($fontsByFamily as $family => $items) {
     foreach ($items as $it) {
-      $fmt = preg_match('/\.otf$/i', $it['file']) ? 'opentype' : 'truetype';
+      $ext = strtolower(pathinfo($it['file'], PATHINFO_EXTENSION));
+      $fmt = ($ext === 'otf') ? 'opentype' : 'truetype';
       $fontCss .= '@font-face{font-family:"'.$family.'";font-style:'.$it['style'].';font-weight:'.$it['weight'].';src:url("fonts/'.$it['file'].'") format("'.$fmt.'");}'."\n";
     }
   }
