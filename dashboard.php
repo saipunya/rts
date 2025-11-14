@@ -17,6 +17,7 @@ $cu = current_user();
                 <h5>Quick links</h5>
                 <ul>
                     <li><a href="index.php">หน้าแรก</a></li>
+                    <li><a href="members.php">บันทึกรวบรวมยาง</a></li>
                 </ul>
             </div>
         </div>
