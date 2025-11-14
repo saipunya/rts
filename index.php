@@ -117,7 +117,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row">
 		<div class="col-12">
 				<div class="table-responsive">
-					<table class="table table-striped table-hover">
+					<table class="table table-striped table-hover datatable w-100">
 						<thead>
 							<tr>
 								<th>#</th>

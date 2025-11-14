@@ -39,13 +39,11 @@ $cu = current_user();
                     <p class="card-text mb-1"><strong>Fullname:</strong> <?php echo htmlspecialchars($cu['user_fullname']); ?></p>
                     <p class="card-text mb-0"><strong>Level:</strong> <?php echo htmlspecialchars($cu['user_level']); ?></p>
                 </div>
-                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                <div class="card-footer bg-transparent d-flex justify-content-end align-items-center">
                     <div>
                         <a href="user_form.php?action=edit&id=<?php echo (int)($cu['user_id'] ?? 0); ?>" class="btn btn-sm btn-outline-primary">แก้ไขโปรไฟล์</a>
                     </div>
-                    <div>
-                        <a href="logout.php" class="btn btn-sm btn-outline-danger" onclick="return confirm('ยืนยันออกจากระบบ?');">Logout</a>
-                    </div>
+                    
                 </div>
             </div>
         </div>
