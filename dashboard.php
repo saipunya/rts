@@ -50,5 +50,20 @@ $cu = current_user();
     </div>
     <?php endif; ?>
 
+    <!-- Members management (available to any logged-in user) -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card p-3">
+                <h5>Members Management</h5>
+                <p>จัดการสมาชิก (CRUD) สำหรับผู้ใช้งานที่เข้าสู่ระบบ</p>
+                <ul>
+                    <li><a href="members.php">รายการสมาชิก</a></li>
+                    <li><a href="member_form.php">เพิ่ม/แก้ไขสมาชิก</a></li>
+                    <li><a href="members_search.php">ค้นหาสมาชิก</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
 <?php include 'footer.php'; ?>
