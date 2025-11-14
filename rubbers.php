@@ -402,525 +402,530 @@ if ($currentLan === 'all') {
 </head>
 
 <body class="bg-light">
-  <div class="container py-4">
-    <h1 class="h4 mb-3">จัดการข้อมูลยางพารา</h1>
+  <!-- changed: use full width container-fluid for top-level and use container-xl on inner cards/forms for responsive max-width -->
+  <div class="container-fluid py-4">
+    <div class="container-xl">
+      <h1 class="h4 mb-3">จัดการข้อมูลยางพารา</h1>
 
-    <!-- nav: add 'ทั้งหมด' -->
-    <nav class="container-md mb-3 d-flex justify-content-between align-items-center">
-      <ul class="nav nav-pills">
-        <li class="nav-item">
-          <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">ทั้งหมด</a>
-        </li>
-        <?php for ($i = 1; $i <= 4; $i++): ?>
+      <!-- nav: add 'ทั้งหมด' -->
+      <nav class="mb-3 d-flex justify-content-between align-items-center">
+        <ul class="nav nav-pills">
           <li class="nav-item">
-            <a class="nav-link <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
-              (ลานที่ <?php echo $i; ?>)
-            </a>
+            <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">ทั้งหมด</a>
           </li>
-        <?php endfor; ?>
-      </ul>
-    </nav>
+          <?php for ($i = 1; $i <= 4; $i++): ?>
+            <li class="nav-item">
+              <a class="nav-link <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
+                (ลานที่ <?php echo $i; ?>)
+              </a>
+            </li>
+          <?php endfor; ?>
+        </ul>
+      </nav>
 
-    <?php if ($msg): ?>
-      <div class="alert alert-success py-2"><?php echo e($msg); ?></div>
-    <?php endif; ?>
-    <?php if ($errors): ?>
-      <div class="alert alert-danger py-2"><?php echo e(implode(' | ', $errors)); ?></div>
-    <?php endif; ?>
+      <?php if ($msg): ?>
+        <div class="alert alert-success py-2"><?php echo e($msg); ?></div>
+      <?php endif; ?>
+      <?php if ($errors): ?>
+        <div class="alert alert-danger py-2"><?php echo e(implode(' | ', $errors)); ?></div>
+      <?php endif; ?>
 
-    <?php if ($currentLan !== 'all'): ?>
-      <form method="post" autocomplete="off" class="card mb-4 form-wrap" id="rubberForm">
-        <div class="card-header d-flex justify-content-between align-items-center small">
-          <span>ลาน: <?php echo ($currentLan === 'all') ? 'ทั้งหมด (เพิ่มใช้ลาน 1 เริ่มต้น)' : 'ลาน ' . (int)$currentLan; ?></span>
-          <span class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'เพิ่มรายการใหม่'; ?></span>
-        </div>
-        <div class="card-body">
-          <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-          <input type="hidden" name="action" value="save">
-          <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>"> <!-- keep lane/all -->
-          <!-- changed: always include ru_member_id, prefill if selected via GET -->
-          <input type="hidden" id="ru_member_id" name="ru_member_id" value="<?php echo !empty($memberSelectedRow['mem_id']) ? (int)$memberSelectedRow['mem_id'] : ''; ?>">
-          <?php if (!empty($form['ru_id'])): ?>
-            <input type="hidden" name="ru_id" value="<?php echo (int)$form['ru_id']; ?>">
-          <?php endif; ?>
-          <input type="hidden" name="ru_lan" value="<?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>">
+      <?php if ($currentLan !== 'all'): ?>
+        <form method="post" autocomplete="off" class="card mb-4 container-xl form-wrap" id="rubberForm">
+          <div class="card-header d-flex justify-content-between align-items-center small">
+            <span>ลาน: <?php echo ($currentLan === 'all') ? 'ทั้งหมด (เพิ่มใช้ลาน 1 เริ่มต้น)' : 'ลาน ' . (int)$currentLan; ?></span>
+            <span class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'เพิ่มรายการใหม่'; ?></span>
+          </div>
+          <div class="card-body">
+            <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+            <input type="hidden" name="action" value="save">
+            <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>"> <!-- keep lane/all -->
+            <!-- changed: always include ru_member_id, prefill if selected via GET -->
+            <input type="hidden" id="ru_member_id" name="ru_member_id" value="<?php echo !empty($memberSelectedRow['mem_id']) ? (int)$memberSelectedRow['mem_id'] : ''; ?>">
+            <?php if (!empty($form['ru_id'])): ?>
+              <input type="hidden" name="ru_id" value="<?php echo (int)$form['ru_id']; ?>">
+            <?php endif; ?>
+            <input type="hidden" name="ru_lan" value="<?php echo !empty($form['ru_id']) ? (int)$form['ru_lan'] : ($currentLan === 'all' ? 1 : (int)$currentLan); ?>">
 
-          <?php if (empty($form['ru_id'])): ?>
-          <fieldset>
-            <legend>เลือกสมาชิก</legend>
-            <!-- member chooser (unchanged logic, only wrapper) -->
-            <div class="member-chooser">
-              <div class="input-group">
-                <span class="input-group-text">ค้นหา</span>
-                <input id="memberSearch" type="text" class="form-control" placeholder="ชื่อ / เลขที่ / กลุ่ม / ชั้น">
-              </div>
-              <ul id="memberResults" class="list-group mt-1" hidden></ul>
-              <div id="memberSelected" class="form-text mt-2" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
-                <?php if (!empty($memberSelectedRow)): ?>
-                  ใช้สมาชิก: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
-                  <?php echo e($memberSelectedRow['mem_fullname']); ?> |
-                  กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
-                  เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
-                  ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
-                  <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>
-                <?php endif; ?>
-              </div>
-            </div>
-          </fieldset>
-          <?php endif; ?>
-
-          <fieldset>
-            <legend>ข้อมูลพื้นฐาน</legend>
-            <div class="row g-3">
-              <div class="col-md-3">
-                <label class="form-label">วันที่
-                  <input type="date" name="ru_date" required class="form-control" value="<?php echo e($form['ru_date']); ?>">
-                </label>
-              </div>
-              <div class=" col-md-3">
-                <label class="form-label">กลุ่ม
-                  <input id="ru_group" name="ru_group" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
-                </label>
-              </div>
-              <div class=" col-md-3">
-                <label class="form-label">เลขที่
-                  <input id="ru_number" name="ru_number" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
-                </label>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">ชั้น
-                  <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
-                </label>
-              </div>
-             
-              
-            </div>
-            <div class="row my-2">
-              <div class="col-md-9">
-              <div class="input-group">
-              <span class="input-group-text">ชื่อ-สกุล</span>
-                  <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
-                </div>
-              </div>
-              <div class="col-md-3">
+            <?php if (empty($form['ru_id'])): ?>
+            <fieldset>
+              <legend>เลือกสมาชิก</legend>
+              <!-- member chooser (unchanged logic, only wrapper) -->
+              <div class="member-chooser">
                 <div class="input-group">
-                  <span class="input-group-text">ปริมาณ</span>
-                  <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
+                  <span class="input-group-text">ค้นหา</span>
+                  <input id="memberSearch" type="text" class="form-control" placeholder="ชื่อ / เลขที่ / กลุ่ม / ชั้น">
+                </div>
+                <ul id="memberResults" class="list-group mt-1" hidden></ul>
+                <div id="memberSelected" class="form-text mt-2" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
+                  <?php if (!empty($memberSelectedRow)): ?>
+                    ใช้สมาชิก: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
+                    <?php echo e($memberSelectedRow['mem_fullname']); ?> |
+                    กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
+                    เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
+                    ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
+                    <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>
+                  <?php endif; ?>
                 </div>
               </div>
-              </div>
-          </fieldset>
+            </fieldset>
+            <?php endif; ?>
 
-          <fieldset>
-            <legend>การหัก</legend>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 num-group">
-              <div class="col">
+            <fieldset>
+              <legend>ข้อมูลพื้นฐาน</legend>
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">วันที่
+                    <input type="date" name="ru_date" required class="form-control" value="<?php echo e($form['ru_date']); ?>">
+                  </label>
+                </div>
+                <div class=" col-md-3">
+                  <label class="form-label">กลุ่ม
+                    <input id="ru_group" name="ru_group" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
+                  </label>
+                </div>
+                <div class=" col-md-3">
+                  <label class="form-label">เลขที่
+                    <input id="ru_number" name="ru_number" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
+                  </label>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">ชั้น
+                    <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
+                  </label>
+                </div>
+               
+                
+              </div>
+              <div class="row my-2">
+                <div class="col-md-9">
                 <div class="input-group">
-                  <span class="input-group-text">หุ้น</span>
-                  <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
+                <span class="input-group-text">ชื่อ-สกุล</span>
+                    <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="input-group">
+                    <span class="input-group-text">ปริมาณ</span>
+                    <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
+                  </div>
+                </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>การหัก</legend>
+              <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 num-group">
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-text">หุ้น</span>
+                    <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-text">เงินกู้</span>
+                    <input id="ru_loan" name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-text">หนี้สั้น</span>
+                    <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-text">เงินฝาก</span>
+                    <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-text">กู้ซื้อขาย</span>
+                    <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-text">ประกันภัย</span>
+                    <input id="ru_insurance" name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
+                  </div>
                 </div>
               </div>
-              <div class="col">
-                <div class="input-group">
-                  <span class="input-group-text">เงินกู้</span>
-                  <input id="ru_loan" name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
-                </div>
-              </div>
-              <div class="col">
-                <div class="input-group">
-                  <span class="input-group-text">หนี้สั้น</span>
-                  <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
-                </div>
-              </div>
-              <div class="col">
-                <div class="input-group">
-                  <span class="input-group-text">เงินฝาก</span>
-                  <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
-                </div>
-              </div>
-              <div class="col">
-                <div class="input-group">
-                  <span class="input-group-text">กู้ซื้อขาย</span>
-                  <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
-                </div>
-              </div>
-              <div class="col">
-                <div class="input-group">
-                  <span class="input-group-text">ประกันภัย</span>
-                  <input id="ru_insurance" name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
-                </div>
-              </div>
-            </div>
-            <input type="hidden" name="ru_saveby" value="<?php echo e($form['ru_saveby']); ?>">
-            <input type="hidden" name="ru_savedate" value="<?php echo e($form['ru_savedate']); ?>">
-          </fieldset>
-          <fieldset>
-            <legend>ยอดเงินคงเหลือที่ได้รับ</legend>
-            <div class="alert alert-info py-2">
-                <?php
-                // ดึงราคาล่าสุด
-                $latestPrice = 0.00;
-                $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
-                if ($res && ($r = $res->fetch_assoc())) { $latestPrice = (float)$r['pr_price']; }
-                $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
-                $amount = ($qty > 0 && $latestPrice > 0) ? $qty * $latestPrice : 0;
+              <input type="hidden" name="ru_saveby" value="<?php echo e($form['ru_saveby']); ?>">
+              <input type="hidden" name="ru_savedate" value="<?php echo e($form['ru_savedate']); ?>">
+            </fieldset>
+            <fieldset>
+              <legend>ยอดเงินคงเหลือที่ได้รับ</legend>
+              <div class="alert alert-info py-2">
+                  <?php
+                  // ดึงราคาล่าสุด
+                  $latestPrice = 0.00;
+                  $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+                  if ($res && ($r = $res->fetch_assoc())) { $latestPrice = (float)$r['pr_price']; }
+                  $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
+                  $amount = ($qty > 0 && $latestPrice > 0) ? $qty * $latestPrice : 0;
 
-                // รวมยอดหักเริ่มต้น
-                $deductTotal =
-                  (float)$form['ru_hoon'] +
-                  (float)$form['ru_loan'] +
-                  (float)$form['ru_shortdebt'] +
-                  (float)$form['ru_deposit'] +
-                  (float)$form['ru_tradeloan'] +
-                  (float)$form['ru_insurance'];
+                  // รวมยอดหักเริ่มต้น
+                  $deductTotal =
+                    (float)$form['ru_hoon'] +
+                    (float)$form['ru_loan'] +
+                    (float)$form['ru_shortdebt'] +
+                    (float)$form['ru_deposit'] +
+                    (float)$form['ru_tradeloan'] +
+                    (float)$form['ru_insurance'];
 
-                // ค่าเริ่มต้นสำหรับแสดงผล (ถ้ามีค่าจากฐานข้อมูลให้ใช้ค่านั้น)
-                $initialRuValue  = isset($form['ru_value'])    ? (float)$form['ru_value']    : $amount;
-                $initialExpend   = isset($form['ru_expend'])   ? (float)$form['ru_expend']   : $deductTotal;
-                $initialNetValue = isset($form['ru_netvalue']) ? (float)$form['ru_netvalue'] : ($initialRuValue - $initialExpend);
-                ?>
-                <p class="mb-1 small text-muted">
-                  ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
-                </p>
-                <p class="mb-1">
-                  มูลค่ายาง = ราคา x ปริมาณ: <strong id="ruValue"><?php echo number_format($initialRuValue, 2); ?></strong> บาท
-                </p>
-                <p class="mb-1">
-                  ยอดหักรวม: <strong id="ruExpend"><?php echo number_format($initialExpend, 2); ?></strong> บาท
-                </p>
-                <p class="mb-0">
-                  ยอดสุทธิ : <strong id="ruNetValue"><?php echo number_format($initialNetValue, 2); ?></strong> บาท
-                </p>
+                  // ค่าเริ่มต้นสำหรับแสดงผล (ถ้ามีค่าจากฐานข้อมูลให้ใช้ค่านั้น)
+                  $initialRuValue  = isset($form['ru_value'])    ? (float)$form['ru_value']    : $amount;
+                  $initialExpend   = isset($form['ru_expend'])   ? (float)$form['ru_expend']   : $deductTotal;
+                  $initialNetValue = isset($form['ru_netvalue']) ? (float)$form['ru_netvalue'] : ($initialRuValue - $initialExpend);
+                  ?>
+                  <p class="mb-1 small text-muted">
+                    ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
+                  </p>
+                  <p class="mb-1">
+                    มูลค่ายาง = ราคา x ปริมาณ: <strong id="ruValue"><?php echo number_format($initialRuValue, 2); ?></strong> บาท
+                  </p>
+                  <p class="mb-1">
+                    ยอดหักรวม: <strong id="ruExpend"><?php echo number_format($initialExpend, 2); ?></strong> บาท
+                  </p>
+                  <p class="mb-0">
+                    ยอดสุทธิ : <strong id="ruNetValue"><?php echo number_format($initialNetValue, 2); ?></strong> บาท
+                  </p>
 
-                <script>
-                  (function () {
-                    const priceEl = document.getElementById('latestPrice');
-                    const price = parseFloat(priceEl?.dataset.price || '0') || 0;
+                  <script>
+                    (function () {
+                      const priceEl = document.getElementById('latestPrice');
+                      const price = parseFloat(priceEl?.dataset.price || '0') || 0;
 
-                    const qtyInput = document.getElementById('ru_quantity');
-                    const fields = ['ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance'];
+                      const qtyInput = document.getElementById('ru_quantity');
+                      const fields = ['ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance'];
 
-                    const elValue  = document.getElementById('ruValue');
-                    const elExpend = document.getElementById('ruExpend');
-                    const elNet    = document.getElementById('ruNetValue');
+                      const elValue  = document.getElementById('ruValue');
+                      const elExpend = document.getElementById('ruExpend');
+                      const elNet    = document.getElementById('ruNetValue');
 
-                    function num(v){ return parseFloat((v || '0').toString().replace(/,/g,'')) || 0; }
-                    function fmt(n){ return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+                      function num(v){ return parseFloat((v || '0').toString().replace(/,/g,'')) || 0; }
+                      function fmt(n){ return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-                    function calc(){
-                      const q = qtyInput ? num(qtyInput.value) : 0;
-                      const ru_value = q * price;
-                      let ru_expend = 0;
+                      function calc(){
+                        const q = qtyInput ? num(qtyInput.value) : 0;
+                        const ru_value = q * price;
+                        let ru_expend = 0;
+                        fields.forEach(id => {
+                          const el = document.getElementById(id);
+                          if (el) ru_expend += num(el.value);
+                        });
+                        const ru_net = ru_value - ru_expend;
+
+                        if (elValue)  elValue.textContent  = fmt(ru_value);
+                        if (elExpend) elExpend.textContent = fmt(ru_expend);
+                        if (elNet)    elNet.textContent    = fmt(ru_net);
+                      }
+
+                      if (qtyInput) qtyInput.addEventListener('input', calc);
                       fields.forEach(id => {
                         const el = document.getElementById(id);
-                        if (el) ru_expend += num(el.value);
+                        if (el) el.addEventListener('input', calc);
                       });
-                      const ru_net = ru_value - ru_expend;
-
-                      if (elValue)  elValue.textContent  = fmt(ru_value);
-                      if (elExpend) elExpend.textContent = fmt(ru_expend);
-                      if (elNet)    elNet.textContent    = fmt(ru_net);
-                    }
-
-                    if (qtyInput) qtyInput.addEventListener('input', calc);
-                    fields.forEach(id => {
-                      const el = document.getElementById(id);
-                      if (el) el.addEventListener('input', calc);
-                    });
-                    calc();
-                  })();
-                </script>
+                      calc();
+                    })();
+                  </script>
+              </div>
+            </fieldset>
+          </div>
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'สร้างรายการใหม่'; ?></small>
+            <div>
+              <button type="button" id="btnSave" class="btn btn-primary px-4">บันทึก</button>
+              <?php if (!empty($form['ru_id'])): ?>
+                <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิก</a>
+              <?php endif; ?>
             </div>
-          </fieldset>
-        </div>
-        <div class="card-footer d-flex justify-content-between align-items-center">
-          <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'สร้างรายการใหม่'; ?></small>
-          <div>
-            <button type="button" id="btnSave" class="btn btn-primary px-4">บันทึก</button>
-            <?php if (!empty($form['ru_id'])): ?>
-              <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิก</a>
+          </div>
+        </form>
+      <?php else: ?>
+        <!-- improved search layout -->
+        <div class="card mb-4 container-xl form-wrap">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="small fw-semibold">ค้นหาข้อมูลทุกลาน</span>
+            <span class="small text-muted">แสดงผล <?php echo count($rows); ?> รายการ</span>
+          </div>
+          <div class="card-body">
+            <form method="get" class="row gy-3 gx-3">
+              <input type="hidden" name="lan" value="all">
+              <div class="col-md-4">
+                <label class="form-label mb-1">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
+                <div class="input-group">
+                  <span class="input-group-text">ค้นหา</span>
+                  <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
+                  <?php if ($search !== ''): ?>
+                    <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">ล้าง</a>
+                  <?php endif; ?>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label mb-1">ช่วงวันที่ (จาก)</label>
+                <input type="date" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label mb-1">ช่วงวันที่ (ถึง)</label>
+                <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">ตกลง</button>
+              </div>
+            </form>
+
+            <!-- summary badges -->
+            <div class="mt-3 d-flex flex-wrap gap-2">
+              <div class="badge bg-secondary text-wrap p-2">
+                ปริมาณรวม: <?php echo number_format($sumQty,2); ?> กก.
+              </div>
+              <div class="badge bg-info text-dark text-wrap p-2">
+                มูลค่า (ru_value): <?php echo number_format($sumValue,2); ?> ฿
+              </div>
+              <div class="badge bg-warning text-dark text-wrap p-2">
+                หักรวม (ru_expend): <?php echo number_format($sumExpend,2); ?> ฿
+              </div>
+              <div class="badge bg-success text-wrap p-2">
+                สุทธิ (ru_netvalue): <?php echo number_format($sumNet,2); ?> ฿
+              </div>
+            </div>
+            <?php if ($search || $date_from || $date_to): ?>
+              <div class="mt-2 small text-muted">
+                เงื่อนไข: 
+                <?php echo $search ? 'คำค้น="'.e($search).'" ' : ''; ?>
+                <?php echo $date_from ? 'จาก '.e($date_from).' ' : ''; ?>
+                <?php echo $date_to ? 'ถึง '.e($date_to).' ' : ''; ?>
+              </div>
             <?php endif; ?>
           </div>
         </div>
-      </form>
-    <?php else: ?>
-      <!-- improved search layout -->
-      <div class="card mb-4 form-wrap">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span class="small fw-semibold">ค้นหาข้อมูลทุกลาน</span>
-          <span class="small text-muted">แสดงผล <?php echo count($rows); ?> รายการ</span>
-        </div>
-        <div class="card-body">
-          <form method="get" class="row gy-3 gx-3">
-            <input type="hidden" name="lan" value="all">
-            <div class="col-md-4">
-              <label class="form-label mb-1">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
-              <div class="input-group">
-                <span class="input-group-text">ค้นหา</span>
-                <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
-                <?php if ($search !== ''): ?>
-                  <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">ล้าง</a>
-                <?php endif; ?>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label mb-1">ช่วงวันที่ (จาก)</label>
-              <input type="date" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label mb-1">ช่วงวันที่ (ถึง)</label>
-              <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-              <button type="submit" class="btn btn-primary w-100">ตกลง</button>
-            </div>
-          </form>
+      <?php endif; ?>
 
-          <!-- summary badges -->
-          <div class="mt-3 d-flex flex-wrap gap-2">
-            <div class="badge bg-secondary text-wrap p-2">
-              ปริมาณรวม: <?php echo number_format($sumQty,2); ?> กก.
-            </div>
-            <div class="badge bg-info text-dark text-wrap p-2">
-              มูลค่า (ru_value): <?php echo number_format($sumValue,2); ?> ฿
-            </div>
-            <div class="badge bg-warning text-dark text-wrap p-2">
-              หักรวม (ru_expend): <?php echo number_format($sumExpend,2); ?> ฿
-            </div>
-            <div class="badge bg-success text-wrap p-2">
-              สุทธิ (ru_netvalue): <?php echo number_format($sumNet,2); ?> ฿
-            </div>
-          </div>
-          <?php if ($search || $date_from || $date_to): ?>
-            <div class="mt-2 small text-muted">
-              เงื่อนไข: 
-              <?php echo $search ? 'คำค้น="'.e($search).'" ' : ''; ?>
-              <?php echo $date_from ? 'จาก '.e($date_from).' ' : ''; ?>
-              <?php echo $date_to ? 'ถึง '.e($date_to).' ' : ''; ?>
-            </div>
-          <?php endif; ?>
+      <!-- ตาราง -->
+      <div class="container-xl">
+        <div class="table-responsive rounded-3 border shadow-sm">
+          <table class="table table-sm table-hover align-middle caption-top">
+            <caption>
+              ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ
+              <span class="ms-2 text-muted">
+                <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
+              </span>
+            </caption>
+            <thead class="table-light sticky-header">
+              <tr>
+                <th>ID</th>
+                <th>วันที่</th>
+                <th>ลาน</th>
+                <th>กลุ่ม</th>
+                <th>เลขที่</th>
+                <th>ชื่อ-สกุล</th>
+                <th>ชั้น</th>
+                <th class="text-end">ปริมาณ</th>
+                <th class="text-end">หุ้น</th>
+                <th class="text-end">เงินกู้</th>
+                <th class="text-end">หนี้สั้น</th>
+                <th class="text-end">เงินฝาก</th>
+                <th class="text-end">กู้ซื้อขาย</th>
+                <th class="text-end">ประกันภัย</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if (!$rows): ?>
+                <tr>
+                  <td colspan="17" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
+                </tr>
+              <?php else: foreach ($rows as $r): ?>
+                <tr>
+                  <td><?php echo (int)$r['ru_id']; ?></td>
+                  <td><?php echo e($r['ru_date']); ?></td>
+                  <td><?php echo e($r['ru_lan']); ?></td>
+                  <td><?php echo e($r['ru_group']); ?></td>
+                  <td><?php echo e($r['ru_number']); ?></td>
+                  <td><?php echo e($r['ru_fullname']); ?></td>
+                  <td><?php echo e($r['ru_class']); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_shortdebt'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
+                  <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a>
+                      <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
+                        <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
+                        <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; endif; ?>
+            </tbody>
+          </table>
         </div>
       </div>
-    <?php endif; ?>
 
-    <!-- ตาราง -->
-    <div class="table-responsive rounded-3 border shadow-sm">
-      <table class="table table-sm table-hover align-middle caption-top">
-        <caption>
-          ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ
-          <span class="ms-2 text-muted">
-            <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
-          </span>
-        </caption>
-        <thead class="table-light sticky-header">
-          <tr>
-            <th>ID</th>
-            <th>วันที่</th>
-            <th>ลาน</th>
-            <th>กลุ่ม</th>
-            <th>เลขที่</th>
-            <th>ชื่อ-สกุล</th>
-            <th>ชั้น</th>
-            <th class="text-end">ปริมาณ</th>
-            <th class="text-end">หุ้น</th>
-            <th class="text-end">เงินกู้</th>
-            <th class="text-end">หนี้สั้น</th>
-            <th class="text-end">เงินฝาก</th>
-            <th class="text-end">กู้ซื้อขาย</th>
-            <th class="text-end">ประกันภัย</th>
-            <th>จัดการ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (!$rows): ?>
-            <tr>
-              <td colspan="17" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
-            </tr>
-          <?php else: foreach ($rows as $r): ?>
-            <tr>
-              <td><?php echo (int)$r['ru_id']; ?></td>
-              <td><?php echo e($r['ru_date']); ?></td>
-              <td><?php echo e($r['ru_lan']); ?></td>
-              <td><?php echo e($r['ru_group']); ?></td>
-              <td><?php echo e($r['ru_number']); ?></td>
-              <td><?php echo e($r['ru_fullname']); ?></td>
-              <td><?php echo e($r['ru_class']); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_shortdebt'], 2); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
-              <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
-              <td>
-                <div class="d-flex gap-1">
-                  <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a>
-                  <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
-                    <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
-                    <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
-                    <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          <?php endforeach; endif; ?>
-        </tbody>
-      </table>
-    </div>
+      <div class="row my-2 text-center">
+        <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
+      </div>
 
-    <div class="row my-2 text-center">
-      <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
-    </div>
+      <?php if ($currentLan !== 'all'): ?>
+        <!-- added: inline JS for member search/selection (แสดงเฉพาะโหมดเพิ่ม/แก้ไข) -->
+        <script>
+          (function() {
+            const inCreateMode = <?php echo json_encode(empty($form['ru_id'])); ?>;
+            if (!inCreateMode) return;
 
-    <?php if ($currentLan !== 'all'): ?>
-      <!-- added: inline JS for member search/selection (แสดงเฉพาะโหมดเพิ่ม/แก้ไข) -->
+            const q = document.getElementById('memberSearch');
+            const list = document.getElementById('memberResults');
+            const selectedBox = document.getElementById('memberSelected');
+            const clearBtn = document.getElementById('clearMember');
+            const hid = document.getElementById('ru_member_id');
+
+            const fGroup = document.getElementById('ru_group');
+            const fNumber = document.getElementById('ru_number');
+            const fName = document.getElementById('ru_fullname');
+            const fClass = document.getElementById('ru_class');
+            // new: reference quantity field for focusing
+            const fQty = document.getElementById('ru_quantity');
+
+            let t = null;
+
+            function hideList() {
+              list.hidden = true;
+              list.innerHTML = '';
+            }
+
+            function lockFields(lock) {
+              [fGroup, fNumber, fName, fClass].forEach(el => {
+                if (lock) el.setAttribute('readonly', '');
+                else el.removeAttribute('readonly');
+              });
+            }
+
+            function renderSelected(m) {
+              selectedBox.hidden = false;
+              selectedBox.innerHTML = `ใช้สมาชิก: <span class="tag">#${m.mem_id}</span> ${m.mem_fullname} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class} <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>`;
+              // re-bind clear after replacing innerHTML
+              selectedBox.querySelector('#clearMember').addEventListener('click', () => {
+                hid.value = '';
+                lockFields(false);
+                selectedBox.hidden = true;
+              });
+            }
+
+            function pick(m) {
+              hid.value = m.mem_id;
+              fGroup.value = m.mem_group;
+              fNumber.value = m.mem_number;
+              fName.value = m.mem_fullname;
+              fClass.value = m.mem_class;
+              lockFields(true);
+              renderSelected(m);
+              q.value = '';
+              hideList();
+              // new: focus quantity after member selection
+              if (fQty) { fQty.focus(); fQty.select(); }
+            }
+
+            function search(term) {
+              if (!term || term.length < 2) {
+                hideList();
+                return;
+              }
+              fetch('members_search.php?q=' + encodeURIComponent(term))
+                .then(r => r.ok ? r.json() : [])
+                .then(rows => {
+                  if (!Array.isArray(rows) || rows.length === 0) {
+                    hideList();
+                    return;
+                  }
+                  list.innerHTML = rows.map(m => `
+              <li data-item='${JSON.stringify(m).replace(/'/g, "&apos;")}' class="list-group-item list-group-item-action">
+                <strong>${m.mem_fullname}</strong>
+                <div class="small">#${m.mem_id} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class}</div>
+              </li>`).join('');
+                  list.hidden = false;
+                })
+                .catch(() => hideList());
+            }
+
+            q && q.addEventListener('input', (e) => {
+              clearTimeout(t);
+              t = setTimeout(() => search(e.target.value.trim()), 250);
+            });
+
+            list.addEventListener('click', (e) => {
+              const li = e.target.closest('li');
+              if (!li) return;
+              try {
+                const m = JSON.parse(li.getAttribute('data-item').replace(/&apos;/g, "'"));
+                pick(m);
+              } catch (_) {}
+            });
+
+            document.addEventListener('click', (e) => {
+              if (!list.contains(e.target) && e.target !== q) hideList();
+            });
+
+            if (clearBtn) {
+              clearBtn.addEventListener('click', () => {
+                hid.value = '';
+                lockFields(false);
+                selectedBox.hidden = true;
+              });
+            }
+
+            // new: if member already preselected from server, focus quantity
+            if (hid.value && fQty) {
+              setTimeout(() => { fQty.focus(); fQty.select(); }, 50);
+            }
+          })();
+        </script>
+      <?php endif; ?>
+
+      <!-- new: prevent Enter submit; only save button triggers submit -->
       <script>
         (function() {
-          const inCreateMode = <?php echo json_encode(empty($form['ru_id'])); ?>;
-          if (!inCreateMode) return;
+          const form = document.getElementById('rubberForm');
+          const saveBtn = document.getElementById('btnSave');
+          if (!form || !saveBtn) return;
 
-          const q = document.getElementById('memberSearch');
-          const list = document.getElementById('memberResults');
-          const selectedBox = document.getElementById('memberSelected');
-          const clearBtn = document.getElementById('clearMember');
-          const hid = document.getElementById('ru_member_id');
-
-          const fGroup = document.getElementById('ru_group');
-          const fNumber = document.getElementById('ru_number');
-          const fName = document.getElementById('ru_fullname');
-          const fClass = document.getElementById('ru_class');
-          // new: reference quantity field for focusing
-          const fQty = document.getElementById('ru_quantity');
-
-          let t = null;
-
-          function hideList() {
-            list.hidden = true;
-            list.innerHTML = '';
-          }
-
-          function lockFields(lock) {
-            [fGroup, fNumber, fName, fClass].forEach(el => {
-              if (lock) el.setAttribute('readonly', '');
-              else el.removeAttribute('readonly');
-            });
-          }
-
-          function renderSelected(m) {
-            selectedBox.hidden = false;
-            selectedBox.innerHTML = `ใช้สมาชิก: <span class="tag">#${m.mem_id}</span> ${m.mem_fullname} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class} <button type="button" id="clearMember" class="link-btn">เปลี่ยน</button>`;
-            // re-bind clear after replacing innerHTML
-            selectedBox.querySelector('#clearMember').addEventListener('click', () => {
-              hid.value = '';
-              lockFields(false);
-              selectedBox.hidden = true;
-            });
-          }
-
-          function pick(m) {
-            hid.value = m.mem_id;
-            fGroup.value = m.mem_group;
-            fNumber.value = m.mem_number;
-            fName.value = m.mem_fullname;
-            fClass.value = m.mem_class;
-            lockFields(true);
-            renderSelected(m);
-            q.value = '';
-            hideList();
-            // new: focus quantity after member selection
-            if (fQty) { fQty.focus(); fQty.select(); }
-          }
-
-          function search(term) {
-            if (!term || term.length < 2) {
-              hideList();
-              return;
+          // block Enter key from submitting form
+          form.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target && e.target.tagName !== 'TEXTAREA') {
+              e.preventDefault();
             }
-            fetch('members_search.php?q=' + encodeURIComponent(term))
-              .then(r => r.ok ? r.json() : [])
-              .then(rows => {
-                if (!Array.isArray(rows) || rows.length === 0) {
-                  hideList();
-                  return;
-                }
-                list.innerHTML = rows.map(m => `
-            <li data-item='${JSON.stringify(m).replace(/'/g, "&apos;")}' class="list-group-item list-group-item-action">
-              <strong>${m.mem_fullname}</strong>
-              <div class="small">#${m.mem_id} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class}</div>
-            </li>`).join('');
-                list.hidden = false;
-              })
-              .catch(() => hideList());
-          }
-
-          q && q.addEventListener('input', (e) => {
-            clearTimeout(t);
-            t = setTimeout(() => search(e.target.value.trim()), 250);
           });
 
-          list.addEventListener('click', (e) => {
-            const li = e.target.closest('li');
-            if (!li) return;
-            try {
-              const m = JSON.parse(li.getAttribute('data-item').replace(/&apos;/g, "'"));
-              pick(m);
-            } catch (_) {}
+          // only allow submit via Save button (with HTML5 validation)
+          saveBtn.addEventListener('click', function() {
+            if (form.reportValidity && !form.reportValidity()) return;
+            if (form.requestSubmit) form.requestSubmit();
+            else form.submit();
           });
 
-          document.addEventListener('click', (e) => {
-            if (!list.contains(e.target) && e.target !== q) hideList();
+          // extra guard: prevent submits not coming from the Save button
+          form.addEventListener('submit', function(e) {
+            // when requestSubmit is used, submitter อาจไม่มี ให้ปล่อยผ่าน
+            if (e.submitter && e.submitter.id !== 'btnSave') {
+              e.preventDefault();
+            }
           });
-
-          if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-              hid.value = '';
-              lockFields(false);
-              selectedBox.hidden = true;
-            });
-          }
-
-          // new: if member already preselected from server, focus quantity
-          if (hid.value && fQty) {
-            setTimeout(() => { fQty.focus(); fQty.select(); }, 50);
-          }
         })();
       </script>
-    <?php endif; ?>
 
-    <!-- new: prevent Enter submit; only save button triggers submit -->
-    <script>
-      (function() {
-        const form = document.getElementById('rubberForm');
-        const saveBtn = document.getElementById('btnSave');
-        if (!form || !saveBtn) return;
-
-        // block Enter key from submitting form
-        form.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' && e.target && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-          }
-        });
-
-        // only allow submit via Save button (with HTML5 validation)
-        saveBtn.addEventListener('click', function() {
-          if (form.reportValidity && !form.reportValidity()) return;
-          if (form.requestSubmit) form.requestSubmit();
-          else form.submit();
-        });
-
-        // extra guard: prevent submits not coming from the Save button
-        form.addEventListener('submit', function(e) {
-          // when requestSubmit is used, submitter อาจไม่มี ให้ปล่อยผ่าน
-          if (e.submitter && e.submitter.id !== 'btnSave') {
-            e.preventDefault();
-          }
-        });
-      })();
-    </script>
-
-  </div><!-- /container -->
+    </div><!-- /container -->
+  </div>
 </body>
 
 </html>
