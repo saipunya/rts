@@ -41,9 +41,10 @@ $stmt->close();
     <!-- Search form -->
     <div class="row mb-3">
         <div class="col-12">
-            <form method="get" class="row g-2">
-                <div class="col-auto">
-                    <input type="text" name="q" class="form-control" placeholder="ค้นหาสมาชิก (อย่างน้อย 2 ตัวอักษร)" value="<?php echo htmlspecialchars($q); ?>">
+            <form method="get" class="row g-2 position-relative" id="member-search-form">
+                <div class="col-auto" style="flex:1;">
+                    <input type="text" name="q" id="member-search-input" class="form-control" placeholder="ค้นหาสมาชิก (อย่างน้อย 2 ตัวอักษร)" autocomplete="off" value="<?php echo htmlspecialchars($q); ?>">
+                    <div id="member-suggestions" class="list-group position-absolute" style="z-index:1050; width:100%; display:none;"></div>
                 </div>
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary">ค้นหา</button>
@@ -56,7 +57,6 @@ $stmt->close();
     <?php if ($msg): ?>
         <div class="alert alert-info"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
-
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -94,4 +94,55 @@ $stmt->close();
         </table>
     </div>
 </div>
+
+<script>
+(function(){
+    const input = document.getElementById('member-search-input');
+    const sugg = document.getElementById('member-suggestions');
+    let debounceTimer = null;
+
+    function clearSuggestions(){
+        sugg.innerHTML = '';
+        sugg.style.display = 'none';
+    }
+
+    function render(items){
+        sugg.innerHTML = '';
+        if (!items || items.length === 0) { clearSuggestions(); return; }
+        items.forEach(it => {
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = 'list-group-item list-group-item-action';
+            a.dataset.value = it.mem_fullname || it.mem_number || '';
+            a.innerText = (it.mem_number ? (it.mem_number + ' - ') : '') + (it.mem_fullname || '');
+            a.addEventListener('click', function(e){
+                e.preventDefault();
+                input.value = this.dataset.value;
+                document.getElementById('member-search-form').submit();
+            });
+            sugg.appendChild(a);
+        });
+        sugg.style.display = 'block';
+    }
+
+    input.addEventListener('input', function(){
+        const v = this.value.trim();
+        if (debounceTimer) clearTimeout(debounceTimer);
+        if (v.length < 2){ clearSuggestions(); return; }
+        debounceTimer = setTimeout(()=>{
+            fetch('members_search.php?q=' + encodeURIComponent(v))
+                .then(r=>r.json())
+                .then(data=>render(data))
+                .catch(()=>clearSuggestions());
+        }, 250);
+    });
+
+    document.addEventListener('click', function(e){
+        if (!document.getElementById('member-search-form').contains(e.target)) {
+            clearSuggestions();
+        }
+    });
+})();
+</script>
+
 <?php include 'footer.php';
