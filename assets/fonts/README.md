@@ -1,0 +1,16 @@
+# โฟลเดอร์ฟอนต์ (สำหรับ dompdf)
+
+วางไฟล์ฟอนต์ภาษาไทยแบบ TTF/OTF ไว้ในโฟลเดอร์นี้ เช่น:
+- THSarabunNew.ttf
+- THSarabunNew-Bold.ttf
+หรือใช้
+- NotoSansThai-Regular.ttf
+- NotoSansThai-Bold.ttf
+- Sarabun-Regular.ttf / Sarabun-Bold.ttf
+
+หมายเหตุ:
+- หากไฟล์ถูกตั้งชื่อเป็น `.tff` (เช่น `Sarabun-Bold.tff`) โค้ดจะพยายามอ่านได้ แต่ควรเปลี่ยนชื่อเป็น `.ttf` เพื่อความถูกต้อง
+
+หลังวางไฟล์ เปิด:
+http://localhost/rts/export_rubbers_pdf.php?lan=all
+เพื่อทดสอบว่า PDF แสดงภาษาไทยครบถ้วน
