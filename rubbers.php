@@ -306,7 +306,7 @@ if ($date_to !== '') {
   }
 }
 
-$where = $conds ? ' WHERE ' . implode(' AND ', $conds) : '';
+$where = $conds ? ' WHERE ' . implode('AND', $conds) : '';
 
 // Count total for pagination
 $countSql = "SELECT COUNT(*) AS cnt FROM tbl_rubber" . $where;
@@ -882,6 +882,14 @@ if ($page > $totalPages) $page = $totalPages;
               document.getElementById('detailBody').innerHTML = '<div class="alert alert-danger">ข้อผิดพลาดในการอ่านข้อมูล</div>';
               return;
             }
+
+            // helper to format numbers with comma separators and 2 decimals
+            function fmtNumber(v){
+              var n = parseFloat(v);
+              if (!isFinite(n)) n = 0;
+              return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            }
+
             var html = '<table class="table table-sm table-bordered">';
             html += '<tr><th class="w-25">ID</th><td>'+esc(obj.ru_id)+'</td></tr>';
             html += '<tr><th>วันที่</th><td>'+esc(obj.ru_date_th || obj.ru_date)+'</td></tr>';
@@ -890,16 +898,16 @@ if ($page > $totalPages) $page = $totalPages;
             html += '<tr><th>เลขที่</th><td>'+esc(obj.ru_number)+'</td></tr>';
             html += '<tr><th>ชื่อ-สกุล</th><td>'+esc(obj.ru_fullname)+'</td></tr>';
             html += '<tr><th>ชั้น</th><td>'+esc(obj.ru_class)+'</td></tr>';
-            html += '<tr><th>ปริมาณ</th><td class="text-end">'+esc(parseFloat(obj.ru_quantity).toFixed(2))+'</td></tr>';
-            html += '<tr><th>หุ้น</th><td class="text-end">'+esc(parseFloat(obj.ru_hoon).toFixed(2))+'</td></tr>';
-            html += '<tr><th>เงินกู้</th><td class="text-end">'+esc(parseFloat(obj.ru_loan).toFixed(2))+'</td></tr>';
-            html += '<tr><th>หนี้สั้น</th><td class="text-end">'+esc(parseFloat(obj.ru_shortdebt).toFixed(2))+'</td></tr>';
-            html += '<tr><th>เงินฝาก</th><td class="text-end">'+esc(parseFloat(obj.ru_deposit).toFixed(2))+'</td></tr>';
-            html += '<tr><th>กู้ซื้อขาย</th><td class="text-end">'+esc(parseFloat(obj.ru_tradeloan).toFixed(2))+'</td></tr>';
-            html += '<tr><th>ประกันภัย</th><td class="text-end">'+esc(parseFloat(obj.ru_insurance).toFixed(2))+'</td></tr>';
-            html += '<tr><th>มูลค่า</th><td class="text-end">'+esc(parseFloat(obj.ru_value).toFixed(2))+'</td></tr>';
-            html += '<tr><th>หักรวม</th><td class="text-end">'+esc(parseFloat(obj.ru_expend).toFixed(2))+'</td></tr>';
-            html += '<tr><th>สุทธิ</th><td class="text-end">'+esc(parseFloat(obj.ru_netvalue).toFixed(2))+'</td></tr>';
+            html += '<tr><th>ปริมาณ</th><td class="text-end">'+esc(fmtNumber(obj.ru_quantity))+'</td></tr>';
+            html += '<tr><th>หุ้น</th><td class="text-end">'+esc(fmtNumber(obj.ru_hoon))+'</td></tr>';
+            html += '<tr><th>เงินกู้</th><td class="text-end">'+esc(fmtNumber(obj.ru_loan))+'</td></tr>';
+            html += '<tr><th>หนี้สั้น</th><td class="text-end">'+esc(fmtNumber(obj.ru_shortdebt))+'</td></tr>';
+            html += '<tr><th>เงินฝาก</th><td class="text-end">'+esc(fmtNumber(obj.ru_deposit))+'</td></tr>';
+            html += '<tr><th>กู้ซื้อขาย</th><td class="text-end">'+esc(fmtNumber(obj.ru_tradeloan))+'</td></tr>';
+            html += '<tr><th>ประกันภัย</th><td class="text-end">'+esc(fmtNumber(obj.ru_insurance))+'</td></tr>';
+            html += '<tr><th>มูลค่า</th><td class="text-end">'+esc(fmtNumber(obj.ru_value))+'</td></tr>';
+            html += '<tr><th>หักรวม</th><td class="text-end">'+esc(fmtNumber(obj.ru_expend))+'</td></tr>';
+            html += '<tr><th>สุทธิ</th><td class="text-end">'+esc(fmtNumber(obj.ru_netvalue))+'</td></tr>';
             html += '<tr><th>บันทึกโดย</th><td>'+esc(obj.ru_saveby || '')+'</td></tr>';
             html += '<tr><th>วันที่บันทึก</th><td>'+esc(obj.ru_savedate_th || obj.ru_savedate || '')+'</td></tr>';
             html += '</table>';
