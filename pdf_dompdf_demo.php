@@ -9,7 +9,13 @@ error_reporting(E_ALL);
 
 // Configure Dompdf with Options (enable remote to allow file:// URLs)
 $options = new Options();
-$options->set('isRemoteEnabled', true);
+$options->set('isRemoteEnabled', false);
+$options->set('isHtml5ParserEnabled', true);
+$options->setChroot(__DIR__); // ให้โหลดไฟล์ภายในโฟลเดอร์นี้ได้
+// ปิดการ subset ฟอนต์ (ลดปัญหาตัวอักษรไทยหาย/เป็นเครื่องหมายคำถาม)
+$options->set('isFontSubsettingEnabled', false);
+$options->set('enable_font_subsetting', false);
+$options->set('defaultFont', 'THSarabunNew');
 $dompdf = new Dompdf($options);
 
 // Ensure tmp output directory exists and is writable
@@ -18,49 +24,72 @@ if (!is_dir($tmpDir)) {
     mkdir($tmpDir, 0777, true);
 }
 
-// Resolve font file paths and create file:// URLs (fallback to relative if not found)
-$regPath = realpath(__DIR__ . '/assets/fonts/Sarabun-Regular.ttf');
-$boldPath = realpath(__DIR__ . '/assets/fonts/Sarabun-Bold.ttf');
-$regUrl = $regPath ? 'file://' . $regPath : 'assets/fonts/Sarabun-Regular.ttf';
-$boldUrl = $boldPath ? 'file://' . $boldPath : 'assets/fonts/Sarabun-Bold.ttf';
+// ตรวจสอบไฟล์ฟอนต์
+$fontDir = __DIR__ . '/assets/fonts';
+$regular = $fontDir . '/THSarabunNew.ttf';
+$bold    = $fontDir . '/THSarabunNew-Bold.ttf';
+$italic  = $fontDir . '/THSarabunNew-italic.ttf';
+$boldIt  = $fontDir . '/THSarabunNew-BoldItalic.ttf';
+foreach ([$regular, $bold, $italic, $boldIt] as $f) {
+    if (!is_file($f)) {
+        die('ไม่พบฟอนต์: ' . basename($f));
+    }
+}
+
+$regUrl = 'assets/fonts/THSarabunNew.ttf';
+$boldUrl = 'assets/fonts/THSarabunNew-Bold.ttf';
+$italicUrl = 'assets/fonts/THSarabunNew-italic.ttf';
+$boldItUrl = 'assets/fonts/THSarabunNew-BoldItalic.ttf';
 
 $html = <<<HTML
 <!doctype html>
-<html>
+<html lang="th">
 <head>
   <meta charset="utf-8">
   <title>Dompdf Thai Demo</title>
   <style>
-    /* Use local TTF fonts (dompdf supports TTF/OTF). Adjust path if your fonts are in /fonts instead of /assets/fonts */
     @font-face {
-      font-family: 'Sarabun';
-      src: url('{$regUrl}') format('truetype');
+      font-family: 'THSarabunNew';
       font-weight: 400;
       font-style: normal;
+      src: url('$regUrl') format('truetype');
     }
     @font-face {
-      font-family: 'Sarabun';
-      src: url('{$boldUrl}') format('truetype');
+      font-family: 'THSarabunNew';
       font-weight: 700;
       font-style: normal;
+      src: url('$boldUrl') format('truetype');
+    }
+    @font-face {
+      font-family: 'THSarabunNew';
+      font-weight: 400;
+      font-style: italic;
+      src: url('$italicUrl') format('truetype');
+    }
+    @font-face {
+      font-family: 'THSarabunNew';
+      font-weight: 700;
+      font-style: italic;
+      src: url('$boldItUrl') format('truetype');
     }
 
-    body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14pt; }
-    h1 { font-weight: 700; margin-bottom: 0.5em; }
+    body { font-family: 'THSarabunNew', 'DejaVu Sans', sans-serif; font-size: 14pt; }
+    h1 { font-weight: 700; margin: 0 0 0.5em; }
     p { margin: 0.4em 0; }
   </style>
 </head>
 <body>
   <h1>ทดสอบการส่งออก PDF ด้วย Dompdf</h1>
-  <p>สวัสดีครับ/ค่ะ นี่คือเอกสารตัวอย่างภาษาไทยที่สร้างด้วย Dompdf โดยไม่ใช้ mPDF</p>
-  <p>รองรับฟอนต์ Sarabun จากโฟลเดอร์ assets/fonts</p>
-  <p>หน้าเอกสาร: A4 แนวตั้ง</p>
+  <p>สวัสดีครับ นี่คือเอกสารตัวอย่างภาษาไทย (ไม่มี ????? อีกต่อไป)</p>
+  <p>ฟอนต์ที่ใช้: THSarabunNew (regular, bold, italic, bold italic)</p>
+  <p>เวลา: {date('Y-m-d H:i:s')}</p>
 </body>
 </html>
 HTML;
 
 try {
-    $dompdf->loadHtml($html);
+    // ใช้ UTF-8 ชัดเจน
+    $dompdf->loadHtml($html, 'UTF-8');
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
 
