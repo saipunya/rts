@@ -68,24 +68,25 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
-// new: force using Sarabun font from /fonts (require Sarabun-Regular.ttf and Sarabun-Bold.ttf)
-$fontDir = __DIR__ . '/fonts';
-$mainFontTtf = $fontDir . '/Sarabun-Regular.ttf';
-$boldFontTtf = $fontDir . '/Sarabun-Bold.ttf';
-if (!file_exists($mainFontTtf) || !file_exists($boldFontTtf)) {
+// เปลี่ยนเป็นใช้ฟอนต์ THSarabunNew จาก assets/fonts (4 น้ำหนัก/สไตล์)
+$fontDir = __DIR__ . '/assets/fonts';
+$fontNormal     = $fontDir . '/THSarabunNew.ttf';
+$fontBold       = $fontDir . '/THSarabunNew-Bold.ttf';
+$fontItalic     = $fontDir . '/THSarabunNew-italic.ttf';
+$fontBoldItalic = $fontDir . '/THSarabunNew-BoldItalic.ttf';
+if (!file_exists($fontNormal) || !file_exists($fontBold) || !file_exists($fontItalic) || !file_exists($fontBoldItalic)) {
   header('Content-Type: text/html; charset=UTF-8');
   http_response_code(500);
-  echo 'ไม่พบไฟล์ฟอนต์ Sarabun ในโฟลเดอร์ fonts. โปรดตรวจสอบว่า Sarabun-Regular.ttf และ Sarabun-Bold.ttf อยู่ในโฟลเดอร์ fonts';
+  echo 'ไม่พบไฟล์ฟอนต์ THSarabunNew ครบทั้ง 4 แบบ ในโฟลเดอร์ assets/fonts';
   exit;
 }
+$normalData     = base64_encode(file_get_contents($fontNormal));
+$boldData       = base64_encode(file_get_contents($fontBold));
+$italicData     = base64_encode(file_get_contents($fontItalic));
+$boldItalicData = base64_encode(file_get_contents($fontBoldItalic));
+$fontCss = "\n@font-face {\n  font-family: 'THSarabunNew';\n  src: url('data:font/truetype;charset=utf-8;base64,{$normalData}') format('truetype');\n  font-weight: 400; font-style: normal;\n}\n@font-face {\n  font-family: 'THSarabunNew';\n  src: url('data:font/truetype;charset=utf-8;base64,{$boldData}') format('truetype');\n  font-weight: 700; font-style: normal;\n}\n@font-face {\n  font-family: 'THSarabunNew';\n  src: url('data:font/truetype;charset=utf-8;base64,{$italicData}') format('truetype');\n  font-weight: 400; font-style: italic;\n}\n@font-face {\n  font-family: 'THSarabunNew';\n  src: url('data:font/truetype;charset=utf-8;base64,{$boldItalicData}') format('truetype');\n  font-weight: 700; font-style: italic;\n}\nbody { font-family: 'THSarabunNew', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }\n";
+$preferredFontName = 'THSarabunNew';
 
-// Embed fonts as base64 data URIs to avoid remote loading / chroot issues
-$regularData = base64_encode(file_get_contents($mainFontTtf));
-$boldData = base64_encode(file_get_contents($boldFontTtf));
-$fontCss = "\n@font-face {\n  font-family: 'Sarabun';\n  src: url('data:font/truetype;charset=utf-8;base64,{$regularData}') format('truetype');\n  font-weight: normal; font-style: normal;\n}\n@font-face {\n  font-family: 'Sarabun';\n  src: url('data:font/truetype;charset=utf-8;base64,{$boldData}') format('truetype');\n  font-weight: bold; font-style: normal;\n}\nbody { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }\n";
-$preferredFontName = 'Sarabun';
-
-// build one receipt card with two side-by-side columns using inline td widths (dompdf-friendly)
 $card = '<div class="card">'
   . '<div class="header-card">'
       . '<div class="title-row">ใบสรุปการรับยาง (รายคน)</div>'
@@ -258,7 +259,7 @@ try {
   $w = $canvas->get_width();
   $h = $canvas->get_height();
   $fontMetrics = $dompdf->getFontMetrics();
-  $font = $fontMetrics->getFont($preferredFontName ?: 'Sarabun', 'normal');
+  $font = $fontMetrics->getFont($preferredFontName ?: 'THSarabunNew', 'normal');
   $canvas->page_text($w - 100, $h - 24, "หน้า {PAGE_NUM}/{PAGE_COUNT}", $font, 10, [0,0,0]);
 
   $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
