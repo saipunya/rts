@@ -89,7 +89,7 @@ $preferredFontName = 'Sarabun';
 $card = '<div class="card">'
   . '<div class="header-card">'
       . '<div class="title-row">ใบสรุปการรับยาง (รายคน)</div>'
-      . '<div class="meta">เลขที่รายการ: '.(int)$row['ru_id'].' • พิมพ์เมื่อ: '.e($printedAt).'</div>'
+      . '<div class="meta">เลขที่รายการ: <span class="badge">'.(int)$row['ru_id'].'</span> • พิมพ์เมื่อ: '.e($printedAt).'</div>'
     . '</div>'
   . '<table class="columns" width="100%" cellspacing="0" cellpadding="0">'
   . '<tr>'
@@ -99,20 +99,22 @@ $card = '<div class="card">'
         . '<tr><td class="k">วันที่</td><td class="v">'.e($row['ru_date']).'</td></tr>'
         . '<tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>'
         . '<tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>'
-        . '<tr><td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td></tr>'
+        . '<tr><td class="k">กลุ่ม</td><td class="v"><span class="chip">'.e($row['ru_group']).'</span></td></tr>'
         . '<tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).'</td></tr>'
-        . '<tr><td class="k">ชั้น</td><td class="v">'.e($row['ru_class']).'</td></tr>'
+        . '<tr><td class="k">ชั้น</td><td class="v"><span class="chip">'.e($row['ru_class']).'</span></td></tr>'
       . '</table>'
 
       . '<div class="col-block box">'
         . '<table class="data-table">'
-          . '<tr><th colspan="2">สรุปยอด</th></tr>'
-          . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
-          . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
-          . '<tr class="muted"><td>มูลค่า</td><td class="text-end">'.nf($value).' <span class="unit">บาท</span></td></tr>'
-          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).' <span class="unit">บาท</span></td></tr>'
-          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).' <span class="unit">บาท</span></td></tr>'
-        . '</table>'
+            . '<thead><tr><th colspan="2">สรุปยอด</th></tr></thead>'
+            . '<tbody>'
+              . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
+              . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
+              . '<tr class="muted"><td>มูลค่า</td><td class="text-end">'.nf($value).' <span class="unit">บาท</span></td></tr>'
+              . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).' <span class="unit">บาท</span></td></tr>'
+              . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).' <span class="unit">บาท</span></td></tr>'
+            . '</tbody>'
+          . '</table>'
       . '</div>'
 
      
@@ -122,16 +124,18 @@ $card = '<div class="card">'
     . '<td style="width:50%; vertical-align:top; padding-left:10px;">'
       . '<div class="col-block box">'
         . '<table class="data-table">'
-          . '<tr><th colspan="2">รายละเอียดการหัก</th></tr>'
-          . '<tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>'
-          . '<tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>'
-          . '<tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>'
-          . '<tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>'
-          . '<tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>'
-          . '<tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>'
-          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).' <span class="unit">บาท</span></td></tr>'
-          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).' <span class="unit">บาท</span></td></tr>'
-        . '</table>'
+            . '<thead><tr><th colspan="2">รายละเอียดการหัก</th></tr></thead>'
+            . '<tbody>'
+              . '<tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>'
+              . '<tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>'
+              . '<tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>'
+              . '<tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>'
+              . '<tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>'
+              . '<tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>'
+              . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).' <span class="unit">บาท</span></td></tr>'
+              . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).' <span class="unit">บาท</span></td></tr>'
+            . '</tbody>'
+          . '</table>'
       . '</div>'
       . '<div class="kpi">'
          . '<table style="width:100%">'
@@ -179,6 +183,9 @@ h1 { font-size: 18px; margin: 0 0 6px; }
 .muted { color: #666; }
 .full-width { display: block; width: 100%; }
 .unit { color: #666; font-size: 12px; }
+/* badges & chips */
+.badge { display: inline-block; padding: 2px 6px; background: #e5e7eb; color: #111; border-radius: 10px; font-size: 12px; }
+.chip { display: inline-block; padding: 1px 6px; background: #eef2ff; color: #1f2937; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 12px; }
 
 /* header */
 .header-card { padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
@@ -192,8 +199,9 @@ h1 { font-size: 18px; margin: 0 0 6px; }
 .info-table td { padding: 4px 6px; }
 .info-table.kv .k { width: 30%; color: #444; }
 .info-table.kv .v { width: 70%; color: #111; }
-.data-table th, .data-table td { padding: 7px 8px; border-bottom: 1px solid #ececec; }
-.data-table th { background: #f3f4f6; font-weight: 600; text-align: left; color: #222; }
+.data-table { border: 1px solid #e5e7eb; border-radius: 6px; }
+.data-table thead th { padding: 7px 8px; background: #f3f4f6; font-weight: 700; text-align: left; color: #222; border-bottom: 1px solid #e5e7eb; }
+.data-table td { padding: 7px 8px; border-bottom: 1px solid #f1f1f1; }
 .data-table { page-break-inside: avoid; }
 .data-table tr { page-break-inside: avoid; }
 .data-table tr:last-child td { border-bottom: 0; }
@@ -209,6 +217,9 @@ h1 { font-size: 18px; margin: 0 0 6px; }
 .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
 .sig-caption { font-size: 11px; color: #666; margin-top: 4px; }
 .sig-name { font-size: 12px; margin-top: 6px; }
+
+/* ensure backgrounds print consistently in PDF engines */
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 </style></head><body>
   <div class="container">'
     . $card . '
