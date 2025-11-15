@@ -1,10 +1,28 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
-
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
-$dompdf = new Dompdf([  'isRemoteEnabled' => true, // allow loading local fonts
-]);
+// Show PHP errors for debugging
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+// Configure Dompdf with Options (enable remote to allow file:// URLs)
+$options = new Options();
+$options->set('isRemoteEnabled', true);
+$dompdf = new Dompdf($options);
+
+// Ensure tmp output directory exists and is writable
+$tmpDir = __DIR__ . '/tmp';
+if (!is_dir($tmpDir)) {
+    mkdir($tmpDir, 0777, true);
+}
+
+// Resolve font file paths and create file:// URLs (fallback to relative if not found)
+$regPath = realpath(__DIR__ . '/assets/fonts/Sarabun-Regular.ttf');
+$boldPath = realpath(__DIR__ . '/assets/fonts/Sarabun-Bold.ttf');
+$regUrl = $regPath ? 'file://' . $regPath : 'assets/fonts/Sarabun-Regular.ttf';
+$boldUrl = $boldPath ? 'file://' . $boldPath : 'assets/fonts/Sarabun-Bold.ttf';
 
 $html = <<<HTML
 <!doctype html>
@@ -16,13 +34,13 @@ $html = <<<HTML
     /* Use local TTF fonts (dompdf supports TTF/OTF). Adjust path if your fonts are in /fonts instead of /assets/fonts */
     @font-face {
       font-family: 'Sarabun';
-      src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
+      src: url('{$regUrl}') format('truetype');
       font-weight: 400;
       font-style: normal;
     }
     @font-face {
       font-family: 'Sarabun';
-      src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
+      src: url('{$boldUrl}') format('truetype');
       font-weight: 700;
       font-style: normal;
     }
@@ -41,10 +59,18 @@ $html = <<<HTML
 </html>
 HTML;
 
-$dompdf->loadHtml($html);
-$dompdf->setPaper('A4', 'portrait');
-$dompdf->render();
+try {
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
 
-$outFile = __DIR__ . '/tmp/dompdf_th_demo.pdf';
-file_put_contents($outFile, $dompdf->output());
-echo "Wrote: {$outFile}\n";
+    $outFile = $tmpDir . '/dompdf_th_demo.pdf';
+    if (file_put_contents($outFile, $dompdf->output()) === false) {
+        throw new RuntimeException("Failed to write output to {$outFile}");
+    }
+    echo "Wrote: {$outFile}\n";
+} catch (Exception $e) {
+    // Make sure exceptions are visible when running the script
+    echo "Error: " . $e->getMessage() . "\n";
+    echo $e->getTraceAsString() . "\n";
+}
