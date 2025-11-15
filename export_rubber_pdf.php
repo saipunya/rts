@@ -192,23 +192,23 @@ h1 { font-size: 18px; margin: 0 0 6px; }
 .title-row { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 2px; }
 
 /* card/box */
-.box { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; margin-top: 8px; background: #fafafa; }
+.box { border: 1px solid #999; border-radius: 4px; padding: 8px 10px; margin-top: 8px; background: #fff; }
 
 /* tables */
 .table, table { width: 100%; border-collapse: collapse; }
 .info-table td { padding: 4px 6px; }
 .info-table.kv .k { width: 30%; color: #444; }
 .info-table.kv .v { width: 70%; color: #111; }
-.data-table { border: 1px solid #e5e7eb; border-radius: 6px; }
-.data-table thead th { padding: 7px 8px; background: #f3f4f6; font-weight: 700; text-align: left; color: #222; border-bottom: 1px solid #e5e7eb; }
-.data-table td { padding: 7px 8px; border-bottom: 1px solid #f1f1f1; }
+.info-table.kv td { border: 1px solid #bbb; }
+.data-table { border: 1px solid #444; border-radius: 0; background: #fff; }
+.data-table thead th { padding: 7px 8px; background: #eaeaea; font-weight: 700; text-align: left; color: #111; border-bottom: 1px solid #444; }
+.data-table td, .data-table th { padding: 7px 8px; border: 1px solid #bbb; }
 .data-table { page-break-inside: avoid; }
 .data-table tr { page-break-inside: avoid; }
-.data-table tr:last-child td { border-bottom: 0; }
-.data-table .totals td { font-weight: 700; background: #f9fafb; border-top: 1px solid #ddd; }
+.data-table .totals td { font-weight: 700; background: #f5f5f5; border-top: 1px solid #444; }
 
 /* KPI */
-.kpi { margin-top: 8px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 10px; page-break-inside: avoid; }
+.kpi { margin-top: 8px; background: #fff; border: 1px dashed #999; border-radius: 4px; padding: 8px 10px; page-break-inside: avoid; }
 .kpi .kpi-value { font-size: 18px; font-weight: 700; }
 
 /* signature */
