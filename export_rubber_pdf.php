@@ -64,7 +64,6 @@ $value     = isset($row['ru_value'])    ? (float)$row['ru_value']    : 0.0;
 $expend    = isset($row['ru_expend'])   ? (float)$row['ru_expend']   : ($hoon+$loan+$short+$deposit+$trade+$insure);
 $netvalue  = isset($row['ru_netvalue']) ? (float)$row['ru_netvalue'] : ($value-$expend);
 $unitPrice = $qty > 0 ? $value / $qty : 0;
-
 function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
@@ -101,7 +100,7 @@ $card = '<div class="card">'
       . '</table>'
 
       . '<div class="col-block box">'
-        . '<table class="no-border" style="width:100%;">'
+        . '<table class="data-table">'
           . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
           . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
           . '<tr class="muted"><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
@@ -116,7 +115,7 @@ $card = '<div class="card">'
     // right column: deductions
     . '<td style="width:50%; vertical-align:top; padding-left:10px;">'
       . '<div class="col-block box">'
-        . '<table style="width:100%;">'
+        . '<table class="data-table">'
           . '<tr><th colspan="2">รายละเอียดการหัก</th></tr>'
           . '<tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>'
           . '<tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>'
@@ -151,29 +150,37 @@ $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>
 @page { margin: 8mm 6mm; }
 ' . $fontCss . '
 
-/* single page with two side-by-side columns using table layout */
+/* layout */
 .container { display: block; box-sizing: border-box; }
-.card { box-sizing: border-box; padding: 6px; }
+.card { box-sizing: border-box; padding: 8px; }
 .columns { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .columns td { vertical-align: top; }
 .left { width: 50%; }
 .right { width: 50%; }
 
-body { font-size: 13px; line-height: 1.14; color: #111; }
+/* base */
+body { font-size: 13px; line-height: 1.25; color: #111; }
 h1 { font-size: 18px; margin: 0 0 6px; }
 .meta { font-size: 12px; color: #555; margin-bottom: 8px; }
-table { width: 100%; border-collapse: collapse; margin: 0 0 6px; }
-th, td { padding: 6px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
-.no-border td { border: 0; padding: 2px 0; }
 .text-end { text-align: right; }
 .muted { color: #666; }
-.box { border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; margin-top: 6px; }
-.totals td { font-weight: bold; }
-.signature-table td { vertical-align: bottom; padding-top: 8px; }
+.full-width { display: block; width: 100%; }
+
+/* card/box */
+.box { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; margin-top: 8px; background: #fafafa; }
+
+/* tables */
+.table, table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 6px 8px; border-bottom: 1px solid #ececec; }
+.data-table th { background: #f3f4f6; font-weight: 600; text-align: left; color: #222; }
+.data-table tr:last-child td { border-bottom: 0; }
+.data-table .totals td { font-weight: 700; background: #f9fafb; border-top: 1px solid #ddd; }
+
+/* signature */
+.signature-table td { vertical-align: bottom; padding-top: 10px; }
 .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
 .sig-caption { font-size: 11px; color: #666; margin-top: 4px; }
 .sig-name { font-size: 12px; margin-top: 6px; }
-.full-width { display: block; width: 100%; }
 </style></head><body>
   <div class="container">'
     . $card . '
