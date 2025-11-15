@@ -14,7 +14,14 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 if (!function_exists('e')) {
-  function e($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+  // normalize input to NFC (if Normalizer available) then escape for HTML
+  function e($s){
+    $s = (string)$s;
+    if (class_exists('Normalizer')) {
+      $s = Normalizer::normalize($s, Normalizer::FORM_C);
+    }
+    return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+  }
 }
 
 $ru_id = (int)($_GET['ru_id'] ?? 0);
@@ -65,7 +72,9 @@ foreach ($assetFontDirs as $d) {
   if (file_exists($d . '/Kanit-Regular.ttf') && file_exists($d . '/Kanit-Bold.ttf')) {
     $kanitRegular = $d . '/Kanit-Regular.ttf';
     $kanitBold = $d . '/Kanit-Bold.ttf';
+    // web path relative to project root (chroot set to __DIR__)
     $kanitWebPath = str_replace(__DIR__ . '/', '', $d) . '/';
+    $kanitWebPath = ltrim($kanitWebPath, '/');
     break;
   }
 }
@@ -78,31 +87,32 @@ $hasSarabun = file_exists($mainFontTtf) && file_exists($boldFontTtf);
 $hasKanit = $kanitRegular !== null && $kanitBold !== null;
 
 if ($hasKanit) {
-  // use Kanit from the detected folder
+  // use Kanit from the detected folder; URL-encode filenames to be safe
   $fontCss = "
   @font-face {
     font-family: 'Kanit';
-    src: url('" . $kanitWebPath . "Kanit-Regular.ttf') format('truetype');
+    src: url('" . $kanitWebPath . rawurlencode('Kanit-Regular.ttf') . "') format('truetype');
     font-weight: normal; font-style: normal;
   }
   @font-face {
     font-family: 'Kanit';
-    src: url('" . $kanitWebPath . "Kanit-Bold.ttf') format('truetype');
+    src: url('" . $kanitWebPath . rawurlencode('Kanit-Bold.ttf') . "') format('truetype');
     font-weight: bold; font-style: normal;
   }
   body { font-family: 'Kanit', 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
   ";
   $preferredFontName = 'Kanit';
 } elseif ($hasSarabun) {
+  // URL-encode filenames for Sarabun as well
   $fontCss = "
   @font-face {
     font-family: 'Sarabun';
-    src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
+    src: url('assets/fonts/" . rawurlencode('Sarabun-Regular.ttf') . "') format('truetype');
     font-weight: normal; font-style: normal;
   }
   @font-face {
     font-family: 'Sarabun';
-    src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
+    src: url('assets/fonts/" . rawurlencode('Sarabun-Bold.ttf') . "') format('truetype');
     font-weight: bold; font-style: normal;
   }
   body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
@@ -206,6 +216,11 @@ th, td { padding: 6px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
     . $card . '
   </div>
 </body></html>';
+
+// Normalize final HTML to NFC (helps combining marks ordering)
+if (class_exists('Normalizer')) {
+  $html = Normalizer::normalize($html, Normalizer::FORM_C);
+}
 
 $options = new Options();
 $options->set('isRemoteEnabled', true);
