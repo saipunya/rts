@@ -10,6 +10,11 @@ if (!file_exists($autoload)) {
 }
 require_once $autoload;
 
+// Enable detailed errors for debugging 500 errors (remove in production)
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -75,7 +80,10 @@ if (!file_exists($mainFontTtf) || !file_exists($boldFontTtf)) {
   exit;
 }
 
-$fontCss = "\n@font-face {\n  font-family: 'Sarabun';\n  src: url('fonts/" . rawurlencode('Sarabun-Regular.ttf') . "') format('truetype');\n  font-weight: normal; font-style: normal;\n}\n@font-face {\n  font-family: 'Sarabun';\n  src: url('fonts/" . rawurlencode('Sarabun-Bold.ttf') . "') format('truetype');\n  font-weight: bold; font-style: normal;\n}\nbody { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }\n";
+// Embed fonts as base64 data URIs to avoid remote loading / chroot issues
+$regularData = base64_encode(file_get_contents($mainFontTtf));
+$boldData = base64_encode(file_get_contents($boldFontTtf));
+$fontCss = "\n@font-face {\n  font-family: 'Sarabun';\n  src: url('data:font/truetype;charset=utf-8;base64,{$regularData}') format('truetype');\n  font-weight: normal; font-style: normal;\n}\n@font-face {\n  font-family: 'Sarabun';\n  src: url('data:font/truetype;charset=utf-8;base64,{$boldData}') format('truetype');\n  font-weight: bold; font-style: normal;\n}\nbody { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }\n";
 $preferredFontName = 'Sarabun';
 
 // build one receipt card with two side-by-side columns using inline td widths (dompdf-friendly)
@@ -193,11 +201,21 @@ $options->set('enable_font_subsetting', false);
 $options->set('isHtml5ParserEnabled', true);
 
 $dompdf = new Dompdf($options);
-$dompdf->loadHtml($html, 'UTF-8');
-// Set to A4 landscape (แนวนอน)
-$dompdf->setPaper('A4', 'landscape');
-$dompdf->render();
+try {
+  $dompdf->loadHtml($html, 'UTF-8');
+  // Set to A4 landscape (แนวนอน)
+  $dompdf->setPaper('A4', 'landscape');
+  $dompdf->render();
 
-$filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
-$dompdf->stream($filename, ['Attachment' => false]);
-exit;
+  $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
+  $dompdf->stream($filename, ['Attachment' => false]);
+  exit;
+} catch (\Exception $e) {
+  // Output a readable error for debugging 500
+  header('Content-Type: text/plain; charset=UTF-8');
+  http_response_code(500);
+  echo "เกิดข้อผิดพลาดขณะสร้าง PDF:\n" . $e->getMessage();
+  // also log to php error log
+  error_log("export_rubber_pdf.php error: " . $e->getMessage());
+  exit;
+}
