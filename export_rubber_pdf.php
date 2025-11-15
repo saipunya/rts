@@ -64,8 +64,8 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
-// new: prepare Thai font embedding (prefer Kanit if present, fallback to Sarabun)
-$assetFontDirs = [__DIR__ . '/assets/fonts', __DIR__ . '/fonts'];
+// new: prepare Thai font embedding (prefer Sarabun from /fonts, fallback to Kanit in assets/fonts)
+$assetFontDirs = [__DIR__ . '/fonts', __DIR__ . '/assets/fonts'];
 $kanitRegular = null;
 $kanitBold = null;
 foreach ($assetFontDirs as $d) {
@@ -79,15 +79,31 @@ foreach ($assetFontDirs as $d) {
   }
 }
 
-$fontDir     = __DIR__ . '/assets/fonts';
-// prefer Sarabun fonts that exist in the repository
+// prefer Sarabun in /fonts (project root)
+$fontDir     = __DIR__ . '/fonts';
 $mainFontTtf = $fontDir . '/Sarabun-Regular.ttf';
 $boldFontTtf = $fontDir . '/Sarabun-Bold.ttf';
 $hasSarabun = file_exists($mainFontTtf) && file_exists($boldFontTtf);
 $hasKanit = $kanitRegular !== null && $kanitBold !== null;
 
-if ($hasKanit) {
-  // use Kanit from the detected folder; URL-encode filenames to be safe
+if ($hasSarabun) {
+  // Use Sarabun from /fonts (project root). URL-encode filenames to be safe.
+  $fontCss = "
+  @font-face {
+    font-family: 'Sarabun';
+    src: url('fonts/" . rawurlencode('Sarabun-Regular.ttf') . "') format('truetype');
+    font-weight: normal; font-style: normal;
+  }
+  @font-face {
+    font-family: 'Sarabun';
+    src: url('fonts/" . rawurlencode('Sarabun-Bold.ttf') . "') format('truetype');
+    font-weight: bold; font-style: normal;
+  }
+  body { font-family: 'Sarabun', 'Kanit', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
+  ";
+  $preferredFontName = 'Sarabun';
+} elseif ($hasKanit) {
+  // fallback to Kanit in assets/fonts; URL-encode filenames to be safe
   $fontCss = "
   @font-face {
     font-family: 'Kanit';
@@ -102,22 +118,6 @@ if ($hasKanit) {
   body { font-family: 'Kanit', 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
   ";
   $preferredFontName = 'Kanit';
-} elseif ($hasSarabun) {
-  // URL-encode filenames for Sarabun as well
-  $fontCss = "
-  @font-face {
-    font-family: 'Sarabun';
-    src: url('assets/fonts/" . rawurlencode('Sarabun-Regular.ttf') . "') format('truetype');
-    font-weight: normal; font-style: normal;
-  }
-  @font-face {
-    font-family: 'Sarabun';
-    src: url('assets/fonts/" . rawurlencode('Sarabun-Bold.ttf') . "') format('truetype');
-    font-weight: bold; font-style: normal;
-  }
-  body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
-  ";
-  $preferredFontName = 'Sarabun';
 } else {
   $fontCss = "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.25; }";
   $preferredFontName = 'DejaVu Sans';
@@ -141,7 +141,7 @@ $card = '<div class="card">'
         . '<table class="no-border" style="width:100%;">'
           . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
           . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
-          . '<tr><td class="muted">มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
+          . '<tr class="muted">มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
           . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
           . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
         . '</table>'

@@ -3,8 +3,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Dompdf\Dompdf;
 
-$dompdf = new Dompdf([
-  'isRemoteEnabled' => true, // allow loading local fonts
+$dompdf = new Dompdf([  'isRemoteEnabled' => true, // allow loading local fonts
 ]);
 
 $html = <<<HTML
