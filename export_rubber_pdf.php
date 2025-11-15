@@ -64,64 +64,19 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
-// new: prepare Thai font embedding (prefer Sarabun from /fonts, fallback to Kanit in assets/fonts)
-$assetFontDirs = [__DIR__ . '/fonts', __DIR__ . '/assets/fonts'];
-$kanitRegular = null;
-$kanitBold = null;
-foreach ($assetFontDirs as $d) {
-  if (file_exists($d . '/Kanit-Regular.ttf') && file_exists($d . '/Kanit-Bold.ttf')) {
-    $kanitRegular = $d . '/Kanit-Regular.ttf';
-    $kanitBold = $d . '/Kanit-Bold.ttf';
-    // web path relative to project root (chroot set to __DIR__)
-    $kanitWebPath = str_replace(__DIR__ . '/', '', $d) . '/';
-    $kanitWebPath = ltrim($kanitWebPath, '/');
-    break;
-  }
-}
-
-// prefer Sarabun in /fonts (project root)
-$fontDir     = __DIR__ . '/fonts';
+// new: force using Sarabun font from /fonts (require Sarabun-Regular.ttf and Sarabun-Bold.ttf)
+$fontDir = __DIR__ . '/fonts';
 $mainFontTtf = $fontDir . '/Sarabun-Regular.ttf';
 $boldFontTtf = $fontDir . '/Sarabun-Bold.ttf';
-$hasSarabun = file_exists($mainFontTtf) && file_exists($boldFontTtf);
-$hasKanit = $kanitRegular !== null && $kanitBold !== null;
-
-if ($hasSarabun) {
-  // Use Sarabun from /fonts (project root). URL-encode filenames to be safe.
-  $fontCss = "
-  @font-face {
-    font-family: 'Sarabun';
-    src: url('fonts/" . rawurlencode('Sarabun-Regular.ttf') . "') format('truetype');
-    font-weight: normal; font-style: normal;
-  }
-  @font-face {
-    font-family: 'Sarabun';
-    src: url('fonts/" . rawurlencode('Sarabun-Bold.ttf') . "') format('truetype');
-    font-weight: bold; font-style: normal;
-  }
-  body { font-family: 'Sarabun', 'Kanit', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
-  ";
-  $preferredFontName = 'Sarabun';
-} elseif ($hasKanit) {
-  // fallback to Kanit in assets/fonts; URL-encode filenames to be safe
-  $fontCss = "
-  @font-face {
-    font-family: 'Kanit';
-    src: url('" . $kanitWebPath . rawurlencode('Kanit-Regular.ttf') . "') format('truetype');
-    font-weight: normal; font-style: normal;
-  }
-  @font-face {
-    font-family: 'Kanit';
-    src: url('" . $kanitWebPath . rawurlencode('Kanit-Bold.ttf') . "') format('truetype');
-    font-weight: bold; font-style: normal;
-  }
-  body { font-family: 'Kanit', 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }
-  ";
-  $preferredFontName = 'Kanit';
-} else {
-  $fontCss = "body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.25; }";
-  $preferredFontName = 'DejaVu Sans';
+if (!file_exists($mainFontTtf) || !file_exists($boldFontTtf)) {
+  header('Content-Type: text/html; charset=UTF-8');
+  http_response_code(500);
+  echo 'ไม่พบไฟล์ฟอนต์ Sarabun ในโฟลเดอร์ fonts. โปรดตรวจสอบว่า Sarabun-Regular.ttf และ Sarabun-Bold.ttf อยู่ในโฟลเดอร์ fonts';
+  exit;
 }
+
+$fontCss = "\n@font-face {\n  font-family: 'Sarabun';\n  src: url('fonts/" . rawurlencode('Sarabun-Regular.ttf') . "') format('truetype');\n  font-weight: normal; font-style: normal;\n}\n@font-face {\n  font-family: 'Sarabun';\n  src: url('fonts/" . rawurlencode('Sarabun-Bold.ttf') . "') format('truetype');\n  font-weight: bold; font-style: normal;\n}\nbody { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14px; color: #111; line-height: 1.25; }\n";
+$preferredFontName = 'Sarabun';
 
 // build one receipt card with two side-by-side columns using inline td widths (dompdf-friendly)
 $card = '<div class="card">'
