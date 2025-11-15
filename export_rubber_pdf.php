@@ -95,19 +95,23 @@ $card = '<div class="card">'
   . '<tr>'
     // left column: member + totals
     . '<td style="width:50%; vertical-align:top; padding-right:10px;">'
-      . '<table class="info-table" style="width:100%;">'
-        . '<tr><td style="width:25%">วันที่</td><td style="width:25%">'.e($row['ru_date']).'</td><td style="width:25%">ลาน</td><td style="width:25%">'.e($row['ru_lan']).'</td></tr>'
-        . '<tr><td>กลุ่ม</td><td>'.e($row['ru_group']).'</td><td>เลขที่</td><td>'.e($row['ru_number']).'</td></tr>'
-        . '<tr><td>ชื่อ-สกุล</td><td>'.e($row['ru_fullname']).'</td><td>ชั้น</td><td>'.e($row['ru_class']).'</td></tr>'
+      . '<table class="info-table kv">'
+        . '<tr><td class="k">วันที่</td><td class="v">'.e($row['ru_date']).'</td></tr>'
+        . '<tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>'
+        . '<tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>'
+        . '<tr><td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td></tr>'
+        . '<tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).'</td></tr>'
+        . '<tr><td class="k">ชั้น</td><td class="v">'.e($row['ru_class']).'</td></tr>'
       . '</table>'
 
       . '<div class="col-block box">'
         . '<table class="data-table">'
+          . '<tr><th colspan="2">สรุปยอด</th></tr>'
           . '<tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>'
           . '<tr><td>ราคา/กก. (อนุมาน)</td><td class="text-end">'.($unitPrice > 0 ? nf($unitPrice) : '-').'</td></tr>'
-          . '<tr class="muted"><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>'
-          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
-          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
+          . '<tr class="muted"><td>มูลค่า</td><td class="text-end">'.nf($value).' <span class="unit">บาท</span></td></tr>'
+          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).' <span class="unit">บาท</span></td></tr>'
+          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).' <span class="unit">บาท</span></td></tr>'
         . '</table>'
       . '</div>'
 
@@ -125,13 +129,13 @@ $card = '<div class="card">'
           . '<tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>'
           . '<tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>'
           . '<tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>'
-          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).'</td></tr>'
-          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
+          . '<tr class="totals"><td>หักรวม</td><td class="text-end">'.nf($expend).' <span class="unit">บาท</span></td></tr>'
+          . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).' <span class="unit">บาท</span></td></tr>'
         . '</table>'
       . '</div>'
       . '<div class="kpi">'
          . '<table style="width:100%">'
-           . '<tr><td>ยอดสุทธิ</td><td class="text-end"><span class="kpi-value">'.nf($netvalue).'</span> บาท</td></tr>'
+           . '<tr><td>ยอดสุทธิ</td><td class="text-end"><span class="kpi-value">'.nf($netvalue).'</span> <span class="unit">บาท</span></td></tr>'
          . '</table>'
        . '</div>'
     . '</td>'
@@ -170,8 +174,11 @@ body { font-size: 13px; line-height: 1.25; color: #111; }
 h1 { font-size: 18px; margin: 0 0 6px; }
 .meta { font-size: 12px; color: #555; margin-bottom: 8px; }
 .text-end { text-align: right; }
+/* align numbers neatly */
+.text-end { font-variant-numeric: tabular-nums; }
 .muted { color: #666; }
 .full-width { display: block; width: 100%; }
+.unit { color: #666; font-size: 12px; }
 
 /* header */
 .header-card { padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
@@ -183,20 +190,22 @@ h1 { font-size: 18px; margin: 0 0 6px; }
 /* tables */
 .table, table { width: 100%; border-collapse: collapse; }
 .info-table td { padding: 4px 6px; }
-.info-table tr td:nth-child(odd) { color: #555; }
-.data-table th, .data-table td { padding: 6px 8px; border-bottom: 1px solid #ececec; }
+.info-table.kv .k { width: 30%; color: #444; }
+.info-table.kv .v { width: 70%; color: #111; }
+.data-table th, .data-table td { padding: 7px 8px; border-bottom: 1px solid #ececec; }
 .data-table th { background: #f3f4f6; font-weight: 600; text-align: left; color: #222; }
-.data-table tr:nth-child(even) td { background: #fbfbfb; }
+.data-table { page-break-inside: avoid; }
+.data-table tr { page-break-inside: avoid; }
 .data-table tr:last-child td { border-bottom: 0; }
 .data-table .totals td { font-weight: 700; background: #f9fafb; border-top: 1px solid #ddd; }
 
 /* KPI */
-.kpi { margin-top: 8px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 10px; }
+.kpi { margin-top: 8px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 10px; page-break-inside: avoid; }
 .kpi .kpi-value { font-size: 18px; font-weight: 700; }
 
 /* signature */
-.signature-table { margin-top: 14px; }
-.signature-table td { vertical-align: bottom; padding-top: 10px; }
+.signature-table { margin-top: 14px; page-break-inside: avoid; }
+.signature-table tr, .signature-table td { page-break-inside: avoid; }
 .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
 .sig-caption { font-size: 11px; color: #666; margin-top: 4px; }
 .sig-name { font-size: 12px; margin-top: 6px; }
@@ -232,6 +241,14 @@ try {
   // Set to A4 landscape (แนวนอน)
   $dompdf->setPaper('A4', 'landscape');
   $dompdf->render();
+
+  // Add page numbers at bottom-right
+  $canvas = $dompdf->getCanvas();
+  $w = $canvas->get_width();
+  $h = $canvas->get_height();
+  $fontMetrics = $dompdf->getFontMetrics();
+  $font = $fontMetrics->getFont($preferredFontName ?: 'Sarabun', 'normal');
+  $canvas->page_text($w - 100, $h - 24, "หน้า {PAGE_NUM}/{PAGE_COUNT}", $font, 10, [0,0,0]);
 
   $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
   $dompdf->stream($filename, ['Attachment' => false]);
