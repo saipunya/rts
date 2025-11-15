@@ -108,8 +108,8 @@ if ($date_from !== '') $condTxt[] = 'จาก ' . h($date_from);
 if ($date_to   !== '') $condTxt[] = 'ถึง '  . h($date_to);
 $condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt)) : '';
 
-// replace previous hard-coded font detection with automatic scan of /fonts
-$fontDir = __DIR__ . '/fonts';
+// replace previous hard-coded font detection with automatic scan of assets/fonts
+$fontDir = __DIR__ . '/assets/fonts';
 
 // helper: map common weight tokens to numeric weight (compatible with PHP 7.x)
 function mapWeight(string $name): int {
@@ -163,7 +163,7 @@ if (is_dir($fontDir)) {
     foreach ($items as $it) {
       $ext = strtolower(pathinfo($it['file'], PATHINFO_EXTENSION));
       $fmt = ($ext === 'otf') ? 'opentype' : 'truetype';
-      $fontCss .= '@font-face{font-family:"'.$family.'";font-style:'.$it['style'].';font-weight:'.$it['weight'].';src:url("fonts/'.$it['file'].'") format("'.$fmt.'");}'."\n";
+      $fontCss .= '@font-face{font-family:"'.$family.'";font-style:'.$it['style'].';font-weight:'.$it['weight'].';src:url("assets/fonts/'.$it['file'].'") format("'.$fmt.'");}'."\n";
     }
   }
 }
@@ -205,7 +205,7 @@ $html = '
 <style>'.$style.'</style>
 </head>
 <body>
-  '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: ไม่พบฟอนต์ไทยในโฟลเดอร์ /fonts จะใช้ DejaVu Sans</div>' : '').'
+  '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: ไม่พบฟอนต์ไทยใน assets/fonts จะใช้ DejaVu Sans</div>' : '').'
   <h1>'.h($title).'</h1>
   <div class="muted">'.h($subtitle).'</div>
   '.($condStr ? '<div class="muted">'.$condStr.'</div>' : '').'
