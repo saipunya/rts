@@ -87,13 +87,15 @@ $preferredFontName = 'Sarabun';
 
 // build one receipt card with two side-by-side columns using inline td widths (dompdf-friendly)
 $card = '<div class="card">'
-  . '<h1 class="full-width">ใบสรุปการรับยาง (รายคน)</h1>'
-  . '<div class="meta full-width">เลขที่รายการ: '.(int)$row['ru_id'].' | พิมพ์เมื่อ: '.e($printedAt).'</div>'
+  . '<div class="header-card">'
+      . '<div class="title-row">ใบสรุปการรับยาง (รายคน)</div>'
+      . '<div class="meta">เลขที่รายการ: '.(int)$row['ru_id'].' • พิมพ์เมื่อ: '.e($printedAt).'</div>'
+    . '</div>'
   . '<table class="columns" width="100%" cellspacing="0" cellpadding="0">'
   . '<tr>'
     // left column: member + totals
     . '<td style="width:50%; vertical-align:top; padding-right:10px;">'
-      . '<table style="width:100%;">'
+      . '<table class="info-table" style="width:100%;">'
         . '<tr><td style="width:25%">วันที่</td><td style="width:25%">'.e($row['ru_date']).'</td><td style="width:25%">ลาน</td><td style="width:25%">'.e($row['ru_lan']).'</td></tr>'
         . '<tr><td>กลุ่ม</td><td>'.e($row['ru_group']).'</td><td>เลขที่</td><td>'.e($row['ru_number']).'</td></tr>'
         . '<tr><td>ชื่อ-สกุล</td><td>'.e($row['ru_fullname']).'</td><td>ชั้น</td><td>'.e($row['ru_class']).'</td></tr>'
@@ -127,6 +129,11 @@ $card = '<div class="card">'
           . '<tr class="totals"><td>ยอดสุทธิ</td><td class="text-end">'.nf($netvalue).'</td></tr>'
         . '</table>'
       . '</div>'
+      . '<div class="kpi">'
+         . '<table style="width:100%">'
+           . '<tr><td>ยอดสุทธิ</td><td class="text-end"><span class="kpi-value">'.nf($netvalue).'</span> บาท</td></tr>'
+         . '</table>'
+       . '</div>'
     . '</td>'
   . '</tr>'
   . '</table>'
@@ -154,7 +161,7 @@ $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>
 .container { display: block; box-sizing: border-box; }
 .card { box-sizing: border-box; padding: 8px; }
 .columns { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.columns td { vertical-align: top; }
+.columns td { vertical-align: top; padding-top: 4px; }
 .left { width: 50%; }
 .right { width: 50%; }
 
@@ -166,17 +173,29 @@ h1 { font-size: 18px; margin: 0 0 6px; }
 .muted { color: #666; }
 .full-width { display: block; width: 100%; }
 
+/* header */
+.header-card { padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
+.title-row { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 2px; }
+
 /* card/box */
 .box { border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; margin-top: 8px; background: #fafafa; }
 
 /* tables */
 .table, table { width: 100%; border-collapse: collapse; }
+.info-table td { padding: 4px 6px; }
+.info-table tr td:nth-child(odd) { color: #555; }
 .data-table th, .data-table td { padding: 6px 8px; border-bottom: 1px solid #ececec; }
 .data-table th { background: #f3f4f6; font-weight: 600; text-align: left; color: #222; }
+.data-table tr:nth-child(even) td { background: #fbfbfb; }
 .data-table tr:last-child td { border-bottom: 0; }
 .data-table .totals td { font-weight: 700; background: #f9fafb; border-top: 1px solid #ddd; }
 
+/* KPI */
+.kpi { margin-top: 8px; background: #fefce8; border: 1px solid #fde68a; border-radius: 6px; padding: 8px 10px; }
+.kpi .kpi-value { font-size: 18px; font-weight: 700; }
+
 /* signature */
+.signature-table { margin-top: 14px; }
 .signature-table td { vertical-align: bottom; padding-top: 10px; }
 .sig-line { border-bottom: 1px dotted #000; width: 88%; height: 18px; display: block; }
 .sig-caption { font-size: 11px; color: #666; margin-top: 4px; }
