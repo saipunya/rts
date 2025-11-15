@@ -4,7 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 use Dompdf\Dompdf;
 
 $dompdf = new Dompdf([
-  'isRemoteEnabled' => true, // allow Google Fonts
+  'isRemoteEnabled' => true, // allow loading local fonts
 ]);
 
 $html = <<<HTML
@@ -13,9 +13,22 @@ $html = <<<HTML
 <head>
   <meta charset="utf-8">
   <title>Dompdf Thai Demo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Sarabun', sans-serif; font-size: 14pt; }
+    /* Use local TTF fonts (dompdf supports TTF/OTF). Adjust path if your fonts are in /fonts instead of /assets/fonts */
+    @font-face {
+      font-family: 'Sarabun';
+      src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Sarabun';
+      src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    body { font-family: 'Sarabun', DejaVu Sans, sans-serif; font-size: 14pt; }
     h1 { font-weight: 700; margin-bottom: 0.5em; }
     p { margin: 0.4em 0; }
   </style>
@@ -23,7 +36,7 @@ $html = <<<HTML
 <body>
   <h1>ทดสอบการส่งออก PDF ด้วย Dompdf</h1>
   <p>สวัสดีครับ/ค่ะ นี่คือเอกสารตัวอย่างภาษาไทยที่สร้างด้วย Dompdf โดยไม่ใช้ mPDF</p>
-  <p>รองรับฟอนต์จาก Google Fonts (Sarabun) ผ่านการโหลดแบบ remote</p>
+  <p>รองรับฟอนต์ Sarabun จากโฟลเดอร์ assets/fonts</p>
   <p>หน้าเอกสาร: A4 แนวตั้ง</p>
 </body>
 </html>
