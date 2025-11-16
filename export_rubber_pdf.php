@@ -88,8 +88,8 @@ $card = '<div class="card">
           <thead><tr><th colspan="2">รายการรับ</th></tr></thead>
           <tbody>
             <tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>
-            <tr><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>
             <tr><td>ราคาต่อกก.</td><td class="text-end">'.nf($unitPrice).' <span class="unit">บาท/กก.</span></td></tr>
+            <tr><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>
           </tbody>
         </table>
       </td>
@@ -118,7 +118,7 @@ $card = '<div class="card">
     <tr>
       <td style="width:60%;padding-top:18px;">
         <div class="sig-line">&nbsp;</div>
-        <div class="sig-caption">ผู้บันทึก</div>
+        <div class="sig-caption">เจ้าหน้าที่: '.e($row['ru_fullname']).' </div>
       </td>
       <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
         เวลาบันทึก: '.e($row['ru_date']).'
