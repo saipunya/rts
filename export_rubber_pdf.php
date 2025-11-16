@@ -81,40 +81,38 @@ $card = '<div class="card">
     <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).'</td></tr>
     <tr><td class="k">ชั้น</td><td class="v">'.e($row['ru_class']).'</td></tr>
   </table>
-  <table class="data-table" style="margin-bottom:18px;">
-    <thead>
-      <tr>
-        <th>ปริมาณ (กก.)</th>
-        <th>หุ้น</th>
-        <th>เงินกู้</th>
-        <th>หนี้สั้น</th>
-        <th>เงินฝาก</th>
-        <th>กู้ซื้อขาย</th>
-        <th>ประกันภัย</th>
-        <th>มูลค่า</th>
-        <th>หักรวม</th>
-        <th>สุทธิ</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="text-end">'.nf($qty).'</td>
-        <td class="text-end">'.nf($hoon).'</td>
-        <td class="text-end">'.nf($loan).'</td>
-        <td class="text-end">'.nf($short).'</td>
-        <td class="text-end">'.nf($deposit).'</td>
-        <td class="text-end">'.nf($trade).'</td>
-        <td class="text-end">'.nf($insure).'</td>
-        <td class="text-end">'.nf($value).'</td>
-        <td class="text-end">'.nf($expend).'</td>
-        <td class="text-end">'.nf($netvalue).'</td>
-      </tr>
-    </tbody>
+  <table class="columns" style="margin-bottom:18px;">
+    <tr>
+      <td class="left" style="width:50%;vertical-align:top;">
+        <table class="data-table" style="margin-bottom:0;">
+          <thead><tr><th colspan="2">รายการรับ</th></tr></thead>
+          <tbody>
+            <tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>
+            <tr><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>
+            <tr><td>ราคาต่อกก.</td><td class="text-end">'.nf($unitPrice).' <span class="unit">บาท/กก.</span></td></tr>
+          </tbody>
+        </table>
+      </td>
+      <td class="right" style="width:50%;vertical-align:top;">
+        <table class="data-table" style="margin-bottom:0;">
+          <thead><tr><th colspan="2">รายการหัก</th></tr></thead>
+          <tbody>
+            <tr><td>หุ้น</td><td class="text-end">'.nf($hoon).'</td></tr>
+            <tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>
+            <tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>
+            <tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>
+            <tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>
+            <tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>
+            <tr><td><b>หักรวม</b></td><td class="text-end"><b>'.nf($expend).'</b></td></tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
   </table>
   <div class="kpi">
-    <span>ราคาต่อกิโลกรัม: </span>
-    <span class="kpi-value">'.nf($unitPrice).'</span>
-    <span class="unit">บาท/กก.</span>
+    <span>สุทธิรับ: </span>
+    <span class="kpi-value">'.nf($netvalue).'</span>
+    <span class="unit">บาท</span>
   </div>
 </div>';
 
