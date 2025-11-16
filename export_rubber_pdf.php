@@ -74,14 +74,14 @@ $card = '<div class="card">
     <h1 class="title-row">ข้อมูลยางพารา (ID: '.e($row['ru_id']).')</h1>
     <div class="meta">วันที่บันทึก: '.e($row['ru_date']).' | พิมพ์เมื่อ: '.e($printedAt).'</div>
   </div>
-  <table class="info-table kv" style="margin-bottom:18px;width:100%;">
+  <table class="info-table kv" style="margin-bottom:12px;width:100%;">
     <tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>
     <tr><td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td></tr>
     <tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>
     <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).'</td></tr>
     <tr><td class="k">ชั้น</td><td class="v">'.e($row['ru_class']).'</td></tr>
   </table>
-  <table class="columns" style="margin-bottom:18px;">
+  <table class="columns" style="margin-bottom:12px;">
     <tr>
       <td class="left" style="width:50%;vertical-align:top;">
         <table class="data-table" style="margin-bottom:0;">
@@ -114,6 +114,17 @@ $card = '<div class="card">
     <span class="kpi-value">'.nf($netvalue).'</span>
     <span class="unit">บาท</span>
   </div>
+  <table class="signature-table" style="width:100%;margin-top:18px;">
+    <tr>
+      <td style="width:60%;padding-top:18px;">
+        <div class="sig-line">&nbsp;</div>
+        <div class="sig-caption">ผู้บันทึก</div>
+      </td>
+      <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
+        เวลาบันทึก: '.e($row['ru_date']).'
+      </td>
+    </tr>
+  </table>
 </div>';
 
 // เปลี่ยนเป็นใช้ฟอนต์จาก assets/fonts แบบอ้างไฟล์ตรง (เหมือน export_rubbers_pdf.php)
@@ -163,37 +174,37 @@ $hasThaiFonts = (bool)$defaultFamily;
 $style = '
   @page { margin: 12mm 10mm; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 18px; color: #222; background: #f8fafc; line-height: 1.5; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 17px; color: #222; background: #f8fafc; line-height: 1.45; }
   .container { max-width: 1100px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08); border: 1px solid #e5e7eb; padding: 24px 24px 18px 24px; margin-bottom: 18px; }
+  .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08); border: 1px solid #e5e7eb; padding: 20px 18px 14px 18px; margin-bottom: 12px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
-  .columns td { vertical-align: top; padding-top: 8px; }
-  h1, .title-row { font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 4px; letter-spacing: 0.5px; }
-  .meta { font-size: 16px; color: #64748b; margin-bottom: 12px; }
+  .columns td { vertical-align: top; padding-top: 0; }
+  h1, .title-row { font-size: 28px; font-weight: 800; color: #1e293b; margin-bottom: 4px; letter-spacing: 0.5px; }
+  .meta { font-size: 14px; color: #64748b; margin-bottom: 10px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
   .muted { color: #94a3b8; }
-  .unit { color: #64748b; font-size: 16px; }
-  .badge { display: inline-block; padding: 2px 10px; background: #e0e7ff; color: #3730a3; border-radius: 12px; font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
-  .chip { display: inline-block; padding: 2px 10px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; font-weight: 500; }
-  .header-card { padding-bottom: 10px; border-bottom: 2px solid #e0e7ff; margin-bottom: 16px; }
-  .box { border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px 16px; margin-top: 12px; background: #f9fafb; box-shadow: 0 1px 4px 0 rgba(30,41,59,0.04); }
+  .unit { color: #64748b; font-size: 14px; }
+  .badge { display: inline-block; padding: 2px 10px; background: #e0e7ff; color: #3730a3; border-radius: 12px; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
+  .chip { display: inline-block; padding: 2px 10px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 14px; font-weight: 500; }
+  .header-card { padding-bottom: 8px; border-bottom: 2px solid #e0e7ff; margin-bottom: 12px; }
+  .box { border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; margin-top: 8px; background: #f9fafb; box-shadow: 0 1px 4px 0 rgba(30,41,59,0.04); }
   .table, table { width: 100%; border-collapse: collapse; }
-  .info-table td { padding: 8px 12px; font-size: 18px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 18px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 18px; }
+  .info-table td { padding: 4px 7px; font-size: 15px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 15px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 15px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
-  .data-table { border: 1.5px solid #6366f1; border-radius: 10px; background: #fff; margin-bottom: 0; }
-  .data-table thead th { padding: 12px 10px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1.5px solid #6366f1; font-size: 18px; letter-spacing: 0.2px; }
-  .data-table td, .data-table th { padding: 12px 10px; border: 1px solid #e5e7eb; background: #fff; font-size: 18px; }
+  .data-table { border: 1.2px solid #6366f1; border-radius: 8px; background: #fff; margin-bottom: 0; }
+  .data-table thead th { padding: 6px 6px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1.2px solid #6366f1; font-size: 15px; letter-spacing: 0.2px; }
+  .data-table td, .data-table th { padding: 5px 6px; border: 1px solid #e5e7eb; background: #fff; font-size: 15px; }
   .data-table tr:nth-child(even) td { background: #f1f5f9; }
-  .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1.5px solid #6366f1; }
-  .kpi { margin-top: 14px; background: #f1f5f9; border: 1.5px dashed #6366f1; border-radius: 10px; padding: 16px 20px; page-break-inside: avoid; box-shadow: 0 1px 4px 0 rgba(99,102,241,0.06); font-size: 20px; }
-  .kpi .kpi-value { font-size: 28px; font-weight: 800; color: #3730a3; }
-  .signature-table { margin-top: 18px; page-break-inside: avoid; }
+  .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1.2px solid #6366f1; }
+  .kpi { margin-top: 10px; background: #f1f5f9; border: 1.2px dashed #6366f1; border-radius: 8px; padding: 10px 12px; page-break-inside: avoid; box-shadow: 0 1px 4px 0 rgba(99,102,241,0.06); font-size: 16px; }
+  .kpi .kpi-value { font-size: 22px; font-weight: 800; color: #3730a3; }
+  .signature-table { margin-top: 10px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
-  .sig-line { border-bottom: 1.5px dotted #6366f1; width: 88%; height: 18px; display: block; }
-  .sig-caption { font-size: 14px; color: #64748b; margin-top: 4px; }
-  .sig-name { font-size: 16px; margin-top: 6px; font-weight: 600; }
+  .sig-line { border-bottom: 1.5px dotted #6366f1; width: 80%; height: 18px; display: block; margin-bottom:2px; }
+  .sig-caption { font-size: 13px; color: #64748b; margin-top: 2px; }
+  .sig-name { font-size: 15px; margin-top: 4px; font-weight: 600; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 ';
 
