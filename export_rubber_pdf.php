@@ -68,6 +68,56 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
+// --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
+$card = '<div class="card">
+  <div class="header-card">
+    <h1 class="title-row">ข้อมูลยางพารา (ID: '.e($row['ru_id']).')</h1>
+    <div class="meta">วันที่บันทึก: '.e($row['ru_date']).' | พิมพ์เมื่อ: '.e($printedAt).'</div>
+  </div>
+  <table class="info-table kv" style="margin-bottom:18px;width:100%;">
+    <tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>
+    <tr><td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td></tr>
+    <tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>
+    <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).'</td></tr>
+    <tr><td class="k">ชั้น</td><td class="v">'.e($row['ru_class']).'</td></tr>
+  </table>
+  <table class="data-table" style="margin-bottom:18px;">
+    <thead>
+      <tr>
+        <th>ปริมาณ (กก.)</th>
+        <th>หุ้น</th>
+        <th>เงินกู้</th>
+        <th>หนี้สั้น</th>
+        <th>เงินฝาก</th>
+        <th>กู้ซื้อขาย</th>
+        <th>ประกันภัย</th>
+        <th>มูลค่า</th>
+        <th>หักรวม</th>
+        <th>สุทธิ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-end">'.nf($qty).'</td>
+        <td class="text-end">'.nf($hoon).'</td>
+        <td class="text-end">'.nf($loan).'</td>
+        <td class="text-end">'.nf($short).'</td>
+        <td class="text-end">'.nf($deposit).'</td>
+        <td class="text-end">'.nf($trade).'</td>
+        <td class="text-end">'.nf($insure).'</td>
+        <td class="text-end">'.nf($value).'</td>
+        <td class="text-end">'.nf($expend).'</td>
+        <td class="text-end">'.nf($netvalue).'</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="kpi">
+    <span>ราคาต่อกิโลกรัม: </span>
+    <span class="kpi-value">'.nf($unitPrice).'</span>
+    <span class="unit">บาท/กก.</span>
+  </div>
+</div>';
+
 // เปลี่ยนเป็นใช้ฟอนต์จาก assets/fonts แบบอ้างไฟล์ตรง (เหมือน export_rubbers_pdf.php)
 $fontDir = __DIR__ . '/assets/fonts';
 $fontsByFamily = [];
