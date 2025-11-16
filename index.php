@@ -23,7 +23,7 @@ body {
 .table tbody tr:hover { background-color: rgba(46,125,50,0.04); }
 .form-inline .form-control { min-width:150px; }
 .btn-cta { background: linear-gradient(90deg, var(--muted-green), var(--accent-green)); border: none; color: #fff; }
-.small-note { color: rgba(0,0,0,0.6); font-size:0.95rem; }
+.small-note { color: rgba(0,0,0,0.6); font-size:1.5rem; }
 @media (max-width: 576px){ .form-inline { display:block; } .form-inline .form-control { width:100%; margin-bottom:8px; } }
 </style>
 
