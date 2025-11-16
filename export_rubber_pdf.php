@@ -174,37 +174,37 @@ $hasThaiFonts = (bool)$defaultFamily;
 $style = '
   @page { margin: 6mm 5mm; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #222; background: #f8fafc; line-height: 1.35; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 17px; color: #222; background: #f8fafc; line-height: 1.35; }
   .container { max-width: 1100px; margin: 0 auto; }
   .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 6px 0 rgba(0,0,0,0.06); border: 1px solid #e5e7eb; padding: 10px 8px 8px 8px; margin-bottom: 6px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 2px; letter-spacing: 0.5px; }
-  .meta { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+  h1, .title-row { font-size: 25px; font-weight: 800; color: #1e293b; margin-bottom: 2px; letter-spacing: 0.5px; }
+  .meta { font-size: 13px; color: #64748b; margin-bottom: 6px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
   .muted { color: #94a3b8; }
-  .unit { color: #64748b; font-size: 12px; }
-  .badge { display: inline-block; padding: 1px 6px; background: #e0e7ff; color: #3730a3; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.2px; }
-  .chip { display: inline-block; padding: 1px 6px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 12px; font-weight: 500; }
+  .unit { color: #64748b; font-size: 13px; }
+  .badge { display: inline-block; padding: 1px 6px; background: #e0e7ff; color: #3730a3; border-radius: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.2px; }
+  .chip { display: inline-block; padding: 1px 6px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 13px; font-weight: 500; }
   .header-card { padding-bottom: 4px; border-bottom: 1px solid #e0e7ff; margin-bottom: 6px; }
   .box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 8px; margin-top: 4px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.03); }
   .table, table { width: 100%; border-collapse: collapse; }
-  .info-table td { padding: 2px 4px; font-size: 13px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 13px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 13px; }
+  .info-table td { padding: 2px 4px; font-size: 15px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 15px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 15px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 6px; background: #fff; margin-bottom: 0; }
-  .data-table thead th { padding: 3px 4px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 13px; letter-spacing: 0.2px; }
-  .data-table td, .data-table th { padding: 3px 4px; border: 1px solid #e5e7eb; background: #fff; font-size: 13px; }
+  .data-table thead th { padding: 4px 5px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 15px; letter-spacing: 0.2px; }
+  .data-table td, .data-table th { padding: 4px 5px; border: 1px solid #e5e7eb; background: #fff; font-size: 15px; }
   .data-table tr:nth-child(even) td { background: #f1f5f9; }
   .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1px solid #6366f1; }
-  .kpi { margin-top: 6px; background: #f1f5f9; border: 1px dashed #6366f1; border-radius: 6px; padding: 6px 8px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.04); font-size: 13px; }
-  .kpi .kpi-value { font-size: 16px; font-weight: 800; color: #3730a3; }
+  .kpi { margin-top: 6px; background: #f1f5f9; border: 1px dashed #6366f1; border-radius: 6px; padding: 7px 10px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.04); font-size: 15px; }
+  .kpi .kpi-value { font-size: 18px; font-weight: 800; color: #3730a3; }
   .signature-table { margin-top: 6px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
   .sig-line { border-bottom: 1px dotted #6366f1; width: 70%; height: 14px; display: block; margin-bottom:2px; }
-  .sig-caption { font-size: 11px; color: #64748b; margin-top: 2px; }
-  .sig-name { font-size: 12px; margin-top: 2px; font-weight: 600; }
+  .sig-caption { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .sig-name { font-size: 13px; margin-top: 2px; font-weight: 600; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 ';
 
