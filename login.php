@@ -82,9 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 <div class="container" style="max-width:480px;margin-top:60px;">
-	<div class="row my-2 d-flex justify-content-between">
+	<div class="row my-2 ">
+		<div class="col-12 d-flex justify-content-between">
 			<h3 class="mb-3">เข้าสู่ระบบ</h3>
 			<a href="index.php"><h3>กลับหน้าหลัก</h3></a>
+		</div>
 	</div>
 	
 	<?php if ($msg): ?>
