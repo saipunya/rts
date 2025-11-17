@@ -30,7 +30,13 @@
             @font-face { font-family: 'THSarabunNew'; font-style: italic; font-weight: 400; src: url('assets/fonts/THSarabunNew-italic.ttf') format('truetype'); }
             @font-face { font-family: 'THSarabunNew'; font-style: italic; font-weight: 700; src: url('assets/fonts/THSarabunNew-BoldItalic.ttf') format('truetype'); }
             *{
-                font-size: 1.5rem;
+                font-size: 1.3rem;
+                margin : 0;
+                padding : 0;
+                box-sizing: border-box;
+            }
+            .btn-sm{
+                font-size: 1.2rem;
             }
             /* Custom layout tweaks */
             body { background-color: #f8fafc; font-family: 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
