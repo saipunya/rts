@@ -82,7 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 <div class="container" style="max-width:480px;margin-top:60px;">
-	<h3 class="mb-3">เข้าสู่ระบบ</h3>
+	<div class="row my-2 d-flex justify-content-between align-items-center">
+		<div class="col"><h3 class="mb-3">เข้าสู่ระบบ</h3></div>
+		<div class="col"><a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-md btn-info"></a></div>
+	</div>
+	
 	<?php if ($msg): ?>
 		<div class="alert alert-info"><?php echo e($msg); ?></div>
 	<?php endif; ?>
