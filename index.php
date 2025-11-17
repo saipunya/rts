@@ -181,7 +181,6 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 							<tr>
 									<th>เลขที่สมาชิก</th>
 									<th>ผู้ขาย</th>
-									<th>ประเภท</th>
 								<th>ปริมาณ</th>
                                 <th>จำนวนเงิน</th>
 								<th>รายการหัก</th>
@@ -193,7 +192,6 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 									<tr>
 									<td><?php echo htmlspecialchars($item['member_no'] ?? '-'); ?></td>
 									<td class="text-nowrap"><?php echo htmlspecialchars($item['seller']); ?></td>
-									<td><?php echo htmlspecialchars($item['type']); ?></td>
 								<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
 								<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
 								<td><?php echo number_format($item['deductions'],2); ?></td>
