@@ -7,6 +7,9 @@ $db = db();
 ?>
 
 <style>
+	*{
+		font-size: 1.2rem;
+	}
 :root{
   --bg-green: #f3fbf5;
   --accent-green: #2e7d32;
