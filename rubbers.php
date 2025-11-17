@@ -364,6 +364,9 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     .member-chooser {
       position: relative;
     }
+    body{
+      font-family: 'Sarabun', sans-serif;
+    }
 
     .member-chooser .dropdown {
       position: absolute;
@@ -384,7 +387,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       background: #eef2ff;
       color: #3730a3;
       border-radius: 50rem;
-      font-size: .75rem;
+      font-size: 1.2rem;
     }
 
     .link-btn {
@@ -398,7 +401,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     /* new compact form styles */
     .form-wrap { max-width: 960px; margin: 0 auto; }
     fieldset { border: 1px solid #e4e6eb; padding: .85rem 1.1rem 1rem; border-radius: .65rem; margin-bottom: 1rem; background:#fff; }
-    fieldset legend { font-size: .9rem; font-weight: 600; width: auto; padding: 0 .6rem; margin-bottom: .2rem; }
+    fieldset legend { font-size: 1rem; font-weight: 600; width: auto; padding: 0 .6rem; margin-bottom: .2rem; }
     .num-group .input-group-text { min-width:70px; justify-content:center; }
 
     /* added: table polish */
