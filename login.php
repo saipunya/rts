@@ -85,7 +85,7 @@ include 'header.php';
 	<div class="row my-2 ">
 		<div class="col-12 d-flex justify-content-between">
 			<h3 class="mb-3">เข้าสู่ระบบ</h3>
-			<a href="index.php"><h3>กลับหน้าหลัก</h3></a>
+			<a href="index.php" class="text-decoration-none"><h3>กลับหน้าหลัก</h3></a>
 		</div>
 	</div>
 	
