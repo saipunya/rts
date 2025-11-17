@@ -84,7 +84,7 @@ include 'header.php';
 <div class="container" style="max-width:480px;margin-top:60px;">
 	<div class="row my-2 d-flex justify-content-between align-items-center">
 		<div class="col"><h3 class="mb-3">เข้าสู่ระบบ</h3></div>
-		<div class="col"><a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-md btn-info"></a></div>
+		<div class="col"><a href="index.php"><h3>กลับหน้าหลัก</h3></a></div>
 	</div>
 	
 	<?php if ($msg): ?>
