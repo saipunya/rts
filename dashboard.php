@@ -31,6 +31,37 @@ $cu = current_user();
             </div>
         </div>
 
+        <!-- Export Section Start -->
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-download me-2"></i>Export Data</h5>
+                    <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการเป็น PDF หรือ Excel</p>
+                    <form class="row g-2 align-items-end" method="get" action="#">
+                        <div class="col-12">
+                            <label for="export_type" class="form-label mb-1">ประเภทการส่งออก</label>
+                            <select class="form-select form-select-sm" id="export_type" name="export_type">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="export_scope" class="form-label mb-1">ช่วงข้อมูล</label>
+                            <select class="form-select form-select-sm" id="export_scope" name="export_scope">
+                                <option value="year">รายปี</option>
+                                <option value="month">รายเดือน</option>
+                                <option value="period">ตามรอบ</option>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-arrow-down me-1"></i>ส่งออก</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Export Section End -->
+
         <div class="col-12 col-md-6">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
