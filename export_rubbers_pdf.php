@@ -253,6 +253,14 @@ if (!$rows) {
         <td class="num">'.fmt2($balance).'</td>
       </tr>';
   }
+  // Add summary row
+  $html .= '\n      <tr style="font-weight:bold;background:#f9fafb">'
+    .'<td colspan="5" style="text-align:right">รวมทั้งสิ้น</td>'
+    .'<td class="num">'.fmt2($sumQty).'</td>'
+    .'<td class="num">'.fmt2($sumValue).'</td>'
+    .'<td class="num">'.fmt2($sumExpend).'</td>'
+    .'<td class="num">'.fmt2($sumNet).'</td>'
+    .'</tr>';
 }
 $html .= '
     </tbody>
