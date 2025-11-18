@@ -174,7 +174,7 @@ $hasThaiFonts = (bool)$defaultFamily;
 $style = '
   @page { margin: 5mm 4mm; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 15px; color: #222; background: #f8fafc; line-height: 1.25; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #222; background: #f8fafc; line-height: 1.25; }
   .container { max-width: 1100px; margin: 0 auto; }
   .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04); border: 1px solid #e5e7eb; padding: 6px 4px 4px 4px; margin-bottom: 4px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }

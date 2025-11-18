@@ -75,7 +75,6 @@ $form = [
   'ru_deposit' => '0.00',
   'ru_tradeloan' => '0.00',
   'ru_insurance' => '0.00',
-  'ru_saveby' => $default_saveby,
   'ru_savedate' => $today,
 ];
 
@@ -153,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       // รับค่าและตรวจสอบ
       $data = [];
-      $fieldsText = ['ru_lan', 'ru_group', 'ru_number', 'ru_fullname', 'ru_class', 'ru_saveby']; // ensure ru_lan present
+      $fieldsText = ['ru_lan', 'ru_group', 'ru_number', 'ru_fullname', 'ru_class']; // ensure ru_lan present
       $fieldsDate = ['ru_date', 'ru_savedate'];
       $fieldsNum  = ['ru_quantity', 'ru_hoon', 'ru_loan', 'ru_shortdebt', 'ru_deposit', 'ru_tradeloan', 'ru_insurance'];
 
@@ -198,6 +197,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $data['ru_value']    = number_format((float)$value, 2, '.', '');
       $data['ru_expend']   = number_format((float)$expend, 2, '.', '');
       $data['ru_netvalue'] = number_format((float)$net, 2, '.', '');
+
+      // set ru_saveby from session
+      $data['ru_saveby'] = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
 
       if (!$errors) {
         $id = isset($_POST['ru_id']) && $_POST['ru_id'] !== '' ? (int)$_POST['ru_id'] : 0;
@@ -567,7 +569,6 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 </div>
               </div>
             </div>
-            <input type="hidden" name="ru_saveby" value="<?php echo e($form['ru_saveby']); ?>">
             <input type="hidden" name="ru_savedate" value="<?php echo e($form['ru_savedate']); ?>">
           </fieldset>
           <fieldset>
