@@ -121,7 +121,9 @@ $card = '<div class="card">
         <div class="sig-caption" style="font-size: 12px;">เจ้าหน้าที่: '.e($row['ru_saveby']).' </div>
       </td>
       <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
-        เวลาบันทึก: '.(thai_date_function($row['ru_date'])).'
+        <div class="sig-line">&nbsp;</div>
+        <div class="sig-name">'.e($row['ru_saveby'] ?? $row['ru_fullname']).'</div>
+        <div class="sig-caption">เวลาบันทึก: '.e(thai_date_function($row['ru_date'])).'</div>
       </td>
     </tr>
   </table>
