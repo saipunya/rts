@@ -184,17 +184,17 @@ $hasThaiFonts = (bool)$defaultFamily;
 $style = '
   @page { margin: 20px 24px; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.45; }
-  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; }
-  h1 { font-size: 18px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
-  .muted { color: #666; font-size: 11px; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #111; line-height: 1.45; }
+  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 15px; }
+  h1 { font-size: 24px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
+  .muted { color: #666; font-size: 13px; }
   .summary { margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
-  .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; }
+  .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; font-size: 15px; }
   table { width: 100%; border-collapse: collapse; }
-  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 6px 5px; }
-  tbody td { border-bottom: 1px solid #eee; padding: 5px; }
+  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 8px 6px; font-size: 15px; }
+  tbody td { border-bottom: 1px solid #eee; padding: 7px; font-size: 15px; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .footer { margin-top: 8px; font-size: 11px; color:#555; }
+  .footer { margin-top: 8px; font-size: 13px; color:#555; }
 ';
 
 $html = '
@@ -242,7 +242,7 @@ if (!$rows) {
     $balance = (float)($r['ru_netvalue'] ?? 0); // คงเหลือ
     $html .= '
       <tr>
-        <td>'.h($r['ru_date']).'</td>
+        <td>'.h(format_thai_date($r['ru_date'])).'</td>
         <td>'.h($r['ru_lan']).'</td>
         <td>'.h($r['ru_group']).'</td>
         <td>'.h($r['ru_number']).'</td>
@@ -306,3 +306,16 @@ if (ob_get_length()) { @ob_end_clean(); }
 $filename = 'rubbers_' . ($currentLan === 'all' ? 'all' : 'lan'.$currentLan) . '.pdf';
 $dompdf->stream($filename, ['Attachment' => false]);
 exit;
+
+function format_thai_date($date) {
+  $months = [
+    '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+  ];
+  $parts = explode('-', $date);
+  if (count($parts) !== 3) return $date;
+  $y = (int)$parts[0] + 543;
+  $m = (int)$parts[1];
+  $d = (int)$parts[2];
+  return $d.' '.$months[$m].' '.$y;
+}
