@@ -54,7 +54,7 @@ $stmt->close();
                             <tr>
                                 <td><?php echo (int)$p['pr_id']; ?></td>
                                 <td><?php echo (int)$p['pr_year']; ?></td>
-                                <td><i class="bi bi-calendar-date me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_date']); ?></td>
+                                <td><i class="bi bi-calendar-date me-1 text-secondary"></i><?php echo thai_date_format($p['pr_date']); ?></td>
                                 <td><i class="bi bi-clock-history me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_number']); ?></td>
                                 <td><i class="bi bi-cash-stack me-1 text-success"></i><?php echo number_format((float)$p['pr_price'], 2); ?></td>
                                 <td><i class="bi bi-person-circle me-1 text-primary"></i><?php echo htmlspecialchars($p['pr_saveby']); ?></td>
