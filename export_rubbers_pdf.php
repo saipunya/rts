@@ -219,13 +219,12 @@ $html = '
   <table>
     <thead>
       <tr>
-        <th>ID</th>
+      
         <th>วันที่</th>
         <th>ลาน</th>
         <th>กลุ่ม</th>
         <th>เลขที่</th>
         <th>ชื่อ-สกุล</th>
-        <th>ชั้น</th>
         <th class="num">ปริมาณ</th>
         <th class="num">หุ้น</th>
         <th class="num">เงินกู้</th>
@@ -245,13 +244,12 @@ if (!$rows) {
   foreach ($rows as $r) {
     $html .= '
       <tr>
-        <td>'.(int)$r['ru_id'].'</td>
         <td>'.h($r['ru_date']).'</td>
         <td>'.h($r['ru_lan']).'</td>
         <td>'.h($r['ru_group']).'</td>
         <td>'.h($r['ru_number']).'</td>
         <td>'.h($r['ru_fullname']).'</td>
-        <td>'.h($r['ru_class']).'</td>
+
         <td class="num">'.fmt2($r['ru_quantity']).'</td>
         <td class="num">'.fmt2($r['ru_hoon']).'</td>
         <td class="num">'.fmt2($r['ru_loan']).'</td>
