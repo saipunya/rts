@@ -75,8 +75,10 @@ $card = '<div class="card">
     <div class="meta" style="font-size: 14px;">วันที่บันทึก: '.e($row['ru_date']).' | พิมพ์เมื่อ: '.e($printedAt).'</div>
   </div>
   <table class="info-table kv" style="margin-bottom:12px;width:100%;">
-    <tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>
-    <tr><td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td></tr>
+    <tr>
+    <td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td>
+    <td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td>
+    </tr>
     <tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>
 
     <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).' <span class="badge">'.e((isset($row['ru_class']) && $row['ru_class'] === 'member') ? 'สมาชิก' : 'เกษตรกร').'</span></td></tr>
@@ -88,7 +90,7 @@ $card = '<div class="card">
           <thead><tr><th colspan="2">รายการรับ</th></tr></thead>
           <tbody>
             <tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>
-            <tr><td>ราคาต่อกก.</td><td class="text-end">'.nf($unitPrice).' <span class="unit">บาท/กก.</span></td></tr>
+            <tr><td>ราคา(บาท/กก.)</td><td class="text-end">'.nf($unitPrice).'</td></tr>
             <tr><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>
           </tbody>
         </table>
@@ -109,10 +111,10 @@ $card = '<div class="card">
       </td>
     </tr>
   </table>
-  <div class="kpi " >
-    <span style="font-size: 20px; text-align: right; color:red;">ยอดรับสุทธิ: </span>
-    <span class="kpi-value" style="font-size: 20px; text-align: right; color:red;">'.nf($netvalue).'</span>
-    <span class="unit" style="font-size: 20px; text-align: right; color:red;">บาท</span>
+  <div class="kpi " style="text-align:right;">
+    <span style="font-size: 20px;">ยอดรับสุทธิ: </span>
+    <span class="kpi-value" style="font-size: 20px;  color:red;">'.nf($netvalue).'</span>
+    <span class="unit" style="font-size: 20px;">บาท</span>
   </div>
   <table class="signature-table" style="width:100%;margin-top:18px;">
     <tr>
