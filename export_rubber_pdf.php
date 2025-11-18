@@ -101,16 +101,16 @@ $card = '<div class="card">
             <tr><td>เงินกู้</td><td class="text-end">'.nf($loan).'</td></tr>
             <tr><td>หนี้สั้น</td><td class="text-end">'.nf($short).'</td></tr>
             <tr><td>เงินฝาก</td><td class="text-end">'.nf($deposit).'</td></tr>
-            <tr><td>กู้ซื้อขาย</td><td class="text-end">'.nf($trade).'</td></tr>
+            <tr><td>ลูกหนี้การค้า</td><td class="text-end">'.nf($trade).'</td></tr>
             <tr><td>ประกันภัย</td><td class="text-end">'.nf($insure).'</td></tr>
-            <tr><td><b>หักรวม</b></td><td class="text-end"><b>'.nf($expend).'</b></td></tr>
+            <tr><td><b>รายการหักรวม</b></td><td class="text-end"><b>'.nf($expend).'</b></td></tr>
           </tbody>
         </table>
       </td>
     </tr>
   </table>
   <div class="kpi">
-    <span>สุทธิรับ: </span>
+    <span style="font-size: 24px; color:red; font-weight: bold; text-align : right;">ยอดรับสุทธิ: </span>
     <span class="kpi-value">'.nf($netvalue).'</span>
     <span class="unit">บาท</span>
   </div>
@@ -121,9 +121,8 @@ $card = '<div class="card">
         <div class="sig-caption" style="font-size: 12px;">เจ้าหน้าที่: '.e($row['ru_saveby']).' </div>
       </td>
       <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
-        <div class="sig-line">&nbsp;</div>
-        <div class="sig-name">'.e($row['ru_saveby'] ?? $row['ru_fullname']).'</div>
-        <div class="sig-caption">วันที่บันทึก: '.e(thai_date_format($row['ru_date'])).'</div>
+        <div class="sig-caption ">วันที่บันทึก: '.e(thai_date_format($row['ru_date'])).'</div>
+        <div class="sig-caption" style="font-size: 14px;">เวลาบันทึก: '.e(date('H:i:s', strtotime($row['ru_date']))).'</div>
       </td>
     </tr>
   </table>
