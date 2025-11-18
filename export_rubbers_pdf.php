@@ -97,6 +97,26 @@ foreach ($rows as $ag) {
   $sumNet    += isset($ag['ru_netvalue']) ? (float)$ag['ru_netvalue'] : 0.0;
 }
 
+// สร้างข้อมูลสรุปแยกตามลาน
+$lanStats = [];
+foreach ($rows as $r) {
+  $lan = $r['ru_lan'];
+  if (!isset($lanStats[$lan])) {
+    $lanStats[$lan] = [
+      'count' => 0,
+      'qty' => 0.0,
+      'value' => 0.0,
+      'expend' => 0.0,
+      'net' => 0.0
+    ];
+  }
+  $lanStats[$lan]['count']++;
+  $lanStats[$lan]['qty']    += (float)($r['ru_quantity'] ?? 0);
+  $lanStats[$lan]['value']  += (float)($r['ru_value'] ?? 0);
+  $lanStats[$lan]['expend'] += (float)($r['ru_expend'] ?? 0);
+  $lanStats[$lan]['net']    += (float)($r['ru_netvalue'] ?? 0);
+}
+
 function fmt2($n){ return number_format((float)$n, 2); }
 function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
@@ -216,6 +236,19 @@ $html = '
     <div class="badge">หักรวม: '.fmt2($sumExpend).' ฿</div>
     <div class="badge">สุทธิ: '.fmt2($sumNet).' ฿</div>
   </div>
+  <div class="summary" style="flex-wrap:wrap;gap:18px 24px;">';
+foreach ([1,2,3,4] as $lan) {
+  $s = $lanStats[$lan] ?? ['count'=>0,'qty'=>0,'value'=>0,'expend'=>0,'net'=>0];
+  $html .= '<div style="background:#f8fafc;border-radius:10px;padding:12px 18px;min-width:220px;box-shadow:0 1px 3px #0001;display:inline-block;">
+    <div style="font-size:17px;font-weight:bold;margin-bottom:4px;">ลาน '.h($lan).'</div>
+    <div>จำนวนรายการ: <b>'.h($s['count']).'</b></div>
+    <div>ปริมาณรวม: <b>'.fmt2($s['qty']).'</b> กก.</div>
+    <div>มูลค่า: <b>'.fmt2($s['value']).'</b> ฿</div>
+    <div>หักรวม: <b>'.fmt2($s['expend']).'</b> ฿</div>
+    <div>สุทธิ: <b>'.fmt2($s['net']).'</b> ฿</div>
+  </div>';
+}
+$html .= '</div>
   <table>
     <thead>
       <tr>
