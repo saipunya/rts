@@ -785,9 +785,13 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <td><?php echo e($r['ru_number']); ?></td>
               <td>
                 <?php echo e($r['ru_fullname']); ?>
-                <!-- ถ้า  ru_class == 'member'  -->
-                <?php if ($r['ru_class'] == 'member'): ?>
+                <!-- ถ้า  ru_class == 'general'  -->
+                <?php if ($r['ru_class'] == 'general'): ?>
+                  <span class="badge bg-danger">เกษตรกร</span>
+                <?php elseif ($r['ru_class'] == 'member'): ?>
                   <span class="badge bg-success">สมาชิก</span>
+                <?php else: ?>
+                  <span class="badge bg-secondary">ไม่ระบุ</span>
                 <?php endif; ?>
               </td>
               
@@ -830,7 +834,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     </div>
 
     <div class="row my-2 text-center">
-      <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"><i class="bi bi-arrow-left ms-2"></i></a>
+      <a href="index.php"><button class="btn btn-sm btn-info"><i class="bi bi-arrow-left ms-2"></i>กลับหน้าหลัก</button></a>
     </div>
 
     <?php if ($currentLan !== 'all'): ?>
