@@ -78,8 +78,8 @@ $card = '<div class="card">
     <tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>
     <tr><td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td></tr>
     <tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>
-    <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).'</td></tr>
-    <tr><td class="k">ชั้น</td><td class="v">'.e($row['ru_class']).'</td></tr>
+
+    <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).' <span class="badge">'.e((isset($row['ru_class']) && $row['ru_class'] === 'member') ? 'สมาชิก' : 'เกษตรกร').'</span></td></tr>
   </table>
   <table class="columns" style="margin-bottom:12px;">
     <tr>
