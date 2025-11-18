@@ -57,6 +57,18 @@ $cu = current_user();
                             <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-arrow-down me-1"></i>ส่งออก</button>
                         </div>
                     </form>
+                    <hr>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="export_rubbers_export.php?export_type=pdf&export_scope=year&year=<?php echo date('Y'); ?>" class="btn btn-outline-success btn-sm" target="_blank">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> ส่งออก PDF รายปี
+                        </a>
+                        <a href="export_rubbers_export.php?export_type=excel&export_scope=month&year=<?php echo date('Y'); ?>&month=<?php echo date('n'); ?>" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="bi bi-file-earmark-excel me-1"></i> ส่งออก Excel รายเดือน
+                        </a>
+                        <a href="export_rubbers_export.php?export_type=pdf&export_scope=period&period_start=<?php echo date('Y-m-01'); ?>&period_end=<?php echo date('Y-m-t'); ?>" class="btn btn-outline-secondary btn-sm" target="_blank">
+                            <i class="bi bi-file-earmark-arrow-down me-1"></i> ส่งออก PDF ตามรอบ
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
