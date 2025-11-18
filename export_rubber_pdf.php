@@ -105,7 +105,7 @@ $card = '<div class="card">
           <tbody>
             <tr><td>ปริมาณ (กก.)</td><td class="text-end">'.nf($qty).'</td></tr>
             <tr><td>ราคา(บาท/กก.)</td><td class="text-end">'.nf($unitPrice).'</td></tr>
-            <tr><td>มูลค่า</td><td class="text-end">'.nf($value).'</td></tr>
+            <tr><td>ยอดเงินรวม</td><td class="text-end" style="font-weight: bold;">'.nf($value).'</td></tr>
           </tbody>
         </table>
       </td>
