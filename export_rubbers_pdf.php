@@ -226,16 +226,7 @@ $html = '
 </head>
 <body>
   '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: ไม่พบฟอนต์ไทยใน assets/fonts จะใช้ DejaVu Sans</div>' : '').'
-  <h1>'.h($title).'</h1>
-  <div class="muted">'.h($subtitle).'</div>
-  '.($condStr ? '<div class="muted">'.$condStr.'</div>' : '').'
-  <div class="summary">
-    <div class="badge">จำนวนรายการ: '.count($rows).'</div>
-    <div class="badge">ปริมาณรวม: '.fmt2($sumQty).' กก.</div>
-    <div class="badge">มูลค่า: '.fmt2($sumValue).' ฿</div>
-    <div class="badge">หักรวม: '.fmt2($sumExpend).' ฿</div>
-    <div class="badge">สุทธิ: '.fmt2($sumNet).' ฿</div>
-  </div>
+  
   <div class="summary" style="flex-wrap:wrap;gap:18px 24px;">';
 foreach ([1,2,3,4] as $lan) {
   $s = $lanStats[$lan] ?? ['count'=>0,'qty'=>0,'value'=>0,'expend'=>0,'net'=>0];
