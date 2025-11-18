@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$_SESSION['user_level'] = (string)$level;
 					$_SESSION['user_status'] = (string)$status;
 
-					$redirect = $_GET['redirect'] ?? 'index.php';
+					$redirect = $_GET['redirect'] ?? 'dashboard.php';
 					if (strpos($redirect, '/') === 0) $redirect = ltrim($redirect, '/'); // simple safety
 					header('Location: ' . $redirect);
 					exit;
@@ -82,7 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'header.php';
 ?>
 <div class="container" style="max-width:480px;margin-top:60px;">
-	<h3 class="mb-3">เข้าสู่ระบบ</h3>
+	<div class="row my-2 ">
+		<div class="col-12 d-flex justify-content-between">
+			<h3 class="mb-3">เข้าสู่ระบบ</h3>
+			<a href="index.php" class="text-decoration-none"><h3>กลับหน้าหลัก</h3></a>
+		</div>
+	</div>
+	
 	<?php if ($msg): ?>
 		<div class="alert alert-info"><?php echo e($msg); ?></div>
 	<?php endif; ?>
