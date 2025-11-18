@@ -76,21 +76,21 @@ $card = '<div class="card">
   </div>
   <table class="info-table kv" style="margin-bottom:12px;width:100%;">
     <tr>
-      <td style="width:50%;vertical-align:top;padding:6px;">
+      <td>
       <div class="k">ลาน</div>
       <div class="v">'.e($row['ru_lan']).'</div>
       </td>
-      <td style="width:50%;vertical-align:top;padding:6px;">
+      <td>
       <div class="k">กลุ่ม</div>
       <div class="v">'.e($row['ru_group']).'</div>
       </td>
     </tr>
     <tr>
-      <td style="width:50%;vertical-align:top;padding:6px;">
+      <td>
       <div class="k">เลขที่</div>
       <div class="v">'.e($row['ru_number']).'</div>
       </td>
-      <td style="width:50%;vertical-align:top;padding:6px;">
+      <td>
       <div class="k">ชื่อ-สกุล</div>
       <div class="v">'.e($row['ru_fullname']).' <span class="badge">'.e((isset($row['ru_class']) && $row['ru_class'] === 'member') ? 'สมาชิก' : 'เกษตรกร').'</span></div>
       </td>
