@@ -72,7 +72,7 @@ $printedAt = date('Y-m-d H:i:s');
 $card = '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
-    <div class="meta">วันที่บันทึก: '.e($row['ru_date']).' | พิมพ์เมื่อ: '.e($printedAt).'</div>
+    <div class="meta" style="font-size: 14px;">วันที่บันทึก: '.e($row['ru_date']).' | พิมพ์เมื่อ: '.e($printedAt).'</div>
   </div>
   <table class="info-table kv" style="margin-bottom:12px;width:100%;">
     <tr><td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td></tr>
@@ -118,10 +118,10 @@ $card = '<div class="card">
     <tr>
       <td style="width:60%;padding-top:18px;">
         <div class="sig-line">&nbsp;</div>
-        <div class="sig-caption">เจ้าหน้าที่: '.e($row['ru_saveby']).' </div>
+        <div class="sig-caption" style="font-size: 12px;">เจ้าหน้าที่: '.e($row['ru_saveby']).' </div>
       </td>
       <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
-        เวลาบันทึก: '.e($row['ru_date']).'
+        เวลาบันทึก: '.e(thai_date_function($row['ru_date'])).'
       </td>
     </tr>
   </table>
