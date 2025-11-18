@@ -206,7 +206,11 @@ $style = '
   .sig-line { border-bottom: 1px dotted #6366f1; width: 60%; height: 10px; display: block; margin-bottom:1px; }
   .sig-caption { font-size: 10px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
+  table td, table th {
+  font-size: 16px !important;
+}
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
 ';
 
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>
