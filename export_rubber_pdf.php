@@ -109,10 +109,10 @@ $card = '<div class="card">
       </td>
     </tr>
   </table>
-  <div class="kpi " style="margin-top:12px; font-size: 20px; text-align: right; color:red;">
-    <span>ยอดรับสุทธิ: </span>
-    <span class="kpi-value">'.nf($netvalue).'</span>
-    <span class="unit" style="font-size: 14px;">บาท</span>
+  <div class="kpi " >
+    <span style="font-size: 20px; text-align: right; color:red;">ยอดรับสุทธิ: </span>
+    <span class="kpi-value" style="font-size: 20px; text-align: right; color:red;">'.nf($netvalue).'</span>
+    <span class="unit" style="font-size: 20px; text-align: right; color:red;">บาท</span>
   </div>
   <table class="signature-table" style="width:100%;margin-top:18px;">
     <tr>
