@@ -760,7 +760,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <th>กลุ่ม</th>
             <th>เลขที่</th>
             <th>ชื่อ-สกุล</th>
-            <th>ชั้น</th>
+        
             <th class="text-end">ปริมาณ</th>
             <th class="text-end">หุ้น</th>
             <th class="text-end">เงินกู้</th>
@@ -779,12 +779,18 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           <?php else: foreach ($rows as $r): ?>
             <tr>
               <td><?php echo (int)$r['ru_id']; ?></td>
-              <td><?php echo e($r['ru_date']); ?></td>
+              <td><?php echo thai_date_format($r['ru_date']); ?></td>
               <td><?php echo e($r['ru_lan']); ?></td>
               <td><?php echo e($r['ru_group']); ?></td>
               <td><?php echo e($r['ru_number']); ?></td>
-              <td><?php echo e($r['ru_fullname']); ?></td>
-              <td><?php echo e($r['ru_class']); ?></td>
+              <td>
+                <?php echo e($r['ru_fullname']); ?>
+                <!-- ถ้า  ru_class == 'member'  -->
+                <?php if ($r['ru_class'] == 'member'): ?>
+                  <span class="badge bg-success">สมาชิก</span>
+                <?php endif; ?>
+              </td>
+              
               <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
               <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
               <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
