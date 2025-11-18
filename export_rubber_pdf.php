@@ -71,7 +71,7 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row">ใบรับเงินค่ายาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
+    <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
     <div class="meta">วันที่บันทึก: '.e($row['ru_date']).' | พิมพ์เมื่อ: '.e($printedAt).'</div>
   </div>
   <table class="info-table kv" style="margin-bottom:12px;width:100%;">
@@ -207,7 +207,7 @@ $style = '
   .sig-caption { font-size: 10px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
   table td, table th {
-  font-size: 18px !important;
+  font-size: 20px !important;
 }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
