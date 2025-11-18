@@ -19,18 +19,18 @@ $stmt->close();
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col-6">
-            <h3>ราคายาง (Price list)</h3>
+            <h3><i class="bi bi-cash-coin me-2"></i>ราคายาง (Price list)</h3>
         </div>
         <div class="col-6 text-end">
             <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
-                <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
+                <a href="dashboard.php" class="btn btn-secondary me-2"><i class="bi bi-house-door me-1"></i>กลับหน้า dashboard</a>
             <?php endif; ?>
-            <a href="price_form.php?action=create" class="btn btn-success">เพิ่มราคายาง</a>
+            <a href="price_form.php?action=create" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>เพิ่มราคายาง</a>
         </div>
     </div>
 
     <?php if ($msg): ?>
-        <div class="alert alert-info"><?php echo htmlspecialchars($msg); ?></div>
+        <div class="alert alert-info"><i class="bi bi-info-circle me-1"></i><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
 
     <div class="card card-table">
@@ -40,13 +40,13 @@ $stmt->close();
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>ปี</th>
-                            <th>วันที่</th>
-                            <th>รอบ</th>
-                            <th>ราคา</th>
-                            <th>บันทึกโดย</th>
-                            <th>วันที่บันทึก</th>
-                            <th class="no-sort">Actions</th>
+                            <th><i class="bi bi-calendar2-week me-1"></i>ปี</th>
+                            <th><i class="bi bi-calendar-date me-1"></i>วันที่</th>
+                            <th><i class="bi bi-clock-history me-1"></i>รอบ</th>
+                            <th><i class="bi bi-cash-stack me-1"></i>ราคา</th>
+                            <th><i class="bi bi-person-circle me-1"></i>บันทึกโดย</th>
+                            <th><i class="bi bi-calendar-check me-1"></i>วันที่บันทึก</th>
+                            <th class="no-sort"><i class="bi bi-gear me-1"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,11 +54,11 @@ $stmt->close();
                             <tr>
                                 <td><?php echo (int)$p['pr_id']; ?></td>
                                 <td><?php echo (int)$p['pr_year']; ?></td>
-                                <td><?php echo htmlspecialchars($p['pr_date']); ?></td>
-                                <td><?php echo htmlspecialchars($p['pr_number']); ?></td>
-                                <td><?php echo number_format((float)$p['pr_price'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($p['pr_saveby']); ?></td>
-                                <td><?php echo htmlspecialchars($p['pr_savedate']); ?></td>
+                                <td><i class="bi bi-calendar-date me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_date']); ?></td>
+                                <td><i class="bi bi-clock-history me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_number']); ?></td>
+                                <td><i class="bi bi-cash-stack me-1 text-success"></i><?php echo number_format((float)$p['pr_price'], 2); ?></td>
+                                <td><i class="bi bi-person-circle me-1 text-primary"></i><?php echo htmlspecialchars($p['pr_saveby']); ?></td>
+                                <td><i class="bi bi-calendar-check me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_savedate']); ?></td>
                                 <td>
                                     <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
                                     <form method="post" action="price_delete.php" style="display:inline-block; margin-left:6px;" onsubmit="return confirm('ลบราคานี้หรือไม่?');">
