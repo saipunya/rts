@@ -134,7 +134,7 @@ $card = '<div class="card">
     <tr>
       <td style="width:60%;padding-top:18px;">
         <div class="sig-line">&nbsp;</div>
-        <div class="sig-caption" style="font-size: 12px;">เจ้าหน้าที่: '.e($row['ru_saveby']).' </div>
+        <div class="sig-caption" style="font-size: 16px;"> ผู้บันทึก: '.e($row['ru_saveby']).' </div>
       </td>
       <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
         <div class="sig-caption " style="font-size:16px;">วันที่บันทึก: '.e(thai_date_format($row['ru_date'])).'</div>
