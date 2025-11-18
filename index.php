@@ -213,7 +213,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 			$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
 			$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
 			?>
-			<p>ต้องการเพิ่มข้อมูลการรวบรวมยาง? <a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-cta">บันทึกข้อมูล</a></p>
+			<p>ต้องการเพิ่มข้อมูลการรวบรวมยาง? <a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-cta"><i class="bi bi-plus-circle me-1"></i>บันทึกข้อมูล</a></p>
 		</div>
 	</div>
 </div>

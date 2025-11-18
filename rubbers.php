@@ -651,9 +651,13 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
         <div class="card-footer d-flex justify-content-between align-items-center">
           <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'สร้างรายการใหม่'; ?></small>
           <div>
-            <button type="button" id="btnSave" class="btn btn-primary px-4">บันทึก</button>
+            <button type="button" id="btnSave" class="btn btn-primary px-4">
+              <i class="bi bi-floppy2 me-1"></i>บันทึก
+            </button>
             <?php if (!empty($form['ru_id'])): ?>
-              <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">ยกเลิก</a>
+              <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>ยกเลิก
+              </a>
             <?php endif; ?>
           </div>
         </div>
@@ -674,7 +678,9 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <span class="input-group-text">ค้นหา</span>
                 <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
                 <?php if ($search !== ''): ?>
-                  <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">ล้าง</a>
+                  <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">
+                    <i class="bi bi-x-circle me-1"></i>ล้าง
+                  </a>
                 <?php endif; ?>
               </div>
             </div>
@@ -687,7 +693,9 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
             </div>
             <div class="col-md-2 d-flex align-items-end">
-              <button type="submit" class="btn btn-primary w-100">ตกลง</button>
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-check2 me-1"></i>ตกลง
+              </button>
             </div>
           </form>
 
@@ -730,16 +738,16 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <!-- pdf export button shown only if dompdf installed -->
             <?php if ($hasDompdf): ?>
               <a href="export_rubbers_pdf.php?<?php echo $exportQuery; ?>" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                พิมพ์ PDF
+                <i class="bi bi-file-earmark-pdf me-1"></i>PDF
               </a>
             <?php else: ?>
               <button type="button" class="btn btn-sm btn-outline-secondary ms-2" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
-                พิมพ์ PDF
+                <i class="bi bi-file-earmark-pdf me-1"></i>PDF
               </button>
             <?php endif; ?>
             <!-- new: CSV export (per-row) -->
             <a href="export_rubbers_csv.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success ms-2">
-              ส่งออก CSV
+              <i class="bi bi-filetype-csv me-1"></i>CSV
             </a>
           <?php endif; ?>
         </caption>
@@ -785,18 +793,26 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
               <td>
                 <div class="d-flex gap-1">
-                  <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">แก้ไข</a>
+                  <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil-square me-1"></i>แก้ไข
+                  </a>
                   <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
                     <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
                     <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
-                    <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash me-1"></i>ลบ
+                    </button>
                   </form>
                   <?php if ($hasDompdf): ?>
-                    <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">PDF</a>
+                    <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">
+                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                    </a>
                   <?php else: ?>
-                    <button class="btn btn-sm btn-outline-secondary" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">PDF</button>
+                    <button class="btn btn-sm btn-outline-secondary" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
+                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                    </button>
                   <?php endif; ?>
                 </div>
               </td>
@@ -807,7 +823,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     </div>
 
     <div class="row my-2 text-center">
-      <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"></a>
+      <a href="index.php"><input type="button" value="กลับหน้าหลัก" class="btn btn-sm btn-info"><i class="bi bi-arrow-left ms-2"></i></a>
     </div>
 
     <?php if ($currentLan !== 'all'): ?>
