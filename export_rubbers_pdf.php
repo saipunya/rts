@@ -219,29 +219,27 @@ $html = '
   <table>
     <thead>
       <tr>
-      
         <th>วันที่</th>
         <th>ลาน</th>
         <th>กลุ่ม</th>
         <th>เลขที่</th>
         <th>ชื่อ-สกุล</th>
         <th class="num">ปริมาณ</th>
-        <th class="num">หุ้น</th>
-        <th class="num">เงินกู้</th>
-        <th class="num">หนี้สั้น</th>
-        <th class="num">เงินฝาก</th>
-        <th class="num">กู้ซื้อขาย</th>
-        <th class="num">ประกันภัย</th>
-        <th class="num">มูลค่า</th>
-        <th class="num">หักรวม</th>
-        <th class="num">สุทธิ</th>
+        <th class="num">ยอดรับ</th>
+        <th class="num">ยอดจ่าย</th>
+        <th class="num">คงเหลือ</th>
       </tr>
     </thead>
     <tbody>';
 if (!$rows) {
-  $html .= '<tr><td colspan="17" class="muted">ไม่มีข้อมูล</td></tr>';
+  $html .= '<tr><td colspan="9" class="muted">ไม่มีข้อมูล</td></tr>';
 } else {
   foreach ($rows as $r) {
+    // Calculate values for each row
+    $quantity = (float)($r['ru_quantity'] ?? 0);
+    $income = (float)($r['ru_value'] ?? 0); // ยอดรับ
+    $expense = (float)($r['ru_expend'] ?? 0); // ยอดจ่าย
+    $balance = (float)($r['ru_netvalue'] ?? 0); // คงเหลือ
     $html .= '
       <tr>
         <td>'.h($r['ru_date']).'</td>
@@ -249,17 +247,10 @@ if (!$rows) {
         <td>'.h($r['ru_group']).'</td>
         <td>'.h($r['ru_number']).'</td>
         <td>'.h($r['ru_fullname']).'</td>
-
-        <td class="num">'.fmt2($r['ru_quantity']).'</td>
-        <td class="num">'.fmt2($r['ru_hoon']).'</td>
-        <td class="num">'.fmt2($r['ru_loan']).'</td>
-        <td class="num">'.fmt2($r['ru_shortdebt']).'</td>
-        <td class="num">'.fmt2($r['ru_deposit']).'</td>
-        <td class="num">'.fmt2($r['ru_tradeloan']).'</td>
-        <td class="num">'.fmt2($r['ru_insurance']).'</td>
-        <td class="num">'.fmt2($r['ru_value']    ?? 0).'</td>
-        <td class="num">'.fmt2($r['ru_expend']   ?? 0).'</td>
-        <td class="num">'.fmt2($r['ru_netvalue'] ?? 0).'</td>
+        <td class="num">'.fmt2($quantity).'</td>
+        <td class="num">'.fmt2($income).'</td>
+        <td class="num">'.fmt2($expense).'</td>
+        <td class="num">'.fmt2($balance).'</td>
       </tr>';
   }
 }
