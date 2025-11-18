@@ -76,13 +76,27 @@ $card = '<div class="card">
   </div>
   <table class="info-table kv" style="margin-bottom:12px;width:100%;">
     <tr>
-    <td class="k">ลาน</td><td class="v">'.e($row['ru_lan']).'</td>
-    <td class="k">กลุ่ม</td><td class="v">'.e($row['ru_group']).'</td>
+      <td style="width:50%;vertical-align:top;padding:6px;">
+      <div class="k">ลาน</div>
+      <div class="v">'.e($row['ru_lan']).'</div>
+      </td>
+      <td style="width:50%;vertical-align:top;padding:6px;">
+      <div class="k">กลุ่ม</div>
+      <div class="v">'.e($row['ru_group']).'</div>
+      </td>
     </tr>
-    <tr><td class="k">เลขที่</td><td class="v">'.e($row['ru_number']).'</td></tr>
-
-    <tr><td class="k">ชื่อ-สกุล</td><td class="v">'.e($row['ru_fullname']).' <span class="badge">'.e((isset($row['ru_class']) && $row['ru_class'] === 'member') ? 'สมาชิก' : 'เกษตรกร').'</span></td></tr>
-  </table>
+    <tr>
+      <td style="width:50%;vertical-align:top;padding:6px;">
+      <div class="k">เลขที่</div>
+      <div class="v">'.e($row['ru_number']).'</div>
+      </td>
+      <td style="width:50%;vertical-align:top;padding:6px;">
+      <div class="k">ชื่อ-สกุล</div>
+      <div class="v">'.e($row['ru_fullname']).' <span class="badge">'.e((isset($row['ru_class']) && $row['ru_class'] === 'member') ? 'สมาชิก' : 'เกษตรกร').'</span></div>
+      </td>
+    </tr>
+  
+    </table>
   <table class="columns" style="margin-bottom:12px;">
     <tr>
       <td class="left" style="width:50%;vertical-align:top;">
