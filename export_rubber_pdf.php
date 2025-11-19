@@ -72,31 +72,25 @@ $printedAt = date('Y-m-d H:i:s');
 $card = '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
+    <div class="fullname-row" style="font-size:20px;text-align:center;margin-bottom:6px;">'.e($row['ru_fullname']).'</div>
     <div class="meta" style="font-size: 16px;">พิมพ์เมื่อ: '.e(thai_date_format($printedAt)).'</div>
   </div>
   <table class="info-table kv" style="margin-bottom:12px;width:100%;">
     <tr>
       <td>
-      <div class="k">ลาน</div>
-      <div class="v">'.e($row['ru_lan']).'</div>
+        <div class="k">ลาน</div>
+        <div class="v">'.e($row['ru_lan']).'</div>
       </td>
       <td>
-      <div class="k">กลุ่ม</div>
-      <div class="v">'.e($row['ru_group']).'</div>
+        <div class="k">กลุ่ม</div>
+        <div class="v">'.e($row['ru_group']).'</div>
+      </td>
+      <td>
+        <div class="k">เลขที่</div>
+        <div class="v">'.e($row['ru_number']).'</div>
       </td>
     </tr>
-    <tr>
-      <td>
-      <div class="k">เลขที่</div>
-      <div class="v">'.e($row['ru_number']).'</div>
-      </td>
-      <td>
-      <div class="k">ชื่อ-สกุล</div>
-      <div class="v">'.e($row['ru_fullname']).' <span class="badge">'.e((isset($row['ru_class']) && $row['ru_class'] === 'member') ? 'สมาชิก' : 'เกษตรกร').'</span></div>
-      </td>
-    </tr>
-  
-    </table>
+  </table>
   <table class="columns" style="margin-bottom:12px;">
     <tr>
       <td class="left" style="width:50%;vertical-align:top;">
