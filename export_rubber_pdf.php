@@ -182,7 +182,9 @@ $hasThaiFonts = (bool)$defaultFamily;
 
 // ปรับ CSS layout ให้ทันสมัยและเหมาะกับ print
 $style = '
-  @page { margin: 5mm 4mm; }
+  @page { margin: 5mm 4mm; size: A4 landscape; }
+  html, body { width: 100%; height: 100%; }
+  .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
   body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #222; background: #f8fafc; line-height: 1.25; }
   .container { max-width: 1100px; margin: 0 auto; }
