@@ -37,7 +37,7 @@ $cu = current_user();
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-download me-2"></i>Export Data</h5>
                     <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการเป็น PDF หรือ Excel</p>
-                    <form class="row g-2 align-items-end" method="get" action="#" id="exportForm">
+                    <form class="row g-2 align-items-end" method="get" action="export_rubbers_export.php" id="exportForm">
                         <div class="col-12">
                             <label for="export_type" class="form-label mb-1">ประเภทการส่งออก</label>
                             <select class="form-select form-select-sm" id="export_type" name="export_type">
