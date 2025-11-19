@@ -109,15 +109,18 @@ if ($latest_rubber_date) {
 }
 
 // Sum totals for the date of latest price (match by ru_date == $latest_price_date)
+// ยอดปริมาณรวม: ผลรวม ru_quantity ของ tbl_rubber ที่ ru_date == pr_date ล่าสุด
+// ยอดเงินรวม: ผลรวม ru_quantity * ราคายางล่าสุด (pr_price)
 $price_date_total_quantity = 0;
 $price_date_total_value = 0;
 if ($latest_price_date) {
-    foreach ($filtered as $it) {
-        if ($it['posted'] === $latest_price_date) {
+    foreach ($listings as $it) {
+        // เปรียบเทียบเฉพาะวันที่ (กรณี ru_date มีเวลา)
+        if (substr($it['posted'], 0, 10) === $latest_price_date) {
             $price_date_total_quantity += $it['quantity'];
-            $price_date_total_value += $it['price'];
         }
     }
+    $price_date_total_value = $price_date_total_quantity * $latest_price;
 }
 
 // Read filters from GET
