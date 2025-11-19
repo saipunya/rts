@@ -187,7 +187,7 @@ $style = '
   .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04); border: 1px solid #e5e7eb; padding: 6px 4px 4px 4px; margin-bottom: 4px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 17px; font-weight: 800; color: #1e293b; margin-bottom: 1px; letter-spacing: 0.5px; }
+  h1, .title-row { font-size: 17px; font-weight: 800; color: #1e293b; margin-top: 2px; margin-bottom: 1px; letter-spacing: 0.5px; }
   .meta { font-size: 11px; color: #64748b; margin-bottom: 3px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
   .muted { color: #94a3b8; }
@@ -215,7 +215,7 @@ $style = '
   .sig-caption { font-size: 10px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
   table td, table th{
-  font-size: 20px !important;
+  font-size: 22px !important;
 }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
