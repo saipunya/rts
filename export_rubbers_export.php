@@ -86,7 +86,9 @@ $options->set('defaultFont', $defaultFont);
 $dompdf = new Dompdf($options);
 
 function nf($n) { return number_format((float)$n, 2); }
-function e($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+if (!function_exists('e')) {
+    function e($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+}
 
 $style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 16px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 4px; } th { background: #f1f1f1; }';
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
