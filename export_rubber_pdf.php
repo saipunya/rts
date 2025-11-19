@@ -72,22 +72,18 @@ $printedAt = date('Y-m-d H:i:s');
 $card = '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
-    <div class="fullname-row" style="font-size:20px;text-align:center;margin-bottom:6px;">'.e($row['ru_fullname']).'</div>
-    <div class="meta" style="font-size: 16px;">พิมพ์เมื่อ: '.e(thai_date_format($printedAt)).'</div>
+    <div class="fullname-row" style="font-size:20px;text-align:center;">'.e($row['ru_fullname']).'</div>
   </div>
-  <table class="info-table kv" style="margin-bottom:12px;width:100%;">
+  <table class="info-table kv" style="width:100%;">
     <tr>
       <td>
-        <div class="k">ลาน</div>
-        <div class="v">'.e($row['ru_lan']).'</div>
+        <div class="k">ลาน' .e($row['ru_lan']).'</div>
       </td>
       <td>
-        <div class="k">กลุ่ม</div>
-        <div class="v">'.e($row['ru_group']).'</div>
+        <div class="k">กลุ่ม '.e($row['ru_group']).'</div>
       </td>
       <td>
-        <div class="k">เลขที่</div>
-        <div class="v">'.e($row['ru_number']).'</div>
+        <div class="k">เลขที่ '.e($row['ru_number']).'</div>
       </td>
     </tr>
   </table>
