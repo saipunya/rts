@@ -261,7 +261,7 @@ $paperWidth  = 22.5 * 28.3464567;   // 637 pt
 $paperHeight = 15   * 28.3464567;   // 425 pt
 
 // ใช้ custom paper size
-$dompdf->setPaper([$paperWidth, $paperHeight], 'landscape');
+$dompdf->setPaper([0, 0, $paperWidth, $paperHeight]);
 // -----------------------------------------------
   $dompdf->render();
 
