@@ -220,6 +220,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<th>ปริมาณ</th>
                                 <th>จำนวนเงิน</th>
 								<th>รายการหัก</th>
+								<th>คงเหลือสุทธิ</th>
 								<th>เมื่อ</th>
 							</tr>
 						</thead>
