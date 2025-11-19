@@ -19,28 +19,28 @@ $month = isset($_GET['month']) ? (int)$_GET['month'] : (int)date('n');
 $period_start = $_GET['period_start'] ?? null;
 $period_end = $_GET['period_end'] ?? null;
 
-// สร้าง query ตามช่วงข้อมูล
+// สร้าง query ตามช่วงข้อมูล (ใช้ ru_savedate แทน ru_date)
 $where = '';
 $params = [];
 $types = '';
 if ($scope === 'year') {
-    $where = 'WHERE YEAR(ru_date) = ?';
+    $where = 'WHERE YEAR(ru_savedate) = ?';
     $params[] = $year;
     $types .= 'i';
 } elseif ($scope === 'month') {
-    $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ?';
+    $where = 'WHERE YEAR(ru_savedate) = ? AND MONTH(ru_savedate) = ?';
     $params[] = $year;
     $params[] = $month;
     $types .= 'ii';
 } elseif ($scope === 'period' && $period_start && $period_end) {
-    $where = 'WHERE ru_date BETWEEN ? AND ?';
+    $where = 'WHERE ru_savedate BETWEEN ? AND ?';
     $params[] = $period_start;
     $params[] = $period_end;
     $types .= 'ss';
 }
 
 $db = db();
-$sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_date, ru_id";
+$sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_savedate, ru_id";
 $st = $db->prepare($sql);
 if ($types) {
     $st->bind_param($types, ...$params);
@@ -55,11 +55,11 @@ if ($type === 'excel') {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="rubbers_export.csv"');
     $out = fopen('php://output', 'w');
-    fputcsv($out, ['ID', 'วันที่', 'ชื่อ-สกุล', 'ปริมาณ(กก.)', 'ยอดเงินรวม', 'ยอดรับสุทธิ']);
+    fputcsv($out, ['ID', 'วันที่บันทึก', 'ชื่อ-สกุล', 'ปริมาณ(กก.)', 'ยอดเงินรวม', 'ยอดรับสุทธิ']);
     foreach ($rows as $row) {
         fputcsv($out, [
             $row['ru_id'],
-            $row['ru_date'],
+            $row['ru_savedate'],
             $row['ru_fullname'],
             $row['ru_quantity'],
             $row['ru_value'],
@@ -91,12 +91,12 @@ if ($scope === 'year') $html .= 'ประจำปี '.e($year);
 elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year);
 elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e($period_start).' ถึง '.e($period_end);
 $html .= '</h2>';
-$html .= '<table><thead><tr><th>ID</th><th>วันที่</th><th>ชื่อ-สกุล</th><th>ปริมาณ(กก.)</th><th>ยอดเงินรวม</th><th>ยอดรับสุทธิ</th></tr></thead><tbody>';
+$html .= '<table><thead><tr><th>ID</th><th>วันที่บันทึก</th><th>ชื่อ-สกุล</th><th>ปริมาณ(กก.)</th><th>ยอดเงินรวม</th><th>ยอดรับสุทธิ</th></tr></thead><tbody>';
 foreach ($rows as $row) {
     $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon']+$row['ru_loan']+$row['ru_shortdebt']+$row['ru_deposit']+$row['ru_tradeloan']+$row['ru_insurance']));
     $html .= '<tr>';
     $html .= '<td>'.e($row['ru_id']).'</td>';
-    $html .= '<td>'.e($row['ru_date']).'</td>';
+    $html .= '<td>'.e($row['ru_savedate']).'</td>';
     $html .= '<td>'.e($row['ru_fullname']).'</td>';
     $html .= '<td style="text-align:right">'.nf($row['ru_quantity']).'</td>';
     $html .= '<td style="text-align:right">'.nf($row['ru_value']).'</td>';
