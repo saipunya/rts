@@ -199,8 +199,8 @@ $style = '
   .table, table { width: 100%; border-collapse: collapse; }
   .tr,td { font-size: 18px; }
   .info-table td { padding: 0.5px 1px; font-size: 16px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 18px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 18px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 22px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 22px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
   .data-table thead th { padding: 1px 1px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 13px; letter-spacing: 0.2px; }
