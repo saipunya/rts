@@ -37,7 +37,7 @@ $cu = current_user();
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-download me-2"></i>Export Data</h5>
                     <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการเป็น PDF หรือ Excel</p>
-                    <form class="row g-2 align-items-end" method="get" action="#">
+                    <form class="row g-2 align-items-end" method="get" action="#" id="exportForm">
                         <div class="col-12">
                             <label for="export_type" class="form-label mb-1">ประเภทการส่งออก</label>
                             <select class="form-select form-select-sm" id="export_type" name="export_type">
@@ -53,10 +53,32 @@ $cu = current_user();
                                 <option value="period">ตามรอบ</option>
                             </select>
                         </div>
+                        <div class="col-12" id="monthSelect" style="display:none;">
+                            <label for="month" class="form-label mb-1">เลือกเดือน</label>
+                            <select class="form-select form-select-sm" id="month" name="month">
+                                <?php for($m=1;$m<=12;$m++): ?>
+                                    <option value="<?php echo $m; ?>" <?php if($m==date('n')) echo 'selected'; ?>><?php echo date('F', mktime(0,0,0,$m,1)); ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
                         <div class="col-12 d-flex gap-2">
                             <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-arrow-down me-1"></i>ส่งออก</button>
                         </div>
                     </form>
+                    <script>
+                        document.getElementById('export_scope').addEventListener('change', function() {
+                            var monthSel = document.getElementById('monthSelect');
+                            if(this.value === 'month') {
+                                monthSel.style.display = '';
+                            } else {
+                                monthSel.style.display = 'none';
+                            }
+                        });
+                        // แสดงเดือนถ้าเลือก "รายเดือน" ตอนโหลดหน้า
+                        if(document.getElementById('export_scope').value === 'month') {
+                            document.getElementById('monthSelect').style.display = '';
+                        }
+                    </script>
                     <hr>
                     <div class="d-flex flex-wrap gap-2">
                         <a href="export_rubbers_export.php?export_type=pdf&export_scope=year&year=<?php echo date('Y'); ?>" class="btn btn-outline-success btn-sm" target="_blank">
