@@ -220,7 +220,6 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 								<th>ปริมาณ</th>
                                 <th>จำนวนเงิน</th>
 								<th>รายการหัก</th>
-								<th>คงเหลือสุทธิ</th>
 								<th>เมื่อ</th>
 							</tr>
 						</thead>
@@ -230,7 +229,8 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 									<td><?php echo htmlspecialchars($item['member_no'] ?? '-'); ?></td>
 									<td class="text-nowrap"><?php echo htmlspecialchars($item['seller']); ?></td>
 								<td><?php echo number_format($item['quantity']) . ' ' . htmlspecialchars($item['unit']); ?></td>
-								<td><?php echo htmlspecialchars(number_format($item['price'],2)); ?></td>
+								<td><?php echo number_format((float)$item['quantity'] * (float)$latest_price, 2); ?> ฿</td>
+
 								<td><?php echo number_format($item['deductions'],2); ?></td>
 								<td><?php echo htmlspecialchars(thai_date_format($item['posted'])); ?></td>
 							</tr>
