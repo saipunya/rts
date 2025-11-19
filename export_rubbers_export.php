@@ -18,8 +18,8 @@ use Dompdf\Options;
 // รับค่าพารามิเตอร์
 $type = $_GET['export_type'] ?? 'pdf';
 $scope = $_GET['export_scope'] ?? 'year';
-$year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
-$month = isset($_GET['month']) ? (int)$_GET['month'] : (int)date('n');
+$year = isset($_GET['year']) ? (int)$_GET['year'] : (isset($_POST['year']) ? (int)$_POST['year'] : (int)date('Y'));
+$month = isset($_GET['month']) ? (int)$_GET['month'] : (isset($_POST['month']) ? (int)$_POST['month'] : (int)date('n'));
 $period_start = $_GET['period_start'] ?? null;
 $period_end = $_GET['period_end'] ?? null;
 
