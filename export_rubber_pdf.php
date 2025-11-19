@@ -256,14 +256,14 @@ $dompdf = new Dompdf($options);
 try {
   $dompdf->loadHtml($html, 'UTF-8');
   // Set to A4 landscape (แนวนอน)
-  // --- กำหนดกระดาษขนาด 22.5 cm x 15 cm แนวนอน ---
+ // --- กำหนดกระดาษขนาด 22.5 cm x 15 cm แนวนอน ---
 $paperWidth  = 22.5 * 28.3464567;   // 637 pt
 $paperHeight = 15   * 28.3464567;   // 425 pt
 
 // ใช้ custom paper size
 $dompdf->setPaper([$paperWidth, $paperHeight], 'landscape');
 // -----------------------------------------------
-$dompdf->render();
+  $dompdf->render();
 
   // Add page numbers at bottom-right
   $canvas = $dompdf->getCanvas();
