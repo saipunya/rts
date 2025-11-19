@@ -61,23 +61,37 @@ $cu = current_user();
                                 <?php endfor; ?>
                             </select>
                         </div>
+                        <div class="col-12" id="yearSelect" style="display:none;">
+                            <label for="year" class="form-label mb-1">เลือกปี</label>
+                            <select class="form-select form-select-sm" id="year" name="year">
+                                <?php $thisYear = date('Y'); for($y=$thisYear-5;$y<=$thisYear+1;$y++): ?>
+                                    <option value="<?php echo $y; ?>" <?php if($y==$thisYear) echo 'selected'; ?>><?php echo $y; ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
                         <div class="col-12 d-flex gap-2">
                             <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-arrow-down me-1"></i>ส่งออก</button>
                         </div>
                     </form>
                     <script>
-                        document.getElementById('export_scope').addEventListener('change', function() {
+                        function toggleMonthYear() {
+                            var scope = document.getElementById('export_scope').value;
                             var monthSel = document.getElementById('monthSelect');
-                            if(this.value === 'month') {
+                            var yearSel = document.getElementById('yearSelect');
+                            if(scope === 'month') {
                                 monthSel.style.display = '';
+                                yearSel.style.display = '';
+                            } else if(scope === 'year') {
+                                monthSel.style.display = 'none';
+                                yearSel.style.display = '';
                             } else {
                                 monthSel.style.display = 'none';
+                                yearSel.style.display = 'none';
                             }
-                        });
-                        // แสดงเดือนถ้าเลือก "รายเดือน" ตอนโหลดหน้า
-                        if(document.getElementById('export_scope').value === 'month') {
-                            document.getElementById('monthSelect').style.display = '';
                         }
+                        document.getElementById('export_scope').addEventListener('change', toggleMonthYear);
+                        // เรียกใช้ตอนโหลดหน้า
+                        toggleMonthYear();
                     </script>
                     <hr>
                     <div class="d-flex flex-wrap gap-2">
