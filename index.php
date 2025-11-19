@@ -108,6 +108,18 @@ if ($latest_rubber_date) {
     }
 }
 
+// Sum totals for the date of latest price (match by ru_date == $latest_price_date)
+$price_date_total_quantity = 0;
+$price_date_total_value = 0;
+if ($latest_price_date) {
+    foreach ($filtered as $it) {
+        if ($it['posted'] === $latest_price_date) {
+            $price_date_total_quantity += $it['quantity'];
+            $price_date_total_value += $it['price'];
+        }
+    }
+}
+
 // Read filters from GET
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
 $filter_location = isset($_GET['location']) ? trim($_GET['location']) : '';
@@ -162,13 +174,32 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ปริมาณรวม</div>
-				<div class="value display-4"> <?php echo number_format($latest_total_quantity,2); ?> kg</div>
+				<div class="value display-4"> <?php echo number_format($total_quantity,2); ?> kg</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
 				<div class="mb-1 text-muted">ยอดเงินรวม</div>
-				<div class="value display-4"><?php echo number_format($latest_total_value,2); ?> ฿</div>
+				<div class="value display-4">
+					<?php 
+					$total_value = array_reduce($filtered, function($carry, $item){ return $carry + $item['price']; }, 0);
+					echo number_format($total_value,2); 
+					?> ฿
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 mb-3">
+			<div class="card stat p-3 text-center">
+				<div class="mb-1 text-muted">ปริมาณรวม (วันที่ราคายาง)</div>
+				<div class="value display-4"> <?php echo number_format($price_date_total_quantity,2); ?> kg</div>
+			</div>
+		</div>
+		<div class="col-sm-4 mb-3">
+			<div class="card stat p-3 text-center">
+				<div class="mb-1 text-muted">ยอดเงินรวม (วันที่ราคายาง)</div>
+				<div class="value display-4">
+					<?php echo number_format($price_date_total_value,2); ?> ฿
+				</div>
 			</div>
 		</div>
 	</div>
