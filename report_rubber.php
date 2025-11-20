@@ -90,7 +90,12 @@ if ($results) {
     echo '<div class="alert alert-warning">ไม่พบข้อมูล</div>';
 }
 ?>
- <div class="mb-3">
+    <div class="mb-3 d-flex justify-content-between">
+        <!-- ย้อนกลับ dashboard -->
+        <a href="dashboard.php" class="btn btn-secondary">
+            กลับสู่หน้าหลัก
+        </a>
+        <!-- ปุ่มส่งออก PDF -->
         <a href="export_total_sale.php?keyword=<?=urlencode($keyword)?>&date_start=<?=urlencode($date_start)?>&date_end=<?=urlencode($date_end)?>" class="btn btn-success" target="_blank">
             ส่งออก PDF (สรุปยอดรวม)
         </a>
