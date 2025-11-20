@@ -54,22 +54,49 @@ $res = $st->get_result();
 $rows = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 $st->close();
 
+function nf($n) { return number_format((float)$n, 2); }
+if (!function_exists('e')) {
+    function e($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+}
+
+function thai_date($date) {
+    $months = [
+        '', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+    $ts = strtotime($date);
+    if (!$ts) return $date;
+    $d = (int)date('j', $ts);
+    $m = (int)date('n', $ts);
+    $y = (int)date('Y', $ts) + 543;
+    return "$d {$months[$m]} $y";
+}
+
 if ($type === 'excel') {
     // ส่งออกเป็น CSV (Excel)
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="rubbers_export.csv"');
     $out = fopen('php://output', 'w');
     fputcsv($out, ['ID', 'วันที่บันทึก', 'ชื่อ-สกุล', 'ปริมาณ(กก.)', 'ยอดเงินรวม', 'ยอดรับสุทธิ']);
+    $total_qty = 0;
+    $total_value = 0;
+    $total_net = 0;
     foreach ($rows as $row) {
+        $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon']+$row['ru_loan']+$row['ru_shortdebt']+$row['ru_deposit']+$row['ru_tradeloan']+$row['ru_insurance']));
+        $total_qty += $row['ru_quantity'];
+        $total_value += $row['ru_value'];
+        $total_net += $net;
         fputcsv($out, [
             $row['ru_id'],
-            $row['ru_savedate'],
+            thai_date($row['ru_savedate']),
             $row['ru_fullname'],
             $row['ru_quantity'],
             $row['ru_value'],
-            $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon']+$row['ru_loan']+$row['ru_shortdebt']+$row['ru_deposit']+$row['ru_tradeloan']+$row['ru_insurance']))
+            $net
         ]);
     }
+    // แถวรวมทั้งสิ้น
+    fputcsv($out, ['', '', 'รวมทั้งสิ้น', $total_qty, $total_value, $total_net]);
     fclose($out);
     exit;
 }
@@ -85,30 +112,39 @@ $defaultFont = 'THSarabunNew';
 $options->set('defaultFont', $defaultFont);
 $dompdf = new Dompdf($options);
 
-function nf($n) { return number_format((float)$n, 2); }
-if (!function_exists('e')) {
-    function e($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
-}
-
-$style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 16px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 4px; } th { background: #f1f1f1; }';
+$style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 22px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 6px; } th { background: #f1f1f1; }';
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
 $html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง '; 
-if ($scope === 'year') $html .= 'ประจำปี '.e($year);
-elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year);
-elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e($period_start).' ถึง '.e($period_end);
+if ($scope === 'year') $html .= 'ประจำปี '.e($year+543);
+elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year+543);
+elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e(thai_date($period_start)).' ถึง '.e(thai_date($period_end));
 $html .= '</h2>';
 $html .= '<table><thead><tr><th>ID</th><th>วันที่บันทึก</th><th>ชื่อ-สกุล</th><th>ปริมาณ(กก.)</th><th>ยอดเงินรวม</th><th>ยอดรับสุทธิ</th></tr></thead><tbody>';
+
+$total_qty = 0;
+$total_value = 0;
+$total_net = 0;
 foreach ($rows as $row) {
     $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon']+$row['ru_loan']+$row['ru_shortdebt']+$row['ru_deposit']+$row['ru_tradeloan']+$row['ru_insurance']));
+    $total_qty += $row['ru_quantity'];
+    $total_value += $row['ru_value'];
+    $total_net += $net;
     $html .= '<tr>';
     $html .= '<td>'.e($row['ru_id']).'</td>';
-    $html .= '<td>'.e($row['ru_savedate']).'</td>';
+    $html .= '<td>'.e(thai_date($row['ru_savedate'])).'</td>';
     $html .= '<td>'.e($row['ru_fullname']).'</td>';
     $html .= '<td style="text-align:right">'.nf($row['ru_quantity']).'</td>';
     $html .= '<td style="text-align:right">'.nf($row['ru_value']).'</td>';
     $html .= '<td style="text-align:right">'.nf($net).'</td>';
     $html .= '</tr>';
 }
+// แถวรวมทั้งสิ้น
+$html .= '<tr>';
+$html .= '<td colspan="3" style="text-align:right;font-weight:bold">รวมทั้งสิ้น</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_qty).'</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_value).'</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_net).'</td>';
+$html .= '</tr>';
 $html .= '</tbody></table>';
 $html .= '</body></html>';
 
