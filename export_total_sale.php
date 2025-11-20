@@ -44,10 +44,10 @@ $result = $stmt->get_result();
 $results = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
 // สร้าง HTML สำหรับ PDFg
-$html = '<h3 style="text-align:center;">รายงานข้อมูลยางพารา (สรุปยอดรวม)</h3>';
+$html = '<h3 style="text-align:center; font-size:28pt;">รายงานข้อมูลยางพารา (สรุปยอดรวม)</h3>';
 // เพิ่มช่วงวันที่ที่ค้นหา (ภาษาไทย)
 if ($date_start || $date_end) {
-    $html .= '<div style="margin-bottom:10px; text-align:center; font-size:18px;">';
+    $html .= '<div style="margin-bottom:10px; text-align:center; font-size:18pt;">';
     $html .= '<b>ช่วงวันที่ที่ค้นหา:</b> ';
     if ($date_start && $date_end) {
         $html .= thai_date_format($date_start) . ' ถึง ' . thai_date_format($date_end);
@@ -58,7 +58,7 @@ if ($date_start || $date_end) {
     }
     $html .= '</div>';
 }
-$html .= '<table border="1" cellspacing="0" cellpadding="5" width="100%">';
+$html .= '<table border="1" cellspacing="0" cellpadding="5" width="100%" style="font-size:18pt;">';
 $html .= '<thead><tr style="background:#eee;"><th>ชื่อ-สกุล</th><th>รหัสสมาชิก</th><th>น้ำหนักรวม (กก.)</th><th>ปริมาณยางรวม (บาท)</th><th>ยอดเงินรวม (บาท)</th></tr></thead><tbody>';
 if ($results) {
     foreach ($results as $row) {
