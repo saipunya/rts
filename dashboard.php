@@ -26,6 +26,7 @@ $cu = current_user();
                         <a href="index.php" class="btn btn-primary btn-sm"><i class="bi bi-house me-1"></i>ไปที่หน้าแรก</a>
                         <a href="rubbers.php" class="btn btn-outline-primary btn-sm"><i class="bi bi-box me-1"></i>จัดการข้อมูลยาง</a>
                         <a href="members.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-people me-1"></i>สมาชิก</a>
+                        <a href="report_rubber.php" class="btn btn-outline-info btn-sm"><i class="bi bi-file-earmark-bar-graph me-1"></i>รายงานข้อมูลยางพารา (ค้นหา)</a>
                     </div>
                 </div>
             </div>

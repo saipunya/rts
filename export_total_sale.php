@@ -60,6 +60,9 @@ if ($date_start || $date_end) {
 }
 $html .= '<table border="1" cellspacing="0" cellpadding="5" width="100%" style="font-size:18pt;">';
 $html .= '<thead><tr style="background:#eee;"><th>ชื่อ-สกุล</th><th>รหัสสมาชิก</th><th>น้ำหนักรวม (กก.)</th><th>ปริมาณยางรวม (บาท)</th><th>ยอดเงินรวม (บาท)</th></tr></thead><tbody>';
+$total_quantity = 0;
+$total_value = 0;
+$total_netvalue = 0;
 if ($results) {
     foreach ($results as $row) {
         $html .= '<tr>';
@@ -69,7 +72,15 @@ if ($results) {
         $html .= '<td style="text-align:right;">' . number_format($row['total_value'], 2) . '</td>';
         $html .= '<td style="text-align:right;">' . number_format($row['total_netvalue'], 2) . '</td>';
         $html .= '</tr>';
+        $total_quantity += $row['total_quantity'];
+        $total_value += $row['total_value'];
+        $total_netvalue += $row['total_netvalue'];
     }
+    // แถวรวมทั้งหมด
+    $html .= '<tr style="font-weight:bold;background:#f9f9f9;"><td colspan="2" style="text-align:center;">รวมทั้งสิ้น</td>';
+    $html .= '<td style="text-align:right;">' . number_format($total_quantity, 2) . '</td>';
+    $html .= '<td style="text-align:right;">' . number_format($total_value, 2) . '</td>';
+    $html .= '<td style="text-align:right;">' . number_format($total_netvalue, 2) . '</td></tr>';
 } else {
     $html .= '<tr><td colspan="5" style="text-align:center;">ไม่พบข้อมูล</td></tr>';
 }
