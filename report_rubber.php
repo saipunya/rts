@@ -13,13 +13,9 @@ $date_end = $_GET['date_end'] ?? '';
 <div class="container mt-4">
     <h3>รายงานข้อมูลยางพารา (ค้นหา)</h3>
     <form class="row g-3 mb-4" method="get">
-        <div class="col-md-3">
-            <label class="form-label">ชื่อ-สกุล</label>
-            <input type="text" class="form-control" name="name" value="<?= htmlspecialchars($name) ?>">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">รหัสสมาชิก</label>
-            <input type="text" class="form-control" name="ru_number" value="<?= htmlspecialchars($number) ?>">
+        <div class="col-md-4">
+            <label class="form-label">ชื่อ-สกุล หรือ รหัสสมาชิก</label>
+            <input type="text" class="form-control" name="keyword" value="<?= htmlspecialchars($name ?: $number) ?>" placeholder="ค้นหาด้วยชื่อหรือรหัสสมาชิก">
         </div>
         <div class="col-md-2">
             <label class="form-label">วันที่เริ่มต้น</label>
@@ -34,7 +30,7 @@ $date_end = $_GET['date_end'] ?? '';
         </div>
     </form>
     <div class="mb-3">
-        <a href="export_total_sale.php?name=<?=urlencode($name)?>&ru_number=<?=urlencode($number)?>&date_start=<?=urlencode($date_start)?>&date_end=<?=urlencode($date_end)?>" class="btn btn-success" target="_blank">
+        <a href="export_total_sale.php?keyword=<?=urlencode($_GET['keyword'] ?? '')?>&date_start=<?=urlencode($date_start)?>&date_end=<?=urlencode($date_end)?>" class="btn btn-success" target="_blank">
             ส่งออก PDF (สรุปยอดรวม)
         </a>
     </div>
@@ -43,13 +39,11 @@ $date_end = $_GET['date_end'] ?? '';
 // เงื่อนไขค้นหา
 $where = [];
 $params = [];
-if ($name) {
-    $where[] = "ru_fullname LIKE ?";
-    $params[] = "%$name%";
-}
-if ($number) {
-    $where[] = "ru_number LIKE ?";
-    $params[] = "%$number%";
+$keyword = $_GET['keyword'] ?? '';
+if ($keyword) {
+    $where[] = "(ru_fullname LIKE ? OR ru_number LIKE ?)";
+    $params[] = "%$keyword%";
+    $params[] = "%$keyword%";
 }
 if ($date_start) {
     $where[] = "ru_date >= ?";

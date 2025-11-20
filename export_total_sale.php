@@ -6,21 +6,17 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 // รับค่าจาก query string
-$name = $_GET['name'] ?? '';
-$number = $_GET['ru_number'] ?? '';
+$keyword = $_GET['keyword'] ?? '';
 $date_start = $_GET['date_start'] ?? '';
 $date_end = $_GET['date_end'] ?? '';
 
 // เงื่อนไขค้นหา
 $where = [];
 $params = [];
-if ($name) {
-    $where[] = "ru_fullname LIKE ?";
-    $params[] = "%$name%";
-}
-if ($number) {
-    $where[] = "ru_number LIKE ?";
-    $params[] = "%$number%";
+if ($keyword) {
+    $where[] = "(ru_fullname LIKE ? OR ru_number LIKE ?)";
+    $params[] = "%$keyword%";
+    $params[] = "%$keyword%";
 }
 if ($date_start) {
     $where[] = "ru_date >= ?";
