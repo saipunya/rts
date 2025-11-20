@@ -198,7 +198,7 @@ $style = '
   .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 2px; margin-top: 1px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.02); }
   .table, table { width: 100%; border-collapse: collapse; }
   .tr,td { font-size: 16px; }
-  .info-table td { padding: 0.2px 0.5px; font-size: 14px; }
+  .info-table td { padding: 0.2px 0.5px; font-size: 16px; }
   .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 15px; }
   .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 15px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
