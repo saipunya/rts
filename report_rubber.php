@@ -75,7 +75,7 @@ $results = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
 if ($results) {
     echo '<div class="table-responsive"><table class="table table-bordered table-striped">';
-    echo '<thead><tr><th>ชื่อ-สกุล</th><th>รหัสสมาชิก</th><th>น้ำหนักรวม (กก.)</th><th>ปริมาณยางรวม (บาท)</th><th>ยอดเงินรวม (บาท)</th></tr></thead><tbody>';
+    echo '<thead><tr><th>ชื่อ-สกุล</th><th>รหัสสมาชิก</th><th>น้ำหนักรวม (กก.)</th><th>ยอดเงิน (บาท)</th><th>รับสุทธิ (บาท)</th></tr></thead><tbody>';
     foreach ($results as $row) {
         echo '<tr>';
         echo '<td>' . e($row['ru_fullname']) . '</td>';

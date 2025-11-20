@@ -59,7 +59,7 @@ if ($date_start || $date_end) {
     $html .= '</div>';
 }
 $html .= '<table border="1" cellspacing="0" cellpadding="5" width="100%" style="font-size:18pt;">';
-$html .= '<thead><tr style="background:#eee;"><th>ชื่อ-สกุล</th><th>รหัสสมาชิก</th><th>น้ำหนักรวม (กก.)</th><th>ปริมาณยางรวม (บาท)</th><th>ยอดเงินรวม (บาท)</th></tr></thead><tbody>';
+$html .= '<thead><tr style="background:#eee;"><th>ชื่อ-สกุล</th><th>รหัสสมาชิก</th><th>น้ำหนักรวม (กก.)</th><th>ยอดเงิน (บาท)</th><th>รับสุทธิ (บาท)</th></tr></thead><tbody>';
 $total_quantity = 0;
 $total_value = 0;
 $total_netvalue = 0;
