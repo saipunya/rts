@@ -197,14 +197,14 @@ $style = '
   .header-card { padding-bottom: 1px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
   .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 2px; margin-top: 1px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.02); }
   .table, table { width: 100%; border-collapse: collapse; }
-  .tr,td { font-size: 16px; }
+  .tr,td { font-size: 18px; }
   .info-table td { padding: 0.2px 0.5px; font-size: 16px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 15px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 15px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 17px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 17px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
-  .data-table thead th { padding: 0.5px 0.5px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 12px; letter-spacing: 0.2px; }
-  .data-table td, .data-table th { padding: 0.5px 0.5px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; height: 14px; }
+  .data-table thead th { padding: 0.5px 0.5px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
+  .data-table td, .data-table th { padding: 0.5px 0.5px; border: 1px solid #e5e7eb; background: #fff; font-size: 16px; height: 14px; }
   .data-table tr:nth-child(even) td { background: #f1f5f9; }
   .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1px solid #6366f1; }
   .kpi { margin-top: 2px; background: #f1f5f9; border: 1px dashed #6366f1; border-radius: 5px; padding: 2px 2px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.03); font-size: 12px; }
@@ -215,8 +215,8 @@ $style = '
   .sig-caption { font-size: 9px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 10px; margin-top: 1px; font-weight: 600; }
   table td, table th{
-  font-size: 14px !important;
-}
+    font-size: 16px !important;
+  }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
 ';
