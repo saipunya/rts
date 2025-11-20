@@ -32,6 +32,20 @@ $date_end = $_GET['date_end'] ?? '';
             ส่งออก PDF (สรุปยอดรวม)
         </a>
     </div>
+    <?php if ($date_start || $date_end): ?>
+        <div class="alert alert-info mb-3">
+            <b>ช่วงวันที่ที่ค้นหา:</b>
+            <?php
+                if ($date_start && $date_end) {
+                    echo e(thai_date_format($date_start)) . ' ถึง ' . e(thai_date_format($date_end));
+                } elseif ($date_start) {
+                    echo 'ตั้งแต่ ' . e(thai_date_format($date_start));
+                } elseif ($date_end) {
+                    echo 'ถึง ' . e(thai_date_format($date_end));
+                }
+            ?>
+        </div>
+    <?php endif; ?>
 <?php
 $mysqli = db();
 $where = [];
