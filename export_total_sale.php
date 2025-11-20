@@ -83,5 +83,5 @@ $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
 $dompdf->setPaper('A4', 'landscape');
 $dompdf->render();
-$dompdf->stream('total_rubber_report.pdf', ["Attachment" => 1]);
+$dompdf->stream('total_rubber_report.pdf', ["Attachment" => 0]); // เปลี่ยนเป็นเปิด PDF ในเบราว์เซอร์
 exit;
