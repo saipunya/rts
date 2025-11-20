@@ -1,5 +1,5 @@
 <?php
-include "config.php";
+include "functions.php";
 include "header.php";
 
 // รับค่าจากฟอร์ม
