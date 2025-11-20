@@ -78,7 +78,7 @@ $html .= '</tbody></table>';
 $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $options->set('isRemoteEnabled', true);
-$options->set('defaultFont', 'Sarabun');
+$options->set('defaultFont', 'THSarabunNew');
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
 $dompdf->setPaper('A4', 'landscape');

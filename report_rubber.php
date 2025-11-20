@@ -27,11 +27,7 @@ $date_end = $_GET['date_end'] ?? '';
             <button type="submit" class="btn btn-primary">ค้นหา</button>
         </div>
     </form>
-    <div class="mb-3">
-        <a href="export_total_sale.php?keyword=<?=urlencode($keyword)?>&date_start=<?=urlencode($date_start)?>&date_end=<?=urlencode($date_end)?>" class="btn btn-success" target="_blank">
-            ส่งออก PDF (สรุปยอดรวม)
-        </a>
-    </div>
+   
     <?php if ($date_start || $date_end): ?>
         <div class="alert alert-info mb-3">
             <b>ช่วงวันที่ที่ค้นหา:</b>
@@ -94,5 +90,10 @@ if ($results) {
     echo '<div class="alert alert-warning">ไม่พบข้อมูล</div>';
 }
 ?>
+ <div class="mb-3">
+        <a href="export_total_sale.php?keyword=<?=urlencode($keyword)?>&date_start=<?=urlencode($date_start)?>&date_end=<?=urlencode($date_end)?>" class="btn btn-success" target="_blank">
+            ส่งออก PDF (สรุปยอดรวม)
+        </a>
+    </div>
 </div>
 <?php include "footer.php"; ?>
