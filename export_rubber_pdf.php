@@ -178,44 +178,44 @@ $hasThaiFonts = (bool)$defaultFamily;
 
 // ปรับ CSS layout ให้ทันสมัยและเหมาะกับ print
 $style = '
-  @page { margin: 5mm 4mm;}
+  @page { margin: 2mm 2mm;}
   html, body { width: 100%; height: 100%; }
   .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #222; background: #f8fafc; line-height: 1.25; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 15px; color: #222; background: #f8fafc; line-height: 1.18; }
   .container { max-width: 1100px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04); border: 1px solid #e5e7eb; padding: 6px 4px 4px 4px; margin-bottom: 4px; }
+  .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04); border: 1px solid #e5e7eb; padding: 3px 2px 2px 2px; margin-bottom: 2px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 17px; font-weight: 800; color: #1e293b; margin-top: 2px; margin-bottom: 1px; letter-spacing: 0.5px; }
-  .meta { font-size: 11px; color: #64748b; margin-bottom: 3px; }
+  h1, .title-row { font-size: 16px; font-weight: 800; color: #1e293b; margin-top: 1px; margin-bottom: 1px; letter-spacing: 0.5px; }
+  .meta { font-size: 10px; color: #64748b; margin-bottom: 2px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
   .muted { color: #94a3b8; }
-  .unit { color: #64748b; font-size: 11px; }
-  .badge { display: inline-block; padding: 1px 4px; background: #e0e7ff; color: #3730a3; border-radius: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.2px; }
-  .chip { display: inline-block; padding: 1px 4px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 11px; font-weight: 500; }
-  .header-card { padding-bottom: 2px; border-bottom: 1px solid #e0e7ff; margin-bottom: 3px; }
-  .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 5px; margin-top: 2px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.02); }
+  .unit { color: #64748b; font-size: 10px; }
+  .badge { display: inline-block; padding: 0.5px 2px; background: #e0e7ff; color: #3730a3; border-radius: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.2px; }
+  .chip { display: inline-block; padding: 0.5px 2px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 10px; font-weight: 500; }
+  .header-card { padding-bottom: 1px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
+  .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 2px; margin-top: 1px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.02); }
   .table, table { width: 100%; border-collapse: collapse; }
-  .tr,td { font-size: 18px; }
-  .info-table td { padding: 0.5px 1px; font-size: 16px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 22px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 22px; }
+  .tr,td { font-size: 16px; }
+  .info-table td { padding: 0.2px 0.5px; font-size: 14px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 15px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 15px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
-  .data-table thead th { padding: 1px 1px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 13px; letter-spacing: 0.2px; }
-  .data-table td, .data-table th { padding: 1px 1px; border: 1px solid #e5e7eb; background: #fff; font-size: 13px; height: 18px; }
+  .data-table thead th { padding: 0.5px 0.5px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 12px; letter-spacing: 0.2px; }
+  .data-table td, .data-table th { padding: 0.5px 0.5px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; height: 14px; }
   .data-table tr:nth-child(even) td { background: #f1f5f9; }
   .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1px solid #6366f1; }
-  .kpi { margin-top: 4px; background: #f1f5f9; border: 1px dashed #6366f1; border-radius: 5px; padding: 4px 5px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.03); font-size: 13px; }
-  .kpi .kpi-value { font-size: 15px; font-weight: 800; color: #3730a3; }
-  .signature-table { margin-top: 3px; page-break-inside: avoid; }
+  .kpi { margin-top: 2px; background: #f1f5f9; border: 1px dashed #6366f1; border-radius: 5px; padding: 2px 2px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.03); font-size: 12px; }
+  .kpi .kpi-value { font-size: 13px; font-weight: 800; color: #3730a3; }
+  .signature-table { margin-top: 2px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
-  .sig-line { border-bottom: 1px dotted #6366f1; width: 60%; height: 10px; display: block; margin-bottom:1px; }
-  .sig-caption { font-size: 10px; color: #64748b; margin-top: 1px; }
-  .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
+  .sig-line { border-bottom: 1px dotted #6366f1; width: 60%; height: 8px; display: block; margin-bottom:1px; }
+  .sig-caption { font-size: 9px; color: #64748b; margin-top: 1px; }
+  .sig-name { font-size: 10px; margin-top: 1px; font-weight: 600; }
   table td, table th{
-  font-size: 22px !important;
+  font-size: 14px !important;
 }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
