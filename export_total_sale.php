@@ -43,11 +43,11 @@ $stmt->execute();
 $result = $stmt->get_result();
 $results = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
-// สร้าง HTML สำหรับ PDF
+// สร้าง HTML สำหรับ PDFg
 $html = '<h3 style="text-align:center;">รายงานข้อมูลยางพารา (สรุปยอดรวม)</h3>';
 // เพิ่มช่วงวันที่ที่ค้นหา (ภาษาไทย)
 if ($date_start || $date_end) {
-    $html .= '<div style="margin-bottom:10px; text-align:center; font-size:14px;">';
+    $html .= '<div style="margin-bottom:10px; text-align:center; font-size:18px;">';
     $html .= '<b>ช่วงวันที่ที่ค้นหา:</b> ';
     if ($date_start && $date_end) {
         $html .= thai_date_format($date_start) . ' ถึง ' . thai_date_format($date_end);
