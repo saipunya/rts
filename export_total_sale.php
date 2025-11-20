@@ -1,5 +1,5 @@
 <?php
-include "config.php";
+include "functions.php";
 require_once __DIR__ . '/vendor/autoload.php'; // เรียกใช้ dompdf
 
 use Dompdf\Dompdf;
