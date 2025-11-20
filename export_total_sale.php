@@ -5,6 +5,8 @@ require_once __DIR__ . '/vendor/autoload.php'; // เรียกใช้ dompd
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+$mysqli = db();
+
 // รับค่าจาก query string
 $keyword = $_GET['keyword'] ?? '';
 $date_start = $_GET['date_start'] ?? '';
@@ -13,30 +15,33 @@ $date_end = $_GET['date_end'] ?? '';
 // เงื่อนไขค้นหา
 $where = [];
 $params = [];
+$types = '';
 if ($keyword) {
     $where[] = "(ru_fullname LIKE ? OR ru_number LIKE ?)";
     $params[] = "%$keyword%";
     $params[] = "%$keyword%";
+    $types .= 'ss';
 }
 if ($date_start) {
     $where[] = "ru_date >= ?";
     $params[] = $date_start;
+    $types .= 's';
 }
 if ($date_end) {
     $where[] = "ru_date <= ?";
     $params[] = $date_end;
+    $types .= 's';
 }
 $where_sql = $where ? ("WHERE " . implode(" AND ", $where)) : "";
 
-// ดึงข้อมูลสรุป
 $sql = "SELECT ru_fullname, ru_number, SUM(ru_quantity) AS total_quantity, SUM(ru_value) AS total_value, SUM(ru_netvalue) AS total_netvalue FROM tbl_rubber $where_sql GROUP BY ru_fullname, ru_number ORDER BY ru_fullname";
-$stmt = $conn->prepare($sql);
+$stmt = $mysqli->prepare($sql);
 if ($params) {
-    $stmt->execute($params);
-} else {
-    $stmt->execute();
+    $stmt->bind_param($types, ...$params);
 }
-$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute();
+$result = $stmt->get_result();
+$results = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
 // สร้าง HTML สำหรับ PDF
 $html = '<h3 style="text-align:center;">รายงานข้อมูลยางพารา (สรุปยอดรวม)</h3>';
