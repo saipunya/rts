@@ -81,32 +81,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // view
 include 'header.php';
 ?>
-<div class="container" style="max-width:480px;margin-top:60px;">
-	<div class="row my-2 ">
-		<div class="col-12 d-flex justify-content-between">
-			<h3 class="mb-3">เข้าสู่ระบบ</h3>
-			<a href="index.php" class="text-decoration-none"><h3>กลับหน้าหลัก</h3></a>
-		</div>
-	</div>
-	
-	<?php if ($msg): ?>
-		<div class="alert alert-info"><?php echo e($msg); ?></div>
-	<?php endif; ?>
-	<?php if ($errors): ?>
-		<div class="alert alert-danger"><?php echo e(implode(' | ', $errors)); ?></div>
-	<?php endif; ?>
-
-	<form method="post" autocomplete="off">
-		<input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-		<div class="mb-3">
-			<label class="form-label">ชื่อผู้ใช้</label>
-			<input class="form-control" name="username" required>
-		</div>
-		<div class="mb-3">
-			<label class="form-label">รหัสผ่าน</label>
-			<input class="form-control" type="password" name="password" required>
-		</div>
-		<button class="btn btn-primary w-100" type="submit">เข้าสู่ระบบ</button>
-	</form>
+<style>
+.login-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 2.5rem 2rem 2rem 2rem;
+  margin-top: 60px;
+}
+.login-title {
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #2d3748;
+}
+.login-btns .btn {
+  min-width: 120px;
+}
+</style>
+<div class="container" style="max-width:480px;">
+  <div class="login-card">
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <h3 class="login-title mb-0">เข้าสู่ระบบ</h3>
+      </div>
+    </div>
+    <?php if ($msg): ?>
+      <div class="alert alert-info text-center"><?php echo e($msg); ?></div>
+    <?php endif; ?>
+    <?php if ($errors): ?>
+      <div class="alert alert-danger text-center"><?php echo e(implode(' | ', $errors)); ?></div>
+    <?php endif; ?>
+    <form method="post" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+      <div class="mb-3">
+        <label class="form-label">ชื่อผู้ใช้</label>
+        <input class="form-control" name="username" required autofocus>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">รหัสผ่าน</label>
+        <input class="form-control" type="password" name="password" required>
+      </div>
+      <div class="d-flex justify-content-between login-btns gap-2">
+        <button class="btn btn-primary" type="submit">เข้าสู่ระบบ</button>
+        <a href="index.php" class="btn btn-outline-secondary">กลับหน้าหลัก</a>
+      </div>
+    </form>
+  </div>
 </div>
 <?php include 'footer.php'; ?>
