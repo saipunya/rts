@@ -40,7 +40,7 @@
             }
             .btn {
                 font-size: 1.35rem;
-                padding: 0.75em 2em;
+                padding: 0.4em 1.2em;
             }
             /* Custom layout tweaks */
             body { background-color: #f8fafc; font-family: 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
