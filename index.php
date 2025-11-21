@@ -154,10 +154,10 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	?>
 	<div class="d-flex justify-content-end mb-3 nav-index">
 		<ul class="nav">
-			<li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2 me-1 text-primary fs-5"></i>หน้าจัดการข้อมูล</a></li>
+			<li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2 me-1 text-primary fs-5"></i>ตั้งค่า</a></li>
 			<li class="nav-item"><a class="nav-link" href="prices.php"><i class="bi bi-cash-coin me-1 text-success fs-5"></i>ราคายาง</a></li>
 			<?php if ($logged_in): ?>
-				<li class="nav-item"><a class="nav-link" href="rubbers.php?lan=all"><i class="bi bi-droplet-half me-1 text-info fs-5"></i>ข้อมูลยางทั้งหมด</a></li>
+				<li class="nav-item"><a class="nav-link" href="rubbers.php?lan=all"><i class="bi bi-droplet-half me-1 text-info fs-5"></i>บันทึกข้อมูลยาง</a></li>
 				<li class="nav-item"><a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right me-1 text-danger fs-5"></i>ออกจากระบบ<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a></li>
 			<?php else: ?>
 				<li class="nav-item"><a class="nav-link" href="login.php"><i class="bi bi-box-arrow-in-right me-1 text-secondary fs-5"></i>เข้าสู่ระบบ</a></li> 
