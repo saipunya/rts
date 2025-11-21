@@ -86,7 +86,7 @@ include 'header.php';
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2.5rem 2rem 2rem 2rem;
+  padding: 1.5rem 1rem 1rem 1rem;
   margin-top: 60px;
 }
 .login-title {
