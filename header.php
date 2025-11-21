@@ -38,6 +38,10 @@
             .btn-sm{
                 font-size: 1.2rem;
             }
+            .btn {
+                font-size: 1.35rem;
+                padding: 0.75em 2em;
+            }
             /* Custom layout tweaks */
             body { background-color: #f8fafc; font-family: 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
             .navbar-brand { font-weight: 700; letter-spacing: .5px; }
