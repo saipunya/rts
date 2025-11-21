@@ -86,7 +86,7 @@ include 'header.php';
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 1.5rem 1rem 1rem 1rem;
+  padding: 2.5rem 1rem 2rem 2rem;
   margin-top: 60px;
 }
 .login-title {
@@ -121,7 +121,7 @@ include 'header.php';
         <label class="form-label">รหัสผ่าน</label>
         <input class="form-control" type="password" name="password" required>
       </div>
-      <div class="d-flex justify-content-between login-btns gap-2">
+      <div class="d-flex justify-content-between login-btns">
         <button class="btn btn-primary" type="submit">เข้าสู่ระบบ</button>
         <a href="index.php" class="btn btn-outline-secondary">กลับหน้าหลัก</a>
       </div>
