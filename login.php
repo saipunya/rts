@@ -121,7 +121,7 @@ include 'header.php';
         <label class="form-label">รหัสผ่าน</label>
         <input class="form-control" type="password" name="password" required>
       </div>
-      <div class="d-flex justify-content-between login-btns">
+      <div class="d-flex justify-content-between gap-2">
         <button class="btn btn-primary" type="submit">เข้าสู่ระบบ</button>
         <a href="index.php" class="btn btn-outline-secondary">กลับหน้าหลัก</a>
       </div>
