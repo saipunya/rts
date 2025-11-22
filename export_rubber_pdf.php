@@ -215,9 +215,10 @@ $style = '
   .sig-caption { font-size: 9px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 10px; margin-top: 1px; font-weight: 600; }
   table td, table th{
-    font-size: 16px !important;
+    font-size: 18px !important;
   }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .signature-table tr, .signature-table td { font-size: 18px; }
 
 ';
 
