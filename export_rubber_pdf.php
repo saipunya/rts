@@ -265,7 +265,7 @@ $dompdf->setPaper([0, 0, $paperWidth, $paperHeight]);
   $h = $canvas->get_height();
   $fontMetrics = $dompdf->getFontMetrics();
   $font = $fontMetrics->getFont($defaultFamily ?: 'THSarabunNew', 'normal');
-  $canvas->page_text($w - 100, $h - 24, "หน้า {PAGE_NUM}/{PAGE_COUNT}", $font, 10, [0,0,0]);
+  // $canvas->page_text($w - 100, $h - 24, "หน้า {PAGE_NUM}/{PAGE_COUNT}", $font, 10, [0,0,0]);
 
   $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
   $dompdf->stream($filename, ['Attachment' => false]);
