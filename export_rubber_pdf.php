@@ -77,7 +77,7 @@ $card = '<div class="card">
   <table class="info-table kv" style="width:100%;">
     <tr>
       <td>
-        <div class="k">ลาน' .e($row['ru_lan']).'</div>
+        <div class="k">ลาน ' .e($row['ru_lan']).'</div>
       </td>
       <td>
         <div class="k">กลุ่ม '.e($row['ru_group']).'</div>
@@ -199,8 +199,8 @@ $style = '
   .table, table { width: 100%; border-collapse: collapse; }
   .tr,td { font-size: 20px; }
   .info-table td { padding: 0.2px 0.5px; font-size: 18px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 17px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 17px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 20px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 20px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
   .data-table thead th { padding: 0.5px 0.5px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
