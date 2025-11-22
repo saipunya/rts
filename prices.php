@@ -25,7 +25,7 @@ $stmt->close();
             <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
                 <a href="dashboard.php" class="btn btn-secondary me-2"><i class="bi bi-house-door me-1"></i>กลับหน้า dashboard</a>
             <?php else: ?>
-                <a href="index" class="btn btn-primary"><i class="bi bi-box-arrow-in-right me-1"></i>กลับหน้าหลัก</a>
+                <a href="index.php" class="btn btn-primary"><i class="bi bi-box-arrow-in-right me-1"></i>กลับหน้าหลัก</a>
             <?php endif; ?>
 
 
