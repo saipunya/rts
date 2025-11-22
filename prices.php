@@ -24,8 +24,15 @@ $stmt->close();
         <div class="col-6 text-end">
             <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
                 <a href="dashboard.php" class="btn btn-secondary me-2"><i class="bi bi-house-door me-1"></i>กลับหน้า dashboard</a>
+            <?php else: ?>
+                <a href="index" class="btn btn-primary"><i class="bi bi-box-arrow-in-right me-1"></i>กลับหน้าหลัก</a>
             <?php endif; ?>
-            <a href="price_form.php?action=create" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>เพิ่มราคายาง</a>
+
+
+
+            <?php if (function_exists('is_admin') && is_admin()): ?>
+                <a href="price_form.php?action=create" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>เพิ่มราคายาง</a>
+            <?php endif; ?>
         </div>
     </div>
 
