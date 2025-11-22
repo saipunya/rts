@@ -1,7 +1,7 @@
 <?php
 // filepath: /Users/sumet/Desktop/rts/prices.php
 require_once 'functions.php';
-require_admin();
+// require_admin();
 include 'header.php';
 
 $msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
@@ -44,9 +44,10 @@ $stmt->close();
                             <th><i class="bi bi-calendar-date me-1"></i>วันที่</th>
                             <th><i class="bi bi-clock-history me-1"></i>รอบ</th>
                             <th><i class="bi bi-cash-stack me-1"></i>ราคา</th>
-                            <th><i class="bi bi-person-circle me-1"></i>บันทึกโดย</th>
-                            <th><i class="bi bi-calendar-check me-1"></i>วันที่บันทึก</th>
-                            <th class="no-sort"><i class="bi bi-gear me-1"></i>Actions</th>
+                         <!-- admin เท่่านั้นที่เห็น -->
+                            <?php if (function_exists('is_admin') && is_admin()): ?>
+                                <th class="no-sort"><i class="bi bi-gear me-1"></i>จัดการ</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,15 +58,16 @@ $stmt->close();
                                 <td><i class="bi bi-calendar-date me-1 text-secondary"></i><?php echo thai_date_format($p['pr_date']); ?></td>
                                 <td><i class="bi bi-clock-history me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_number']); ?></td>
                                 <td><i class="bi bi-cash-stack me-1 text-success"></i><?php echo number_format((float)$p['pr_price'], 2); ?></td>
-                                <td><i class="bi bi-person-circle me-1 text-primary"></i><?php echo htmlspecialchars($p['pr_saveby']); ?></td>
-                                <td><i class="bi bi-calendar-check me-1 text-secondary"></i><?php echo htmlspecialchars($p['pr_savedate']); ?></td>
-                                <td>
-                                    <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-                                    <form method="post" action="price_delete.php" style="display:inline-block; margin-left:6px;" onsubmit="return confirm('ลบราคานี้หรือไม่?');">
-                                        <input type="hidden" name="id" value="<?php echo (int)$p['pr_id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                                    </form>
-                                </td>
+                                
+                                <?php if (function_exists('is_admin') && is_admin()): ?>
+                                    <td>
+                                        <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                        <form method="post" action="price_delete.php" style="display:inline-block; margin-left:6px;" onsubmit="return confirm('ลบราคานี้หรือไม่?');">
+                                            <input type="hidden" name="id" value="<?php echo (int)$p['pr_id']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
