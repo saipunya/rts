@@ -71,7 +71,7 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายางก้อนถ้วย สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
+    <h1 class="title-row" style="font-size:22px;text-align : center;">ใบรับเงินค่ายางก้อนถ้วย สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
     <div class="fullname-row" style="font-size:20px;text-align:center;">'.e($row['ru_fullname']).'</div>
   </div>
   <table class="info-table kv" style="width:100%;">
@@ -194,13 +194,13 @@ $style = '
   .unit { color: #64748b; font-size: 10px; }
   .badge { display: inline-block; padding: 0.5px 2px; background: #e0e7ff; color: #3730a3; border-radius: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.2px; }
   .chip { display: inline-block; padding: 0.5px 2px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 10px; font-weight: 500; }
-  .header-card { padding-bottom: 1px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
+  .header-card { padding-bottom: 1px; border-bottom: 1px solid #e0e7ff; margin-bottom: 1px; }
   .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 2px; margin-top: 1px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.02); }
   .table, table { width: 100%; border-collapse: collapse; }
   .tr,td { font-size: 20px; }
   .info-table td { padding: 0.2px 0.5px; font-size: 18px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 20px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 20px; }
+  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 19px; }
+  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 19px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
   .data-table thead th { padding: 0.5px 0.5px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
