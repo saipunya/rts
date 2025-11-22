@@ -71,7 +71,7 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
+    <h1 class="title-row" style="font-size:24px;text-align : center;">ใบรับเงินค่ายางก้อนถ้วย สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
     <div class="fullname-row" style="font-size:20px;text-align:center;">'.e($row['ru_fullname']).'</div>
   </div>
   <table class="info-table kv" style="width:100%;">
@@ -117,7 +117,7 @@ $card = '<div class="card">
   </table>
   <div class="kpi " style="text-align:right;">
     <span style="font-size: 20px;">ยอดรับสุทธิ: </span>
-    <span class="kpi-value" style="font-size: 20px;  color:red;">'.nf($netvalue).'</span>
+    <span class="kpi-value" style="font-size: 20px;">'.nf($netvalue).'</span>
     <span class="unit" style="font-size: 20px;">บาท</span>
   </div>
   <table class="signature-table" style="width:100%;margin-top:18px;">
@@ -203,7 +203,7 @@ $style = '
   .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 17px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
-  .data-table thead th { padding: 0.5px 0.5px; background: #6366f1; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
+  .data-table thead th { padding: 0.5px 0.5px; color: #fff; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
   .data-table td, .data-table th { padding: 0.5px 0.5px; border: 1px solid #e5e7eb; background: #fff; font-size: 16px; height: 14px; }
   .data-table tr:nth-child(even) td { background: #f1f5f9; }
   .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1px solid #6366f1; }
