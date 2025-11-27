@@ -206,7 +206,36 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 			</div>
 		</div>
 	</div>
-
+	<!-- ปริมาณรวบรวมแต่ละลาน -->
+	<div class="row mb-3">
+		<div class="col-12">
+			<div class="card stat p-3">
+				<div class="mb-2 fw-bold">ปริมาณรวบรวมแต่ละลาน</div>
+				<table class="table table-bordered table-sm mb-0">
+					<thead>
+						<tr>
+							<th>ลาน</th>
+							<th>ปริมาณรวม (kg)</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+					// รวมปริมาณแต่ละลานจาก $filtered
+					$location_totals = [];
+					foreach ($filtered as $item) {
+						$loc = $item['location'] ?: '-';
+						if (!isset($location_totals[$loc])) $location_totals[$loc] = 0;
+						$location_totals[$loc] += $item['quantity'];
+					}
+					foreach ($location_totals as $loc => $qty) {
+						echo '<tr><td>'.htmlspecialchars($loc).'</td><td>'.number_format($qty,2).'</td></tr>';
+					}
+					?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 	
 	<!-- Listings table -->
 	<div class="row">
