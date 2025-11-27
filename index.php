@@ -34,7 +34,7 @@ body {
 <?php
 // Load recent entries from tbl_rubber and map to listing fields used by the table
 $listings = [];
-$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_lan, ru_expend, ru_number, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
+$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_lan, ru_expend, ru_number, ru_date FROM tbl_rubber ORDER BY ru_lan ASC,ru_date DESC, ru_id DESC LIMIT 200");
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $listings[] = [
