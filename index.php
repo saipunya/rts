@@ -34,7 +34,7 @@ body {
 <?php
 // Load recent entries from tbl_rubber and map to listing fields used by the table
 $listings = [];
-$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_expend, ru_number, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
+$res = $db->query("SELECT ru_id, ru_fullname, ru_class, ru_quantity, ru_netvalue, ru_group, ru_lan, ru_expend, ru_number, ru_date FROM tbl_rubber ORDER BY ru_date DESC, ru_id DESC LIMIT 200");
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $listings[] = [
@@ -45,6 +45,7 @@ if ($res) {
             'quantity' => (float)$row['ru_quantity'],
             'unit' => 'kg',
             'price' => (float)$row['ru_netvalue'],
+            'lan' => $row['ru_lan'], // ใช้ ru_lan โดยตรง
             'location' => $row['ru_group'],
             'deductions' => isset($row['ru_expend']) ? (float)$row['ru_expend'] : 0.0,
             'posted' => $row['ru_date'],
@@ -223,7 +224,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 					// รวมปริมาณแต่ละลานจาก $filtered โดยใช้ ru_lan
 					$lan_totals = [];
 					foreach ($filtered as $item) {
-						$lan = $item['lan'] ?? ($item['ru_lan'] ?? ($item['location'] ?? '-'));
+						$lan = $item['lan'] ?? '-'; // ใช้ ru_lan โดยตรง
 						if (!isset($lan_totals[$lan])) $lan_totals[$lan] = 0;
 						$lan_totals[$lan] += $item['quantity'];
 					}
