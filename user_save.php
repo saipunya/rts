@@ -3,7 +3,7 @@ require_once 'functions.php';
 require_admin();
 
 // enable detailed errors in development only
-define('DEV', true);
+define('DEV', false);
 if (DEV) {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -35,7 +35,12 @@ function respond($msg, $debug = null) {
         }
         exit;
     } else {
-        header('Location: users.php?msg=' . urlencode($msg));
+        // Redirect to dashboard if user created
+        if ($msg === 'User created') {
+            header('Location: dashboard.php?msg=' . urlencode($msg));
+        } else {
+            header('Location: users.php?msg=' . urlencode($msg));
+        }
         exit;
     }
 }
