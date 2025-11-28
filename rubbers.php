@@ -273,6 +273,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+// ...existing code...
+$cu = current_user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
+$isAdmin = isset($cu['user_level']) && $cu['user_level'] === 'admin';
+// ...existing code...
 // ดึงข้อมูลรายการ (รองรับ all + filters)
 $rows = [];
 if ($currentLan === 'all') {
@@ -301,6 +305,12 @@ if ($currentLan === 'all') {
       $types .= 's';
       $binds[] = $date_to;
     }
+  }
+  // เฉพาะ user ปกติ filter ด้วย ru_saveby
+  if (!$isAdmin && isset($cu['user_fullname'])) {
+    $conds[] = 'ru_saveby = ?';
+    $types .= 's';
+    $binds[] = $cu['user_fullname'];
   }
 
   $sql = "SELECT * FROM tbl_rubber";
@@ -331,9 +341,16 @@ if ($currentLan === 'all') {
     $sumNet    += (float)$ag['ru_netvalue'];
   }
 } else {
-  $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
-  $lanStr = (string)$currentLan;
-  $stl->bind_param('s', $lanStr);
+  // เฉพาะ user ปกติ filter ด้วย ru_saveby
+  if (!$isAdmin && isset($cu['user_fullname'])) {
+    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_saveby = ? ORDER BY ru_date DESC, ru_id DESC");
+    $lanStr = (string)$currentLan;
+    $stl->bind_param('ss', $lanStr, $cu['user_fullname']);
+  } else {
+    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
+    $lanStr = (string)$currentLan;
+    $stl->bind_param('s', $lanStr);
+  }
   $stl->execute();
   $res = $stl->get_result();
   if ($res) {
