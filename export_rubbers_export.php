@@ -23,28 +23,34 @@ $month = isset($_GET['month']) ? (int)$_GET['month'] : (isset($_POST['month']) ?
 $period_start = $_GET['period_start'] ?? null;
 $period_end = $_GET['period_end'] ?? null;
 
-// สร้าง query ตามช่วงข้อมูล (ใช้ ru_savedate แทน ru_date)
+$user = current_user(); // สมมติว่ามีฟังก์ชัน current_user() คืนค่า user id
+$user_id = $user['id'];
+
+// สร้าง query ตามช่วงข้อมูล (ใช้ ru_date แทน ru_savedate)
 $where = '';
 $params = [];
 $types = '';
 if ($scope === 'year') {
-    $where = 'WHERE YEAR(ru_savedate) = ?';
+    $where = 'WHERE YEAR(ru_date) = ? AND ru_saveby = ?';
     $params[] = $year;
-    $types .= 'i';
+    $params[] = $user_id;
+    $types .= 'ii';
 } elseif ($scope === 'month') {
-    $where = 'WHERE YEAR(ru_savedate) = ? AND MONTH(ru_savedate) = ?';
+    $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ? AND ru_saveby = ?';
     $params[] = $year;
     $params[] = $month;
-    $types .= 'ii';
+    $params[] = $user_id;
+    $types .= 'iii';
 } elseif ($scope === 'period' && $period_start && $period_end) {
-    $where = 'WHERE ru_savedate BETWEEN ? AND ?';
+    $where = 'WHERE DATE(ru_date) BETWEEN ? AND ? AND ru_saveby = ?';
     $params[] = $period_start;
     $params[] = $period_end;
-    $types .= 'ss';
+    $params[] = $user_id;
+    $types .= 'ssi';
 }
 
 $db = db();
-$sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_savedate, ru_id";
+$sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_date, ru_id";
 $st = $db->prepare($sql);
 if ($types) {
     $st->bind_param($types, ...$params);
@@ -88,7 +94,7 @@ if ($type === 'excel') {
         $total_net += $net;
         fputcsv($out, [
             $row['ru_id'],
-            thai_date($row['ru_savedate']),
+            thai_date($row['ru_date']),
             $row['ru_fullname'],
             $row['ru_quantity'],
             $row['ru_value'],
@@ -131,7 +137,7 @@ foreach ($rows as $row) {
     $total_net += $net;
     $html .= '<tr>';
     $html .= '<td>'.e($row['ru_id']).'</td>';
-    $html .= '<td>'.e(thai_date($row['ru_savedate'])).'</td>';
+    $html .= '<td>'.e(thai_date($row['ru_date'])).'</td>';
     $html .= '<td>'.e($row['ru_fullname']).'</td>';
     $html .= '<td style="text-align:right">'.nf($row['ru_quantity']).'</td>';
     $html .= '<td style="text-align:right">'.nf($row['ru_value']).'</td>';
