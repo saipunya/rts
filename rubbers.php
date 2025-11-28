@@ -280,65 +280,64 @@ $isAdmin = isset($cu['user_level']) && $cu['user_level'] === 'admin';
 // ดึงข้อมูลรายการ (รองรับ all + filters)
 $rows = [];
 if ($currentLan === 'all') {
-  $conds = [];
-  $binds = [];
-  $types = '';
-
-  if ($search !== '') {
-    $like = '%' . $search . '%';
-    $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
-    $types .= 'ssss';
-    array_push($binds, $like, $like, $like, $like);
-  }
-  if ($date_from !== '') {
-    $df = DateTime::createFromFormat('Y-m-d', $date_from);
-    if ($df && $df->format('Y-m-d') === $date_from) {
-      $conds[] = 'ru_date >= ?';
-      $types .= 's';
-      $binds[] = $date_from;
-    }
-  }
-  if ($date_to !== '') {
-    $dt = DateTime::createFromFormat('Y-m-d', $date_to);
-    if ($dt && $dt->format('Y-m-d') === $date_to) {
-      $conds[] = 'ru_date <= ?';
-      $types .= 's';
-      $binds[] = $date_to;
-    }
-  }
-  // เฉพาะ user ปกติ filter ด้วย ru_saveby
-  if (!$isAdmin && isset($cu['user_fullname'])) {
-    $conds[] = 'ru_saveby = ?';
-    $types .= 's';
-    $binds[] = $cu['user_fullname'];
-  }
-
-  $sql = "SELECT * FROM tbl_rubber";
-  if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
-  $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
-
-  if ($conds) {
-    $st = $db->prepare($sql);
-    $st->bind_param($types, ...$binds);
-    $st->execute();
-    $res = $st->get_result();
+  // เฉพาะ admin เท่านั้นที่เห็นข้อมูลทุกลาน
+  if (!$isAdmin) {
+    // ถ้าไม่ใช่ admin ไม่ให้เห็นข้อมูลใด ๆ
+    $rows = [];
   } else {
-    $res = $db->query($sql);
-  }
+    $conds = [];
+    $binds = [];
+    $types = '';
 
-  if ($res) {
-    while ($r = $res->fetch_assoc()) $rows[] = $r;
-    $res->free();
-  }
-  if (!empty($st)) $st->close();
+    if ($search !== '') {
+      $like = '%' . $search . '%';
+      $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
+      $types .= 'ssss';
+      array_push($binds, $like, $like, $like, $like);
+    }
+    if ($date_from !== '') {
+      $df = DateTime::createFromFormat('Y-m-d', $date_from);
+      if ($df && $df->format('Y-m-d') === $date_from) {
+        $conds[] = 'ru_date >= ?';
+        $types .= 's';
+        $binds[] = $date_from;
+      }
+    }
+    if ($date_to !== '') {
+      $dt = DateTime::createFromFormat('Y-m-d', $date_to);
+      if ($dt && $dt->format('Y-m-d') === $date_to) {
+        $conds[] = 'ru_date <= ?';
+        $types .= 's';
+        $binds[] = $date_to;
+      }
+    }
+    $sql = "SELECT * FROM tbl_rubber";
+    if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
+    $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
 
-  // new: aggregate summary
-  $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
-  foreach ($rows as $ag) {
-    $sumQty    += (float)$ag['ru_quantity'];
-    $sumValue  += (float)$ag['ru_value'];
-    $sumExpend += (float)$ag['ru_expend'];
-    $sumNet    += (float)$ag['ru_netvalue'];
+    if ($conds) {
+      $st = $db->prepare($sql);
+      $st->bind_param($types, ...$binds);
+      $st->execute();
+      $res = $st->get_result();
+    } else {
+      $res = $db->query($sql);
+    }
+
+    if ($res) {
+      while ($r = $res->fetch_assoc()) $rows[] = $r;
+      $res->free();
+    }
+    if (!empty($st)) $st->close();
+
+    // new: aggregate summary
+    $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
+    foreach ($rows as $ag) {
+      $sumQty    += (float)$ag['ru_quantity'];
+      $sumValue  += (float)$ag['ru_value'];
+      $sumExpend += (float)$ag['ru_expend'];
+      $sumNet    += (float)$ag['ru_netvalue'];
+    }
   }
 } else {
   // เฉพาะ user ปกติ filter ด้วย ru_saveby
