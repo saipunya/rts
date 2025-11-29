@@ -25,28 +25,41 @@ $period_end = $_GET['period_end'] ?? null;
 
 $user = current_user(); // สมมติว่ามีฟังก์ชัน current_user() คืนค่า user id
 $user_id = $user['id'];
+$is_admin = is_admin();
 
 // สร้าง query ตามช่วงข้อมูล (ใช้ ru_date แทน ru_savedate)
 $where = '';
 $params = [];
 $types = '';
 if ($scope === 'year') {
-    $where = 'WHERE YEAR(ru_date) = ? AND ru_saveby = ?';
+    $where = 'WHERE YEAR(ru_date) = ?';
     $params[] = $year;
-    $params[] = $user_id;
-    $types .= 'ii';
+    $types .= 'i';
+    if (!$is_admin) {
+        $where .= ' AND ru_saveby = ?';
+        $params[] = $user_id;
+        $types .= 'i';
+    }
 } elseif ($scope === 'month') {
-    $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ? AND ru_saveby = ?';
+    $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ?';
     $params[] = $year;
     $params[] = $month;
-    $params[] = $user_id;
-    $types .= 'iii';
+    $types .= 'ii';
+    if (!$is_admin) {
+        $where .= ' AND ru_saveby = ?';
+        $params[] = $user_id;
+        $types .= 'i';
+    }
 } elseif ($scope === 'period' && $period_start && $period_end) {
-    $where = 'WHERE DATE(ru_date) BETWEEN ? AND ? AND ru_saveby = ?';
+    $where = 'WHERE DATE(ru_date) BETWEEN ? AND ?';
     $params[] = $period_start;
     $params[] = $period_end;
-    $params[] = $user_id;
-    $types .= 'ssi';
+    $types .= 'ss';
+    if (!$is_admin) {
+        $where .= ' AND ru_saveby = ?';
+        $params[] = $user_id;
+        $types .= 'i';
+    }
 }
 
 $db = db();
