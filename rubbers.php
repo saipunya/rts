@@ -753,7 +753,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <!-- pdf export button shown only if dompdf installed -->
             <?php if ($hasDompdf): ?>
               <a href="export_rubbers_pdf.php?<?php echo $exportQuery; ?>" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                <i class="bi bi-file-earmark-pdf me-1"></i>PDF ลานที่ <?php echo (int)$r['ru_lan']; ?>
               </a>
             <?php else: ?>
               <button type="button" class="btn btn-sm btn-outline-secondary ms-2" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
@@ -832,7 +832,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                   </form>
                   <?php if ($hasDompdf): ?>
                     <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">
-                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF ลานที่ <?php echo (int)$r['ru_lan']; ?>
+                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF 
                     </a>
                   <?php else: ?>
                     <button class="btn btn-sm btn-outline-secondary" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
