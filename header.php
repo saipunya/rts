@@ -35,6 +35,10 @@
                 box-sizing: border-box;
             }
 
+            :root {
+                font-size: 20px; /* was ~16px, enlarge all rem-based text */
+            }
+
             body {
                 min-height: 100vh;
                 background: radial-gradient(circle at top left, #e0f2fe 0, #f8fafc 45%, #f9fafb 100%);
@@ -79,13 +83,13 @@
             }
 
             .page-hero h1 {
-                font-size: 2.1rem;
+                font-size: 2.4rem; /* bigger title */
                 font-weight: 700;
                 letter-spacing: .04em;
             }
 
             .page-hero h5 {
-                font-size: 1.25rem;
+                font-size: 1.35rem;
                 font-weight: 400;
                 opacity: .95;
             }
@@ -122,13 +126,13 @@
             }
 
             .btn-sm {
-                font-size: 1.05rem;
-                padding: .2rem .65rem;
+                font-size: 1.1rem;
+                padding: .25rem .7rem;
             }
 
             .btn {
-                font-size: 1.15rem;
-                padding: 0.35em 1.1em;
+                font-size: 1.25rem;
+                padding: 0.4em 1.15em;
                 border-radius: .75rem;
             }
 
@@ -174,10 +178,10 @@
                     padding: 1.1rem 1.25rem;
                 }
                 .page-hero h1 {
-                    font-size: 1.6rem;
+                    font-size: 2rem;
                 }
                 .page-hero h5 {
-                    font-size: 1.05rem;
+                    font-size: 1.2rem;
                 }
                 .content-card {
                     padding: 1.1rem 1.2rem;
