@@ -37,78 +37,40 @@ $cu = current_user();
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-download me-2"></i>Export Data</h5>
-                    <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการเป็น PDF หรือ Excel</p>
+                    <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ที่รวบรวม (จากราคายาง)</p>
+                    <?php
+                    // ดึง pr_date จาก tbl_price
+                    require_once 'config.php';
+                    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                    $dates = [];
+                    if (!$conn->connect_error) {
+                        $sql = "SELECT DISTINCT pr_date FROM tbl_price ORDER BY pr_date DESC";
+                        $result = $conn->query($sql);
+                        if ($result && $result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                $dates[] = $row['pr_date'];
+                            }
+                        }
+                        $conn->close();
+                    }
+                    ?>
                     <form class="row g-2 align-items-end" method="get" action="export_rubbers_export.php" id="exportForm">
                         <div class="col-12">
-                            <label for="export_type" class="form-label mb-1">ประเภทการส่งออก</label>
-                            <select class="form-select form-select-sm" id="export_type" name="export_type">
-                                <option value="pdf">PDF</option>
-                                <option value="excel">Excel</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label for="export_scope" class="form-label mb-1">ช่วงข้อมูล</label>
-                            <select class="form-select form-select-sm" id="export_scope" name="export_scope">
-                                <option value="year">รายปี</option>
-                                <option value="month">รายเดือน</option>
-                                <option value="period">ตามรอบ</option>
-                            </select>
-                        </div>
-                        <div class="col-12" id="monthSelect" style="display:none;">
-                            <label for="month" class="form-label mb-1">เลือกเดือน</label>
-                            <select class="form-select form-select-sm" id="month" name="month">
-                                <?php for($m=1;$m<=12;$m++): ?>
-                                    <option value="<?php echo $m; ?>" <?php if($m==date('n')) echo 'selected'; ?>><?php echo date('F', mktime(0,0,0,$m,1)); ?></option>
-                                <?php endfor; ?>
-                            </select>
-                        </div>
-                        <div class="col-12" id="yearSelect" style="display:none;">
-                            <label for="year" class="form-label mb-1">เลือกปี</label>
-                            <select class="form-select form-select-sm" id="year" name="year">
-                                <?php $thisYear = date('Y'); for($y=$thisYear-5;$y<=$thisYear+1;$y++): ?>
-                                    <option value="<?php echo $y; ?>" <?php if($y==$thisYear) echo 'selected'; ?>><?php echo $y; ?></option>
-                                <?php endfor; ?>
+                            <label for="pr_date" class="form-label mb-1">เลือกรอบวันที่ (pr_date)</label>
+                            <select class="form-select form-select-sm" id="pr_date" name="pr_date" required>
+                                <option value="">-- เลือกรอบวันที่ --</option>
+                                <?php foreach($dates as $d): ?>
+                                    <option value="<?php echo $d; ?>">
+                                        <?php echo date('d/m/Y', strtotime($d)); ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-arrow-down me-1"></i>ส่งออก</button>
+                            <button type="submit" name="export_type" value="pdf" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>ส่งออก PDF</button>
+                            <button type="submit" name="export_type" value="excel" class="btn btn-primary btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>ส่งออก Excel</button>
                         </div>
                     </form>
-                    <script>
-                        function toggleMonthYear() {
-                            var scope = document.getElementById('export_scope').value;
-                            var monthSel = document.getElementById('monthSelect');
-                            var yearSel = document.getElementById('yearSelect');
-                            if(scope === 'month') {
-                                monthSel.style.display = '';
-                                yearSel.style.display = '';
-                            } else if(scope === 'year') {
-                                monthSel.style.display = 'none';
-                                yearSel.style.display = '';
-                            } else {
-                                monthSel.style.display = 'none';
-                                yearSel.style.display = 'none';
-                            }
-                        }
-                        document.getElementById('export_scope').addEventListener('change', toggleMonthYear);
-                        // เรียกใช้ตอนโหลดหน้า
-                        toggleMonthYear();
-                    </script>
-                    <hr>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="export_rubbers_export.php?export_type=pdf&export_scope=year&year=<?php echo date('Y'); ?>" class="btn btn-outline-success btn-sm" target="_blank">
-                            <i class="bi bi-file-earmark-pdf me-1"></i> ส่งออก PDF รายปี
-                        </a>
-                        <a href="export_rubbers_export.php?export_type=excel&export_scope=month&month=<?php echo date('n'); ?>&year=<?php echo date('Y'); ?>" class="btn btn-outline-primary btn-sm" target="_blank">
-                            <i class="bi bi-file-earmark-excel me-1"></i> ส่งออก Excel รายเดือน
-                        </a>
-                        <a href="export_rubbers_export.php?export_type=pdf&export_scope=month&month=<?php echo date('n'); ?>&year=<?php echo date('Y'); ?>" class="btn btn-outline-secondary btn-sm" target="_blank">
-                            <i class="bi bi-file-earmark-arrow-down me-1"></i> ส่งออก PDF รายเดือน
-                        </a>
-                        <a href="export_rubbers_export.php?export_type=pdf&export_scope=period&period_start=<?php echo date('Y-m-01'); ?>&period_end=<?php echo date('Y-m-t'); ?>" class="btn btn-outline-secondary btn-sm" target="_blank">
-                            <i class="bi bi-file-earmark-arrow-down me-1"></i> ส่งออก PDF ตามรอบ
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
