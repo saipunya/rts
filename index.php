@@ -20,6 +20,10 @@ body {
 .nav-index {
 	font-weight: bold;
 }
+ul>li.nav-item .nav-link {
+	color: var(--accent-green);
+	font-size: 1.15rem; /* corrected property name from 'font-sizeof' to 'font-size' */
+}
 .header-lead { color: #155724; }
 .card.stat { border: none; box-shadow: var(--card-shadow); border-radius:12px; }
 .card.stat .value { font-weight:700; color: var(--accent-green); }

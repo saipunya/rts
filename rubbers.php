@@ -383,9 +383,6 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     .member-chooser {
       position: relative;
     }
-    body{
-      font-family: 'Sarabun', sans-serif;
-    }
 
     .member-chooser .dropdown {
       position: absolute;
@@ -783,7 +780,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <th class="text-end">เงินกู้</th>
             <th class="text-end">หนี้สั้น</th>
             <th class="text-end">เงินฝาก</th>
-            <th class="text-end">กู้ซื้อขาย</th>
+            <th class="text-end">ลูกหนี้การค้า</th>
             <th class="text-end">ประกันภัย</th>
             <th>จัดการ</th>
           </tr>
