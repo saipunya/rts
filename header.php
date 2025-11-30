@@ -36,7 +36,7 @@
             }
 
             :root {
-                font-size: 20px; /* was ~16px, enlarge all rem-based text */
+                font-size: 18px; /* was ~16px, enlarge all rem-based text */
             }
 
             body {
@@ -123,6 +123,16 @@
 
             .section-title i {
                 color: #0d6efd;
+            }
+
+            /* Bigger font inside tables */
+            table,
+            .dataTable,
+            table.dataTable tbody td,
+            table.dataTable thead th,
+            table.table td,
+            table.table th {
+                font-size: 1.2rem; /* increase cell & header size */
             }
 
             .btn-sm {

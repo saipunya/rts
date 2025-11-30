@@ -211,11 +211,11 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 	<div class="row mb-3">
 		<div class="col-12">
 			<div class="card stat p-3">
-				<div class="mb-2 fw-bold">ปริมาณรวบรวมแต่ละลาน (ru_lan)</div>
+				<div class="mb-2 fw-bold">ปริมาณรวบรวมแต่ละลาน</div>
 				<table class="table table-bordered table-sm mb-0">
 					<thead>
-						<tr>
-							<th>ลาน (ru_lan)</th>
+						<tr class="text-center">
+							<th>ลาน</th>
 							<th>ปริมาณรวม (kg)</th>
 						</tr>
 					</thead>
@@ -229,7 +229,7 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 						$lan_totals[$lan] += $item['quantity'];
 					}
 					foreach ($lan_totals as $lan => $qty) {
-						echo '<tr><td>'.htmlspecialchars($lan).'</td><td>'.number_format($qty,2).'</td></tr>';
+						echo '<tr class="text-center"><td>'.htmlspecialchars($lan).'</td><td>'.number_format($qty,2).'</td></tr>';
 					}
 					?>
 					</tbody>
