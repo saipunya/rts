@@ -1,5 +1,6 @@
 <?php
 require_once 'functions.php';
+var_dump($_SESSION); // debug session
 require_login();
 include 'header.php';
 $cu = current_user();
