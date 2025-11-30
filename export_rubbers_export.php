@@ -17,6 +17,7 @@ use Dompdf\Options;
 
 // รับค่าพารามิเตอร์
 $type = $_GET['export_type'] ?? 'pdf';
+$pr_date = $_GET['pr_date'] ?? null;
 $scope = $_GET['export_scope'] ?? 'year';
 $year = isset($_GET['year']) ? (int)$_GET['year'] : (isset($_POST['year']) ? (int)$_POST['year'] : (int)date('Y'));
 $month = isset($_GET['month']) ? (int)$_GET['month'] : (isset($_POST['month']) ? (int)$_POST['month'] : (int)date('n'));
@@ -31,34 +32,45 @@ $is_admin = is_admin();
 $where = '';
 $params = [];
 $types = '';
-if ($scope === 'year') {
-    $where = 'WHERE YEAR(ru_date) = ?';
-    $params[] = $year;
-    $types .= 'i';
+if ($pr_date) {
+    $where = 'WHERE DATE(ru_date) = ?';
+    $params[] = $pr_date;
+    $types .= 's';
     if (!$is_admin) {
         $where .= ' AND ru_saveby = ?';
         $params[] = $user_id;
         $types .= 'i';
     }
-} elseif ($scope === 'month') {
-    $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ?';
-    $params[] = $year;
-    $params[] = $month;
-    $types .= 'ii';
-    if (!$is_admin) {
-        $where .= ' AND ru_saveby = ?';
-        $params[] = $user_id;
+} else {
+    if ($scope === 'year') {
+        $where = 'WHERE YEAR(ru_date) = ?';
+        $params[] = $year;
         $types .= 'i';
-    }
-} elseif ($scope === 'period' && $period_start && $period_end) {
-    $where = 'WHERE DATE(ru_date) BETWEEN ? AND ?';
-    $params[] = $period_start;
-    $params[] = $period_end;
-    $types .= 'ss';
-    if (!$is_admin) {
-        $where .= ' AND ru_saveby = ?';
-        $params[] = $user_id;
-        $types .= 'i';
+        if (!$is_admin) {
+            $where .= ' AND ru_saveby = ?';
+            $params[] = $user_id;
+            $types .= 'i';
+        }
+    } elseif ($scope === 'month') {
+        $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ?';
+        $params[] = $year;
+        $params[] = $month;
+        $types .= 'ii';
+        if (!$is_admin) {
+            $where .= ' AND ru_saveby = ?';
+            $params[] = $user_id;
+            $types .= 'i';
+        }
+    } elseif ($scope === 'period' && $period_start && $period_end) {
+        $where = 'WHERE DATE(ru_date) BETWEEN ? AND ?';
+        $params[] = $period_start;
+        $params[] = $period_end;
+        $types .= 'ss';
+        if (!$is_admin) {
+            $where .= ' AND ru_saveby = ?';
+            $params[] = $user_id;
+            $types .= 'i';
+        }
     }
 }
 
@@ -96,6 +108,8 @@ if ($type === 'excel') {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="rubbers_export.csv"');
     $out = fopen('php://output', 'w');
+    // เพิ่มหัวรายงานแสดงรอบวันที่
+    fputcsv($out, ['รอบวันที่', thai_date_format($pr_date)]);
     fputcsv($out, ['ID', 'วันที่บันทึก', 'ชื่อ-สกุล', 'ปริมาณ(กก.)', 'ยอดเงินรวม', 'ยอดรับสุทธิ']);
     $total_qty = 0;
     $total_value = 0;
@@ -133,7 +147,10 @@ $dompdf = new Dompdf($options);
 
 $style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 22px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 6px; } th { background: #f1f1f1; }';
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
-$html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง '; 
+$html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง';
+if ($pr_date) {
+    $html .= '<br>รอบวันที่ '.e(thai_date_format($pr_date));
+} 
 if ($scope === 'year') $html .= 'ประจำปี '.e($year+543);
 elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year+543);
 elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e(thai_date($period_start)).' ถึง '.e(thai_date($period_end));

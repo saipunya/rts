@@ -1,6 +1,5 @@
 <?php
 require_once 'functions.php';
-var_dump($_SESSION); // debug session
 require_login();
 include 'header.php';
 $cu = current_user();
@@ -58,16 +57,25 @@ $cu = current_user();
                                 <option value="">-- เลือกรอบวันที่ --</option>
                                 <?php foreach($dates as $d): ?>
                                     <option value="<?php echo $d; ?>">
-                                        <?php echo date('d/m/Y', strtotime($d)); ?>
+                                        <?php echo thai_date_format($d); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-12 d-flex gap-2">
-                            <button type="submit" name="export_type" value="pdf" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>ส่งออก PDF</button>
-                            <button type="submit" name="export_type" value="excel" class="btn btn-primary btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>ส่งออก Excel</button>
+                            <button type="button" onclick="exportType('pdf')" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>ส่งออก PDF</button>
+                            <button type="button" onclick="exportType('excel')" class="btn btn-primary btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>ส่งออก Excel</button>
                         </div>
                     </form>
+                    <script>
+                    function exportType(type) {
+                        var form = document.getElementById('exportForm');
+                        var pr_date = document.getElementById('pr_date').value;
+                        if (!pr_date) { alert('กรุณาเลือกรอบวันที่'); return; }
+                        var url = form.action + '?pr_date=' + encodeURIComponent(pr_date) + '&export_type=' + type;
+                        window.open(url, '_blank');
+                    }
+                    </script>
                 </div>
             </div>
         </div>
