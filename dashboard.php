@@ -39,19 +39,15 @@ $cu = current_user();
                     <h5 class="card-title"><i class="bi bi-download me-2"></i>Export Data</h5>
                     <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ที่รวบรวม (จากราคายาง)</p>
                     <?php
-                    // ดึง pr_date จาก tbl_price
-                    require_once 'config.php';
-                    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                    // ดึง pr_date จาก tbl_price โดยใช้ db() จาก functions.php
                     $dates = [];
-                    if (!$conn->connect_error) {
-                        $sql = "SELECT DISTINCT pr_date FROM tbl_price ORDER BY pr_date DESC";
-                        $result = $conn->query($sql);
-                        if ($result && $result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                $dates[] = $row['pr_date'];
-                            }
+                    $conn = db();
+                    $sql = "SELECT DISTINCT pr_date FROM tbl_price ORDER BY pr_date DESC";
+                    $result = $conn->query($sql);
+                    if ($result && $result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            $dates[] = $row['pr_date'];
                         }
-                        $conn->close();
                     }
                     ?>
                     <form class="row g-2 align-items-end" method="get" action="export_rubbers_export.php" id="exportForm">
