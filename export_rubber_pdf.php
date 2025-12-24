@@ -198,14 +198,14 @@ $style = '
   .unit { color: #64748b; font-size: 18px; }
   .header-card { padding-bottom: 2px; border-bottom: 0; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; border: 0; }
-  .info-table td { padding: 1px 2px; font-size: 15px; border: 0; }
-  .info-table.kv .k { color: #334155; font-weight: 600; font-size: 15px; }
+  .info-table td { padding: 1px 2px; font-size: 18px; border: 0; }
+  .info-table.kv .k { color: #334155; font-weight: 600; font-size: 18px; }
   .info-table.kv td { border: 0; }
   .data-table { border: 0; border-radius: 0; background: #fff; margin-bottom: 2px; }
-  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 15px; }
-  .data-table td, .data-table th { padding: 2px; border: 0; background: #fff; font-size: 15px; height: auto; }
+  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 18px; }
+  .data-table td, .data-table th { padding: 2px; border: 0; background: #fff; font-size: 18px; height: auto; }
   .data-table tr:nth-child(even) td { background: transparent; }
-  .kpi { margin-top: 2px; background: #f7f7f7; padding: 2px 4px; page-break-inside: avoid; font-size: 18px; }
+  .kpi { margin-top: 2px; padding: 2px 4px; page-break-inside: avoid; font-size: 18px; }
   .kpi .kpi-value { font-size: 18px; font-weight: 700; color: #000; }
   .signature-table { margin-top: 4px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
