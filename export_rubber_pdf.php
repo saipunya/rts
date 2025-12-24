@@ -74,7 +74,6 @@ $card = '<div class="card">
     <h1 class="title-row" style="text-align:center; margin-bottom: 0;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
     <h2 style="text-align:center; margin-bottom: 0;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
     <h3 style="text-align:center; margin-bottom: 0;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
-    <div class="fullname-row" style="font-size:18px;text-align:center;">'.e($row['ru_fullname']).'</div>
   </div>
   <table class="info-table kv" style="width:100%;">
     <tr>
@@ -87,6 +86,8 @@ $card = '<div class="card">
       <td>
         <div class="k">เลขที่ '.e($row['ru_number']).'</div>
       </td>
+      <td>
+        <div class="k">วันที่รับยาง '.e($row['ru_fullname']).'</div>
     </tr>
   </table>
   <table class="columns" style="margin-bottom:12px;">
@@ -201,8 +202,8 @@ $style = '
   .table, table { width: 100%; border-collapse: collapse; }
   .tr,td { font-size: 20px; }
   .info-table td { padding: 0.2px 0.5px; font-size: 18px; }
-  .info-table.kv .k { width: 32%; color: #334155; font-weight: 600; font-size: 19px; }
-  .info-table.kv .v { width: 68%; color: #0f172a; font-weight: 500; font-size: 19px; }
+  .info-table.kv .k { width: 25%; color: #334155; font-weight: 600; font-size: 19px; }
+  .info-table.kv .v { width: 65%; color: #0f172a; font-weight: 500; font-size: 19px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
   .data-table thead th { padding: 0.5px 0.5px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
