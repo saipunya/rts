@@ -195,7 +195,7 @@ $style = '
   .header-card h2 { font-size: 12px; margin: 0; }
   .header-card h3 { font-size: 13px; margin: 2px 0 4px; }
   .meta { font-size: 9px; color: #64748b; margin-bottom: 2px; }
-  .text-end { text-align: right; font-variant-numeric: tabular-nums; }
+  .text-end { text-align: right; font-variant-numeric: tabular-nums; font-size : 16px; }
   .unit { color: #64748b; font-size: 10px; }
   .header-card { padding-bottom: 2px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; }
