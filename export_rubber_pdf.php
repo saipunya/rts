@@ -71,8 +71,10 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row">ใบรับเงินค่ายางก้อนถ้วย สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
-    <div class="fullname-row" style="font-size:20px;text-align:center;">'.e($row['ru_fullname']).'</div>
+    <h1 class="title-row" style="text-align:center;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
+    <h2 style="text-align:center;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
+    <h3 style="text-align:center;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
+    <div class="fullname-row" style="font-size:18px;text-align:center;">'.e($row['ru_fullname']).'</div>
   </div>
   <table class="info-table kv" style="width:100%;">
     <tr>
