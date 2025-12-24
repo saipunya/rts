@@ -198,8 +198,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $data['ru_expend']   = number_format((float)$expend, 2, '.', '');
       $data['ru_netvalue'] = number_format((float)$net, 2, '.', '');
 
-      // set ru_saveby from session
-      $data['ru_saveby'] = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
+      // set ru_saveby from session (prefer fullname for consistency; fallback to username)
+      $cuTmp = current_user();
+      $savebyFull = $cuTmp['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
+      $savebyUser = $cuTmp['user_name'] ?? ($_SESSION['user_name'] ?? '');
+      $data['ru_saveby'] = $savebyFull !== '' ? $savebyFull : ($savebyUser !== '' ? $savebyUser : 'เจ้าหน้าที่');
 
       if (!$errors) {
         $id = isset($_POST['ru_id']) && $_POST['ru_id'] !== '' ? (int)$_POST['ru_id'] : 0;
@@ -273,78 +276,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// ...existing code...
 $cu = current_user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
 $isAdmin = isset($cu['user_level']) && $cu['user_level'] === 'admin';
-// ...existing code...
+
 // ดึงข้อมูลรายการ (รองรับ all + filters)
 $rows = [];
 if ($currentLan === 'all') {
-  // เฉพาะ admin เท่านั้นที่เห็นข้อมูลทุกลาน
+  // เฉพาะ admin เห็นทุกลาน, ผู้ใช้ทั่วไปเห็นเฉพาะที่ตัวเองบันทึก (รองรับค้นหา/ช่วงวันที่)
+  $conds = [];
+  $binds = [];
+  $types = '';
+
   if (!$isAdmin) {
-    // ถ้าไม่ใช่ admin ไม่ให้เห็นข้อมูลใด ๆ
-    $rows = [];
-  } else {
-    $conds = [];
-    $binds = [];
-    $types = '';
+    $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
+    $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
+    $conds[] = '(ru_saveby = ? OR ru_saveby = ?)';
+    $types .= 'ss';
+    array_push($binds, $svFull, $svUser);
+  }
 
-    if ($search !== '') {
-      $like = '%' . $search . '%';
-      $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
-      $types .= 'ssss';
-      array_push($binds, $like, $like, $like, $like);
-    }
-    if ($date_from !== '') {
-      $df = DateTime::createFromFormat('Y-m-d', $date_from);
-      if ($df && $df->format('Y-m-d') === $date_from) {
-        $conds[] = 'ru_date >= ?';
-        $types .= 's';
-        $binds[] = $date_from;
-      }
-    }
-    if ($date_to !== '') {
-      $dt = DateTime::createFromFormat('Y-m-d', $date_to);
-      if ($dt && $dt->format('Y-m-d') === $date_to) {
-        $conds[] = 'ru_date <= ?';
-        $types .= 's';
-        $binds[] = $date_to;
-      }
-    }
-    $sql = "SELECT * FROM tbl_rubber";
-    if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
-    $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
-
-    if ($conds) {
-      $st = $db->prepare($sql);
-      $st->bind_param($types, ...$binds);
-      $st->execute();
-      $res = $st->get_result();
-    } else {
-      $res = $db->query($sql);
-    }
-
-    if ($res) {
-      while ($r = $res->fetch_assoc()) $rows[] = $r;
-      $res->free();
-    }
-    if (!empty($st)) $st->close();
-
-    // new: aggregate summary
-    $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
-    foreach ($rows as $ag) {
-      $sumQty    += (float)$ag['ru_quantity'];
-      $sumValue  += (float)$ag['ru_value'];
-      $sumExpend += (float)$ag['ru_expend'];
-      $sumNet    += (float)$ag['ru_netvalue'];
+  if ($search !== '') {
+    $like = '%' . $search . '%';
+    $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
+    $types .= 'ssss';
+    array_push($binds, $like, $like, $like, $like);
+  }
+  if ($date_from !== '') {
+    $df = DateTime::createFromFormat('Y-m-d', $date_from);
+    if ($df && $df->format('Y-m-d') === $date_from) {
+      $conds[] = 'ru_date >= ?';
+      $types .= 's';
+      $binds[] = $date_from;
     }
   }
+  if ($date_to !== '') {
+    $dt = DateTime::createFromFormat('Y-m-d', $date_to);
+    if ($dt && $dt->format('Y-m-d') === $date_to) {
+      $conds[] = 'ru_date <= ?';
+      $types .= 's';
+      $binds[] = $date_to;
+    }
+  }
+  $sql = "SELECT * FROM tbl_rubber";
+  if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
+  $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
+
+  if ($conds) {
+    $st = $db->prepare($sql);
+    if ($types !== '') $st->bind_param($types, ...$binds);
+    $st->execute();
+    $res = $st->get_result();
+  } else {
+    // ไม่มีเงื่อนไข แสดงทั้งหมด (เฉพาะ admin เท่านั้นถึงจะมาถึงส่วนนี้)
+    $res = $db->query($sql);
+  }
+
+  if ($res) {
+    while ($r = $res->fetch_assoc()) $rows[] = $r;
+    $res->free();
+  }
+  if (!empty($st)) $st->close();
+
+  // new: aggregate summary
+  $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
+  foreach ($rows as $ag) {
+    $sumQty    += (float)$ag['ru_quantity'];
+    $sumValue  += (float)$ag['ru_value'];
+    $sumExpend += (float)$ag['ru_expend'];
+    $sumNet    += (float)$ag['ru_netvalue'];
+  }
 } else {
-  // เฉพาะ user ปกติ filter ด้วย ru_saveby
-  if (!$isAdmin && isset($cu['user_fullname'])) {
-    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_saveby = ? ORDER BY ru_date DESC, ru_id DESC");
+  // ผู้ใช้ปกติ filter ด้วย ru_saveby (รองรับทั้ง fullname และ username)
+  if (!$isAdmin) {
+    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND (ru_saveby = ? OR ru_saveby = ?) ORDER BY ru_date DESC, ru_id DESC");
     $lanStr = (string)$currentLan;
-    $stl->bind_param('ss', $lanStr, $cu['user_fullname']);
+    $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
+    $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
+    $stl->bind_param('sss', $lanStr, $svFull, $svUser);
   } else {
     $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
     $lanStr = (string)$currentLan;
