@@ -107,6 +107,13 @@ if ($type === 'excel') {
     // ส่งออกเป็น CSV (Excel)
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="rubbers_export.csv"');
+
+    // ถ้าระบุ bom=1 ให้ใส่ UTF-8 BOM เพื่อให้ Excel แสดงภาษาไทยถูกต้อง
+    $addBom = isset($_GET['bom']) && $_GET['bom'] == '1';
+    if ($addBom) {
+        echo "\xEF\xBB\xBF";
+    }
+
     $out = fopen('php://output', 'w');
     // เพิ่มหัวรายงานแสดงรอบวันที่
     fputcsv($out, ['รอบวันที่', thai_date_format($pr_date)]);
