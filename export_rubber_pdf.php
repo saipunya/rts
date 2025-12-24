@@ -124,10 +124,9 @@ $card = '<div class="card">
     <span class="kpi-value" style="font-size: 18px;">'.nf($netvalue).'</span>
     <span class="unit" style="font-size: 20px;">บาท</span>
   </div>
-  <table class="signature-table" style="width:100%;margin-top:18px;">
+  <table class="signature-table" style="width:100%;margin-top:10px;">
     <tr>
-      <td style="width:60%;padding-top:18px;">
-        <div class="sig-line">&nbsp;</div>
+      <td style="width:60%;">
         <div class="sig-caption" style="font-size: 16px;"> ผู้บันทึก: '.e($row['ru_saveby']).' </div>
       </td>
       <td style="width:40%;text-align:right;font-size:15px;vertical-align:bottom;">
@@ -213,8 +212,8 @@ $style = '
   .sig-line { border-bottom: 1px dottedrgb(29, 29, 32); width: 55%; height: 8px; display: block; margin-bottom:2px; }
   .sig-caption { font-size: 11px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
-  table tr { font-size: 16px !important; }
-  table td, table th{ font-size: 16px !important; }
+  table tr { font-size: 20px !important; }
+  table td, table th{ font-size: 20px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .signature-table tr, .signature-table td { font-size: 12px; }
   .signature-table { font-size: 12px; }
