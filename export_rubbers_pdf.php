@@ -205,14 +205,14 @@ $style = '
   @page { margin: 20px 24px; }
   '.$fontCss.'
   body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #111; line-height: 1.45; }
-  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; }
+  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 18px; }
   h1 { font-size: 24px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
   .muted { color: #666; font-size: 13px; }
   .summary { margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
   .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; font-size: 16px; }
   table { width: 100%; border-collapse: collapse; }
-  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 8px 6px; font-size: 16px; }
-  tbody td { border-bottom: 1px solid #eee; padding: 7px; font-size: 16px; }
+  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 8px 6px; font-size: 18px; }
+  tbody td { border-bottom: 1px solid #eee; padding: 7px; font-size: 18px; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .footer { margin-top: 8px; font-size: 13px; color:#555; }
 ';
