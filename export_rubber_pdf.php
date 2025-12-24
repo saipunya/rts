@@ -72,7 +72,7 @@ $printedAt = date('Y-m-d H:i:s');
 $card = '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="text-align:center; margin-bottom: 0;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
-    <h2 style="text-align:center; margin-bottom: 0;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
+    <h2 style="text-align:center; margin-bottom: 0; font-size : 14px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
     <h3 style="text-align:center; margin-bottom: 0;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
   </div>
   <table class="info-table kv" style="width:100%;">
@@ -199,7 +199,7 @@ $style = '
   .unit { color: #64748b; font-size: 10px; }
   .header-card { padding-bottom: 2px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; }
-  .info-table td { padding: 1px 2px; font-size: 14px; }
+  .info-table td { padding: 1px 2px; font-size: 16px; }
   .info-table.kv .k { color: #334155; font-weight: 600; font-size: 16px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #999; border-radius: 4px; background: #fff; margin-bottom: 2px; }
