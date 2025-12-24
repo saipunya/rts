@@ -87,7 +87,8 @@ $card = '<div class="card">
         <div class="k">เลขที่ '.e($row['ru_number']).'</div>
       </td>
       <td>
-        <div class="k">วันที่รับยาง '.e($row['ru_fullname']).'</div>
+        <div class="k">ชื่อ-สกุล '.e($row['ru_fullname']).'</div>
+      </td>
     </tr>
   </table>
   <table class="columns" style="margin-bottom:12px;">
@@ -198,12 +199,12 @@ $style = '
   .unit { color: #64748b; font-size: 10px; }
   .header-card { padding-bottom: 2px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; }
-  .info-table td { padding: 1px 2px; font-size: 12px; }
-  .info-table.kv .k { color: #334155; font-weight: 600; font-size: 12px; }
+  .info-table td { padding: 1px 2px; font-size: 14px; }
+  .info-table.kv .k { color: #334155; font-weight: 600; font-size: 16px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
   .data-table { border: 1px solid #999; border-radius: 4px; background: #fff; margin-bottom: 2px; }
-  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #999; font-size: 12px; }
-  .data-table td, .data-table th { padding: 2px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; height: auto; }
+  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #999; font-size: 14px; }
+  .data-table td, .data-table th { padding: 2px; border: 1px solid #e5e7eb; background: #fff; font-size: 14px; height: auto; }
   .data-table tr:nth-child(even) td { background: #f7f7f7; }
   .kpi { margin-top: 2px; background: #f7f7f7; padding: 2px 4px; page-break-inside: avoid; font-size: 12px; }
   .kpi .kpi-value { font-size: 14px; font-weight: 700; color: #000; }
@@ -212,7 +213,7 @@ $style = '
   .sig-line { border-bottom: 1px dotted #6366f1; width: 55%; height: 8px; display: block; margin-bottom:2px; }
   .sig-caption { font-size: 11px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
-  table td, table th{ font-size: 12px !important; }
+  table td, table th{ font-size: 14px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .signature-table tr, .signature-table td { font-size: 12px; }
   .signature-table { font-size: 12px; }
