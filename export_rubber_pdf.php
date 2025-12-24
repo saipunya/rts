@@ -115,7 +115,7 @@ $card = '<div class="card">
       </td>
     </tr>
   </table>
-  <div class="kpi " style="text-align:right;">
+  <div class="kpi" style="text-align:right;">
     <span style="font-size: 20px;">ยอดรับสุทธิ: </span>
     <span class="kpi-value" style="font-size: 20px;">'.nf($netvalue).'</span>
     <span class="unit" style="font-size: 20px;">บาท</span>
@@ -207,7 +207,7 @@ $style = '
   .data-table td, .data-table th { padding: 0.5px 0.5px; border: 1px solid #e5e7eb; background: #fff; font-size: 16px; height: 14px; }
   .data-table tr:nth-child(even) td { background: #f1f5f9; }
   .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1px solid #6366f1; }
-  .kpi { margin-top: 2px; background: #f1f5f9; border: 1px dashed #6366f1; border-radius: 5px; padding: 2px 2px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.03); font-size: 12px; }
+  .kpi { margin-top: 2px; background: #f1f5f9; padding: 2px 2px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.03); font-size: 12px; }
   .kpi .kpi-value { font-size: 13px; font-weight: 800; color: #000; }
   .signature-table { margin-top: 2px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
