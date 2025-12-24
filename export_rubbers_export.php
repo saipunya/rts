@@ -4,96 +4,217 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/functions.php';
-$autoload = __DIR__ . '/vendor/autoload.php';
-if ($type === 'excel') {
 
-    // Header สำหรับ Excel (UTF-16LE)
-    header('Content-Type: text/csv; charset=UTF-16LE');
-    header('Content-Disposition: attachment; filename="rubbers_export.csv"');
+// รับค่าพารามิเตอร์
+$type = $_GET['export_type'] ?? 'pdf';
+$pr_date = $_GET['pr_date'] ?? null;
+$scope = $_GET['export_scope'] ?? 'year';
+$year = isset($_GET['year']) ? (int)$_GET['year'] : (isset($_POST['year']) ? (int)$_POST['year'] : (int)date('Y'));
+$month = isset($_GET['month']) ? (int)$_GET['month'] : (isset($_POST['month']) ? (int)$_POST['month'] : (int)date('n'));
+$period_start = $_GET['period_start'] ?? null;
+$period_end = $_GET['period_end'] ?? null;
 
-    // BOM สำหรับ UTF-16LE
-    echo "\xFF\xFE";
+$user = current_user();
+$user_id = $user['user_id'] ?? null; // แก้ key ให้ถูกต้อง
+$is_admin = is_admin();
 
-    $out = fopen('php://output', 'w');
-
-    // ฟังก์ชันเขียน CSV เป็น UTF-16LE (Excel Friendly)
-    function fputcsv_utf16le($handle, array $row) {
-        $csv = fopen('php://temp', 'r+');
-        fputcsv($csv, $row);
-        rewind($csv);
-        $data = stream_get_contents($csv);
-        fclose($csv);
-
-        // แปลง UTF-8 → UTF-16LE
-        $data = mb_convert_encoding($data, 'UTF-16LE', 'UTF-8');
-        fwrite($handle, $data);
+// สร้าง query ตามช่วงข้อมูล (ใช้ ru_date แทน ru_savedate)
+$where = '';
+$params = [];
+$types = '';
+if ($pr_date) {
+    $where = 'WHERE DATE(ru_date) = ?';
+    $params[] = $pr_date;
+    $types .= 's';
+    if (!$is_admin && $user_id !== null) {
+        $where .= ' AND ru_saveby = ?';
+        $params[] = $user_id;
+        $types .= 'i';
     }
-
-    // ===== หัวรายงาน =====
-    fputcsv_utf16le($out, ['รายงานข้อมูลรับซื้อยาง']);
-
-    if ($pr_date) {
-        fputcsv_utf16le($out, ['รอบวันที่', thai_date($pr_date)]);
-    } elseif ($scope === 'year') {
-        fputcsv_utf16le($out, ['ประจำปี', $year + 543]);
+} else {
+    if ($scope === 'year') {
+        $where = 'WHERE YEAR(ru_date) = ?';
+        $params[] = $year;
+        $types .= 'i';
+        if (!$is_admin && $user_id !== null) {
+            $where .= ' AND ru_saveby = ?';
+            $params[] = $user_id;
+            $types .= 'i';
+        }
     } elseif ($scope === 'month') {
-        fputcsv_utf16le($out, ['ประจำเดือน', $month . '/' . ($year + 543)]);
-    } elseif ($scope === 'period') {
-        fputcsv_utf16le($out, ['ช่วงวันที่', thai_date($period_start) . ' ถึง ' . thai_date($period_end)]);
+        $where = 'WHERE YEAR(ru_date) = ? AND MONTH(ru_date) = ?';
+        $params[] = $year;
+        $params[] = $month;
+        $types .= 'ii';
+        if (!$is_admin && $user_id !== null) {
+            $where .= ' AND ru_saveby = ?';
+            $params[] = $user_id;
+            $types .= 'i';
+        }
+    } elseif ($scope === 'period' && $period_start && $period_end) {
+        $where = 'WHERE DATE(ru_date) BETWEEN ? AND ?';
+        $params[] = $period_start;
+        $params[] = $period_end;
+        $types .= 'ss';
+        if (!$is_admin && $user_id !== null) {
+            $where .= ' AND ru_saveby = ?';
+            $params[] = $user_id;
+            $types .= 'i';
+        }
     }
+}
 
-    // เว้นบรรทัด
-    fputcsv_utf16le($out, []);
+$db = db();
+$sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_date, ru_id";
+$st = $db->prepare($sql);
+if ($types) {
+    $st->bind_param($types, ...$params);
+}
+$st->execute();
+$res = $st->get_result();
+$rows = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+$st->close();
 
-    // ===== หัวตาราง =====
-    fputcsv_utf16le($out, [
-        'ID',
-        'วันที่บันทึก',
-        'ชื่อ-สกุล',
-        'ปริมาณ (กก.)',
-        'ยอดเงินรวม',
-        'ยอดรับสุทธิ'
-    ]);
+function nf($n) { return number_format((float)$n, 2); }
+if (!function_exists('e')) {
+    function e($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+}
+function thai_date($date) {
+    $months = [
+        '', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+    $ts = strtotime($date);
+    if (!$ts) return $date;
+    $d = (int)date('j', $ts);
+    $m = (int)date('n', $ts);
+    $y = (int)date('Y', $ts) + 543;
+    return "$d {$months[$m]} $y";
+}
 
-    // ===== ข้อมูล =====
-    $total_qty = 0;
-    $total_value = 0;
-    $total_net = 0;
+if ($type === 'excel') {
+    // ส่งออกเป็น Excel (HTML Table) ด้วย UTF-8 + BOM ให้ Excel แสดงภาษาไทยถูกต้อง
+    header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="rubbers_export.xls"');
 
+    // BOM สำหรับ UTF-8
+    echo "\xEF\xBB\xBF";
+
+    $style = 'body { font-family: THSarabunNew, Sarabun, DejaVu Sans, Tahoma, sans-serif; font-size: 12pt; } '
+           . 'table { width: 100%; border-collapse: collapse; } '
+           . 'th, td { border: 1px solid #ccc; padding: 6px; } '
+           . 'th { background: #f1f1f1; } '
+           . '.t-right { text-align: right; }';
+
+    $html = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><style>' . $style . '</style></head><body>';
+    $html .= '<h3 style="text-align:center">รายงานข้อมูลรับซื้อยาง';
+    if ($pr_date) {
+        $html .= '<br>รอบวันที่ ' . e(thai_date_format($pr_date));
+    }
+    if ($scope === 'year') $html .= ' ประจำปี ' . e($year + 543);
+    elseif ($scope === 'month') $html .= ' ประจำเดือน ' . e($month) . '/' . e($year + 543);
+    elseif ($scope === 'period') $html .= ' ช่วงวันที่ ' . e(thai_date($period_start)) . ' ถึง ' . e(thai_date($period_end));
+    $html .= '</h3>';
+
+    $html .= '<table><thead><tr>'
+          . '<th>ID</th>'
+          . '<th>วันที่บันทึก</th>'
+          . '<th>ชื่อ-สกุล</th>'
+          . '<th>ปริมาณ(กก.)</th>'
+          . '<th>ยอดเงินรวม</th>'
+          . '<th>ยอดรับสุทธิ</th>'
+          . '</tr></thead><tbody>';
+
+    $total_qty = 0; $total_value = 0; $total_net = 0;
     foreach ($rows as $row) {
-        $net = $row['ru_netvalue']
-            ?? ($row['ru_value']
-                - ($row['ru_hoon']
-                + $row['ru_loan']
-                + $row['ru_shortdebt']
-                + $row['ru_deposit']
-                + $row['ru_tradeloan']
-                + $row['ru_insurance']));
-
+        $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon'] + $row['ru_loan'] + $row['ru_shortdebt'] + $row['ru_deposit'] + $row['ru_tradeloan'] + $row['ru_insurance']));
         $total_qty += $row['ru_quantity'];
         $total_value += $row['ru_value'];
         $total_net += $net;
-
-        fputcsv_utf16le($out, [
-            $row['ru_id'],
-            thai_date($row['ru_date']),
-            $row['ru_fullname'],
-            number_format($row['ru_quantity'], 2),
-            number_format($row['ru_value'], 2),
-            number_format($net, 2),
-        ]);
+        $html .= '<tr>'
+              . '<td>' . e($row['ru_id']) . '</td>'
+              . '<td>' . e(thai_date($row['ru_date'])) . '</td>'
+              . '<td>' . e($row['ru_fullname']) . '</td>'
+              . '<td class="t-right">' . nf($row['ru_quantity']) . '</td>'
+              . '<td class="t-right">' . nf($row['ru_value']) . '</td>'
+              . '<td class="t-right">' . nf($net) . '</td>'
+              . '</tr>';
     }
+    $html .= '<tr>'
+          . '<td colspan="3" class="t-right" style="font-weight:bold">รวมทั้งสิ้น</td>'
+          . '<td class="t-right" style="font-weight:bold">' . nf($total_qty) . '</td>'
+          . '<td class="t-right" style="font-weight:bold">' . nf($total_value) . '</td>'
+          . '<td class="t-right" style="font-weight:bold">' . nf($total_net) . '</td>'
+          . '</tr>';
 
-    // ===== รวมทั้งสิ้น =====
-    fputcsv_utf16le($out, [
-        '',
-        '',
-        'รวมทั้งสิ้น',
-        number_format($total_qty, 2),
-        number_format($total_value, 2),
-        number_format($total_net, 2),
-    ]);
+    $html .= '</tbody></table></body></html>';
 
-    fclose($out);
+    echo $html;
     exit;
 }
+
+// ส่วน PDF ใช้ Dompdf เฉพาะเมื่อขอ export เป็น PDF
+$autoload = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoload)) {
+    header('Content-Type: text/html; charset=UTF-8');
+    http_response_code(500);
+    echo 'ไม่พบ Dompdf (vendor/autoload.php). โปรดติดตั้ง: composer require dompdf/dompdf';
+    exit;
+}
+require_once $autoload;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+$options = new Options();
+$options->set('isRemoteEnabled', false);
+$options->set('isHtml5ParserEnabled', true);
+$options->set('chroot', __DIR__);
+$options->set('isFontSubsettingEnabled', false);
+$options->set('enable_font_subsetting', false);
+$defaultFont = 'THSarabunNew';
+$options->set('defaultFont', $defaultFont);
+$dompdf = new Dompdf($options);
+
+$style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 22px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 6px; } th { background: #f1f1f1; }';
+$html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
+$html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง';
+if ($pr_date) {
+    $html .= '<br>รอบวันที่ '.e(thai_date_format($pr_date));
+}
+if ($scope === 'year') $html .= 'ประจำปี '.e($year+543);
+elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year+543);
+elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e(thai_date($period_start)).' ถึง '.e(thai_date($period_end));
+$html .= '</h2>';
+$html .= '<table><thead><tr><th>ID</th><th>วันที่บันทึก</th><th>ชื่อ-สกุล</th><th>ปริมาณ(กก.)</th><th>ยอดเงินรวม</th><th>ยอดรับสุทธิ</th></tr></thead><tbody>';
+$total_qty = 0;
+$total_value = 0;
+$total_net = 0;
+foreach ($rows as $row) {
+    $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon']+$row['ru_loan']+$row['ru_shortdebt']+$row['ru_deposit']+$row['ru_tradeloan']+$row['ru_insurance']));
+    $total_qty += $row['ru_quantity'];
+    $total_value += $row['ru_value'];
+    $total_net += $net;
+    $html .= '<tr>';
+    $html .= '<td>'.e($row['ru_id']).'</td>';
+    $html .= '<td>'.e(thai_date($row['ru_date'])).'</td>';
+    $html .= '<td>'.e($row['ru_fullname']).'</td>';
+    $html .= '<td style="text-align:right">'.nf($row['ru_quantity']).'</td>';
+    $html .= '<td style="text-align:right">'.nf($row['ru_value']).'</td>';
+    $html .= '<td style="text-align:right">'.nf($net).'</td>';
+    $html .= '</tr>';
+}
+// แถวรวมทั้งสิ้น
+$html .= '<tr>';
+$html .= '<td colspan="3" style="text-align:right;font-weight:bold">รวมทั้งสิ้น</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_qty).'</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_value).'</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_net).'</td>';
+$html .= '</tr>';
+$html .= '</tbody></table>';
+$html .= '</body></html>';
+
+$dompdf->loadHtml($html, 'UTF-8');
+$dompdf->setPaper('A4', 'landscape');
+$dompdf->render();
+$dompdf->stream('rubbers_export.pdf', ['Attachment' => false]);
+exit;
