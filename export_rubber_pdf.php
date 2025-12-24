@@ -212,8 +212,8 @@ $style = '
   .sig-line { border-bottom: 0; width: 55%; height: 8px; display: block; margin-bottom:2px; }
   .sig-caption { font-size: 18px; color: #000; margin-top: 1px; }
   .sig-name { font-size: 18px; margin-top: 1px; font-weight: 600; color: #000; }
-  table tr { font-size: 20px !important; }
-  table td, table th{ font-size: 20px !important; }
+  table tr { font-size: 18px !important; }
+  table td, table th{ font-size: 18px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .signature-table tr, .signature-table td { font-size: 12px; }
   .signature-table { font-size: 12px; }
