@@ -181,48 +181,41 @@ $hasThaiFonts = (bool)$defaultFamily;
 
 // ปรับ CSS layout ให้ทันสมัยและเหมาะกับ print
 $style = '
-  @page { margin: 2mm 2mm;}
+  @page { margin: 5mm; }
   html, body { width: 100%; height: 100%; }
   .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 15px; color: #222; background: #f8fafc; line-height: 1.18; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #222; background: #fff; line-height: 1.15; }
   .container { max-width: 1100px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04); border: 1px solid #e5e7eb; padding: 3px 2px 2px 2px; margin-bottom: 2px; }
+  .card { background: #fff; border-radius: 6px; border: 1px solid #ddd; padding: 4px; margin-bottom: 2px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 20px; font-weight: 800; color: #1e293b; margin-top: 1px; margin-bottom: 1px; letter-spacing: 0.5px; }
-  .meta { font-size: 10px; color: #64748b; margin-bottom: 2px; }
+  h1, .title-row { font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 2px; letter-spacing: 0.2px; }
+  .header-card h2 { font-size: 12px; margin: 0; }
+  .header-card h3 { font-size: 13px; margin: 2px 0 4px; }
+  .meta { font-size: 9px; color: #64748b; margin-bottom: 2px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
-  .muted { color: #94a3b8; }
   .unit { color: #64748b; font-size: 10px; }
-  .badge { display: inline-block; padding: 0.5px 2px; background: #e0e7ff; color: #3730a3; border-radius: 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.2px; }
-  .chip { display: inline-block; padding: 0.5px 2px; background: #f1f5f9; color: #0f172a; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 10px; font-weight: 500; }
-  .header-card { padding-bottom: 1px; border-bottom: 1px solid #e0e7ff; margin-bottom: 1px; }
-  .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 2px; margin-top: 1px; background: #f9fafb; box-shadow: 0 1px 2px 0 rgba(30,41,59,0.02); }
+  .header-card { padding-bottom: 2px; border-bottom: 1px solid #e0e7ff; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; }
-  .tr,td { font-size: 20px; }
-  .info-table td { padding: 0.2px 0.5px; font-size: 18px; }
-  .info-table.kv .k { width: 25%; color: #334155; font-weight: 600; font-size: 19px; }
-  .info-table.kv .v { width: 65%; color: #0f172a; font-weight: 500; font-size: 19px; }
+  .info-table td { padding: 1px 2px; font-size: 12px; }
+  .info-table.kv .k { color: #334155; font-weight: 600; font-size: 12px; }
   .info-table.kv td { border: 1px solid #e5e7eb; }
-  .data-table { border: 1px solid #6366f1; border-radius: 5px; background: #fff; margin-bottom: 0; }
-  .data-table thead th { padding: 0.5px 0.5px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #6366f1; font-size: 14px; letter-spacing: 0.2px; }
-  .data-table td, .data-table th { padding: 0.5px 0.5px; border: 1px solid #e5e7eb; background: #fff; font-size: 16px; height: 14px; }
-  .data-table tr:nth-child(even) td { background: #f1f5f9; }
-  .data-table .totals td { font-weight: 700; background: #e0e7ff; border-top: 1px solid #6366f1; }
-  .kpi { margin-top: 2px; background: #f1f5f9; padding: 2px 2px; page-break-inside: avoid; box-shadow: 0 1px 2px 0 rgba(99,102,241,0.03); font-size: 12px; }
-  .kpi .kpi-value { font-size: 13px; font-weight: 800; color: #000; }
-  .signature-table { margin-top: 2px; page-break-inside: avoid; }
+  .data-table { border: 1px solid #999; border-radius: 4px; background: #fff; margin-bottom: 2px; }
+  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 1px solid #999; font-size: 12px; }
+  .data-table td, .data-table th { padding: 2px; border: 1px solid #e5e7eb; background: #fff; font-size: 12px; height: auto; }
+  .data-table tr:nth-child(even) td { background: #f7f7f7; }
+  .kpi { margin-top: 2px; background: #f7f7f7; padding: 2px 4px; page-break-inside: avoid; font-size: 12px; }
+  .kpi .kpi-value { font-size: 14px; font-weight: 700; color: #000; }
+  .signature-table { margin-top: 4px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
-  .sig-line { border-bottom: 1px dotted #6366f1; width: 60%; height: 8px; display: block; margin-bottom:1px; }
-  .sig-caption { font-size: 9px; color: #64748b; margin-top: 1px; }
-  .sig-name { font-size: 10px; margin-top: 1px; font-weight: 600; }
-  table td, table th{
-    font-size: 20px !important;
-  }
+  .sig-line { border-bottom: 1px dotted #6366f1; width: 55%; height: 8px; display: block; margin-bottom:2px; }
+  .sig-caption { font-size: 11px; color: #64748b; margin-top: 1px; }
+  .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
+  table td, table th{ font-size: 12px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .signature-table tr, .signature-table td { font-size: 18px; }
-  .signature-table { font-size: 18px; }
+  .signature-table tr, .signature-table td { font-size: 12px; }
+  .signature-table { font-size: 12px; }
 
 ';
 
@@ -282,3 +275,4 @@ $dompdf->setPaper([0, 0, $paperWidth, $paperHeight]);
   error_log("export_rubber_pdf.php error: " . $e->getMessage());
   exit;
 }
+?>
