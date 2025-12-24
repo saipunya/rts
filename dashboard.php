@@ -64,6 +64,8 @@ $cu = current_user();
                         </div>
                         <div class="col-12 d-flex gap-2">
                             <button type="button" onclick="exportType('pdf')" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>ส่งออก PDF</button>
+                            
+                            
                             <button type="button" onclick="exportType('excel')" class="btn btn-primary btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>ส่งออก Excel</button>
                         </div>
                     </form>
@@ -73,6 +75,10 @@ $cu = current_user();
                         var pr_date = document.getElementById('pr_date').value;
                         if (!pr_date) { alert('กรุณาเลือกรอบวันที่'); return; }
                         var url = form.action + '?pr_date=' + encodeURIComponent(pr_date) + '&export_type=' + type;
+                        // If exporting Excel (CSV/Excel-compatible), request server to prepend UTF-8 BOM so Thai characters display correctly in Excel
+                        if (type === 'excel') {
+                            url += '&bom=1';
+                        }
                         window.open(url, '_blank');
                     }
                     </script>
