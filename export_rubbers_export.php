@@ -104,16 +104,20 @@ function thai_date($date) {
 }
 
 if ($type === 'excel') {
-    // ส่งออกเป็น Excel แบบเข้ากันได้กับภาษาไทย
-    // ใช้ UTF-16LE + BOM และตั้ง Content-Type เป็น application/vnd.ms-excel
-    header('Content-Type: application/vnd.ms-excel; charset=UTF-16LE');
-    header('Content-Disposition: attachment; filename="rubbers_export.xls"');
+    // ส่งออกเป็น CSV (สำหรับ Excel) ด้วย UTF-8 + BOM และระบุตัวคั่น
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="rubbers_export.csv"');
 
-    // สร้างข้อมูลเป็นบรรทัด CSV ด้วย comma และขึ้นบรรทัดด้วย \r\n
-    $lines = [];
+    // เขียน BOM เพื่อให้ Excel แสดง UTF-8 ถูกต้อง
+    echo "\xEF\xBB\xBF";
+    // ระบุตัวคั่นเป็น comma ให้ Excel รับรู้
+    echo "sep=,\r\n";
+
+    $out = fopen('php://output', 'w');
+
     // เพิ่มหัวรายงานแสดงรอบวันที่
-    $lines[] = 'รอบวันที่,' . (thai_date_format($pr_date));
-    $lines[] = 'ID,วันที่บันทึก,ชื่อ-สกุล,ปริมาณ(กก.),ยอดเงินรวม,ยอดรับสุทธิ';
+    fputcsv($out, ['รอบวันที่', thai_date_format($pr_date)]);
+    fputcsv($out, ['ID', 'วันที่บันทึก', 'ชื่อ-สกุล', 'ปริมาณ(กก.)', 'ยอดเงินรวม', 'ยอดรับสุทธิ']);
 
     $total_qty = 0;
     $total_value = 0;
@@ -123,32 +127,18 @@ if ($type === 'excel') {
         $total_qty += $row['ru_quantity'];
         $total_value += $row['ru_value'];
         $total_net += $net;
-        // escape คอมมา/เครื่องหมายคำพูด ตามกติกา CSV
-        $cols = [
+        fputcsv($out, [
             $row['ru_id'],
             thai_date($row['ru_date']),
             $row['ru_fullname'],
             $row['ru_quantity'],
             $row['ru_value'],
             $net
-        ];
-        foreach ($cols as &$c) {
-            $c = (string)$c;
-            if (strpos($c, '"') !== false || strpos($c, ',') !== false || strpos($c, "\n") !== false || strpos($c, "\r") !== false) {
-                $c = '"' . str_replace('"', '""', $c) . '"';
-            }
-        }
-        unset($c);
-        $lines[] = implode(',', $cols);
+        ]);
     }
     // แถวรวมทั้งสิ้น
-    $lines[] = ',,รวมทั้งสิ้น,' . $total_qty . ',' . $total_value . ',' . $total_net;
-
-    $content = implode("\r\n", $lines) . "\r\n";
-
-    // เขียน BOM ของ UTF-16LE แล้วตามด้วยเนื้อหาแปลงเป็น UTF-16LE
-    echo "\xFF\xFE"; // BOM
-    echo mb_convert_encoding($content, 'UTF-16LE', 'UTF-8');
+    fputcsv($out, ['', '', 'รวมทั้งสิ้น', $total_qty, $total_value, $total_net]);
+    fclose($out);
     exit;
 }
 
