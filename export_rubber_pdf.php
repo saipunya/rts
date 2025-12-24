@@ -72,8 +72,8 @@ $printedAt = date('Y-m-d H:i:s');
 $card = '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="text-align:center; margin-bottom: 0;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
-    <h2 style="text-align:center; margin-bottom: 0; font-size: 14px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
-    <h3 style="text-align:center; margin-bottom: 0; font-size: 14px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
+    <h2 style="text-align:center; margin-bottom: 0; font-size: 16px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
+    <h3 style="text-align:center; margin-bottom: 0; font-size: 16px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
   </div>
   <table class="info-table kv" style="width:100%;">
     <tr>
