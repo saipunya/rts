@@ -71,9 +71,9 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row" style="text-align:center; margin-bottom: 0;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
-    <h2 style="text-align:center; margin-bottom: 0; font-size: 16px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
-    <h3 style="text-align:center; margin-bottom: 0; font-size: 16px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
+    <h1 class="title-row" style="text-align:center; margin-bottom: 0;font-size:18px;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
+    <h2 style="text-align:center; margin-bottom: 0; font-size: 18px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
+    <h3 style="text-align:center; margin-bottom: 0; font-size: 18px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
   </div>
   <table class="info-table kv" style="width:100%;">
     <tr>
@@ -198,8 +198,8 @@ $style = '
   .unit { color: #000; font-size: 18px; }
   .header-card { padding-bottom: 2px; border-bottom: 0; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; border: 0; }
-  .info-table td { padding: 1px 2px; font-size: 15px; border: 0; color: #000; }
-  .info-table.kv .k { color: #000; font-weight: 600; font-size: 15px; }
+  .info-table td { padding: 1px 2px; font-size: 18px; border: 0; color: #000; }
+  .info-table.kv .k { color: #000; font-weight: 600; font-size: 18px; }
   .info-table.kv td { border: 0; }
   .data-table { border: 0; border-radius: 0; background: #fff; margin-bottom: 2px; }
   .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 15px; }
