@@ -71,7 +71,7 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row" style="font-size:22px;text-align : center;">ใบรับเงินค่ายางก้อนถ้วย สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
+    <h1 class="title-row">ใบรับเงินค่ายางก้อนถ้วย สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด (ID: '.e($row['ru_id']).')</h1>
     <div class="fullname-row" style="font-size:20px;text-align:center;">'.e($row['ru_fullname']).'</div>
   </div>
   <table class="info-table kv" style="width:100%;">
@@ -187,7 +187,7 @@ $style = '
   .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04); border: 1px solid #e5e7eb; padding: 3px 2px 2px 2px; margin-bottom: 2px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 16px; font-weight: 800; color: #1e293b; margin-top: 1px; margin-bottom: 1px; letter-spacing: 0.5px; }
+  h1, .title-row { font-size: 18px; font-weight: 800; color: #1e293b; margin-top: 1px; margin-bottom: 1px; letter-spacing: 0.5px; }
   .meta { font-size: 10px; color: #64748b; margin-bottom: 2px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
   .muted { color: #94a3b8; }
