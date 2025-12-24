@@ -210,7 +210,7 @@ $style = '
   .kpi .kpi-value { font-size: 14px; font-weight: 700; color: #000; }
   .signature-table { margin-top: 4px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
-  .sig-line { border-bottom: 1px dotted #6366f1; width: 55%; height: 8px; display: block; margin-bottom:2px; }
+  .sig-line { border-bottom: 1px dottedrgb(29, 29, 32); width: 55%; height: 8px; display: block; margin-bottom:2px; }
   .sig-caption { font-size: 11px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
   table tr { font-size: 15px !important; }
