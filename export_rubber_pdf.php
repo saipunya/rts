@@ -121,7 +121,7 @@ $card = '<div class="card">
   </table>
   <div class="kpi" style="text-align:right;">
     <span style="font-size: 20px;">ยอดรับสุทธิ: </span>
-    <span class="kpi-value" style="font-size: 20px;">'.nf($netvalue).'</span>
+    <span class="kpi-value" style="font-size: 18px;">'.nf($netvalue).'</span>
     <span class="unit" style="font-size: 20px;">บาท</span>
   </div>
   <table class="signature-table" style="width:100%;margin-top:18px;">
@@ -213,8 +213,8 @@ $style = '
   .sig-line { border-bottom: 1px dottedrgb(29, 29, 32); width: 55%; height: 8px; display: block; margin-bottom:2px; }
   .sig-caption { font-size: 11px; color: #64748b; margin-top: 1px; }
   .sig-name { font-size: 11px; margin-top: 1px; font-weight: 600; }
-  table tr { font-size: 15px !important; }
-  table td, table th{ font-size: 15px !important; }
+  table tr { font-size: 16px !important; }
+  table td, table th{ font-size: 16px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .signature-table tr, .signature-table td { font-size: 12px; }
   .signature-table { font-size: 12px; }
