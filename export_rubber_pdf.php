@@ -185,33 +185,33 @@ $style = '
   html, body { width: 100%; height: 100%; }
   .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 18px; color: #222; background: #fff; line-height: 1.15; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 18px; color: #000; background: #fff; line-height: 1.15; }
   .container { max-width: 1100px; margin: 0 auto; }
   .card { background: #fff; border-radius: 6px; border: 0; padding: 4px; margin-bottom: 2px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 18px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 2px; letter-spacing: 0.2px; }
-  .header-card h2 { font-size: 18px; margin: 0; }
-  .header-card h3 { font-size: 18px; margin: 2px 0 4px; }
-  .meta { font-size: 18px; color: #64748b; margin-bottom: 2px; }
+  h1, .title-row { font-size: 18px; font-weight: 700; color: #000; margin-top: 0; margin-bottom: 2px; letter-spacing: 0.2px; }
+  .header-card h2 { font-size: 18px; margin: 0; color: #000; }
+  .header-card h3 { font-size: 18px; margin: 2px 0 4px; color: #000; }
+  .meta { font-size: 18px; color: #000; margin-bottom: 2px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
-  .unit { color: #64748b; font-size: 18px; }
+  .unit { color: #000; font-size: 18px; }
   .header-card { padding-bottom: 2px; border-bottom: 0; margin-bottom: 2px; }
   .table, table { width: 100%; border-collapse: collapse; border: 0; }
-  .info-table td { padding: 1px 2px; font-size: 18px; border: 0; }
-  .info-table.kv .k { color: #334155; font-weight: 600; font-size: 18px; }
+  .info-table td { padding: 1px 2px; font-size: 15px; border: 0; color: #000; }
+  .info-table.kv .k { color: #000; font-weight: 600; font-size: 15px; }
   .info-table.kv td { border: 0; }
   .data-table { border: 0; border-radius: 0; background: #fff; margin-bottom: 2px; }
-  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 18px; }
-  .data-table td, .data-table th { padding: 2px; border: 0; background: #fff; font-size: 18px; height: auto; }
+  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 15px; }
+  .data-table td, .data-table th { padding: 2px; border: 0; background: #fff; font-size: 15px; height: auto; color: #000; }
   .data-table tr:nth-child(even) td { background: transparent; }
-  .kpi { margin-top: 2px; padding: 2px 4px; page-break-inside: avoid; font-size: 18px; }
+  .kpi { margin-top: 2px; background: #f7f7f7; padding: 2px 4px; page-break-inside: avoid; font-size: 18px; color: #000; }
   .kpi .kpi-value { font-size: 18px; font-weight: 700; color: #000; }
   .signature-table { margin-top: 4px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
   .sig-line { border-bottom: 0; width: 55%; height: 8px; display: block; margin-bottom:2px; }
-  .sig-caption { font-size: 18px; color: #64748b; margin-top: 1px; }
-  .sig-name { font-size: 18px; margin-top: 1px; font-weight: 600; }
+  .sig-caption { font-size: 18px; color: #000; margin-top: 1px; }
+  .sig-name { font-size: 18px; margin-top: 1px; font-weight: 600; color: #000; }
   table tr { font-size: 20px !important; }
   table td, table th{ font-size: 20px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
