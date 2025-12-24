@@ -207,7 +207,7 @@ $style = '
   .data-table td, .data-table th { padding: 2px; border: 1px solid #e5e7eb; background: #fff; font-size: 14px; height: auto; }
   .data-table tr:nth-child(even) td { background: #f7f7f7; }
   .kpi { margin-top: 2px; background: #f7f7f7; padding: 2px 4px; page-break-inside: avoid; font-size: 12px; }
-  .kpi .kpi-value { font-size: 14px; font-weight: 700; color: #000; }
+  .kpi .kpi-value { font-size: 16px; font-weight: 700; color: #000; }
   .signature-table { margin-top: 4px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
   .sig-line { border-bottom: 1px dotted #6366f1; width: 55%; height: 8px; display: block; margin-bottom:2px; }
