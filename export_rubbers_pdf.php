@@ -130,103 +130,21 @@ if ($date_from !== '') $condTxt[] = 'จาก ' . h($date_from);
 if ($date_to   !== '') $condTxt[] = 'ถึง '  . h($date_to);
 $condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt)) : '';
 
-// replace previous hard-coded font detection with automatic scan of assets/fonts
-$fontDir = __DIR__ . '/assets/fonts';
+// ใช้ฟอนต์ดีฟอลต์ THSarabunNew โดยไม่สแกนไฟล์ฟอนต์เอง (ลดการใช้หน่วยความจำอย่างมาก)
+$defaultFamily = 'THSarabunNew';
+$hasThaiFonts = true;
 
-// helper: map common weight tokens to numeric weight (compatible with PHP 7.x)
-function mapWeight(string $name): int {
-  $n = strtolower($name);
-  if (strpos($n, 'thin') !== false) return 100;
-  if (strpos($n, 'extralight') !== false || strpos($n, 'ultralight') !== false) return 200;
-  if (strpos($n, 'light') !== false) return 300;
-  if (strpos($n, 'regular') !== false || strpos($n, 'normal') !== false || strpos($n, 'book') !== false) return 400;
-  if (strpos($n, 'medium') !== false) return 500;
-  if (strpos($n, 'semibold') !== false || strpos($n, 'demibold') !== false) return 600;
-  if (strpos($n, 'bold') !== false) return 700;
-  if (strpos($n, 'extrabold') !== false || strpos($n, 'ultrabold') !== false) return 800;
-  if (strpos($n, 'black') !== false || strpos($n, 'heavy') !== false) return 900;
-  return 400;
-}
-
-// helper: detect italic (compatible with PHP 7.x)
-function isItalic(string $name): bool {
-  $n = strtolower($name);
-  return (strpos($n, 'italic') !== false || strpos($n, 'oblique') !== false);
-}
-
-// helper: derive family name from filename (strip common weight/style tokens)
-function familyFromFilename(string $basename): string {
-  $name = preg_replace('/\.(ttf|otf|tff)$/i', '', $basename);
-  $tokens = ['-Thin','-ExtraLight','-UltraLight','-Light','-Regular','-Book','-Normal','-Medium','-SemiBold','-DemiBold','-Bold','-ExtraBold','-UltraBold','-Black','-Heavy','-Italic','-Oblique',
-             ' Thin',' ExtraLight',' UltraLight',' Light',' Regular',' Book',' Normal',' Medium',' SemiBold',' DemiBold',' Bold',' ExtraBold',' UltraBold',' Black',' Heavy',' Italic',' Oblique'];
-  $name = str_replace($tokens, '', $name);
-  return trim($name);
-}
-
-// scan fonts directory (robust glob handling) - เลือกใช้เฉพาะ Sarabun เพื่อลดจำนวนฟอนต์
-$fontsByFamily = [];
-$fontCss = '';
-if (is_dir($fontDir)) {
-  $ttf = glob($fontDir.'/*.ttf') ?: [];
-  $otf = glob($fontDir.'/*.otf') ?: [];
-  $tff = glob($fontDir.'/*.tff') ?: []; // common typo extension
-  $files = array_merge($ttf, $otf, $tff);
-
-  foreach ($files as $file) {
-    $base = basename($file);
-    // สนใจเฉพาะฟอนต์ตระกูล Sarabun และ THSarabunNew เพื่อลดหน่วยความจำ
-    if (stripos($base, 'Sarabun') === false && stripos($base, 'THSarabunNew') === false) {
-      continue;
-    }
-    $family = familyFromFilename($base);
-    if ($family === '') continue;
-    $weight = mapWeight($base);
-    $style  = isItalic($base) ? 'italic' : 'normal';
-    $fontsByFamily[$family][] = ['file' => $base, 'weight' => $weight, 'style' => $style];
-  }
-
-  // จำกัดแค่ 1-2 family (Sarabun / THSarabunNew)
-  $limitedFamilies = array_slice($fontsByFamily, 0, 2, true);
-  
-  foreach ($limitedFamilies as $family => $items) {
-    // จำกัดแค่ 3 น้ำหนักเพื่อลดจำนวนฟอนต์
-    $items = array_slice($items, 0, 3);
-    foreach ($items as $it) {
-      $ext = strtolower(pathinfo($it['file'], PATHINFO_EXTENSION));
-      $fmt = ($ext === 'otf') ? 'opentype' : 'truetype';
-      $fontCss .= '@font-face{font-family:"'.$family.'";font-style:'.$it['style'].';font-weight:'.$it['weight'].';src:url("assets/fonts/'.$it['file'].'") format("'.$fmt.'");}'."\n";
-    }
-  }
-  $fontsByFamily = $limitedFamilies;
-}
-
-// pick default Thai family (prefer THSarabunNew, Sarabun, NotoSansThai)
-$preferredFamilies = ['THSarabunNew','Sarabun','NotoSansThai'];
-$defaultFamily = null;
-foreach ($preferredFamilies as $pf) {
-  if (isset($fontsByFamily[$pf])) { $defaultFamily = $pf; break; }
-}
-if (!$defaultFamily && $fontsByFamily) {
-  $keys = array_keys($fontsByFamily);
-  $defaultFamily = $keys[0];
-}
-$hasThaiFonts = (bool)$defaultFamily;
-
-// build CSS and HTML (inject $fontCss and selected family)
+// CSS แบบเรียบง่ายเพื่อลดภาระ dompdf
 $style = '
-  @page { margin: 20px 24px; }
-  '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.3; }
-  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 11px; }
-  h1 { font-size: 16px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
-  .muted { color: #666; font-size: 10px; }
-  .summary { margin: 6px 0 8px; }
-  .badge { border: 1px solid #ddd; border-radius: 4px; padding: 3px 6px; font-size: 11px; display: inline-block; margin: 2px; }
-  table { width: 100%; border-collapse: collapse; }
-  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 4px 3px; font-size: 11px; }
-  tbody td { border-bottom: 1px solid #eee; padding: 3px; font-size: 11px; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .footer { margin-top: 6px; font-size: 10px; color:#555; }
+  @page { margin: 15px; }
+  body { font-family: "'.$defaultFamily.'", DejaVu Sans, sans-serif; font-size: 11px; color: #111; }
+  table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  th { background: #f2f4f7; border: 1px solid #ccc; padding: 3px; text-align: left; }
+  td { border: 1px solid #eee; padding: 2px; }
+  td.num, th.num { text-align: right; }
+  .summary { margin: 4px 0 6px; }
+  .muted { color: #666; font-size: 9px; }
+  .footer { margin-top: 5px; font-size: 9px; color:#555; }
 ';
 
 $html = '
@@ -237,8 +155,6 @@ $html = '
 <style>'.$style.'</style>
 </head>
 <body>
-  '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: ไม่พบฟอนต์ไทยใน assets/fonts จะใช้ DejaVu Sans</div>' : '').'
-  
   <div class="summary">';
 foreach ([1,2,3,4] as $lan) {
   $s = $lanStats[$lan] ?? ['count'=>0,'qty'=>0,'value'=>0,'expend'=>0,'net'=>0];
