@@ -66,7 +66,6 @@ if ($pr_date) {
 
 $db = db();
 $sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_date, ru_id";
-$sql .= " LIMIT 200"; // จำกัดจำนวนสูงสุด 200 แถวสำหรับการ export เพื่อประหยัดหน่วยความจำ
 $st = $db->prepare($sql);
 if ($types) {
     $st->bind_param($types, ...$params);
