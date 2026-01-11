@@ -244,11 +244,18 @@ if ($all_stats) {
 					// Query รวมปริมาณแต่ละลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
 					$lan_query = "SELECT ru_lan, SUM(ru_quantity) as total_qty FROM tbl_rubber GROUP BY ru_lan ORDER BY ru_lan ASC";
 					$lan_res = $db->query($lan_query);
+					$grand_total_qty = 0;
+					$grand_total_value = 0;
 					if ($lan_res) {
 						while ($lan_row = $lan_res->fetch_assoc()) {
 							$lan = $lan_row['ru_lan'] ?? '-';
 							$qty = (float)$lan_row['total_qty'];
 							$value = $qty * $latest_price; // คำนวณยอดเงินด้วยราคายางล่าสุด
+							
+							// สะสมยอดรวม
+							$grand_total_qty += $qty;
+							$grand_total_value += $value;
+							
 							echo '<tr class="text-center">';
 							echo '<td>'.htmlspecialchars($lan).'</td>';
 							echo '<td>'.number_format($qty,2).'</td>';
@@ -258,6 +265,11 @@ if ($all_stats) {
 						$lan_res->free();
 					}
 					?>
+					<tr class="table-success fw-bold text-center">
+						<td>รวมทั้งหมด</td>
+						<td><?php echo number_format($grand_total_qty,2); ?></td>
+						<td><?php echo number_format($grand_total_value,2); ?></td>
+					</tr>
 					</tbody>
 				</table>
 			</div>
