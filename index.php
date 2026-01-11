@@ -119,11 +119,15 @@ if ($latest_rubber_date) {
 $price_date_total_quantity = 0;
 $price_date_total_value = 0;
 if ($latest_price_date) {
-    foreach ($listings as $it) {
-        // เปรียบเทียบเฉพาะวันที่ (กรณี ru_date มีเวลา)
-        if (substr($it['posted'], 0, 10) === $latest_price_date) {
-            $price_date_total_quantity += $it['quantity'];
-        }
+    // Query จากฐานข้อมูลโดยตรงเพื่อให้ได้ผลรวมที่ถูกต้องทุกลาน (ไม่ใช้ LIMIT)
+    $stmt = $db->prepare("SELECT SUM(ru_quantity) as total_qty FROM tbl_rubber WHERE DATE(ru_date) = ?");
+    if ($stmt) {
+        $stmt->bind_param('s', $latest_price_date);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        $price_date_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
+        $stmt->close();
     }
     $price_date_total_value = $price_date_total_quantity * $latest_price;
 }
