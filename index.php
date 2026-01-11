@@ -157,11 +157,12 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 // Query ปริมาณรวมและยอดเงินรวมของทุกลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
 $all_total_quantity = 0;
 $all_total_value = 0;
-$all_stats = $db->query("SELECT SUM(ru_quantity) as total_qty, SUM(ru_netvalue) as total_val FROM tbl_rubber");
+$all_stats = $db->query("SELECT SUM(ru_quantity) as total_qty FROM tbl_rubber");
 if ($all_stats) {
     $row = $all_stats->fetch_assoc();
     $all_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
-    $all_total_value = $row['total_val'] ? (float)$row['total_val'] : 0;
+    // คำนวณยอดเงินรวมด้วยราคายางล่าสุด (เหมือนกับการคำนวณวันที่ราคายาง)
+    $all_total_value = $all_total_quantity * $latest_price;
     $all_stats->free();
 }
 ?>
