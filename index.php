@@ -225,15 +225,16 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 					</thead>
 					<tbody>
 					<?php
-					// รวมปริมาณแต่ละลานจาก $filtered โดยใช้ ru_lan
-					$lan_totals = [];
-					foreach ($filtered as $item) {
-						$lan = $item['lan'] ?? '-'; // ใช้ ru_lan โดยตรง
-						if (!isset($lan_totals[$lan])) $lan_totals[$lan] = 0;
-						$lan_totals[$lan] += $item['quantity'];
-					}
-					foreach ($lan_totals as $lan => $qty) {
-						echo '<tr class="text-center"><td>'.htmlspecialchars($lan).'</td><td>'.number_format($qty,2).'</td></tr>';
+					// Query รวมปริมาณแต่ละลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
+					$lan_query = "SELECT ru_lan, SUM(ru_quantity) as total_qty FROM tbl_rubber GROUP BY ru_lan ORDER BY ru_lan ASC";
+					$lan_res = $db->query($lan_query);
+					if ($lan_res) {
+						while ($lan_row = $lan_res->fetch_assoc()) {
+							$lan = $lan_row['ru_lan'] ?? '-';
+							$qty = (float)$lan_row['total_qty'];
+							echo '<tr class="text-center"><td>'.htmlspecialchars($lan).'</td><td>'.number_format($qty,2).'</td></tr>';
+						}
+						$lan_res->free();
 					}
 					?>
 					</tbody>
