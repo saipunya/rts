@@ -67,9 +67,10 @@ if ($pr_date) {
 $db = db();
 // ใช้รูปแบบสรุปคล้าย export_total_sale: รวมตามชื่อ-สกุล และเลขที่สมาชิก
 $sql = "SELECT ru_fullname, ru_number,
-           SUM(ru_quantity) AS total_quantity,
-           SUM(ru_value)    AS total_value,
-           SUM(ru_netvalue) AS total_netvalue
+        SUM(ru_quantity)           AS total_quantity,
+        SUM(ru_value)              AS total_value,
+        SUM(ru_netvalue)           AS total_netvalue,
+        SUM(ru_value - ru_netvalue) AS total_deduct
     FROM tbl_rubber $where
     GROUP BY ru_fullname, ru_number
     ORDER BY ru_fullname";
@@ -128,22 +129,26 @@ if ($type === 'excel') {
             . '<th>เลขที่สมาชิก</th>'
             . '<th>ปริมาณรวม (กก.)</th>'
             . '<th>ยอดเงินรวม</th>'
+            . '<th>ยอดรวมการหัก</th>'
             . '<th>รับสุทธิรวม</th>'
             . '</tr></thead><tbody>';
 
-        $total_qty = 0; $total_value = 0; $total_net = 0;
+        $total_qty = 0; $total_value = 0; $total_deduct = 0; $total_net = 0;
         foreach ($rows as $row) {
           $qty = (float)($row['total_quantity'] ?? 0);
           $val = (float)($row['total_value'] ?? 0);
           $net = (float)($row['total_netvalue'] ?? 0);
+          $ded = (float)($row['total_deduct'] ?? ($val - $net));
           $total_qty += $qty;
           $total_value += $val;
+          $total_deduct += $ded;
           $total_net += $net;
           $html .= '<tr>'
               . '<td>' . e($row['ru_fullname']) . '</td>'
               . '<td>' . e($row['ru_number']) . '</td>'
               . '<td class="t-right">' . nf($qty) . '</td>'
               . '<td class="t-right">' . nf($val) . '</td>'
+              . '<td class="t-right">' . nf($ded) . '</td>'
               . '<td class="t-right">' . nf($net) . '</td>'
               . '</tr>';
         }
@@ -151,6 +156,7 @@ if ($type === 'excel') {
             . '<td colspan="2" class="t-right" style="font-weight:bold">รวมทั้งสิ้น</td>'
             . '<td class="t-right" style="font-weight:bold">' . nf($total_qty) . '</td>'
             . '<td class="t-right" style="font-weight:bold">' . nf($total_value) . '</td>'
+            . '<td class="t-right" style="font-weight:bold">' . nf($total_deduct) . '</td>'
             . '<td class="t-right" style="font-weight:bold">' . nf($total_net) . '</td>'
             . '</tr>';
 
@@ -216,22 +222,26 @@ if ($scope === 'year') $html .= 'ประจำปี '.e($year+543);
 elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year+543);
 elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e(thai_date($period_start)).' ถึง '.e(thai_date($period_end));
 $html .= '</h2>';
-$html .= '<table><thead><tr><th>ชื่อ-สกุล</th><th>เลขที่สมาชิก</th><th>ปริมาณรวม (กก.)</th><th>ยอดเงินรวม</th><th>รับสุทธิรวม</th></tr></thead><tbody>';
+$html .= '<table><thead><tr><th>ชื่อ-สกุล</th><th>เลขที่สมาชิก</th><th>ปริมาณรวม (กก.)</th><th>ยอดเงินรวม</th><th>ยอดรวมการหัก</th><th>รับสุทธิรวม</th></tr></thead><tbody>';
 $total_qty = 0;
 $total_value = 0;
+$total_deduct = 0;
 $total_net = 0;
 foreach ($rows as $row) {
     $qty = (float)($row['total_quantity'] ?? 0);
     $val = (float)($row['total_value'] ?? 0);
     $net = (float)($row['total_netvalue'] ?? 0);
+    $ded = (float)($row['total_deduct'] ?? ($val - $net));
     $total_qty += $qty;
     $total_value += $val;
+    $total_deduct += $ded;
     $total_net += $net;
     $html .= '<tr>';
     $html .= '<td>'.e($row['ru_fullname']).'</td>';
     $html .= '<td>'.e($row['ru_number']).'</td>';
     $html .= '<td style="text-align:right">'.nf($qty).'</td>';
     $html .= '<td style="text-align:right">'.nf($val).'</td>';
+    $html .= '<td style="text-align:right">'.nf($ded).'</td>';
     $html .= '<td style="text-align:right">'.nf($net).'</td>';
     $html .= '</tr>';
 }
@@ -240,6 +250,7 @@ $html .= '<tr>';
 $html .= '<td colspan="2" style="text-align:right;font-weight:bold">รวมทั้งสิ้น</td>';
 $html .= '<td style="text-align:right;font-weight:bold">'.nf($total_qty).'</td>';
 $html .= '<td style="text-align:right;font-weight:bold">'.nf($total_value).'</td>';
+$html .= '<td style="text-align:right;font-weight:bold">'.nf($total_deduct).'</td>';
 $html .= '<td style="text-align:right;font-weight:bold">'.nf($total_net).'</td>';
 $html .= '</tr>';
 $html .= '</tbody></table>';
