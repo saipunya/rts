@@ -65,7 +65,14 @@ if ($pr_date) {
 }
 
 $db = db();
-$sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_date, ru_id";
+// ใช้รูปแบบสรุปคล้าย export_total_sale: รวมตามชื่อ-สกุล และเลขที่สมาชิก
+$sql = "SELECT ru_fullname, ru_number,
+           SUM(ru_quantity) AS total_quantity,
+           SUM(ru_value)    AS total_value,
+           SUM(ru_netvalue) AS total_netvalue
+    FROM tbl_rubber $where
+    GROUP BY ru_fullname, ru_number
+    ORDER BY ru_fullname";
 $st = $db->prepare($sql);
 if ($types) {
     $st->bind_param($types, ...$params);
@@ -116,36 +123,36 @@ if ($type === 'excel') {
     elseif ($scope === 'period') $html .= ' ช่วงวันที่ ' . e(thai_date($period_start)) . ' ถึง ' . e(thai_date($period_end));
     $html .= '</h3>';
 
-    $html .= '<table><thead><tr>'
-          . '<th>ID</th>'
-          . '<th>วันที่บันทึก</th>'
-          . '<th>ชื่อ-สกุล</th>'
-          . '<th>ปริมาณ(กก.)</th>'
-          . '<th>ยอดเงินรวม</th>'
-          . '<th>ยอดรับสุทธิ</th>'
-          . '</tr></thead><tbody>';
+        $html .= '<table><thead><tr>'
+            . '<th>ชื่อ-สกุล</th>'
+            . '<th>เลขที่สมาชิก</th>'
+            . '<th>ปริมาณรวม (กก.)</th>'
+            . '<th>ยอดเงินรวม</th>'
+            . '<th>รับสุทธิรวม</th>'
+            . '</tr></thead><tbody>';
 
-    $total_qty = 0; $total_value = 0; $total_net = 0;
-    foreach ($rows as $row) {
-        $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon'] + $row['ru_loan'] + $row['ru_shortdebt'] + $row['ru_deposit'] + $row['ru_tradeloan'] + $row['ru_insurance']));
-        $total_qty += $row['ru_quantity'];
-        $total_value += $row['ru_value'];
-        $total_net += $net;
-        $html .= '<tr>'
-              . '<td>' . e($row['ru_id']) . '</td>'
-              . '<td>' . e(thai_date($row['ru_date'])) . '</td>'
+        $total_qty = 0; $total_value = 0; $total_net = 0;
+        foreach ($rows as $row) {
+          $qty = (float)($row['total_quantity'] ?? 0);
+          $val = (float)($row['total_value'] ?? 0);
+          $net = (float)($row['total_netvalue'] ?? 0);
+          $total_qty += $qty;
+          $total_value += $val;
+          $total_net += $net;
+          $html .= '<tr>'
               . '<td>' . e($row['ru_fullname']) . '</td>'
-              . '<td class="t-right">' . nf($row['ru_quantity']) . '</td>'
-              . '<td class="t-right">' . nf($row['ru_value']) . '</td>'
+              . '<td>' . e($row['ru_number']) . '</td>'
+              . '<td class="t-right">' . nf($qty) . '</td>'
+              . '<td class="t-right">' . nf($val) . '</td>'
               . '<td class="t-right">' . nf($net) . '</td>'
               . '</tr>';
-    }
-    $html .= '<tr>'
-          . '<td colspan="3" class="t-right" style="font-weight:bold">รวมทั้งสิ้น</td>'
-          . '<td class="t-right" style="font-weight:bold">' . nf($total_qty) . '</td>'
-          . '<td class="t-right" style="font-weight:bold">' . nf($total_value) . '</td>'
-          . '<td class="t-right" style="font-weight:bold">' . nf($total_net) . '</td>'
-          . '</tr>';
+        }
+        $html .= '<tr>'
+            . '<td colspan="2" class="t-right" style="font-weight:bold">รวมทั้งสิ้น</td>'
+            . '<td class="t-right" style="font-weight:bold">' . nf($total_qty) . '</td>'
+            . '<td class="t-right" style="font-weight:bold">' . nf($total_value) . '</td>'
+            . '<td class="t-right" style="font-weight:bold">' . nf($total_net) . '</td>'
+            . '</tr>';
 
     $html .= '</tbody></table></body></html>';
 
@@ -201,7 +208,7 @@ $style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 
     . 'th, td { border: 1px solid #ccc; padding: 3px; } '
     . 'th { background: #f1f1f1; }';
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
-$html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง';
+$html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง (สรุปยอดรวมต่อสมาชิก)';
 if ($pr_date) {
     $html .= '<br>รอบวันที่ '.e(thai_date_format($pr_date));
 }
@@ -209,27 +216,28 @@ if ($scope === 'year') $html .= 'ประจำปี '.e($year+543);
 elseif ($scope === 'month') $html .= 'ประจำเดือน '.e($month).'/'.e($year+543);
 elseif ($scope === 'period') $html .= 'ช่วงวันที่ '.e(thai_date($period_start)).' ถึง '.e(thai_date($period_end));
 $html .= '</h2>';
-$html .= '<table><thead><tr><th>ID</th><th>วันที่บันทึก</th><th>ชื่อ-สกุล</th><th>ปริมาณ(กก.)</th><th>ยอดเงินรวม</th><th>ยอดรับสุทธิ</th></tr></thead><tbody>';
+$html .= '<table><thead><tr><th>ชื่อ-สกุล</th><th>เลขที่สมาชิก</th><th>ปริมาณรวม (กก.)</th><th>ยอดเงินรวม</th><th>รับสุทธิรวม</th></tr></thead><tbody>';
 $total_qty = 0;
 $total_value = 0;
 $total_net = 0;
 foreach ($rows as $row) {
-    $net = $row['ru_netvalue'] ?? ($row['ru_value'] - ($row['ru_hoon']+$row['ru_loan']+$row['ru_shortdebt']+$row['ru_deposit']+$row['ru_tradeloan']+$row['ru_insurance']));
-    $total_qty += $row['ru_quantity'];
-    $total_value += $row['ru_value'];
+    $qty = (float)($row['total_quantity'] ?? 0);
+    $val = (float)($row['total_value'] ?? 0);
+    $net = (float)($row['total_netvalue'] ?? 0);
+    $total_qty += $qty;
+    $total_value += $val;
     $total_net += $net;
     $html .= '<tr>';
-    $html .= '<td>'.e($row['ru_id']).'</td>';
-    $html .= '<td>'.e(thai_date($row['ru_date'])).'</td>';
     $html .= '<td>'.e($row['ru_fullname']).'</td>';
-    $html .= '<td style="text-align:right">'.nf($row['ru_quantity']).'</td>';
-    $html .= '<td style="text-align:right">'.nf($row['ru_value']).'</td>';
+    $html .= '<td>'.e($row['ru_number']).'</td>';
+    $html .= '<td style="text-align:right">'.nf($qty).'</td>';
+    $html .= '<td style="text-align:right">'.nf($val).'</td>';
     $html .= '<td style="text-align:right">'.nf($net).'</td>';
     $html .= '</tr>';
 }
 // แถวรวมทั้งสิ้น
 $html .= '<tr>';
-$html .= '<td colspan="3" style="text-align:right;font-weight:bold">รวมทั้งสิ้น</td>';
+$html .= '<td colspan="2" style="text-align:right;font-weight:bold">รวมทั้งสิ้น</td>';
 $html .= '<td style="text-align:right;font-weight:bold">'.nf($total_qty).'</td>';
 $html .= '<td style="text-align:right;font-weight:bold">'.nf($total_value).'</td>';
 $html .= '<td style="text-align:right;font-weight:bold">'.nf($total_net).'</td>';
