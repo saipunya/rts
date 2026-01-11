@@ -154,6 +154,24 @@ if ($type === 'excel') {
 }
 
 // ส่วน PDF ใช้ Dompdf เฉพาะเมื่อขอ export เป็น PDF
+// หมายเหตุ: การสร้าง PDF จากข้อมูลจำนวนมากจะใช้หน่วยความจำสูง
+// เพื่อหลีกเลี่ยง Fatal error บนโฮสต์ที่จำกัด memory (เช่น 256MB)
+// ถ้าจำนวนแถวมากเกินไป จะให้ผู้ใช้ใช้โหมด Excel แทน
+
+$maxPdfRows = 800; // กำหนดจำนวนแถวสูงสุดที่ยอมให้ทำ PDF ได้อย่างปลอดภัย
+if ($type === 'pdf' && count($rows) > $maxPdfRows) {
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<!doctype html><html lang="th"><head><meta charset="UTF-8"><title>ส่งออก PDF ไม่สำเร็จ</title></head><body style="font-family:Tahoma,Arial,sans-serif;font-size:14px;">';
+    echo '<h3>ไม่สามารถส่งออกเป็น PDF ทั้งหมดได้</h3>';
+    echo '<p>มีข้อมูลจำนวน <strong>' . number_format(count($rows)) . '</strong> รายการ ซึ่งมากเกินไปสำหรับการสร้าง PDF บนเซิร์ฟเวอร์ (จำกัดหน่วยความจำ 256MB).</p>';
+    echo '<p>แนะนำให้:</p><ul>';
+    echo '<li>ใช้การส่งออกแบบ <strong>Excel</strong> (เมนูเดิม) เพื่อได้ข้อมูลครบทุกแถว</li>';
+    echo '<li>หรือเลือกช่วงวันที่/ปี/เดือนให้แคบลง แล้วลองส่งออก PDF อีกครั้ง</li>';
+    echo '</ul>';
+    echo '</body></html>';
+    exit;
+}
+
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoload)) {
     header('Content-Type: text/html; charset=UTF-8');
