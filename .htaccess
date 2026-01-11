@@ -1,0 +1,13 @@
+# Increase PHP memory limit for PDF export
+<IfModule mod_php7.c>
+    php_value memory_limit 512M
+    php_value max_execution_time 120
+</IfModule>
+
+<IfModule mod_php8.c>
+    php_value memory_limit 512M
+    php_value max_execution_time 120
+</IfModule>
+
+# For PHP-FPM (alternative method)
+# Add to php.ini or .user.ini instead if this doesn't work

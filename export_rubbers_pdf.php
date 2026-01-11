@@ -71,6 +71,8 @@ if ($date_to !== '') {
 $sql = "SELECT * FROM tbl_rubber";
 if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
 $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
+// เพิ่ม LIMIT เพื่อลด memory usage (สูงสุด 500 รายการ)
+$sql .= ' LIMIT 500';
 
 $st = null; $res = null;
 if ($conds) {
@@ -161,7 +163,7 @@ function familyFromFilename(string $basename): string {
   return trim($name);
 }
 
-// scan fonts directory (robust glob handling)
+// scan fonts directory (robust glob handling) - limit to reduce memory
 $fontsByFamily = [];
 $fontCss = '';
 if (is_dir($fontDir)) {
@@ -169,6 +171,9 @@ if (is_dir($fontDir)) {
   $otf = glob($fontDir.'/*.otf') ?: [];
   $tff = glob($fontDir.'/*.tff') ?: []; // common typo extension
   $files = array_merge($ttf, $otf, $tff);
+
+  // จำกัดจำนวน font files เพื่อลด memory usage
+  $files = array_slice($files, 0, 20);
 
   foreach ($files as $file) {
     $base = basename($file);
@@ -179,13 +184,19 @@ if (is_dir($fontDir)) {
     $fontsByFamily[$family][] = ['file' => $base, 'weight' => $weight, 'style' => $style];
   }
 
-  foreach ($fontsByFamily as $family => $items) {
+  // จำกัดแค่ 1 font family เพื่อลด memory
+  $limitedFamilies = array_slice($fontsByFamily, 0, 1, true);
+  
+  foreach ($limitedFamilies as $family => $items) {
+    // จำกัดแค่ 2-3 weights
+    $items = array_slice($items, 0, 3);
     foreach ($items as $it) {
       $ext = strtolower(pathinfo($it['file'], PATHINFO_EXTENSION));
       $fmt = ($ext === 'otf') ? 'opentype' : 'truetype';
       $fontCss .= '@font-face{font-family:"'.$family.'";font-style:'.$it['style'].';font-weight:'.$it['weight'].';src:url("assets/fonts/'.$it['file'].'") format("'.$fmt.'");}'."\n";
     }
   }
+  $fontsByFamily = $limitedFamilies;
 }
 
 // pick default Thai family (prefer THSarabunNew, Sarabun, NotoSansThai)
@@ -305,12 +316,9 @@ $options->set('chroot', __DIR__);
 // set defaultFont to selected Thai family if available
 $options->set('defaultFont', $hasThaiFonts ? $defaultFamily : 'DejaVu Sans');
 
-// keep font cache (create directory if not exists)
-$storageDir = __DIR__ . '/storage';
-$fontCacheDir = $storageDir . '/font_cache';
-if (!is_dir($storageDir)) { @mkdir($storageDir, 0777, true); }
-if (!is_dir($fontCacheDir)) { @mkdir($fontCacheDir, 0777, true); }
-$options->set('fontCache', $fontCacheDir);
+// ปิด font cache เพื่อลด memory usage
+$options->set('fontCache', false);
+$options->set('isFontSubsettingEnabled', false);
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html, 'UTF-8');
