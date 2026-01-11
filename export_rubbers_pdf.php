@@ -7,8 +7,8 @@ require_once __DIR__ . '/functions.php';
 $debug = isset($_GET['debug']) && $_GET['debug'] !== '0';
 if ($debug) { ini_set('display_errors', '1'); error_reporting(E_ALL); }
 // add: raise limits to reduce render-time 500 errors
-@ini_set('memory_limit', '256M');
-@set_time_limit(60);
+@ini_set('memory_limit', '512M');
+@set_time_limit(120);
 mb_internal_encoding('UTF-8');
 
 // readable error response
@@ -204,17 +204,17 @@ $hasThaiFonts = (bool)$defaultFamily;
 $style = '
   @page { margin: 20px 24px; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 16px; color: #111; line-height: 1.45; }
-  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 18px; }
-  h1 { font-size: 24px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
-  .muted { color: #666; font-size: 13px; }
-  .summary { margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
-  .badge { border: 1px solid #ddd; border-radius: 6px; padding: 4px 8px; font-size: 16px; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 12px; color: #111; line-height: 1.3; }
+  table, th, td { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 11px; }
+  h1 { font-size: 16px; margin: 0 0 4px; '.($hasThaiFonts ? 'font-weight:700;' : '').' }
+  .muted { color: #666; font-size: 10px; }
+  .summary { margin: 6px 0 8px; }
+  .badge { border: 1px solid #ddd; border-radius: 4px; padding: 3px 6px; font-size: 11px; display: inline-block; margin: 2px; }
   table { width: 100%; border-collapse: collapse; }
-  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 8px 6px; font-size: 18px; }
-  tbody td { border-bottom: 1px solid #eee; padding: 7px; font-size: 18px; }
+  thead th { background: #f2f4f7; text-align: left; border-bottom: 1px solid #ccc; padding: 4px 3px; font-size: 11px; }
+  tbody td { border-bottom: 1px solid #eee; padding: 3px; font-size: 11px; }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .footer { margin-top: 8px; font-size: 13px; color:#555; }
+  .footer { margin-top: 6px; font-size: 10px; color:#555; }
 ';
 
 $html = '
@@ -227,16 +227,13 @@ $html = '
 <body>
   '.(!$hasThaiFonts ? '<div class="muted">หมายเหตุ: ไม่พบฟอนต์ไทยใน assets/fonts จะใช้ DejaVu Sans</div>' : '').'
   
-  <div class="summary" style="flex-wrap:wrap;gap:18px 24px;">';
+  <div class="summary">';
 foreach ([1,2,3,4] as $lan) {
   $s = $lanStats[$lan] ?? ['count'=>0,'qty'=>0,'value'=>0,'expend'=>0,'net'=>0];
-  $html .= '<div style="background:#f8fafc;border-radius:10px;padding:12px 18px;min-width:220px;box-shadow:0 1px 3px #0001;display:inline-block;">
-    <div style="font-size:17px;font-weight:bold;margin-bottom:4px;">ลาน '.h($lan).'</div>
-    <div>จำนวนรายการ: <b>'.h($s['count']).'</b></div>
-    <div>ปริมาณรวม: <b>'.fmt2($s['qty']).'</b> กก.</div>
-    <div>มูลค่า: <b>'.fmt2($s['value']).'</b> ฿</div>
-    <div>หักรวม: <b>'.fmt2($s['expend']).'</b> ฿</div>
-    <div>สุทธิ: <b>'.fmt2($s['net']).'</b> ฿</div>
+  $html .= '<div style="background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;display:inline-block;margin:2px;">
+    <div style="font-size:12px;font-weight:bold;margin-bottom:2px;">ลาน '.h($lan).'</div>
+    <div style="font-size:10px;">รายการ: <b>'.h($s['count']).'</b> | ปริมาณ: <b>'.fmt2($s['qty']).'</b> กก.</div>
+    <div style="font-size:10px;">มูลค่า: <b>'.fmt2($s['value']).'</b> | หัก: <b>'.fmt2($s['expend']).'</b> | สุทธิ: <b>'.fmt2($s['net']).'</b> ฿</div>
   </div>';
 }
 $html .= '</div>
