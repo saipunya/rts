@@ -66,6 +66,7 @@ if ($pr_date) {
 
 $db = db();
 $sql = "SELECT * FROM tbl_rubber $where ORDER BY ru_date, ru_id";
+$sql .= " LIMIT 200"; // จำกัดจำนวนสูงสุด 200 แถวสำหรับการ export เพื่อประหยัดหน่วยความจำ
 $st = $db->prepare($sql);
 if ($types) {
     $st->bind_param($types, ...$params);
@@ -167,15 +168,21 @@ use Dompdf\Options;
 
 $options = new Options();
 $options->set('isRemoteEnabled', false);
-$options->set('isHtml5ParserEnabled', true);
+// ปิด HTML5 parser เพื่อประหยัดหน่วยความจำ
+$options->set('isHtml5ParserEnabled', false);
 $options->set('chroot', __DIR__);
+// ปิด font subsetting ทั้งสอง flag
 $options->set('isFontSubsettingEnabled', false);
 $options->set('enable_font_subsetting', false);
 $defaultFont = 'THSarabunNew';
 $options->set('defaultFont', $defaultFont);
 $dompdf = new Dompdf($options);
 
-$style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 22px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 6px; } th { background: #f1f1f1; }';
+// CSS แบบเรียบง่าย และฟอนต์เล็กลงเพื่อลดภาระในการจัดหน้า
+$style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 14px; } '
+    . 'table { width: 100%; border-collapse: collapse; font-size: 12px; } '
+    . 'th, td { border: 1px solid #ccc; padding: 3px; } '
+    . 'th { background: #f1f1f1; }';
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
 $html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง';
 if ($pr_date) {
