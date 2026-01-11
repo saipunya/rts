@@ -71,8 +71,8 @@ if ($date_to !== '') {
 $sql = "SELECT * FROM tbl_rubber";
 if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
 $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
-// เพิ่ม LIMIT เพื่อลด memory usage (สูงสุด 500 รายการ)
-$sql .= ' LIMIT 500';
+// จำกัด 100 รายการเพื่อลด memory usage
+$sql .= ' LIMIT 100';
 
 $st = null; $res = null;
 if ($conds) {
