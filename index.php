@@ -236,6 +236,7 @@ if ($all_stats) {
 						<tr class="text-center">
 							<th>ลาน</th>
 							<th>ปริมาณรวม (kg)</th>
+							<th>ยอดเงินรวม (฿)</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -247,7 +248,12 @@ if ($all_stats) {
 						while ($lan_row = $lan_res->fetch_assoc()) {
 							$lan = $lan_row['ru_lan'] ?? '-';
 							$qty = (float)$lan_row['total_qty'];
-							echo '<tr class="text-center"><td>'.htmlspecialchars($lan).'</td><td>'.number_format($qty,2).'</td></tr>';
+							$value = $qty * $latest_price; // คำนวณยอดเงินด้วยราคายางล่าสุด
+							echo '<tr class="text-center">';
+							echo '<td>'.htmlspecialchars($lan).'</td>';
+							echo '<td>'.number_format($qty,2).'</td>';
+							echo '<td>'.number_format($value,2).'</td>';
+							echo '</tr>';
 						}
 						$lan_res->free();
 					}
