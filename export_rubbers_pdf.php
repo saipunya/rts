@@ -163,7 +163,7 @@ function familyFromFilename(string $basename): string {
   return trim($name);
 }
 
-// scan fonts directory (robust glob handling) - limit to reduce memory
+// scan fonts directory (robust glob handling) - เลือกใช้เฉพาะ Sarabun เพื่อลดจำนวนฟอนต์
 $fontsByFamily = [];
 $fontCss = '';
 if (is_dir($fontDir)) {
@@ -172,11 +172,12 @@ if (is_dir($fontDir)) {
   $tff = glob($fontDir.'/*.tff') ?: []; // common typo extension
   $files = array_merge($ttf, $otf, $tff);
 
-  // จำกัดจำนวน font files เพื่อลด memory usage
-  $files = array_slice($files, 0, 20);
-
   foreach ($files as $file) {
     $base = basename($file);
+    // สนใจเฉพาะฟอนต์ตระกูล Sarabun และ THSarabunNew เพื่อลดหน่วยความจำ
+    if (stripos($base, 'Sarabun') === false && stripos($base, 'THSarabunNew') === false) {
+      continue;
+    }
     $family = familyFromFilename($base);
     if ($family === '') continue;
     $weight = mapWeight($base);
@@ -184,11 +185,11 @@ if (is_dir($fontDir)) {
     $fontsByFamily[$family][] = ['file' => $base, 'weight' => $weight, 'style' => $style];
   }
 
-  // จำกัดแค่ 1 font family เพื่อลด memory
-  $limitedFamilies = array_slice($fontsByFamily, 0, 1, true);
+  // จำกัดแค่ 1-2 family (Sarabun / THSarabunNew)
+  $limitedFamilies = array_slice($fontsByFamily, 0, 2, true);
   
   foreach ($limitedFamilies as $family => $items) {
-    // จำกัดแค่ 2-3 weights
+    // จำกัดแค่ 3 น้ำหนักเพื่อลดจำนวนฟอนต์
     $items = array_slice($items, 0, 3);
     foreach ($items as $it) {
       $ext = strtolower(pathinfo($it['file'], PATHINFO_EXTENSION));
@@ -308,15 +309,15 @@ if ($debug) {
   exit;
 }
 
-// dompdf options (ensure fonts load from local chroot)
+// dompdf options (ปรับให้ใช้หน่วยความจำต่ำลง)
 $options = new Options();
-$options->set('isHtml5ParserEnabled', true);
+// ปิด HTML5 parser เพื่อลดการใช้หน่วยความจำ
+$options->set('isHtml5ParserEnabled', false);
 $options->set('isRemoteEnabled', false);
 $options->set('chroot', __DIR__);
-// set defaultFont to selected Thai family if available
+// ใช้ฟอนต์ดีฟอลต์ ถ้ามีฟอนต์ไทยให้ใช้ ตามเดิม
 $options->set('defaultFont', $hasThaiFonts ? $defaultFamily : 'DejaVu Sans');
-
-// ปิด font cache เพื่อลด memory usage
+// ปิด font cache และ font subsetting ลดงานประมวลผลฟอนต์
 $options->set('fontCache', false);
 $options->set('isFontSubsettingEnabled', false);
 
