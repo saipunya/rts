@@ -161,7 +161,7 @@ foreach ([1,2,3,4] as $lan) {
   $html .= '<div style="background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;display:inline-block;margin:2px;">
     <div style="font-size:12px;font-weight:bold;margin-bottom:2px;">ลาน '.h($lan).'</div>
     <div style="font-size:10px;">รายการ: <b>'.h($s['count']).'</b> | ปริมาณ: <b>'.fmt2($s['qty']).'</b> กก.</div>
-    <div style="font-size:10px;">มูลค่า: <b>'.fmt2($s['value']).'</b> | หัก: <b>'.fmt2($s['expend']).'</b> | สุทธิ: <b>'.fmt2($s['net']).'</b> ฿</div>
+    <div style="font-size:10px;">มูลค่า: <b>'.fmt2($s['value']).'</b> | ยอดรวมการหัก: <b>'.fmt2($s['expend']).'</b> | สุทธิ: <b>'.fmt2($s['net']).'</b> ฿</div>
   </div>';
 }
 $html .= '</div>
@@ -175,7 +175,7 @@ $html .= '</div>
         <th>ชื่อ-สกุล</th>
         <th class="num">ปริมาณ</th>
         <th class="num">ยอดรับ</th>
-        <th class="num">ยอดจ่าย</th>
+        <th class="num">ยอดรวมการหัก</th>
         <th class="num">คงเหลือ</th>
       </tr>
     </thead>
