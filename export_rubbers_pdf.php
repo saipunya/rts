@@ -17,9 +17,9 @@ function fail($msg) {
   header('Content-Type: text/html; charset=utf-8');
   echo '<!doctype html><meta charset="utf-8"><title>Export PDF Error</title><div style="font-family:Arial,sans-serif;padding:16px">';
   echo '<h3>ไม่สามารถส่งออกเป็น PDF</h3><p style="color:#b00020">'.$msg.'</p>';
-  echo '<ol><li>รัน: <code>composer require dompdf/dompdf</code> ในโฟลเดอร์ /C:/xampp/htdocs/rts</li>';
-  echo '<li>ตรวจสอบไฟล์ <code>/C:/xampp/htdocs/rts/vendor/autoload.php</code> มีอยู่</li>';
-  echo '<li>เปิดใช้งาน PHP extensions <code>mbstring</code> และ <code>gd</code> แล้วรีสตาร์ท Apache</li></ol></div>';
+  echo '<ol><li>รัน: <code>composer require dompdf/dompdf</code> ในโฟลเดอร์โปรเจค</li>';
+  echo '<li>ตรวจสอบไฟล์ <code>vendor/autoload.php</code> มีอยู่</li>';
+  echo '<li>เปิดใช้งาน PHP extensions <code>mbstring</code> และ <code>gd</code> แล้วรีสตาร์ท web server</li></ol></div>';
   exit;
 }
 
@@ -308,8 +308,10 @@ $options->set('chroot', __DIR__);
 // set defaultFont to selected Thai family if available
 $options->set('defaultFont', $hasThaiFonts ? $defaultFamily : 'DejaVu Sans');
 
-// keep font cache for Windows
-$fontCacheDir = __DIR__ . '/storage/font_cache';
+// keep font cache (create directory if not exists)
+$storageDir = __DIR__ . '/storage';
+$fontCacheDir = $storageDir . '/font_cache';
+if (!is_dir($storageDir)) { @mkdir($storageDir, 0777, true); }
 if (!is_dir($fontCacheDir)) { @mkdir($fontCacheDir, 0777, true); }
 $options->set('fontCache', $fontCacheDir);
 
@@ -336,10 +338,13 @@ function format_thai_date($date) {
     '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
     'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
   ];
-  $parts = explode('-', $date);
+  // รองรับทั้ง YYYY-MM-DD และ YYYY-MM-DD HH:MM:SS
+  $dateOnly = substr($date, 0, 10);
+  $parts = explode('-', $dateOnly);
   if (count($parts) !== 3) return $date;
   $y = (int)$parts[0] + 543;
   $m = (int)$parts[1];
   $d = (int)$parts[2];
+  if ($m < 1 || $m > 12) return $date;
   return $d.' '.$months[$m].' '.$y;
 }
