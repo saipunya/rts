@@ -149,6 +149,17 @@ $filtered = array_filter($listings, function($l) use ($filter_type, $filter_loca
 $total_listings = count($filtered);
 $total_quantity = array_reduce($filtered, function($carry, $item){ return $carry + $item['quantity']; }, 0);
 $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){return $c+$i['price'];},0)/$total_listings,2) : 0;
+
+// Query ปริมาณรวมและยอดเงินรวมของทุกลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
+$all_total_quantity = 0;
+$all_total_value = 0;
+$all_stats = $db->query("SELECT SUM(ru_quantity) as total_qty, SUM(ru_netvalue) as total_val FROM tbl_rubber");
+if ($all_stats) {
+    $row = $all_stats->fetch_assoc();
+    $all_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
+    $all_total_value = $row['total_val'] ? (float)$row['total_val'] : 0;
+    $all_stats->free();
+}
 ?>
 
 <div class="container-xl my-5">
@@ -181,17 +192,16 @@ $avg_price = $total_listings ? round(array_reduce($filtered, function($c,$i){ret
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">ปริมาณรวม</div>
-				<div class="value display-4"> <?php echo number_format($total_quantity,2); ?> kg</div>
+				<div class="mb-1 text-muted">ปริมาณรวม (ทุกลาน)</div>
+				<div class="value display-4"> <?php echo number_format($all_total_quantity,2); ?> kg</div>
 			</div>
 		</div>
 		<div class="col-sm-4 mb-3">
 			<div class="card stat p-3 text-center">
-				<div class="mb-1 text-muted">ยอดเงินรวม</div>
+				<div class="mb-1 text-muted">ยอดเงินรวม (ทุกลาน)</div>
 				<div class="value display-4">
 					<?php 
-					$total_value = array_reduce($filtered, function($carry, $item){ return $carry + $item['price']; }, 0);
-					echo number_format($total_value,2); 
+					echo number_format($all_total_value,2); 
 					?> ฿
 				</div>
 			</div>
