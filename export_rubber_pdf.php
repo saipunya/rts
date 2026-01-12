@@ -71,9 +71,9 @@ $printedAt = date('Y-m-d H:i:s');
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
-    <h1 class="title-row" style="text-align:center; margin-bottom: 0;font-size:18px;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
-    <h2 style="text-align:center; margin-bottom: 0; font-size: 18px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
-    <h3 style="text-align:center; margin-bottom: 0; font-size: 18px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
+    <h1 class="title-row" style="text-align:center; margin-bottom: 0;font-size:20px;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
+    <h2 style="text-align:center; margin-bottom: 0; font-size: 20px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
+    <h3 style="text-align:center; margin-bottom: 0; font-size: 20px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
   </div>
   <table class="info-table kv" style="width:100%;">
     <tr>
@@ -91,7 +91,7 @@ $card = '<div class="card">
       </td>
     </tr>
   </table>
-  <table class="columns" style="margin-bottom:12px;">
+  <table class="columns" style="margin-bottom:6px;">
     <tr>
       <td class="left" style="width:50%;vertical-align:top;">
         <table class="data-table" style="margin-bottom:0;">
@@ -120,11 +120,11 @@ $card = '<div class="card">
     </tr>
   </table>
   <div class="kpi" style="text-align:right;">
-    <span style="font-size: 20px;">ยอดรับสุทธิ: </span>
-    <span class="kpi-value" style="font-size: 18px;">'.nf($netvalue).'</span>
-    <span class="unit" style="font-size: 20px;">บาท</span>
+    <span style="font-size: 22px;">ยอดรับสุทธิ: </span>
+    <span class="kpi-value" style="font-size: 20px;">'.nf($netvalue).'</span>
+    <span class="unit" style="font-size: 22px;">บาท</span>
   </div>
-  <table class="signature-table" style="width:100%;margin-top:10px;">
+  <table class="signature-table" style="width:100%;margin-top:4px;">
     <tr>
       <td style="width:60%;">
         <div class="sig-caption" style="font-size: 16px;"> ผู้บันทึก: </div>
@@ -185,38 +185,38 @@ $style = '
   html, body { width: 100%; height: 100%; }
   .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
-  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 18px; color: #000; background: #fff; line-height: 1.15; }
+  body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 20px; color: #000; background: #fff; line-height: 1.1; }
   .container { max-width: 1100px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 6px; border: 0; padding: 4px; margin-bottom: 2px; }
+  .card { background: #fff; border-radius: 6px; border: 0; padding: 2px; margin-bottom: 1px; }
   .columns { width: 100%; border-collapse: separate; table-layout: fixed; }
   .columns td { vertical-align: top; padding-top: 0; }
-  h1, .title-row { font-size: 18px; font-weight: 700; color: #000; margin-top: 0; margin-bottom: 2px; letter-spacing: 0.2px; }
-  .header-card h2 { font-size: 18px; margin: 0; color: #000; }
-  .header-card h3 { font-size: 18px; margin: 2px 0 4px; color: #000; }
-  .meta { font-size: 18px; color: #000; margin-bottom: 2px; }
+  h1, .title-row { font-size: 20px; font-weight: 700; color: #000; margin-top: 0; margin-bottom: 1px; letter-spacing: 0.2px; }
+  .header-card h2 { font-size: 20px; margin: 0; color: #000; }
+  .header-card h3 { font-size: 20px; margin: 2px 0 2px; color: #000; }
+  .meta { font-size: 20px; color: #000; margin-bottom: 1px; }
   .text-end { text-align: right; font-variant-numeric: tabular-nums; }
-  .unit { color: #000; font-size: 18px; }
-  .header-card { padding-bottom: 2px; border-bottom: 0; margin-bottom: 2px; }
+  .unit { color: #000; font-size: 20px; }
+  .header-card { padding-bottom: 1px; border-bottom: 0; margin-bottom: 1px; }
   .table, table { width: 100%; border-collapse: collapse; border: 0; }
-  .info-table td { padding: 1px 2px; font-size: 18px; border: 0; color: #000; }
-  .info-table.kv .k { color: #000; font-weight: 600; font-size: 18px; }
+  .info-table td { padding: 0 1px; font-size: 20px; border: 0; color: #000; }
+  .info-table.kv .k { color: #000; font-weight: 600; font-size: 20px; }
   .info-table.kv td { border: 0; }
   .data-table { border: 0; border-radius: 0; background: #fff; margin-bottom: 2px; }
-  .data-table thead th { padding: 2px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 15px; }
-  .data-table td, .data-table th { padding: 2px; border: 0; background: #fff; font-size: 15px; height: auto; color: #000; }
+  .data-table thead th { padding: 1px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 18px; }
+  .data-table td, .data-table th { padding: 1px; border: 0; background: #fff; font-size: 18px; height: auto; color: #000; }
   .data-table tr:nth-child(even) td { background: transparent; }
-  .kpi { margin-top: 2px; background: #f7f7f7; padding: 2px 4px; page-break-inside: avoid; font-size: 18px; color: #000; }
-  .kpi .kpi-value { font-size: 18px; font-weight: 700; color: #000; }
-  .signature-table { margin-top: 4px; page-break-inside: avoid; }
+  .kpi { margin-top: 1px; background: #f7f7f7; padding: 1px 3px; page-break-inside: avoid; font-size: 20px; color: #000; }
+  .kpi .kpi-value { font-size: 20px; font-weight: 700; color: #000; }
+  .signature-table { margin-top: 2px; page-break-inside: avoid; }
   .signature-table tr, .signature-table td { page-break-inside: avoid; }
   .sig-line { border-bottom: 0; width: 55%; height: 8px; display: block; margin-bottom:2px; }
-  .sig-caption { font-size: 18px; color: #000; margin-top: 1px; }
-  .sig-name { font-size: 18px; margin-top: 1px; font-weight: 600; color: #000; }
-  table tr { font-size: 18px !important; }
-  table td, table th{ font-size: 18px !important; }
+  .sig-caption { font-size: 20px; color: #000; margin-top: 1px; }
+  .sig-name { font-size: 20px; margin-top: 1px; font-weight: 600; color: #000; }
+  table tr { font-size: 20px !important; }
+  table td, table th{ font-size: 20px !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .signature-table tr, .signature-table td { font-size: 12px; }
-  .signature-table { font-size: 12px; }
+  .signature-table tr, .signature-table td { font-size: 16px; }
+  .signature-table { font-size: 16px; }
 
 ';
 
