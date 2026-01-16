@@ -8,16 +8,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 function db(): mysqli {
 	static $db;
 	if (!$db) {
-		// Production Defaults
-		$db_host = 'localhost';
-		$db_user = 'rts_user';
-		$db_pass = 'sumet4631022';
-		$db_name = 'rts_db';
-
-		// Load Local Overrides if file exists
-		if (file_exists(__DIR__ . '/db_config_local.php')) {
-			include __DIR__ . '/db_config_local.php';
+		$config_path = __DIR__ . '/db_config.php';
+		if (!file_exists($config_path)) {
+			// แจ้งเตือนถ้าไม่มีไฟล์ Config (สำคัญมากบน Production)
+			die('Error: Missing database configuration file (db_config.php). Please create it from db_config.sample.php');
 		}
+		require $config_path;
 
 		$db = new mysqli($db_host, $db_user, $db_pass, $db_name);
 		if ($db->connect_errno) {
