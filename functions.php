@@ -8,7 +8,18 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 function db(): mysqli {
 	static $db;
 	if (!$db) {
-		$db = new mysqli('localhost', 'rts_user', 'sumet4631022', 'rts_db');
+		// Production Defaults
+		$db_host = 'localhost';
+		$db_user = 'rts_user';
+		$db_pass = 'sumet4631022';
+		$db_name = 'rts_db';
+
+		// Load Local Overrides if file exists
+		if (file_exists(__DIR__ . '/db_config_local.php')) {
+			include __DIR__ . '/db_config_local.php';
+		}
+
+		$db = new mysqli($db_host, $db_user, $db_pass, $db_name);
 		if ($db->connect_errno) {
 			die('DB connect error: ' . $db->connect_error);
 		}
