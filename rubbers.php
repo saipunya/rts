@@ -25,6 +25,23 @@ $search = trim((string)($_GET['search'] ?? ''));
 $date_from = trim((string)($_GET['date_from'] ?? ''));
 $date_to   = trim((string)($_GET['date_to'] ?? ''));
 
+// Force this page to show only the latest rubber price round (latest pr_date)
+$latest_round_date = $today;
+if ($res = $db->query("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1")) {
+  if ($r = $res->fetch_assoc()) {
+    $d = (string)($r['pr_date'] ?? '');
+    $dt = $d !== '' ? DateTime::createFromFormat('Y-m-d', $d) : null;
+    if ($dt && $dt->format('Y-m-d') === $d) {
+      $latest_round_date = $d;
+    }
+  }
+  $res->free();
+}
+
+// override any user-provided date range to lock to latest round
+$date_from = $latest_round_date;
+$date_to   = $latest_round_date;
+
 // added: member selection & search variables
 $member_id = isset($_GET['member_id']) ? (int)$_GET['member_id'] : 0;
 $msearch = isset($_GET['msearch']) ? trim((string)($_GET['msearch'])) : '';
@@ -370,15 +387,15 @@ if ($currentLan === 'all') {
 } else {
   // ผู้ใช้ปกติ filter ด้วย ru_saveby (รองรับทั้ง fullname และ username)
   if (!$isAdmin) {
-    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND (ru_saveby = ? OR ru_saveby = ?) ORDER BY ru_date DESC, ru_id DESC");
+    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_date = ? AND (ru_saveby = ? OR ru_saveby = ?) ORDER BY ru_date DESC, ru_id DESC");
     $lanStr = (string)$currentLan;
     $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
     $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
-    $stl->bind_param('sss', $lanStr, $svFull, $svUser);
+    $stl->bind_param('ssss', $lanStr, $latest_round_date, $svFull, $svUser);
   } else {
-    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? ORDER BY ru_date DESC, ru_id DESC");
+    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_date = ? ORDER BY ru_date DESC, ru_id DESC");
     $lanStr = (string)$currentLan;
-    $stl->bind_param('s', $lanStr);
+    $stl->bind_param('ss', $lanStr, $latest_round_date);
   }
   $stl->execute();
   $res = $stl->get_result();
@@ -467,19 +484,40 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <h1 class="h4 mb-3">จัดการข้อมูลยางพารา</h1>
 
     <!-- nav: add 'ทั้งหมด' -->
-    <nav class="container-md mb-3 d-flex justify-content-between align-items-center">
-      <ul class="nav nav-pills">
+    <nav class="container-md mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <ul class="nav nav-pills align-items-center gap-1 small">
+      <li class="nav-item me-2">
+        <span class="text-secondary fw-semibold">
+        <i class="bi bi-droplet-half me-1 text-primary"></i>เลือกลานรับยาง:
+        </span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link rounded-pill px-3 py-1 <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">
+        ทั้งหมด
+        </a>
+      </li>
+      <?php for ($i = 1; $i <= 4; $i++): ?>
         <li class="nav-item">
-          <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">ทั้งหมด</a>
+        <a class="nav-link rounded-pill px-3 py-1 <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
+          ลานที่ <?php echo $i; ?>
+        </a>
         </li>
-        <?php for ($i = 1; $i <= 4; $i++): ?>
-          <li class="nav-item">
-            <a class="nav-link <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
-              (ลานที่ <?php echo $i; ?>)
-            </a>
-          </li>
-        <?php endfor; ?>
+      <?php endfor; ?>
       </ul>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <!-- เพิ่ม link กลับหน้าตั้งค่า (dashboard.php) -->
+        <a href="dashboard.php" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 rounded-pill">
+          <i class="bi bi-gear-fill"></i>
+          <span class="d-none d-sm-inline">กลับหน้าตั้งค่า</span>
+          <span class="d-inline d-sm-none">ตั้งค่า</span>
+        </a>
+        <!-- เพิ่มลิงค์ กลับหน้า (index.php) -->
+        <a href="index.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 rounded-pill">
+          <i class="bi bi-arrow-left"></i>
+          <span class="d-none d-sm-inline">กลับหน้าแรก</span>
+          <span class="d-inline d-sm-none">กลับ</span>
+        </a>
+      </div>
     </nav>
 
     <?php if ($msg): ?>
@@ -717,7 +755,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
         <div class="card-body">
           <form method="get" class="row gy-3 gx-3">
             <input type="hidden" name="lan" value="all">
-            <div class="col-md-4">
+            <div class="col-md-8">
               <label class="form-label mb-1">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
               <div class="input-group">
                 <span class="input-group-text">ค้นหา</span>
@@ -729,13 +767,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <?php endif; ?>
               </div>
             </div>
-            <div class="col-md-3">
-              <label class="form-label mb-1">ช่วงวันที่ (จาก)</label>
-              <input type="date" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label mb-1">ช่วงวันที่ (ถึง)</label>
-              <input type="date" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
+            <div class="col-md-2">
+              <label class="form-label mb-1">รอบล่าสุด</label>
+              <div class="form-control d-flex align-items-center" style="height: 38px;">
+                <span class="badge bg-secondary"><?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?></span>
+              </div>
             </div>
             <div class="col-md-2 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100">
@@ -759,14 +795,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               สุทธิ (ru_netvalue): <?php echo number_format($sumNet,2); ?> ฿
             </div>
           </div>
-          <?php if ($search || $date_from || $date_to): ?>
-            <div class="mt-2 small text-muted">
-              เงื่อนไข: 
-              <?php echo $search ? 'คำค้น="'.e($search).'" ' : ''; ?>
-              <?php echo $date_from ? 'จาก '.e($date_from).' ' : ''; ?>
-              <?php echo $date_to ? 'ถึง '.e($date_to).' ' : ''; ?>
-            </div>
-          <?php endif; ?>
+          <div class="mt-2 small text-muted">
+            เงื่อนไข:
+            <?php echo $search ? 'คำค้น="'.e($search).'" ' : 'ทั้งหมด '; ?>
+            <span class="ms-1">รอบล่าสุด <?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?> (ล็อกตามวันที่ราคายางล่าสุด)</span>
+          </div>
         </div>
       </div>
     <?php endif; ?>
@@ -780,19 +813,10 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <?php echo ($currentLan === 'all') ? '(ทุกลาน)' : '(ลาน '.(int)$currentLan.')'; ?>
           </span>
           <?php if (!empty($rows)): ?>
-            <!-- pdf export button shown only if dompdf installed -->
-            <?php if ($hasDompdf): ?>
-              <a href="export_rubbers_pdf.php?<?php echo $exportQuery; ?>" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                <i class="bi bi-file-earmark-pdf me-1"></i>PDF ลานที่ <?php echo (int)$currentLan == '0' ? 'ทั้งหมด' : (int)$currentLan; ?>
-              </a>
-            <?php else: ?>
-              <button type="button" class="btn btn-sm btn-outline-secondary ms-2" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
-                <i class="bi bi-file-earmark-pdf me-1"></i>PDF
-              </button>
-            <?php endif; ?>
-            <!-- new: CSV export (per-row) -->
-            <a href="export_rubbers_csv.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success ms-2">
-              <i class="bi bi-filetype-csv me-1"></i>CSV
+           
+            <!-- export: Excel (per-row) -->
+            <a href="export_rubbers_excel.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success ms-2">
+              <i class="bi bi-file-earmark-excel me-1"></i>Excel
             </a>
           <?php endif; ?>
         </caption>

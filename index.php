@@ -247,7 +247,7 @@ if ($stmt) {
 		</h2>
 		<div class="index-actions">
 			<a class="btn btn-outline-secondary" href="prices.php"><i class="bi bi-cash-coin me-1"></i>ราคายาง</a>
-			<a class="btn btn-outline-secondary" href="dashboard.php"><i class="bi bi-gear me-1"></i>ตั้งค่า</a>
+			<a class="btn btn-outline-secondary" href="dashboard.php"><i class="bi bi-gear me-1"></i>ตั้งค่า(dashboard)</a>
 			<a class="btn btn-primary" href="<?php echo htmlspecialchars($target); ?>"><i class="bi bi-plus-circle me-1"></i>บันทึกข้อมูล</a>
 			<?php if ($logged_in): ?>
 				<a class="btn btn-outline-danger" href="logout.php"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a>
@@ -257,32 +257,7 @@ if ($stmt) {
 		</div>
 	</div>
 
-	<form class="filter-bar" method="get" action="index.php">
-		<div class="d-flex flex-wrap gap-3 align-items-end" style="flex:1;">
-			<div>
-				<label class="form-label" for="date_from">วันที่เริ่มต้น</label>
-				<input id="date_from" name="date_from" type="date" value="<?php echo htmlspecialchars($sum_date_from); ?>" class="form-control" />
-			</div>
-			<div>
-				<label class="form-label" for="date_to">วันที่สิ้นสุด</label>
-				<input id="date_to" name="date_to" type="date" value="<?php echo htmlspecialchars($sum_date_to); ?>" class="form-control" />
-			</div>
-			<div>
-				<label class="form-label" for="lan">ลาน</label>
-				<select id="lan" name="lan" class="form-control">
-					<option value="all" <?php echo $sum_lan === 'all' ? 'selected' : ''; ?>>ทุกลาน</option>
-					<option value="1" <?php echo $sum_lan === '1' ? 'selected' : ''; ?>>ลาน 1</option>
-					<option value="2" <?php echo $sum_lan === '2' ? 'selected' : ''; ?>>ลาน 2</option>
-					<option value="3" <?php echo $sum_lan === '3' ? 'selected' : ''; ?>>ลาน 3</option>
-					<option value="4" <?php echo $sum_lan === '4' ? 'selected' : ''; ?>>ลาน 4</option>
-				</select>
-			</div>
-		</div>
-		<div class="filter-actions">
-			<button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i>แสดงสรุป</button>
-			<a class="btn btn-outline-secondary" href="index.php"><i class="bi bi-x-circle me-1"></i>ล้าง</a>
-		</div>
-	</form>
+
 
 	<!-- Quick stats -->
 	<div class="row g-3 mb-4">
@@ -291,20 +266,6 @@ if ($stmt) {
 				<div class="stat-label"><i class="bi bi-tag-fill text-primary"></i>ราคาที่ใช้คำนวณ</div>
 				<div class="stat-value"><?php echo number_format($latest_price,2); ?> ฿</div>
 				<div class="stat-sub">อัปเดต: <span class="fw-semibold text-danger"><?php echo $latest_price_date_text; ?></span></div>
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-box-seam-fill text-success"></i>ปริมาณรวม (ทุกลาน)</div>
-				<div class="stat-value"><?php echo number_format($all_total_quantity,2); ?> kg</div>
-				<div class="stat-sub">จำนวนรายการรับซื้อ: <?php echo number_format($total_records); ?> รายการ</div>
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-currency-dollar text-warning"></i>ยอดเงินรวม (ทุกลาน)</div>
-				<div class="stat-value"><?php echo number_format($all_total_value,2); ?> ฿</div>
-				<div class="stat-sub">คำนวณจากราคาล่าสุด</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
@@ -322,10 +283,13 @@ if ($stmt) {
 			</div>
 		</div>
 	</div>
-	<!-- ปริมาณรวบรวมแต่ละลาน -->
+	<!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
 	<div class="row mb-4">
 		<div class="col-12">
-			<div class="section-title"><i class="bi bi-bar-chart-line-fill"></i>ปริมาณรวบรวมแต่ละลาน</div>
+			<div class="section-title">
+				<i class="bi bi-bar-chart-line-fill"></i>
+				ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
+			</div>
 			<div class="card-table">
 				<table class="table table-hover table-sm mb-0">
 					<thead>
@@ -337,28 +301,39 @@ if ($stmt) {
 					</thead>
 					<tbody>
 					<?php
-					// Query รวมปริมาณแต่ละลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
-					$lan_query = "SELECT ru_lan, SUM(ru_quantity) as total_qty FROM tbl_rubber GROUP BY ru_lan ORDER BY ru_lan ASC";
-					$lan_res = $db->query($lan_query);
 					$grand_total_qty = 0;
 					$grand_total_value = 0;
-					if ($lan_res) {
-						while ($lan_row = $lan_res->fetch_assoc()) {
-							$lan = $lan_row['ru_lan'] ?? '-';
-							$qty = (float)$lan_row['total_qty'];
-							$value = $qty * $latest_price; // คำนวณยอดเงินด้วยราคายางล่าสุด
-							
-							// สะสมยอดรวม
-							$grand_total_qty += $qty;
-							$grand_total_value += $value;
-							
-							echo '<tr class="text-center">';
-							echo '<td>'.htmlspecialchars($lan).'</td>';
-							echo '<td>'.number_format($qty,2).'</td>';
-							echo '<td>'.number_format($value,2).'</td>';
-							echo '</tr>';
+
+					if ($latest_price_date) {
+						$lan_sql = "SELECT ru_lan, SUM(ru_quantity) AS total_qty
+									FROM tbl_rubber
+									WHERE ru_date = ?
+									GROUP BY ru_lan
+									ORDER BY CAST(ru_lan AS UNSIGNED) ASC";
+						$lan_stmt = $db->prepare($lan_sql);
+						if ($lan_stmt) {
+							$lan_stmt->bind_param('s', $latest_price_date);
+							$lan_stmt->execute();
+							$lan_res = $lan_stmt->get_result();
+							if ($lan_res) {
+								while ($lan_row = $lan_res->fetch_assoc()) {
+									$lan = $lan_row['ru_lan'] ?? '-';
+									$qty = (float)$lan_row['total_qty'];
+									$value = $qty * $latest_price;
+
+									$grand_total_qty += $qty;
+									$grand_total_value += $value;
+
+									echo '<tr class="text-center">';
+									echo '<td>'.htmlspecialchars($lan).'</td>';
+									echo '<td>'.number_format($qty,2).'</td>';
+									echo '<td>'.number_format($value,2).'</td>';
+									echo '</tr>';
+								}
+								$lan_res->free();
+							}
+							$lan_stmt->close();
 						}
-						$lan_res->free();
 					}
 					?>
 					<tr class="table-success fw-bold text-center">
@@ -369,82 +344,153 @@ if ($stmt) {
 					</tbody>
 				</table>
 			</div>
-			</div>
 		</div>
 	</div>
 	
-	<!-- Daily/Lan summary table -->
+	<!-- Daily summary table (all lans combined) -->
 	<div class="row">
 		<div class="col-12">
-			<div class="section-title"><i class="bi bi-clipboard-data"></i>สรุปรับซื้อแยกตามวันที่/ลาน</div>
+			<div class="section-title"><i class="bi bi-clipboard-data"></i>สรุปรับซื้อรายวัน (รวมทุกลาน)</div>
 			<div class="card-table">
 				<div class="table-responsive">
 					<table class="table table-striped table-hover w-100 mb-0">
 						<thead>
 							<tr class="text-center">
 								<th>วันที่</th>
-								<th>ลาน</th>
 								<th>ราคา (฿/kg)</th>
 								<th>ปริมาณรวม (kg)</th>
 								<th>เงินรวม (฿)</th>
 								<th>ยอดหัก (฿)</th>
 								<th>คงเหลือ/สุทธิ (฿)</th>
 								<th>รายการ</th>
-								<th>ดูรายละเอียด</th>
+									<th>สมาชิก/เกษตรกรทั่วไป (คน)</th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php
-							$sum_total_qty = 0.0;
-							$sum_total_value = 0.0;
-							$sum_total_expend = 0.0;
-							$sum_total_net = 0.0;
-							$sum_total_rows = 0;
-							?>
-							<?php if (!empty($summary_rows)): ?>
-								<?php foreach ($summary_rows as $row): ?>
-									<?php
-									$qty = isset($row['total_qty']) ? (float)$row['total_qty'] : 0.0;
-									$value = isset($row['total_value']) ? (float)$row['total_value'] : 0.0;
+							// รวมข้อมูลทุกลานให้เหลือวันที่ละ 1 แถว
+							$daily_summary = [];
+							if (!empty($summary_rows)) {
+								foreach ($summary_rows as $row) {
+									$ruDate = $row['ru_date'] ?? '';
+									if ($ruDate === '') {
+										continue;
+									}
+									if (!isset($daily_summary[$ruDate])) {
+										$daily_summary[$ruDate] = [
+											'ru_date'      => $ruDate,
+											'total_qty'    => 0.0,
+											'total_value'  => 0.0,
+											'total_expend' => 0.0,
+											'total_net'    => 0.0,
+											'row_count'    => 0,
+											'pr_price'     => null,
+										];
+									}
+
+									$qty    = isset($row['total_qty']) ? (float)$row['total_qty'] : 0.0;
+									$value  = isset($row['total_value']) ? (float)$row['total_value'] : 0.0;
 									$expend = isset($row['total_expend']) ? (float)$row['total_expend'] : 0.0;
-									$net = isset($row['total_net']) ? (float)$row['total_net'] : 0.0;
-									$sum_total_qty += $qty;
-									$sum_total_value += $value;
+									$net    = isset($row['total_net']) ? (float)$row['total_net'] : 0.0;
+									$count  = isset($row['row_count']) ? (int)$row['row_count'] : 0;
+
+									$daily_summary[$ruDate]['total_qty']    += $qty;
+									$daily_summary[$ruDate]['total_value']  += $value;
+									$daily_summary[$ruDate]['total_expend'] += $expend;
+									$daily_summary[$ruDate]['total_net']    += $net;
+									$daily_summary[$ruDate]['row_count']    += $count;
+
+									if ($daily_summary[$ruDate]['pr_price'] === null && isset($row['pr_price']) && $row['pr_price'] !== null) {
+										$daily_summary[$ruDate]['pr_price'] = (float)$row['pr_price'];
+									}
+								}
+							}
+
+							$sum_total_qty    = 0.0;
+							$sum_total_value  = 0.0;
+							$sum_total_expend = 0.0;
+							$sum_total_net    = 0.0;
+							$sum_total_rows   = 0;
+
+								// นับจำนวน "คน" (ไม่ซ้ำ) ต่อวัน แยก member/general
+								// member: นับตามเลขสมาชิก (ru_number)
+								// general: นับตามชื่อ-สกุล (ru_fullname) (ถ้าชื่อซ้ำให้นับเป็นคนเดียวกัน)
+								$people_count_by_date = []; // [ru_date => ['member'=>int,'general'=>int]]
+								$countSql = "SELECT
+									r.ru_date,
+									COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'member' THEN TRIM(r.ru_number) END)    AS member_people,
+									COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'general' THEN TRIM(r.ru_fullname) END) AS general_people
+								FROM tbl_rubber r
+								$sum_where_sql
+								GROUP BY r.ru_date";
+								$countStmt = $db->prepare($countSql);
+								if ($countStmt) {
+									if (!empty($sum_params)) {
+										$countStmt->bind_param($sum_types, ...$sum_params);
+									}
+									$countStmt->execute();
+									$countRes = $countStmt->get_result();
+									if ($countRes) {
+										while ($cr = $countRes->fetch_assoc()) {
+											$d = (string)($cr['ru_date'] ?? '');
+											if ($d === '') continue;
+											$people_count_by_date[$d] = [
+												'member'  => isset($cr['member_people']) ? (int)$cr['member_people'] : 0,
+												'general' => isset($cr['general_people']) ? (int)$cr['general_people'] : 0,
+											];
+										}
+										$countRes->free();
+									}
+									$countStmt->close();
+								}
+							?>
+
+							<?php if (!empty($daily_summary)): ?>
+								<?php foreach ($daily_summary as $ruDate => $row): ?>
+									<?php
+									$qty    = (float)$row['total_qty'];
+									$value  = (float)$row['total_value'];
+									$expend = (float)$row['total_expend'];
+									$net    = (float)$row['total_net'];
+									$count  = (int)$row['row_count'];
+
+									$sum_total_qty    += $qty;
+									$sum_total_value  += $value;
 									$sum_total_expend += $expend;
-									$sum_total_net += $net;
-									$sum_total_rows += isset($row['row_count']) ? (int)$row['row_count'] : 0;
-									$price = isset($row['pr_price']) && $row['pr_price'] !== null ? (float)$row['pr_price'] : null;
+									$sum_total_net    += $net;
+									$sum_total_rows   += $count;
+
+									$price = $row['pr_price'] !== null ? (float)$row['pr_price'] : null;
 									if ($price === null && $qty > 0) {
 										$price = $value / $qty;
 									}
-									$ruDate = $row['ru_date'] ?? '';
-									$lan = $row['ru_lan'] ?? '';
-									$detailUrl = 'rubbers.php?lan=' . urlencode((string)$lan) . '&date_from=' . urlencode((string)$ruDate) . '&date_to=' . urlencode((string)$ruDate);
+
+									$member_count  = $people_count_by_date[$ruDate]['member'] ?? 0;
+									$general_count = $people_count_by_date[$ruDate]['general'] ?? 0;
 									?>
 									<tr class="text-center">
 										<td class="text-nowrap"><?php echo htmlspecialchars($ruDate ? thai_date_format((string)$ruDate) : '-'); ?></td>
-										<td class="text-nowrap"><?php echo htmlspecialchars((string)$lan); ?></td>
-										<td><?php echo $price !== null ? number_format((float)$price, 2) : '-'; ?></td>
+										<td><?php echo $price !== null ? number_format($price, 2) : '-'; ?></td>
 										<td><?php echo number_format($qty, 2); ?></td>
 										<td><?php echo number_format($value, 2); ?></td>
 										<td><?php echo number_format($expend, 2); ?></td>
 										<td class="fw-semibold"><?php echo number_format($net, 2); ?></td>
-										<td><?php echo number_format((int)($row['row_count'] ?? 0)); ?></td>
-										<td><a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($detailUrl); ?>">เปิด</a></td>
+										<td><?php echo number_format($count); ?></td>
+										<td><?php echo number_format($member_count); ?>/<?php echo number_format($general_count); ?></td>
 									</tr>
 								<?php endforeach; ?>
 								<tr class="table-success fw-bold text-center">
-									<td colspan="3">รวมตามตัวกรอง</td>
+									<td colspan="2">รวมตามตัวกรอง</td>
 									<td><?php echo number_format($sum_total_qty, 2); ?></td>
 									<td><?php echo number_format($sum_total_value, 2); ?></td>
 									<td><?php echo number_format($sum_total_expend, 2); ?></td>
 									<td><?php echo number_format($sum_total_net, 2); ?></td>
 									<td><?php echo number_format($sum_total_rows); ?></td>
-									<td></td>
+									<td>-</td>
 								</tr>
 							<?php else: ?>
 								<tr>
-									<td colspan="9" class="text-center text-muted py-4">ยังไม่มีข้อมูลสรุปในช่วงที่เลือก</td>
+									<td colspan="8" class="text-center text-muted py-4">ยังไม่มีข้อมูลสรุปในช่วงที่เลือก</td>
 								</tr>
 							<?php endif; ?>
 						</tbody>

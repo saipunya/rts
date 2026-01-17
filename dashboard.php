@@ -12,12 +12,14 @@ $cu = current_user();
         </div>
         <div>
             <a href="index.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-house me-1"></i>หน้าแรก</a>
+            <!-- add link บันทึกการรวบรวม -->
+            <a href="rubbers.php" class="btn btn-outline-secondary btn-sm ms-2"><i class="bi bi-journal-plus me-1"></i>บันทึกการรวบรวม</a>
             <a href="logout.php" class="btn btn-outline-danger btn-sm ms-2"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
         </div>
     </div>
 
     <div class="row g-3">
-        <div class="col-12 col-md-6">
+        <!-- <div class="col-12 col-md-6">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-lightning-charge me-2"></i>Quick links</h5>
@@ -30,14 +32,34 @@ $cu = current_user();
                     </div>
                 </div>
             </div>
+        </div> -->
+
+
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-person me-2"></i>Account</h5>
+                    <p class="card-text mb-1"><strong>Username:</strong> <?php echo htmlspecialchars($cu['user_username']); ?></p>
+                    <p class="card-text mb-1"><strong>Fullname:</strong> <?php echo htmlspecialchars($cu['user_fullname']); ?></p>
+                    <p class="card-text mb-0"><strong>Level:</strong> <?php echo htmlspecialchars($cu['user_level']); ?></p>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-end align-items-center">
+                    <div>
+                        <a href="user_form.php?action=edit&id=<?php echo (int)($cu['user_id'] ?? 0); ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square me-1"></i>แก้ไขโปรไฟล์</a>
+                    </div>
+                    
+                </div>
+            </div>
         </div>
 
-        <!-- Export Section Start -->
+
+                <!-- Export Section Start -->
         <div class="col-12 col-md-6">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-download me-2"></i>Export Data</h5>
-                    <p class="card-text small text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ที่รวบรวม (จากราคายาง)</p>
+                    <p class="card-text text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ที่รวบรวม (จากราคายาง)</p>
                     <?php
                     // ดึง pr_date จาก tbl_price โดยใช้ db() จาก functions.php
                     $dates = [];
@@ -87,23 +109,6 @@ $cu = current_user();
             </div>
         </div>
         <!-- Export Section End -->
-
-        <div class="col-12 col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-person me-2"></i>Account</h5>
-                    <p class="card-text mb-1"><strong>Username:</strong> <?php echo htmlspecialchars($cu['user_username']); ?></p>
-                    <p class="card-text mb-1"><strong>Fullname:</strong> <?php echo htmlspecialchars($cu['user_fullname']); ?></p>
-                    <p class="card-text mb-0"><strong>Level:</strong> <?php echo htmlspecialchars($cu['user_level']); ?></p>
-                </div>
-                <div class="card-footer bg-transparent d-flex justify-content-end align-items-center">
-                    <div>
-                        <a href="user_form.php?action=edit&id=<?php echo (int)($cu['user_id'] ?? 0); ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square me-1"></i>แก้ไขโปรไฟล์</a>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
 
         <div class="col-12">
             <div class="card shadow-sm">

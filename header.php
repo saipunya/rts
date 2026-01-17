@@ -39,6 +39,13 @@
                 font-size: 18px; /* was ~16px, enlarge all rem-based text */
             }
 
+            /* Make any intentionally-small helper text readable */
+            small,
+            .small,
+            .form-text {
+                font-size: 14px !important;
+            }
+
             body {
                 min-height: 100vh;
                 background: radial-gradient(circle at top left, #e0f2fe 0, #f8fafc 45%, #f9fafb 100%);
