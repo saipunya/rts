@@ -49,9 +49,17 @@
 <?php
 // close stmt and mysqli safely if they exist
 if (isset($stmt) && $stmt instanceof mysqli_stmt) {
-    @$stmt->close();
+    try {
+        $stmt->close();
+    } catch (Throwable $e) {
+        // ignore: statement may already be closed
+    }
 }
 if (isset($mysqli) && $mysqli instanceof mysqli) {
-    @$mysqli->close();
+    try {
+        $mysqli->close();
+    } catch (Throwable $e) {
+        // ignore
+    }
 }
 ?>

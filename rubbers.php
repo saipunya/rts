@@ -54,10 +54,32 @@ $db->query("CREATE TABLE IF NOT EXISTS tbl_rubber (
 	PRIMARY KEY (ru_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;");
 
-// added: ensure columns exist on old schema
-$db->query("ALTER TABLE tbl_rubber ADD COLUMN IF NOT EXISTS ru_value DECIMAL(18,2) NOT NULL DEFAULT 0.00");
-$db->query("ALTER TABLE tbl_rubber ADD COLUMN IF NOT EXISTS ru_expend DECIMAL(18,2) NOT NULL DEFAULT 0.00");
-$db->query("ALTER TABLE tbl_rubber ADD COLUMN IF NOT EXISTS ru_netvalue DECIMAL(18,2) NOT NULL DEFAULT 0.00");
+// added: ensure columns exist on old schema (portable across MySQL/MariaDB versions)
+$ensureCols = [
+  'ru_value' => "ALTER TABLE tbl_rubber ADD COLUMN ru_value DECIMAL(18,2) NOT NULL DEFAULT 0.00",
+  'ru_expend' => "ALTER TABLE tbl_rubber ADD COLUMN ru_expend DECIMAL(18,2) NOT NULL DEFAULT 0.00",
+  'ru_netvalue' => "ALTER TABLE tbl_rubber ADD COLUMN ru_netvalue DECIMAL(18,2) NOT NULL DEFAULT 0.00",
+];
+$dbNameRes = $db->query('SELECT DATABASE() AS dbname');
+$dbNameRow = $dbNameRes ? $dbNameRes->fetch_assoc() : null;
+$dbName = $dbNameRow['dbname'] ?? '';
+if ($dbNameRes) { $dbNameRes->free(); }
+if ($dbName !== '') {
+  $colStmt = $db->prepare('SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?');
+  if ($colStmt) {
+    $tableName = 'tbl_rubber';
+    foreach ($ensureCols as $colName => $alterSql) {
+      $colStmt->bind_param('sss', $dbName, $tableName, $colName);
+      $colStmt->execute();
+      $cntRow = $colStmt->get_result()->fetch_assoc();
+      $exists = $cntRow && (int)($cntRow['cnt'] ?? 0) > 0;
+      if (!$exists) {
+        $db->query($alterSql);
+      }
+    }
+    $colStmt->close();
+  }
+}
 
 // เตรียมค่าเริ่มต้นของฟอร์ม
 $form = [

@@ -67,6 +67,7 @@ $cu = current_user();
                             
                             
                             <button type="button" onclick="exportType('excel')" class="btn btn-primary btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>ส่งออก Excel</button>
+                            <a href="export_round_matrix.php" class="btn btn-outline-primary btn-sm"><i class="bi bi-calendar2-range me-1"></i>หลายรอบวันที่</a>
                         </div>
                     </form>
                     <script>
