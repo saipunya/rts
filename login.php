@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				$active = in_array(strtolower($status), ['active','1','enabled','true'], true);
 
 				if (!$active) {
-					$errors[] = 'บัญชีถูกระงับ';
+					$errors[] = 'บัญชีถูกระงับการใช้งาน';
 				} elseif ($hash !== '' && password_verify($password, $hash)) {
 					// set session keys expected by the rest of the app
 					$_SESSION['user_id'] = (int)$uid;
