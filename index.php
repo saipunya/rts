@@ -19,7 +19,7 @@ $db = db();
 	}
 
 	.index-toolbar h2 {
-		font-size: 1.5rem;
+		font-size: 1.75rem;
 		font-weight: 600;
 		margin: 0;
 		color: #495057;
@@ -42,7 +42,7 @@ $db = db();
 
 	.stat-label {
 		color: #6c757d;
-		font-size: 0.95rem;
+		font-size: 1.1rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -55,7 +55,7 @@ $db = db();
 	}
 
 	.stat-value {
-		font-size: 2rem;
+		font-size: 2.2rem;
 		font-weight: 700;
 		color: #495057;
 		line-height: 1.2;
@@ -64,28 +64,30 @@ $db = db();
 
 	.stat-sub {
 		color: #adb5bd;
-		font-size: 0.875rem;
+		font-size: 1rem;
 		margin-top: 0.25rem;
 	}
 	.filter-bar {
 		display: flex;
 		flex-wrap: wrap;
-		gap: .5rem;
+		gap: .75rem;
 		align-items: end;
 		justify-content: space-between;
-		margin: 1rem 0 1.25rem;
-		padding: .9rem 1rem;
+		margin: 1.2rem 0 1.5rem;
+		padding: 1.1rem 1.2rem;
 		border-radius: 1rem;
 		border: 1px solid rgba(226,232,240,0.95);
 		background: #f8fafc;
 	}
 	.filter-bar .form-label {
-		margin-bottom: .15rem;
+		margin-bottom: .2rem;
 		color: #475569;
 		font-weight: 600;
+		font-size: 1.05rem;
 	}
 	.filter-bar .form-control {
-		min-width: 220px;
+		min-width: 240px;
+		font-size: 1.05rem;
 	}
 	.filter-actions {
 		display: flex;

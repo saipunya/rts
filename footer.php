@@ -2,35 +2,54 @@
 </main>
 <footer>
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-12 col-md-6">
-                <div class="d-flex align-items-center gap-3 mb-3 mb-md-0">
+        <div class="row g-4">
+            <div class="col-12 col-lg-4">
+                <div class="d-flex align-items-start gap-3">
                     <div class="footer-logo">
-                        <i class="bi bi-tree-fill text-success" style="font-size: 2rem;"></i>
+                        <i class="bi bi-tree-fill"></i>
                     </div>
                     <div>
-                        <h6 class="mb-1 text-white">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h6>
-                        <small class="text-white-50">ระบบจัดการยางพาราออนไลน์</small>
+                        <h6 class="mb-2 text-white footer-heading">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h6>
+                        <p class="mb-2 text-white-60 footer-text">ระบบจัดการการรวบรวมยางพาราและการชำระเงินสำหรับสมาชิก</p>
+                        <div class="badge bg-success-subtle text-success-emphasis fw-semibold">เชื่อมโยงข้อมูลทุกลานรับซื้อ</div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6 text-md-end">
-                <small class="text-white-50">&copy; <?php echo date('Y'); ?> สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</small>
-                <div class="mt-2">
-                    <small class="text-white-50">พัฒนาด้วยเทคโนโลยีสมัยใหม่</small>
-                </div>
+            <div class="col-6 col-lg-4">
+                <h6 class="text-white mb-3 footer-heading">เมนูสำคัญ</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="dashboard.php">แดชบอร์ด</a></li>
+                    <li><a href="members.php">สมาชิกและผู้ส่งมอบ</a></li>
+                    <li><a href="rubbers.php">บันทึกรายการยาง</a></li>
+                    <li><a href="prices.php">ราคาอ้างอิง</a></li>
+                    <li><a href="report_rubber.php">รายงานสรุป</a></li>
+                </ul>
             </div>
+            <div class="col-6 col-lg-4">
+                <h6 class="text-white mb-3 footer-heading">ติดต่อสหกรณ์</h6>
+                <ul class="list-unstyled text-white-60 footer-contact">
+                    <li><i class="bi bi-geo-alt-fill text-accent"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ</li>
+                    <li><i class="bi bi-telephone-outbound text-accent"></i> 044-123-456 ต่อ 101</li>
+                    <li><i class="bi bi-envelope-open text-accent"></i> coop@tungluilai.or.th</li>
+                    <li><i class="bi bi-clock-history text-accent"></i> เวลาทำการ: 08:30-16:30 น.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom d-flex flex-column flex-md-row gap-2 justify-content-between align-items-start align-items-md-center mt-4">
+            <div class="text-white-60 footer-bottom-text">&copy; <?php echo date('Y'); ?> สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด - ระบบการซื้อขายยางพารา</div>
+            <div class="text-white-60 footer-bottom-text">อัปเดตล่าสุด: <?php echo date('d/m/Y'); ?> | พัฒนาด้วยเทคโนโลยีเว็บสมัยใหม่</div>
         </div>
     </div>
 </footer>
 
 <style>
 footer {
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+    background: radial-gradient(circle at top, rgba(27,163,127,0.25), transparent 55%),
+                linear-gradient(135deg, #0b1725 0%, #122c22 100%);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 2rem 0;
-    color: #ffffff;
+    padding: 2.5rem 0;
+    color: #e2e8f0;
     margin-top: 3rem;
     position: relative;
 }
@@ -42,11 +61,54 @@ footer::before {
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 209, 102, 0.45), transparent);
 }
 
 .footer-logo i {
-    filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.3));
+    font-size: 2.4rem;
+    color: var(--brand-accent, #ffd166);
+    filter: drop-shadow(0 2px 4px rgba(255, 209, 102, 0.35));
+}
+
+.footer-heading {
+    font-size: 1.25rem;
+    letter-spacing: 0.02em;
+}
+
+.footer-text {
+    font-size: 1.05rem;
+}
+
+.footer-links li + li {
+    margin-top: 0.4rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-size: 1.05rem;
+}
+
+.footer-links a:hover {
+    color: #fff;
+}
+
+.footer-contact li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin-bottom: 0.4rem;
+    font-size: 1.05rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 1rem;
+}
+
+.footer-bottom-text {
+    font-size: 1rem;
 }
 </style>
 <!-- jQuery (required by DataTables) -->
