@@ -22,6 +22,8 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
         <!-- DataTables CSS (Bootstrap5 integration) -->
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+        <!-- AOS Animation Library -->
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
         <style>
             /* Fonts */
             @font-face { font-family: 'THSarabunNew'; font-style: normal; font-weight: 400; src: url('assets/fonts/THSarabunNew.ttf') format('truetype'); }
@@ -40,7 +42,6 @@
             }
 
             /* Make any intentionally-small helper text readable */
-            small,
             .small,
             .form-text {
                 font-size: 14px !important;
@@ -48,9 +49,24 @@
 
             body {
                 min-height: 100vh;
-                background: radial-gradient(circle at top left, #e0f2fe 0, #f8fafc 45%, #f9fafb 100%);
+                background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
                 font-family: 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-                color: #0f172a;
+                color: #495057;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: 
+                    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(255, 182, 193, 0.1) 0%, transparent 50%);
+                pointer-events: none;
+                z-index: -1;
             }
 
             main {
@@ -63,25 +79,13 @@
             }
 
             .page-hero {
-                background: linear-gradient(135deg, #0d6efd, #2563eb);
-                color: #f9fafb;
+                background: linear-gradient(135deg, #4a90e2 0%, #5fa3e8 100%);
+                color: #ffffff;
                 border-radius: 1rem;
-                padding: 1.5rem 1.75rem;
-                box-shadow: 0 18px 40px rgba(15, 23, 42, 0.20);
+                padding: 1.75rem 2rem;
+                box-shadow: 0 4px 15px rgba(74, 144, 226, 0.25);
                 position: relative;
-                overflow: hidden;
-            }
-
-            .page-hero::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background:
-                    radial-gradient(circle at top left, rgba(255,255,255,0.30) 0, transparent 55%),
-                    radial-gradient(circle at bottom right, rgba(37,99,235,0.45) 0, transparent 60%);
-                mix-blend-mode: screen;
-                opacity: .9;
-                pointer-events: none;
+                margin-bottom: 1.5rem;
             }
 
             .page-hero-inner {
@@ -110,26 +114,28 @@
             }
 
             .content-card {
-                margin-top: 1.75rem;
-                background-color: #ffffff;
-                border-radius: 1rem;
-                padding: 1.5rem 1.75rem;
-                box-shadow: 0 14px 35px rgba(15,23,42,0.05);
-                border: 1px solid rgba(148,163,184,0.25);
+                background: #ffffff;
+                border-radius: 0.75rem;
+                padding: 1.5rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                border: 1px solid #e9ecef;
+                margin-bottom: 1.5rem;
             }
 
             .section-title {
-                font-size: 1.4rem;
+                font-size: 1.25rem;
                 font-weight: 600;
-                color: #0f172a;
+                color: #495057;
                 display: flex;
                 align-items: center;
                 gap: .5rem;
                 margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid #e9ecef;
             }
 
             .section-title i {
-                color: #0d6efd;
+                color: #4a90e2;
             }
 
             /* Bigger font inside tables */
@@ -148,14 +154,60 @@
             }
 
             .btn {
-                font-size: 1.25rem;
-                padding: 0.4em 1.15em;
-                border-radius: .75rem;
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+                border-radius: 0.5rem;
+                font-weight: 500;
+                transition: all 0.2s ease;
             }
 
-            .btn-primary, .btn-success, .btn-danger, .btn-warning {
+            .btn::before {
+                display: none;
+            }
+
+            .btn-primary {
+                background: #4a90e2;
                 border: none;
-                box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+                box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+            }
+
+            .btn-primary:hover {
+                background: #357abd;
+                box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4);
+            }
+
+            .btn-outline-primary {
+                background: transparent;
+                border: 2px solid #4a90e2;
+                color: #4a90e2;
+            }
+
+            .btn-outline-primary:hover {
+                background: #4a90e2;
+                border-color: #4a90e2;
+                color: white;
+            }
+
+            .btn-outline-secondary {
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                color: #6c757d;
+            }
+
+            .btn-outline-secondary:hover {
+                background: #e9ecef;
+                border-color: #ced4da;
+                color: #495057;
+            }
+
+            .btn-danger, .btn-outline-danger {
+                background: #dc3545;
+                border-color: #dc3545;
+                color: white;
+            }
+
+            .btn-outline-danger:hover {
+                background: #c82333;
             }
 
             .card-table {

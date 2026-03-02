@@ -13,50 +13,59 @@ $db = db();
 		justify-content: space-between;
 		gap: 1rem;
 		flex-wrap: wrap;
-		padding-bottom: .75rem;
-		border-bottom: 1px solid rgba(148,163,184,0.35);
-		margin-bottom: 1.25rem;
+		padding-bottom: 1rem;
+		border-bottom: 2px solid #e9ecef;
+		margin-bottom: 1.5rem;
 	}
+
 	.index-toolbar h2 {
-		font-size: 1.65rem;
-		font-weight: 700;
+		font-size: 1.5rem;
+		font-weight: 600;
 		margin: 0;
-		letter-spacing: .02em;
-		color: #0f172a;
+		color: #495057;
 	}
+
 	.index-actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: .5rem;
+		gap: 0.5rem;
 		align-items: center;
-		justify-content: flex-end;
 	}
 	.stat-card {
-		border-radius: 1rem;
-		border: 1px solid rgba(226,232,240,0.95);
-		box-shadow: 0 10px 24px rgba(15,23,42,0.04);
-		padding: 1.1rem 1.25rem;
+		border-radius: 0.75rem;
+		border: 1px solid #e9ecef;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+		padding: 1.25rem 1.5rem;
 		height: 100%;
-		background: #fff;
+		background: #ffffff;
 	}
+
 	.stat-label {
-		color: #64748b;
-		font-size: 1.15rem;
+		color: #6c757d;
+		font-size: 0.95rem;
 		display: flex;
 		align-items: center;
-		gap: .5rem;
-		margin-bottom: .35rem;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
 	}
+
+	.stat-label i {
+		font-size: 1.1rem;
+		color: #4a90e2;
+	}
+
 	.stat-value {
-		font-size: 2.1rem;
-		font-weight: 800;
-		color: #0f172a;
-		line-height: 1.1;
+		font-size: 2rem;
+		font-weight: 700;
+		color: #495057;
+		line-height: 1.2;
+		margin-bottom: 0.25rem;
 	}
+
 	.stat-sub {
-		color: #64748b;
-		font-size: 1.05rem;
-		margin-top: .25rem;
+		color: #adb5bd;
+		font-size: 0.875rem;
+		margin-top: 0.25rem;
 	}
 	.filter-bar {
 		display: flex;
@@ -247,7 +256,7 @@ if ($stmt) {
 		</h2>
 		<div class="index-actions">
 			<a class="btn btn-outline-secondary" href="prices.php"><i class="bi bi-cash-coin me-1"></i>ราคายาง</a>
-			<a class="btn btn-outline-secondary" href="dashboard.php"><i class="bi bi-gear me-1"></i>ตั้งค่า(dashboard)</a>
+			<a class="btn btn-outline-secondary" href="dashboard.php"><i class="bi bi-gear me-1"></i>ตั้งค่า</a>
 			<a class="btn btn-primary" href="<?php echo htmlspecialchars($target); ?>"><i class="bi bi-plus-circle me-1"></i>บันทึกข้อมูล</a>
 			<?php if ($logged_in): ?>
 				<a class="btn btn-outline-danger" href="logout.php"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a>
@@ -256,8 +265,6 @@ if ($stmt) {
 			<?php endif; ?>
 		</div>
 	</div>
-
-
 
 	<!-- Quick stats -->
 	<div class="row g-3 mb-4">
@@ -283,6 +290,7 @@ if ($stmt) {
 			</div>
 		</div>
 	</div>
+	
 	<!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
 	<div class="row mb-4">
 		<div class="col-12">
