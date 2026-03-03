@@ -98,8 +98,8 @@ include 'header.php';
   min-width: 120px;
 }
 </style>
-<div class="container" style="max-width:480px;">
-  <div class="login-card">
+
+  <div class="login-card container-fluid">
     <div class="row mb-4">
       <div class="col-12 text-center">
         <h3 class="login-title mb-0">เข้าสู่ระบบ</h3>
@@ -121,11 +121,9 @@ include 'header.php';
         <label class="form-label">รหัสผ่าน</label>
         <input class="form-control" type="password" name="password" required>
       </div>
-      <div class="d-flex justify-content-between gap-2">
+      <div class="text-center">
         <button class="btn btn-primary" type="submit">เข้าสู่ระบบ</button>
-        <a href="index.php" class="btn btn-outline-secondary">กลับหน้าหลัก</a>
       </div>
     </form>
   </div>
-</div>
 <?php include 'footer.php'; ?>

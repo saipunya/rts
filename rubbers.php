@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/functions.php';
 
+// ตรวจสอบการล็อกอิน - ถ้ายังไม่ล็อกอินให้ redirect ไปหน้า login
+if (!is_logged_in()) {
+    header('Location: login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    exit;
+}
+
 $db = db();
 $errors = [];
 $msg = $_GET['msg'] ?? '';

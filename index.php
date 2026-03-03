@@ -256,16 +256,7 @@ if ($stmt) {
 			<i class="bi bi-grid-1x2-fill text-primary"></i>
 			ภาพรวมวันนี้
 		</h2>
-		<div class="index-actions">
-			<a class="btn btn-outline-secondary" href="prices.php"><i class="bi bi-cash-coin me-1"></i>ราคายาง</a>
-			<a class="btn btn-outline-secondary" href="dashboard.php"><i class="bi bi-gear me-1"></i>ตั้งค่า</a>
-			<a class="btn btn-primary" href="<?php echo htmlspecialchars($target); ?>"><i class="bi bi-plus-circle me-1"></i>บันทึกข้อมูล</a>
-			<?php if ($logged_in): ?>
-				<a class="btn btn-outline-danger" href="logout.php"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ<?php echo $username ? ' ('.htmlspecialchars($username).')' : ''; ?></a>
-			<?php else: ?>
-				<a class="btn btn-outline-primary" href="login.php"><i class="bi bi-box-arrow-in-right me-1"></i>เข้าสู่ระบบ</a>
-			<?php endif; ?>
-		</div>
+		
 	</div>
 
 	<!-- Quick stats -->
@@ -279,14 +270,14 @@ if ($stmt) {
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
 			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-calendar2-check-fill text-info"></i>ปริมาณรวม (วันที่ราคายาง)</div>
+				<div class="stat-label"><i class="bi bi-calendar2-check-fill text-info"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_quantity,2); ?> kg</div>
 				<div class="stat-sub">อ้างอิงวันที่ราคายาง</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
 			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-receipt-cutoff text-danger"></i>ยอดเงินรวม (วันที่ราคายาง)</div>
+				<div class="stat-label"><i class="bi bi-receipt-cutoff text-danger"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
 				<div class="stat-sub">ปริมาณ x ราคาล่าสุด</div>
 			</div>

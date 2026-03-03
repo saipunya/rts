@@ -9,14 +9,13 @@
                         <i class="bi bi-tree-fill"></i>
                     </div>
                     <div>
-                        <h6 class="mb-2 text-white footer-heading">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h6>
-                        <p class="mb-2 text-white-60 footer-text">ระบบจัดการการรวบรวมยางพาราและการชำระเงินสำหรับสมาชิก</p>
-                        <div class="badge bg-success-subtle text-success-emphasis fw-semibold">เชื่อมโยงข้อมูลทุกลานรับซื้อ</div>
+                        <h6 class="mb-2 footer-heading">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h6>
+                        <p class="mb-2  footer-text">ระบบจัดการการรวบรวมยางพาราและการชำระเงินสำหรับสมาชิก</p>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-lg-4">
-                <h6 class="text-white mb-3 footer-heading">เมนูสำคัญ</h6>
+                <h6 class=" mb-3 footer-heading">เมนูสำคัญ</h6>
                 <ul class="list-unstyled footer-links">
                     <li><a href="dashboard.php">แดชบอร์ด</a></li>
                     <li><a href="members.php">สมาชิกและผู้ส่งมอบ</a></li>
@@ -26,8 +25,8 @@
                 </ul>
             </div>
             <div class="col-6 col-lg-4">
-                <h6 class="text-white mb-3 footer-heading">ติดต่อสหกรณ์</h6>
-                <ul class="list-unstyled text-white-60 footer-contact">
+                <h6 class=" mb-3 footer-heading">ติดต่อสหกรณ์</h6>
+                <ul class="list-unstyled  footer-contact">
                     <li><i class="bi bi-geo-alt-fill text-accent"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ</li>
                     <li><i class="bi bi-telephone-outbound text-accent"></i> 044-123-456 ต่อ 101</li>
                     <li><i class="bi bi-envelope-open text-accent"></i> coop@tungluilai.or.th</li>
@@ -44,12 +43,10 @@
 
 <style>
 footer {
-    background: radial-gradient(circle at top, rgba(27,163,127,0.25), transparent 55%),
-                linear-gradient(135deg, #0b1725 0%, #122c22 100%);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #d4edda;
+    border-top: 1px solid #c3e6cb;
     padding: 2.5rem 0;
-    color: #e2e8f0;
+    color: #155724;
     margin-top: 3rem;
     position: relative;
 }
@@ -61,18 +58,19 @@ footer::before {
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 209, 102, 0.45), transparent);
+    background: #c3e6cb;
 }
 
 .footer-logo i {
     font-size: 2.4rem;
-    color: var(--brand-accent, #ffd166);
-    filter: drop-shadow(0 2px 4px rgba(255, 209, 102, 0.35));
+    color: #28a745;
+    filter: none;
 }
 
 .footer-heading {
     font-size: 1.25rem;
     letter-spacing: 0.02em;
+    color: #155724;
 }
 
 .footer-text {
@@ -84,14 +82,14 @@ footer::before {
 }
 
 .footer-links a {
-    color: rgba(255, 255, 255, 0.85);
+    color: #155724;
     text-decoration: none;
     transition: color 0.2s ease;
     font-size: 1.05rem;
 }
 
 .footer-links a:hover {
-    color: #fff;
+    color: #0d5322;
 }
 
 .footer-contact li {
@@ -103,7 +101,7 @@ footer::before {
 }
 
 .footer-bottom {
-    border-top: 1px solid rgba(255,255,255,0.12);
+    border-top: 1px solid #c3e6cb;
     padding-top: 1rem;
 }
 
