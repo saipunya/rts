@@ -1,5 +1,7 @@
 <?php
+ob_start();
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/header.php';
 
 // ตรวจสอบการล็อกอิน - ถ้ายังไม่ล็อกอินให้ redirect ไปหน้า login
 if (!is_logged_in()) {
@@ -456,7 +458,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       background: #eef2ff;
       color: #3730a3;
       border-radius: 50rem;
-      font-size: 1.2rem;
+      font-size: 1rem;
     }
 
     .link-btn {
@@ -482,6 +484,300 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     .table td.text-end, .table th.text-end { font-variant-numeric: tabular-nums; }
     .table-hover tbody tr:hover td { background-color: rgba(13,110,253,.04); }
     .table caption { color:#6c757d; padding-left:.5rem; }
+
+    /* Enhanced Responsive Design */
+    @media (max-width: 992px) {
+      .form-wrap {
+        max-width: 100%;
+        padding: 0 1rem;
+      }
+      
+      fieldset {
+        padding: 0.75rem 1rem;
+      }
+      
+      .nav-pills .nav-link {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container.py-4 {
+        padding: 1rem 0.5rem !important;
+      }
+      
+      h1.h4 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+      }
+      
+      .nav-pills {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .nav-pills .nav-item {
+        width: 100%;
+      }
+      
+      .nav-pills .nav-link {
+        text-align: center;
+        padding: 0.75rem;
+      }
+      
+      .nav-item.me-2 {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+      }
+      
+      .ms-auto {
+        margin-left: 0 !important;
+        margin-top: 1rem;
+        justify-content: center;
+      }
+      
+      .ms-auto .d-flex {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+      }
+      
+      .form-wrap {
+        margin: 0;
+        padding: 0;
+      }
+      
+      fieldset {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      fieldset legend {
+        font-size: 1.1rem;
+        padding: 0 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .row.g-3 {
+        gap: 1rem;
+      }
+      
+      .col-md-3, .col-md-9 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .input-group .input-group-text {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        justify-content: flex-start;
+        padding: 0.5rem 0;
+        background: transparent;
+        color: #495057;
+        font-weight: 600;
+      }
+      
+      .input-group .form-control {
+        border-top-left-radius: 0.375rem;
+        border-top-right-radius: 0.375rem;
+      }
+      
+      .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4 {
+        gap: 0.75rem;
+      }
+      
+      .row-cols-lg-4 > .col {
+        flex: 0 0 calc(50% - 0.375rem);
+        max-width: calc(50% - 0.375rem);
+      }
+      
+      .card-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+      }
+      
+      .card-footer .d-flex {
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      
+      .btn {
+        min-height: 44px;
+        font-size: 0.95rem;
+      }
+      
+      .btn-sm {
+        min-height: 38px;
+        font-size: 0.85rem;
+      }
+      
+      /* Responsive table */
+      .table-responsive {
+        font-size: 0.85rem;
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
+      }
+      
+      .table th,
+      .table td {
+        padding: 0.4rem 0.3rem;
+        white-space: nowrap;
+      }
+      
+      .table th:nth-child(n+6),
+      .table td:nth-child(n+6) {
+        white-space: normal;
+        min-width: 80px;
+      }
+      
+      .table .d-flex.gap-1 {
+        flex-direction: column;
+        gap: 0.25rem !important;
+      }
+      
+      .table .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.4rem;
+        min-height: auto;
+      }
+      
+      /* Search form responsive */
+      .card.mb-4.form-wrap {
+        margin: 0 -0.5rem 1rem;
+        padding: 0 0.5rem;
+      }
+      
+      .row.gy-3.gx-3 {
+        gap: 1rem;
+      }
+      
+      .col-md-8,
+      .col-md-2 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      
+      .badge.bg-secondary {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+      }
+      
+      /* Summary badges */
+      .d-flex.flex-wrap.gap-2 {
+        gap: 0.5rem !important;
+      }
+      
+      .badge.p-2 {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.8rem;
+      }
+      
+      /* Alert messages */
+      .alert {
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+        margin: 0 -0.5rem 1rem;
+        border-radius: 0;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .container.py-4 {
+        padding: 0.5rem 0.25rem !important;
+      }
+      
+      h1.h4 {
+        font-size: 1.1rem;
+      }
+      
+      fieldset {
+        padding: 0.75rem;
+      }
+      
+      fieldset legend {
+        font-size: 1rem;
+      }
+      
+      .row-cols-lg-4 > .col {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      
+      .table-responsive {
+        font-size: 0.8rem;
+        margin: 0 -0.25rem;
+        padding: 0 0.25rem;
+      }
+      
+      .table th,
+      .table td {
+        padding: 0.3rem 0.2rem;
+      }
+      
+      .table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)),
+      .table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)) {
+        display: none;
+      }
+      
+      .badge.p-2 {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.75rem;
+      }
+      
+      .btn {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+      }
+      
+      .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.4rem;
+      }
+    }
+
+    /* Landscape orientation */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .container.py-4 {
+        padding: 0.5rem !important;
+      }
+      
+      fieldset {
+        padding: 0.75rem;
+      }
+      
+      .row-cols-lg-4 > .col {
+        flex: 0 0 calc(33.333% - 0.5rem);
+        max-width: calc(33.333% - 0.5rem);
+      }
+    }
+
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .table-hover tbody tr:hover td {
+        background-color: transparent;
+      }
+      
+      .btn,
+      .form-control,
+      .form-select {
+        min-height: 44px;
+      }
+      
+      .list-group-item-action {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 
@@ -1058,6 +1354,4 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     </script>
 
   </div><!-- /container -->
-</body>
-
-</html>
+  <?php include 'footer.php'; ?>

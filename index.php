@@ -25,6 +25,27 @@ $db = db();
 		color: #495057;
 	}
 
+	/* Match rubbers.php baseline scale */
+	html, body {
+		font-size: 18px;
+	}
+	.container,
+	.card,
+	.table,
+	.form-control,
+	.form-select,
+	.form-label,
+	.btn,
+	.btn-sm,
+	.nav-link,
+	.alert,
+	.badge {
+		font-size: 1rem;
+	}
+	.small, .form-text {
+		font-size: 1rem !important;
+	}
+
 	.index-actions {
 		display: flex;
 		flex-wrap: wrap;
@@ -94,9 +115,211 @@ $db = db();
 		gap: .5rem;
 		flex-wrap: wrap;
 	}
+
+	/* Enhanced Responsive Design */
+	@media (max-width: 992px) {
+		.index-toolbar {
+			flex-direction: column;
+			align-items: stretch !important;
+			text-align: center;
+			gap: 1rem;
+		}
+		
+		.index-toolbar h2 {
+			font-size: 1.5rem;
+		}
+		
+		.filter-bar .form-control {
+			min-width: 200px;
+		}
+		
+		.stat-value {
+			font-size: 1.8rem;
+		}
+		
+		.stat-label {
+			font-size: 1rem;
+		}
+	}
+
 	@media (max-width: 768px) {
-		.filter-bar .form-control { min-width: 100%; }
-		.index-actions { width: 100%; justify-content: flex-start; }
+		.index-toolbar {
+			padding-bottom: 0.75rem;
+			margin-bottom: 1rem;
+		}
+		
+		.index-toolbar h2 {
+			font-size: 1.3rem;
+		}
+		
+		.index-actions {
+			width: 100%;
+			justify-content: center;
+		}
+		
+		.row.g-3.mb-4 {
+			gap: 1rem;
+		}
+		
+		.col-12.col-md-6.col-lg-4 {
+			flex: 0 0 100%;
+			max-width: 100%;
+		}
+		
+		.stat-card {
+			padding: 1rem;
+		}
+		
+		.stat-value {
+			font-size: 1.6rem;
+		}
+		
+		.stat-label {
+			font-size: 1rem;
+		}
+		
+		.stat-sub {
+			font-size: 0.9rem;
+		}
+		
+		.filter-bar {
+			padding: 1rem;
+			margin: 1rem 0 1.2rem;
+			flex-direction: column;
+			align-items: stretch !important;
+		}
+		
+		.filter-bar .form-control {
+			min-width: 100%;
+		}
+		
+		.filter-actions {
+			justify-content: center;
+			width: 100%;
+		}
+		
+		.filter-actions .btn {
+			flex: 1;
+			min-height: 44px;
+		}
+		
+		.card-table {
+			margin: 0 -0.5rem;
+		}
+		
+		.table-responsive {
+			font-size: 0.85rem;
+			padding: 0 0.5rem;
+		}
+		
+		.table th,
+		.table td {
+			padding: 0.5rem 0.3rem;
+		}
+		
+		.section-title {
+			font-size: 1rem;
+			padding: 0.5rem 0;
+		}
+		
+		.btn {
+			min-height: 44px;
+			font-size: 1rem;
+		}
+		
+		.btn-sm {
+			min-height: 38px;
+			font-size: 0.85rem;
+		}
+	}
+
+	@media (max-width: 576px) {
+		.index-toolbar h2 {
+			font-size: 1.2rem;
+		}
+		
+		.stat-card {
+			padding: 0.75rem;
+		}
+		
+		.stat-value {
+			font-size: 1.4rem;
+		}
+		
+		.stat-label {
+			font-size: 0.9rem;
+		}
+		
+		.stat-sub {
+			font-size: 0.85rem;
+		}
+		
+		.filter-bar {
+			padding: 0.75rem;
+		}
+		
+		.filter-bar .form-label {
+			font-size: 1rem;
+		}
+		
+		.filter-bar .form-control {
+			font-size: 1rem;
+		}
+		
+		.table-responsive {
+			font-size: 0.8rem;
+			padding: 0 0.25rem;
+		}
+		
+		.table th,
+		.table td {
+			padding: 0.4rem 0.2rem;
+		}
+		
+		.table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
+		.table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
+			display: none;
+		}
+		
+		.text-center.mt-4 {
+			padding: 0 0.5rem;
+		}
+		
+		.btn {
+			font-size: 0.9rem;
+			padding: 0.5rem 0.75rem;
+		}
+	}
+
+	/* Landscape orientation */
+	@media (max-width: 768px) and (orientation: landscape) {
+		.index-toolbar {
+			padding-bottom: 0.5rem;
+		}
+		
+		.stat-card {
+			padding: 0.75rem 1rem;
+		}
+		
+		.filter-bar {
+			padding: 0.75rem;
+		}
+	}
+
+	/* Touch-friendly improvements */
+	@media (hover: none) and (pointer: coarse) {
+		.table-hover tbody tr:hover td {
+			background-color: transparent;
+		}
+		
+		.btn,
+		.form-control {
+			min-height: 44px;
+		}
+		
+		.stat-card:hover {
+			transform: none;
+		}
 	}
 </style>
 

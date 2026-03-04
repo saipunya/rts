@@ -8,6 +8,28 @@ $date_start = $_GET['date_start'] ?? '';
 $date_end = $_GET['date_end'] ?? '';
 
 ?>
+<style>
+/* Match rubbers.php baseline scale */
+html, body {
+  font-size: 18px;
+}
+.container,
+.card,
+.table,
+.form-control,
+.form-select,
+.form-label,
+.btn,
+.btn-sm,
+.nav-link,
+.alert,
+.badge {
+  font-size: 1rem;
+}
+.small, .form-text {
+  font-size: 1rem !important;
+}
+</style>
 <div class="container mt-4">
     <h3>รายงานข้อมูลยางพารา (ค้นหา)</h3>
     <form class="row g-3 mb-4" method="get">

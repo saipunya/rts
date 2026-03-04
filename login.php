@@ -97,6 +97,204 @@ include 'header.php';
 .login-btns .btn {
   min-width: 120px;
 }
+
+/* Enhanced Responsive Design */
+@media (max-width: 992px) {
+  .login-card {
+    margin: 40px 1rem 0;
+    padding: 2rem 1.5rem;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    margin: 20px 0.5rem 0;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+  
+  .login-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .row.mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .mb-3 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .form-label {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .form-control {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+  
+  .btn {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  
+  .alert {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+  
+  .text-center {
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-card {
+    margin: 10px 0.25rem 0;
+    padding: 1.25rem 0.75rem;
+    border-radius: 8px;
+  }
+  
+  .login-title {
+    font-size: 1.2rem;
+  }
+  
+  .container-fluid {
+    padding: 0 0.5rem;
+  }
+  
+  .form-label {
+    font-size: 1rem;
+  }
+  
+  .form-control {
+    font-size: 1rem;
+    padding: 0.6rem 0.8rem;
+    min-height: 44px;
+  }
+  
+  .btn {
+    min-height: 44px;
+    font-size: 1rem;
+    padding: 0.6rem 1.5rem;
+  }
+  
+  .alert {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .row.mb-4 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1.25rem !important;
+  }
+}
+
+/* Landscape orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .login-card {
+    margin-top: 10px;
+    padding: 1rem 1.5rem;
+  }
+  
+  .login-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .mb-3 {
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1rem 0.5rem;
+  }
+  
+  .login-title {
+    font-size: 1.1rem;
+  }
+  
+  .form-control {
+    padding: 0.5rem 0.7rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .form-control,
+  .btn {
+    min-height: 44px;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+  
+  .form-control:focus {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .login-card {
+    border: 2px solid #000;
+  }
+  
+  .form-control {
+    border: 2px solid #000;
+  }
+  
+  .btn {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .login-card,
+  .btn,
+  .form-control {
+    transition: none;
+  }
+}
 </style>
 
   <div class="login-card container-fluid">

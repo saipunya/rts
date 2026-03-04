@@ -28,6 +28,169 @@ $result = $stmt->get_result();
 $members = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
+<style>
+/* Match rubbers.php baseline scale */
+html, body {
+  font-size: 18px;
+}
+.container,
+.card,
+.table,
+.form-control,
+.form-select,
+.form-label,
+.btn,
+.btn-sm,
+.nav-link,
+.alert,
+.badge {
+  font-size: 1rem;
+}
+.small, .form-text {
+  font-size: 1rem !important;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 992px) {
+  .container.mt-4 {
+    padding: 0 1rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container.mt-4 {
+    padding: 0 0.5rem;
+    margin-top: 1rem !important;
+  }
+  
+  .row.mb-3 {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch !important;
+    text-align: center;
+  }
+  
+  .col-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .col-6.text-end {
+    text-align: center !important;
+  }
+  
+  .col-6.text-end .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    min-height: 44px;
+  }
+  
+  .row.mb-3 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .row.g-2.position-relative {
+    gap: 0.75rem;
+  }
+  
+  .col-auto {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .form-control {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+  
+  .btn {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.85rem;
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem 0.3rem;
+  }
+  
+  .table .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+    min-height: auto;
+  }
+  
+  .alert {
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    margin: 0 -0.5rem 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container.mt-4 {
+    padding: 0 0.25rem;
+  }
+  
+  h3 {
+    font-size: 1.2rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.8rem;
+    padding: 0 0.25rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.4rem 0.2rem;
+  }
+  
+  .table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(7)),
+  .table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)):not(:nth-child(7)) {
+    display: none;
+  }
+  
+  .table .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.3rem;
+  }
+}
+
+/* Landscape orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .container.mt-4 {
+    margin-top: 0.5rem !important;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .table-hover tbody tr:hover td {
+    background-color: transparent;
+  }
+  
+  .btn,
+  .form-control {
+    min-height: 44px;
+  }
+}
+</style>
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col-6">

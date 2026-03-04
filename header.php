@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$displayName = $_SESSION['fullname'] ?? $_SESSION['username'] ?? 'ผู้ใช้งานระบบ';
+$displayName = $_SESSION['user_fullname'] ?? $_SESSION['user_username'] ?? $_SESSION['fullname'] ?? $_SESSION['username'] ?? 'ผู้ใช้งานระบบ';
 $cycleLabel = $_SESSION['current_cycle_label'] ?? 'รอบรับซื้อปัจจุบัน';
 $displayNameSafe = htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8');
 $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
@@ -46,7 +46,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             }
 
             :root {
-                font-size: 19px; /* was ~16px, enlarge all rem-based text */
+                font-size: 18px; /* slightly larger baseline for THSarabun readability */
                 --brand-dark: #5a6c7d;
                 --brand-primary: #6b8fa3;
                 --brand-secondary: #8fa3b1;
@@ -54,17 +54,37 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 --brand-soft: #f0f4f7;
             }
 
+            html {
+                font-size: 18px;
+            }
+
             /* Make any intentionally-small helper text readable */
             .small,
             .form-text {
-                font-size: 15px !important;
+                font-size: 1rem !important;
             }
 
             body {
                 min-height: 100vh;
                 background: #f5f7f9;
                 font-family: 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+                font-size: 1rem;
+                line-height: 1.5;
                 color: #475467;
+            }
+
+            /* Typography baseline for all main pages */
+            .content-card,
+            .card,
+            .table,
+            .form-control,
+            .form-select,
+            .form-label,
+            .nav-link,
+            .dropdown-item,
+            .alert,
+            .badge {
+                font-size: 1rem;
             }
 
             body::before {
@@ -98,7 +118,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
 
             .topbar {
                 background: #c3e6cb;
-                font-size: 1.1rem;
+                font-size: 1rem;
                 border-bottom: 1px solid #b8dabc;
             }
 
@@ -110,7 +130,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 border-radius: 999px;
                 background: rgba(255, 255, 255, 0.3);
                 color: #155724;
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .topbar-link {
@@ -118,7 +138,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 text-decoration: none;
                 font-weight: 500;
                 transition: color 0.2s ease;
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .topbar-link:hover {
@@ -126,11 +146,11 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             }
 
             .topbar-actions {
-                font-size: 1.2rem;
+                font-size: 1rem;
             }
 
             .topbar-info {
-                font-size: 1.15rem;
+                font-size: 1rem;
             }
 
             .text-accent {
@@ -154,13 +174,13 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             }
 
             .page-hero h1 {
-                font-size: 2.75rem; /* bigger title */
+                font-size: 2rem; /* normal title size */
                 font-weight: 700;
                 letter-spacing: .04em;
             }
 
             .page-hero h5 {
-                font-size: 1.55rem;
+                font-size: 1.25rem;
                 font-weight: 400;
                 opacity: .95;
             }
@@ -216,7 +236,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             }
 
             .section-title {
-                font-size: 1.35rem;
+                font-size: 1.1rem;
                 font-weight: 600;
                 color: #495057;
                 display: flex;
@@ -231,25 +251,25 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 color: #28a745;
             }
 
-            /* Bigger font inside tables */
+            /* Normal font inside tables */
             table,
             .dataTable,
             table.dataTable tbody td,
             table.dataTable thead th,
             table.table td,
             table.table th {
-                font-size: 1.3rem; /* increase cell & header size */
+                font-size: 1rem; /* normal cell & header size */
             }
 
             .btn-sm {
-                font-size: 1.1rem;
-                padding: .25rem .7rem;
+                font-size: 1rem;
+                padding: .25rem .5rem;
             }
 
             .btn {
-                font-size: 1.1rem;
-                padding: 0.55rem 1.1rem;
-                border-radius: 0.5rem;
+                font-size: 1rem;
+                padding: 0.375rem 0.75rem;
+                border-radius: 0.375rem;
                 font-weight: 500;
                 transition: all 0.2s ease;
             }
@@ -338,13 +358,13 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             }
 
             .brand-title {
-                font-size: 1.35rem;
+                font-size: 1.1rem;
                 text-transform: uppercase;
                 letter-spacing: 0.06em;
             }
 
             .brand-subtitle {
-                font-size: 1.05rem;
+                font-size: 1rem;
             }
 
             .navbar-nav .nav-link {
@@ -353,7 +373,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 padding: 0.5rem 0.75rem;
                 border-radius: 0.5rem;
                 transition: background-color 0.2s ease, color 0.2s ease;
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .navbar-nav .nav-link:hover,
@@ -385,21 +405,259 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 color: #6b7280;
             }
 
+            /* Enhanced Responsive Design */
+            @media (max-width: 992px) {
+                .app-shell {
+                    max-width: 100%;
+                    padding: 0 1rem;
+                }
+                
+                .topbar {
+                    padding: 0.75rem 0;
+                }
+                
+                .status-pill {
+                    font-size: 0.9rem;
+                    padding: 0.25rem 0.65rem;
+                }
+                
+                .topbar-link {
+                    font-size: 0.9rem;
+                }
+            }
+
             @media (max-width: 768px) {
                 main {
                     padding-top: 1rem;
                 }
+                
                 .page-hero {
                     padding: 1.1rem 1.25rem;
                 }
+                
                 .page-hero h1 {
-                    font-size: 2rem;
+                    font-size: 1.5rem;
                 }
+                
                 .page-hero h5 {
-                    font-size: 1.2rem;
+                    font-size: 1rem;
                 }
+                
                 .content-card {
                     padding: 1.1rem 1.2rem;
+                }
+                
+                .topbar {
+                    padding: 0.5rem 0;
+                }
+                
+                .topbar .app-shell {
+                    flex-direction: column;
+                    align-items: stretch !important;
+                    gap: 0.75rem;
+                }
+                
+                .topbar-info {
+                    order: 1;
+                    justify-content: center;
+                }
+                
+                .topbar-actions {
+                    order: 2;
+                    justify-content: center;
+                    flex-wrap: wrap !important;
+                    gap: 0.5rem !important;
+                }
+                
+                .topbar-link {
+                    font-size: 0.85rem;
+                    padding: 0.25rem 0.5rem;
+                }
+                
+                .status-pill {
+                    font-size: 0.85rem;
+                    padding: 0.2rem 0.5rem;
+                    justify-content: center;
+                }
+                
+                /* Mobile navigation improvements */
+                .navbar-nav {
+                    text-align: center;
+                }
+                
+                .navbar-nav .nav-link {
+                    padding: 0.75rem 1rem;
+                    border-radius: 0.5rem;
+                    margin: 0.25rem 0;
+                }
+                
+                .nav-cta {
+                    margin-top: 0.5rem;
+                    width: 100%;
+                    text-align: center;
+                }
+                
+                /* Responsive tables */
+                .table-responsive {
+                    font-size: 0.9rem;
+                }
+                
+                .table th,
+                .table td {
+                    padding: 0.5rem;
+                    vertical-align: middle;
+                }
+                
+                /* Responsive forms */
+                .form-control,
+                .form-select {
+                    font-size: 1rem;
+                    padding: 0.5rem;
+                }
+                
+                .form-label {
+                    font-size: 1rem;
+                    margin-bottom: 0.25rem;
+                }
+                
+                /* Responsive buttons */
+                .btn {
+                    font-size: 1rem;
+                    padding: 0.5rem 0.75rem;
+                    min-height: 44px; /* Touch-friendly */
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .btn-sm {
+                    font-size: 0.85rem;
+                    padding: 0.375rem 0.5rem;
+                    min-height: 38px;
+                }
+                
+                /* Responsive cards */
+                .card {
+                    margin-bottom: 1rem;
+                }
+                
+                .stat-value {
+                    font-size: 1.4rem;
+                }
+                
+                .stat-label {
+                    font-size: 1rem;
+                }
+            }
+
+            @media (max-width: 576px) {
+                :root {
+                    font-size: 16px; /* Smaller base font for very small screens */
+                }
+                
+                body {
+                    font-size: 1rem;
+                }
+                
+                .app-shell {
+                    padding: 0 0.5rem;
+                }
+                
+                .page-hero {
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                }
+                
+                .page-hero h1 {
+                    font-size: 1.25rem;
+                }
+                
+                .content-card {
+                    padding: 1rem;
+                }
+                
+                .topbar-info .d-none.d-md-inline {
+                    display: none !important;
+                }
+                
+                .topbar-actions {
+                    gap: 0.25rem !important;
+                }
+                
+                .topbar-link {
+                    font-size: 0.8rem;
+                    padding: 0.2rem 0.4rem;
+                }
+                
+                .status-pill {
+                    font-size: 0.8rem;
+                    padding: 0.15rem 0.4rem;
+                }
+                
+                /* Extra small screen adjustments */
+                .table-responsive {
+                    font-size: 0.85rem;
+                }
+                
+                .table th,
+                .table td {
+                    padding: 0.4rem 0.3rem;
+                }
+                
+                .btn {
+                    font-size: 0.9rem;
+                    padding: 0.4rem 0.6rem;
+                }
+                
+                .btn-sm {
+                    font-size: 0.8rem;
+                    padding: 0.3rem 0.4rem;
+                }
+                
+                .stat-value {
+                    font-size: 1.2rem;
+                }
+                
+                .stat-label {
+                    font-size: 0.9rem;
+                }
+                
+                /* Hide some less critical elements on very small screens */
+                .section-title i {
+                    display: none;
+                }
+            }
+
+            /* Landscape orientation adjustments */
+            @media (max-width: 768px) and (orientation: landscape) {
+                .page-hero {
+                    padding: 0.75rem 1rem;
+                }
+                
+                .content-card {
+                    padding: 1rem;
+                }
+                
+                .topbar {
+                    padding: 0.4rem 0;
+                }
+            }
+
+            /* Touch-friendly improvements */
+            @media (hover: none) and (pointer: coarse) {
+                .btn,
+                .nav-link,
+                .topbar-link {
+                    min-height: 44px;
+                }
+                
+                .form-control,
+                .form-select {
+                    min-height: 44px;
+                }
+                
+                .table-hover tbody tr:hover td {
+                    background-color: transparent;
                 }
             }
         </style>
@@ -420,15 +678,14 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                             <i class="bi bi-person-circle text-accent"></i>
                             <span><?php echo $displayNameSafe; ?></span>
                         </span>
-                       
-                        <a href="members.php" class="topbar-link"><i class="bi bi-people me-1"></i>สมาชิก</a>
-                        <a href="rubbers.php" class="topbar-link"><i class="bi bi-droplet me-1"></i>ยางพารา</a>
+                       <!-- เพิ่มหน้าหลัก -->
+                        <a href="index.php" class="topbar-link"><i class="bi bi-house me-1"></i>หน้าหลัก</a>
+                        <a href="rubbers.php" class="topbar-link"><i class="bi bi-droplet me-1"></i>รวบรวมยาง</a>
                         <a href="prices.php" class="topbar-link"><i class="bi bi-cash-coin me-1"></i>ราคาอ้างอิง</a>
-                        <a href="report_rubber.php" class="topbar-link"><i class="bi bi-file-text me-1"></i>รายงาน</a>
 
                       
                         
-                        <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
+                        <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
                         <a href="dashboard.php" class="topbar-link"><i class="bi bi-speedometer2 me-1"></i>แดชบอร์ด</a>
                         <a href="logout.php" class="topbar-link text-warning fw-semibold"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ</a>
                         <?php else: ?>

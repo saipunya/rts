@@ -4,6 +4,183 @@ require_login();
 include 'header.php';
 $cu = current_user();
 ?>
+<style>
+/* Enhanced Responsive Design */
+@media (max-width: 992px) {
+    .container.my-4 {
+        padding: 0 1rem;
+    }
+    
+    .h4 {
+        font-size: 1.3rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container.my-4 {
+        padding: 0 0.5rem;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .d-flex.justify-content-between.align-items-center.mb-3 {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+        text-align: center;
+    }
+    
+    .h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .small.text-muted {
+        font-size: 0.9rem;
+    }
+    
+    .d-flex {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        width: 100%;
+        min-height: 44px;
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
+    .row.g-3 {
+        gap: 1rem;
+    }
+    
+    .col-12.col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .card-text {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .small.text-muted {
+        font-size: 0.85rem;
+    }
+    
+    .d-flex.flex-wrap.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .btn {
+        min-height: 44px;
+        font-size: 1rem;
+    }
+    
+    .form-select {
+        min-height: 44px;
+        font-size: 1rem;
+    }
+    
+    .form-label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-footer {
+        padding: 1rem;
+        background: transparent;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .card-footer .d-flex {
+        justify-content: center;
+    }
+    
+    .border-danger,
+    .border-warning {
+        border-width: 2px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .container.my-4 {
+        padding: 0 0.25rem;
+    }
+    
+    .h4 {
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .card-text {
+        font-size: 0.9rem;
+    }
+    
+    .btn-sm {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .form-select {
+        font-size: 1rem;
+    }
+    
+    .card-footer {
+        padding: 0.75rem;
+    }
+}
+
+/* Landscape orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+    .container.my-4 {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn,
+    .form-select {
+        min-height: 44px;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+}
+</style>
 <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
