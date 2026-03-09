@@ -97,6 +97,12 @@ include 'header.php';
 .login-btns .btn {
   min-width: 120px;
 }
+.form-control {
+  font-size: 1.2rem;
+}
+.form-label {
+  font-size: 1.2rem;
+}
 
 /* Enhanced Responsive Design */
 @media (max-width: 992px) {
@@ -135,13 +141,13 @@ include 'header.php';
   }
   
   .form-label {
-    font-size: 1rem;
+    font-size: 1.2rem;
     margin-bottom: 0.5rem;
     font-weight: 600;
   }
   
   .form-control {
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 0.75rem 1rem;
     min-height: 48px;
     border-radius: 8px;
@@ -149,14 +155,14 @@ include 'header.php';
   
   .btn {
     min-height: 48px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 0.75rem 2rem;
     border-radius: 8px;
     font-weight: 600;
   }
   
   .alert {
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
     border-radius: 8px;
@@ -183,23 +189,23 @@ include 'header.php';
   }
   
   .form-label {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
   
   .form-control {
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 0.6rem 0.8rem;
     min-height: 44px;
   }
   
   .btn {
     min-height: 44px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 0.6rem 1.5rem;
   }
   
   .alert {
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     padding: 0.6rem 0.8rem;
   }
   

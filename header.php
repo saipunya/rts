@@ -45,6 +45,50 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 box-sizing: border-box;
             }
 
+            @media (max-width: 992px) {
+                .topbar .app-shell {
+                    align-items: center;
+                }
+
+                .topbar-actions.collapse {
+                    width: 100%;
+                }
+
+                .topbar-actions.collapse .topbar-link {
+                    display: block;
+                    width: 100%;
+                    text-align: left;
+                    padding: 0.65rem 0.75rem;
+                }
+
+                .topbar-actions.collapse.show {
+                    margin-top: 0.75rem;
+                    padding-top: 0.75rem;
+                    border-top: 1px solid #b8dabc;
+                }
+
+                .topbar-actions.collapse.show > * {
+                    margin-bottom: 0.35rem;
+                }
+
+                .topbar-actions.collapse.show > *:last-child {
+                    margin-bottom: 0;
+                }
+
+                .topbar-actions .d-flex.align-items-center.gap-2 {
+                    width: 100%;
+                    justify-content: flex-start;
+                    padding: 0.65rem 0.75rem;
+                    background: rgba(255, 255, 255, 0.4);
+                    border-radius: 0.5rem;
+                }
+
+                .topbar-actions .topbar-link.text-warning,
+                .topbar-actions .topbar-link.text-primary {
+                    font-weight: 600;
+                }
+            }
+
             :root {
                 font-size: 18px; /* slightly larger baseline for THSarabun readability */
                 --brand-dark: #5a6c7d;
@@ -138,7 +182,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 text-decoration: none;
                 font-weight: 500;
                 transition: color 0.2s ease;
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
 
             .topbar-link:hover {
@@ -151,6 +195,68 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
 
             .topbar-info {
                 font-size: 1rem;
+            }
+
+            .topbar-toggle {
+                background: rgba(255, 255, 255, 0.25);
+                border: 1px solid #b8dabc;
+                border-radius: 0.75rem;
+                width: 48px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                transition: background 0.2s ease, border-color 0.2s ease;
+            }
+
+            .topbar-toggle:hover,
+            .topbar-toggle:focus {
+                background: rgba(255, 255, 255, 0.4);
+                border-color: #9fc9a6;
+                outline: none;
+            }
+
+            .topbar-toggle .toggle-bars {
+                width: 22px;
+                height: 18px;
+                position: relative;
+            }
+
+            .topbar-toggle .bar {
+                position: absolute;
+                left: 0;
+                right: 0;
+                height: 2.5px;
+                border-radius: 999px;
+                background: #0d5322;
+                transition: transform 0.25s ease, top 0.25s ease, opacity 0.2s ease;
+            }
+
+            .topbar-toggle .bar:nth-child(1) {
+                top: 0;
+            }
+
+            .topbar-toggle .bar:nth-child(2) {
+                top: 7.5px;
+            }
+
+            .topbar-toggle .bar:nth-child(3) {
+                top: 15px;
+            }
+
+            .topbar-toggle[aria-expanded="true"] .bar:nth-child(1) {
+                top: 7.5px;
+                transform: rotate(45deg);
+            }
+
+            .topbar-toggle[aria-expanded="true"] .bar:nth-child(2) {
+                opacity: 0;
+            }
+
+            .topbar-toggle[aria-expanded="true"] .bar:nth-child(3) {
+                top: 7.5px;
+                transform: rotate(-45deg);
             }
 
             .text-accent {
@@ -367,18 +473,22 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 font-size: 1rem;
             }
 
-            .navbar-nav .nav-link {
+            .navbar-nav .nav-link,
+            .topbar-actions .topbar-link {
                 color: #155724;
                 font-weight: 500;
                 padding: 0.5rem 0.75rem;
                 border-radius: 0.5rem;
                 transition: background-color 0.2s ease, color 0.2s ease;
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
 
             .navbar-nav .nav-link:hover,
             .navbar-nav .nav-link:focus,
-            .navbar-nav .nav-link.active {
+            .navbar-nav .nav-link.active,
+            .topbar-actions .topbar-link:hover,
+            .topbar-actions .topbar-link:focus,
+            .topbar-actions .topbar-link.active {
                 color: #0d5322;
                 background: rgba(255, 255, 255, 0.3);
             }
@@ -470,12 +580,12 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 }
                 
                 .topbar-link {
-                    font-size: 0.85rem;
+                    font-size: 1.1rem;
                     padding: 0.25rem 0.5rem;
                 }
                 
                 .status-pill {
-                    font-size: 0.85rem;
+                    font-size: 1rem;
                     padding: 0.2rem 0.5rem;
                     justify-content: center;
                 }
@@ -531,7 +641,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 }
                 
                 .btn-sm {
-                    font-size: 0.85rem;
+                    font-size: 1rem;
                     padding: 0.375rem 0.5rem;
                     min-height: 38px;
                 }
@@ -585,7 +695,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 }
                 
                 .topbar-link {
-                    font-size: 0.8rem;
+                    font-size: 1rem;
                     padding: 0.2rem 0.4rem;
                 }
                 
@@ -666,18 +776,33 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
         <header class="app-header">
             <div class="topbar">
                 <div class="app-shell d-flex flex-wrap gap-2 justify-content-between align-items-center py-2">
-                    <div class="d-flex flex-wrap align-items-center gap-2 text-white-75 small">
+                    <div class="topbar-info d-flex flex-wrap align-items-center gap-2 text-white-75 small">
                         <span class="status-pill">
                             <i class="bi bi-droplet-half"></i>
                             <span>สถานะรอบรับซื้อ: <strong><?php echo htmlspecialchars($cycleLabel, ENT_QUOTES, 'UTF-8'); ?></strong></span>
                         </span>
                         <span class="d-none d-md-inline fs-6">อัปเดตล่าสุด: <?php echo date('d M Y'); ?></span>
                     </div>
-                    <div class="topbar-actions d-flex flex-wrap align-items-center gap-3">
-                        <span class="d-flex align-items-center gap-2">
+                    <button
+                        class="topbar-toggle d-lg-none"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#topbarNav"
+                        aria-controls="topbarNav"
+                        aria-expanded="false"
+                        aria-label="สลับเมนูนำทาง"
+                    >
+                        <span class="toggle-bars" aria-hidden="true">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                        </span>
+                    </button>
+                    <div class="topbar-actions collapse d-lg-flex flex-wrap align-items-center gap-3" id="topbarNav">
+                        <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-person-circle text-accent"></i>
                             <span><?php echo $displayNameSafe; ?></span>
-                        </span>
+                        </div>
                        <!-- เพิ่มหน้าหลัก -->
                         <a href="index.php" class="topbar-link"><i class="bi bi-house me-1"></i>หน้าหลัก</a>
                         <a href="rubbers.php" class="topbar-link"><i class="bi bi-droplet me-1"></i>รวบรวมยาง</a>

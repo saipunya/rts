@@ -187,12 +187,6 @@ $cu = current_user();
             <h1 class="h4 mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h1>
             <div class="small text-muted">สวัสดี <?php echo htmlspecialchars($cu['user_fullname'] ?? $cu['user_username']); ?> (<?php echo htmlspecialchars($cu['user_level']); ?>)</div>
         </div>
-        <div>
-            <a href="index.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-house me-1"></i>หน้าแรก</a>
-            <!-- add link บันทึกการรวบรวม -->
-            <a href="rubbers.php" class="btn btn-outline-secondary btn-sm ms-2"><i class="bi bi-journal-plus me-1"></i>บันทึกการรวบรวม</a>
-            <a href="logout.php" class="btn btn-outline-danger btn-sm ms-2"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
-        </div>
     </div>
 
     <div class="row g-3">
@@ -295,6 +289,7 @@ $cu = current_user();
                     <div class="row gy-2">
                         <div class="col-auto"><a href="members.php" class="btn btn-success btn-sm"><i class="bi bi-list-ul me-1"></i>รายการสมาชิก</a></div>
                         <div class="col-auto"><a href="member_form.php?action=create" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มสมาชิก</a></div>
+                        <div class="col-auto"><a href="add_birth_date.php" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มวันเดือนปีเกิด</a></div>
                     </div>
                 </div>
             </div>

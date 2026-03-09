@@ -1,262 +1,346 @@
 </div>
 </main>
-<footer>
+<footer class="site-footer">
+    <div class="footer-highlight"></div>
     <div class="container">
-        <div class="row g-4">
-            <div class="col-12 col-lg-4">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="footer-logo">
-                        <i class="bi bi-tree-fill"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-2 footer-heading">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h6>
-                        <p class="mb-2  footer-text">ระบบจัดการการรวบรวมยางพาราและการชำระเงินสำหรับสมาชิก</p>
-                    </div>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <i class="bi bi-tree-fill"></i>
+                </div>
+                <div class="footer-brand-text">
+                    <h5 class="footer-title">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h5>
+                    <p class="footer-text">ขับเคลื่อนการรวบรวมยางพาราและการดูแลสมาชิกด้วยระบบดิจิทัลที่ทันสมัย เชื่อมโยงข้อมูลการซื้อขาย การชำระเงิน และการบริการครบวงจร</p>
+                </div>
+                <div class="footer-meta">
+                    <span><i class="bi bi-grid-1x2-fill"></i> ระบบบริหารจัดการครบวงจร</span>
+                    <span><i class="bi bi-shield-check"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
                 </div>
             </div>
-            <div class="col-6 col-lg-4">
-                <h6 class=" mb-3 footer-heading">เมนูสำคัญ</h6>
-                <ul class="list-unstyled footer-links">
-                    <li><a href="dashboard.php">แดชบอร์ด</a></li>
-                    <li><a href="members.php">สมาชิกและผู้ส่งมอบ</a></li>
-                    <li><a href="rubbers.php">บันทึกรายการยาง</a></li>
-                    <li><a href="prices.php">ราคาอ้างอิง</a></li>
-                    <li><a href="report_rubber.php">รายงานสรุป</a></li>
+            <div class="footer-column">
+                <h6 class="footer-heading">เมนูสำคัญ</h6>
+                <ul class="footer-links list-unstyled">
+                    <li><a href="dashboard.php"><i class="bi bi-speedometer2"></i> แดชบอร์ด</a></li>
+                    <li><a href="members.php"><i class="bi bi-people"></i> สมาชิกและผู้ส่งมอบ</a></li>
+                    <li><a href="rubbers.php"><i class="bi bi-droplet"></i> บันทึกรายการยาง</a></li>
+                    <li><a href="prices.php"><i class="bi bi-cash-coin"></i> ราคาอ้างอิง</a></li>
+                    <li><a href="report_rubber.php"><i class="bi bi-graph-up"></i> รายงานสรุป</a></li>
                 </ul>
             </div>
-            <div class="col-6 col-lg-4">
-                <h6 class=" mb-3 footer-heading">ติดต่อสหกรณ์</h6>
-                <ul class="list-unstyled  footer-contact">
-                    <li><i class="bi bi-geo-alt-fill text-accent"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ</li>
-                    <li><i class="bi bi-telephone-outbound text-accent"></i> 044-123-456 ต่อ 101</li>
-                    <li><i class="bi bi-envelope-open text-accent"></i> coop@tungluilai.or.th</li>
-                    <li><i class="bi bi-clock-history text-accent"></i> เวลาทำการ: 08:30-16:30 น.</li>
+            <div class="footer-column">
+                <h6 class="footer-heading">ติดต่อสหกรณ์</h6>
+                <ul class="footer-contact list-unstyled">
+                    <li><i class="bi bi-geo-alt-fill"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180</li>
+                    <li><i class="bi bi-telephone-outbound"></i> 044-123-456 ต่อ 101</li>
+                    <li><i class="bi bi-envelope-open"></i> coop@tungluilai.or.th</li>
+                    <li><i class="bi bi-clock-history"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
                 </ul>
+                <div class="footer-cta">
+                    <a class="footer-button" href="mailto:coop@tungluilai.or.th"><i class="bi bi-envelope-paper"></i> ส่งอีเมลถึงสหกรณ์</a>
+                </div>
             </div>
         </div>
-        <div class="footer-bottom d-flex flex-column flex-md-row gap-2 justify-content-between align-items-start align-items-md-center mt-4">
-            <div class="text-white-60 footer-bottom-text">&copy; <?php echo date('Y'); ?> สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด - ระบบการซื้อขายยางพารา</div>
-            <div class="text-white-60 footer-bottom-text">อัปเดตล่าสุด: <?php echo date('d/m/Y'); ?> | พัฒนาด้วยเทคโนโลยีเว็บสมัยใหม่</div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+            <div class="footer-bottom-text">&copy; <?php echo date('Y'); ?> สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด - ระบบการซื้อขายยางพารา</div>
+            <div class="footer-bottom-text">อัปเดตล่าสุด: <?php echo date('d/m/Y'); ?> | พัฒนาด้วยเทคโนโลยีเว็บสมัยใหม่</div>
         </div>
     </div>
 </footer>
 
 <style>
-footer {
-    background: #d4edda;
+.site-footer {
+    background: linear-gradient(180deg, #d4edda 0%, #f6fdf6 100%);
     border-top: 1px solid #c3e6cb;
-    padding: 2.5rem 0;
-    color: #155724;
+    padding: 3rem 0 2.5rem;
     margin-top: 3rem;
     position: relative;
+    overflow: hidden;
+    color: #155724;
+}
 
-    footer::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: #c3e6cb;
+.site-footer .footer-highlight {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top right, rgba(40, 167, 69, 0.15), transparent 55%),
+        radial-gradient(circle at bottom left, rgba(17, 122, 101, 0.12), transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.site-footer .container {
+    position: relative;
+    z-index: 1;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem;
+    align-items: flex-start;
+}
+
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.footer-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: rgba(40, 167, 69, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #28a745;
+    font-size: 2.25rem;
+    box-shadow: 0 12px 32px rgba(21, 87, 36, 0.18);
+}
+
+.footer-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0d5322;
+}
+
+.footer-text {
+    font-size: 1.2rem;
+    margin: 0;
+    line-height: 1.7;
+    color: #19692c;
+}
+
+.footer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.footer-meta span {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(195, 230, 203, 0.8);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 1.1rem;
+    color: #155724;
+    backdrop-filter: blur(4px);
+}
+
+.footer-meta i {
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-heading {
+    font-size: 1.3rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0d5322;
+    margin: 0;
+}
+
+.footer-links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.55rem;
+}
+
+.footer-links a {
+    font-size: 1.2rem;
+    color: #155724;
+    text-decoration: none;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus {
+    color: #0b5c1f;
+    transform: translateX(4px);
+}
+
+.footer-links i {
+    font-size: 1.15rem;
+    color: #28a745;
+}
+
+.footer-contact {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.footer-contact li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 1.2rem;
+    line-height: 1.7;
+}
+
+.footer-contact i {
+    font-size: 1.35rem;
+    color: #28a745;
+    margin-top: 0.2rem;
+}
+
+.footer-cta {
+    margin-top: 0.75rem;
+}
+
+.footer-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    padding: 0.65rem 1.4rem;
+    background: #28a745;
+    color: #ffffff;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 8px 18px rgba(21, 87, 36, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.footer-button:hover,
+.footer-button:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(21, 87, 36, 0.22);
+    color: #ffffff;
+}
+
+.footer-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(21, 87, 36, 0.25), transparent);
+    margin: 2.5rem 0 1.75rem;
+}
+
+.footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-bottom-text {
+    font-size: 1.2rem;
+    color: rgba(13, 83, 34, 0.9);
+    margin: 0;
+}
+
+@media (max-width: 1200px) {
+    .footer-top {
+        gap: 2rem;
     }
+}
 
-    .footer-logo i {
-        font-size: 2.4rem;
-        color: #28a745;
-        filter: none;
-    }
-
-    .footer-heading {
-        font-size: 1rem;
-        letter-spacing: 0.02em;
-        color: #155724;
-    }
-
-    .footer-text {
-        font-size: 1rem;
-    }
-
-    .footer-links li + li {
-        margin-top: 0.4rem;
-    }
-
-    .footer-links a {
-        color: #155724;
-        text-decoration: none;
-        transition: color 0.2s ease;
-        font-size: 1rem;
-    }
-
-    .footer-links a:hover {
-        color: #0d5322;
-    }
-
-    .footer-contact li {
-        display: flex;
-        gap: 0.6rem;
-        align-items: flex-start;
-        margin-bottom: 0.4rem;
-        font-size: 1rem;
+@media (max-width: 992px) {
+    .footer-top {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .footer-bottom {
-        border-top: 1px solid #c3e6cb;
-        padding-top: 1rem;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-footer {
+        padding: 2.5rem 0 2rem;
+    }
+
+    .footer-top {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-brand,
+    .footer-column {
+        text-align: center;
+        align-items: center;
+    }
+
+    .footer-meta {
+        justify-content: center;
+    }
+
+    .footer-links,
+    .footer-contact {
+        justify-items: center;
+    }
+
+    .footer-links a {
+        justify-content: center;
+    }
+
+    .footer-contact li {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .footer-contact i {
+        display: none;
+    }
+
+    .footer-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-title {
+        font-size: 1.45rem;
+    }
+
+    .footer-meta span {
+        font-size: 1.05rem;
+        width: 100%;
+        justify-content: center;
     }
 
     .footer-bottom-text {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
+}
 
-    /* Enhanced Responsive Design */
-    @media (max-width: 992px) {
-        .footer-section h5 {
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .footer-section p,
-        .footer-section li {
-            font-size: 1rem;
-        }
-        
-        .footer-section a {
-            font-size: 1rem;
-        }
+@media (hover: none) and (pointer: coarse) {
+    .footer-links a,
+    .footer-button {
+        min-height: 48px;
     }
-
-    @media (max-width: 768px) {
-        .container {
-            padding: 0 0.5rem;
-        }
-        
-        .row.g-4 {
-            gap: 2rem;
-        }
-        
-        .col-12.col-lg-4,
-        .col-6.col-lg-4 {
-            flex: 0 0 100%;
-            max-width: 100%;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .footer-section h5 {
-            font-size: 1.1rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .footer-section p {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .footer-section ul {
-            padding-left: 0;
-            list-style: none;
-        }
-        
-        .footer-section li {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .footer-section a {
-            font-size: 1rem;
-        }
-        
-        .footer-bottom {
-            padding-top: 0.75rem;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
-        .footer-bottom .d-flex {
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .footer-bottom .text-muted {
-            font-size: 0.9rem;
-        }
-        
-        .footer-bottom a {
-            font-size: 0.9rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .container {
-            padding: 0 0.25rem;
-        }
-        
-        .row.g-4 {
-            gap: 1.5rem;
-        }
-        
-        .col-12.col-lg-4,
-        .col-6.col-lg-4 {
-            margin-bottom: 1rem;
-        }
-        
-        .footer-section h5 {
-            font-size: 1rem;
-        }
-        
-        .footer-section p {
-            font-size: 1rem;
-        }
-        
-        .footer-section li {
-            font-size: 1rem;
-        }
-        
-        .footer-section a {
-            font-size: 1rem;
-        }
-        
-        .footer-bottom {
-            padding-top: 0.5rem;
-            margin-top: 0.75rem;
-        }
-        
-        .footer-bottom .text-muted {
-            font-size: 0.85rem;
-        }
-        
-        .footer-bottom a {
-            font-size: 0.85rem;
-        }
-    }
-
-    /* Landscape orientation */
-    @media (max-width: 768px) and (orientation: landscape) {
-        .row.g-4 {
-            gap: 1rem;
-        }
-        
-        .col-12.col-lg-4,
-        .col-6.col-lg-4 {
-            margin-bottom: 0.75rem;
-        }
-    }
-
-    /* Touch-friendly improvements */
-    @media (hover: none) and (pointer: coarse) {
-        .footer-section a {
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-        }
-        
-        .footer-bottom a {
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-        }
-    }
+}
 </style>
 
 <!-- jQuery (required by DataTables) -->
