@@ -17,7 +17,7 @@
                     <span><i class="bi bi-shield-check"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
                 </div>
             </div>
-            <div class="footer-column">
+            <div class="d-none d-md-block">
                 <h6 class="footer-heading">เมนูสำคัญ</h6>
                 <ul class="footer-links list-unstyled">
                     <li><a href="dashboard.php"><i class="bi bi-speedometer2"></i> แดชบอร์ด</a></li>
@@ -35,9 +35,7 @@
                     <li><i class="bi bi-envelope-open"></i> coop@tungluilai.or.th</li>
                     <li><i class="bi bi-clock-history"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
                 </ul>
-                <div class="footer-cta">
-                    <a class="footer-button" href="mailto:coop@tungluilai.or.th"><i class="bi bi-envelope-paper"></i> ส่งอีเมลถึงสหกรณ์</a>
-                </div>
+               
             </div>
         </div>
         <div class="footer-divider"></div>

@@ -63,7 +63,7 @@ $db = db();
 
 	.stat-label {
 		color: #6c757d;
-		font-size: 1.1rem;
+		font-size: 1.3rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -71,12 +71,12 @@ $db = db();
 	}
 
 	.stat-label i {
-		font-size: 1.1rem;
+		font-size: 1.3rem;
 		color: #4a90e2;
 	}
 
 	.stat-value {
-		font-size: 2.2rem;
+		font-size: 2.8rem;
 		font-weight: 700;
 		color: #495057;
 		line-height: 1.2;
@@ -116,6 +116,25 @@ $db = db();
 		flex-wrap: wrap;
 	}
 
+	/* Global table header styling */
+	.table th {
+		font-size: 1.3rem;
+		font-weight: 600;
+		color: #495057;
+		background-color: #f8f9fa;
+	}
+
+	/* Highlighted summary tables */
+	.lan-summary-table,
+	.daily-summary-table {
+		font-size: 1.3rem;
+	}
+
+	.lan-summary-table th,
+	.daily-summary-table th {
+		font-size: 1.45rem;
+	}
+
 	/* Enhanced Responsive Design */
 	@media (max-width: 992px) {
 		.index-toolbar {
@@ -134,11 +153,11 @@ $db = db();
 		}
 		
 		.stat-value {
-			font-size: 1.8rem;
+			font-size: 2.2rem;
 		}
 		
 		.stat-label {
-			font-size: 1rem;
+			font-size: 1.2rem;
 		}
 	}
 
@@ -171,11 +190,11 @@ $db = db();
 		}
 		
 		.stat-value {
-			font-size: 1.6rem;
+			font-size: 2.0rem;
 		}
 		
 		.stat-label {
-			font-size: 1rem;
+			font-size: 1.2rem;
 		}
 		
 		.stat-sub {
@@ -208,8 +227,14 @@ $db = db();
 		}
 		
 		.table-responsive {
-			font-size: 0.85rem;
+			font-size: 1.2rem;
 			padding: 0 0.5rem;
+		}
+		
+		.table th {
+			font-size: 1.2rem;
+			font-weight: 600;
+			color: #495057;
 		}
 		
 		.table th,
@@ -218,8 +243,10 @@ $db = db();
 		}
 		
 		.section-title {
-			font-size: 1rem;
+			font-size: 1.3rem;
 			padding: 0.5rem 0;
+			font-weight: 600;
+			color: #495057;
 		}
 		
 		.btn {
@@ -243,11 +270,11 @@ $db = db();
 		}
 		
 		.stat-value {
-			font-size: 1.4rem;
+			font-size: 1.8rem;
 		}
 		
 		.stat-label {
-			font-size: 0.9rem;
+			font-size: 1.1rem;
 		}
 		
 		.stat-sub {
@@ -267,7 +294,7 @@ $db = db();
 		}
 		
 		.table-responsive {
-			font-size: 0.8rem;
+			font-size: 1.2rem;
 			padding: 0 0.25rem;
 		}
 		
@@ -474,6 +501,19 @@ if ($stmt) {
 	$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
 	?>
 
+	<!-- เพิ่ม center hero -->
+	<div class="text-center mb-4">
+		<h3 class="fw-bold text-primary">ระบบจัดการยางพารา สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h3>
+		<p class="lead text-muted">ภาพรวมการรวบรวมยางพาราของสมาชิกรายคน</p>
+		<!-- เพิ่มปุ่ม ดูยอดรวมรายคน -->
+		<a href="allmember.php" class="btn btn-primary btn-lg">
+			<!-- เพิ่ม icon member -->
+			<i class="bi bi-person-fill"></i>
+			 สำหรับสมาชิก
+		</a>
+	</div>
+	<hr>
+
 	<div class="index-toolbar">
 		<h2 class="d-flex align-items-center gap-2">
 			<i class="bi bi-grid-1x2-fill text-primary"></i>
@@ -515,7 +555,7 @@ if ($stmt) {
 				ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
 			</div>
 			<div class="card-table">
-				<table class="table table-hover table-sm mb-0">
+				<table class="table table-hover table-sm mb-0 lan-summary-table">
 					<thead>
 						<tr class="text-center">
 							<th>ลาน</th>
@@ -577,7 +617,7 @@ if ($stmt) {
 			<div class="section-title"><i class="bi bi-clipboard-data"></i>สรุปรับซื้อรายวัน (รวมทุกลาน)</div>
 			<div class="card-table">
 				<div class="table-responsive">
-					<table class="table table-striped table-hover w-100 mb-0">
+					<table class="table table-striped table-hover w-100 mb-0 daily-summary-table">
 						<thead>
 							<tr class="text-center">
 								<th>วันที่</th>
