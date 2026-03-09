@@ -322,7 +322,7 @@ if ($member) {
                 <?php if (!$member): ?>
                     <div class="login-card">
                         <h2 class="text-center mb-3">เข้าสู่ระบบสมาชิก</h2>
-                        <p class="text-center text-muted mb-4">ใช้เลขสมาชิกและวันเดือนปีเกิด (DDMMYYYY)เพื่อดูสรุปการรวบรวมยางของคุณ</p>
+                        <p class="text-center text-muted mb-4">ใช้เลขสมาชิกและวันเดือนปีเกิด (ววดดปปปป)เพื่อดูสรุปการรวบรวมยางของคุณ</p>
                         <?php if ($errors): ?>
                             <div class="alert alert-warning" role="alert">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo e(implode(' | ', $errors)); ?>
