@@ -5,42 +5,17 @@ db(); // ensure connection & session
 
 const MEMBER_SESSION_KEY = 'member_portal';
 
-function normalize_birth_digits(?string $value): string {
+function normalize_person_code(?string $value): string {
     if ($value === null) {
         return '';
     }
     return preg_replace('/\D+/', '', (string)$value);
 }
 
-function ensure_ddmmyyyy(string $digits): string {
-    if (strlen($digits) !== 8) {
-        return $digits;
-    }
-
-    $dd = (int)substr($digits, 0, 2);
-    $mm = (int)substr($digits, 2, 2);
-    $yyyy = (int)substr($digits, 4, 4);
-    if ($dd >= 1 && $dd <= 31 && $mm >= 1 && $mm <= 12) {
-        return sprintf('%02d%02d%04d', $dd, $mm, $yyyy);
-    }
-
-    $yyyy = (int)substr($digits, 0, 4);
-    $mm = (int)substr($digits, 4, 2);
-    $dd = (int)substr($digits, 6, 2);
-    if ($dd >= 1 && $dd <= 31 && $mm >= 1 && $mm <= 12) {
-        return sprintf('%02d%02d%04d', $dd, $mm, $yyyy);
-    }
-
-    return $digits;
+function validate_person_code(string $code): bool {
+    return strlen($code) === 4 && ctype_digit($code);
 }
 
-function format_ddmmyyyy_display(string $digits): string {
-    $digits = ensure_ddmmyyyy($digits);
-    if (strlen($digits) === 8) {
-        return sprintf('%s/%s/%s', substr($digits, 0, 2), substr($digits, 2, 2), substr($digits, 4, 4));
-    }
-    return $digits;
-}
 
 $member = $_SESSION[MEMBER_SESSION_KEY] ?? null;
 $errors = [];
@@ -57,48 +32,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'membe
         $errors[] = 'ไม่สามารถยืนยันความถูกต้องของคำขอได้ กรุณาลองใหม่อีกครั้ง';
     } else {
         $memNumber = trim((string)($_POST['mem_number'] ?? ''));
-        $birthInputDigits = normalize_birth_digits($_POST['mem_birthtext'] ?? '');
-        if ($memNumber === '' || $birthInputDigits === '') {
-            $errors[] = 'กรุณากรอกเลขสมาชิกและวันเดือนปีเกิด';
-        } elseif (strlen($birthInputDigits) !== 8) {
-            $errors[] = 'วันเดือนปีเกิดต้องเป็นตัวเลข 8 หลัก รูปแบบ DDMMYYYY';
+        $personCode = normalize_person_code($_POST['mem_personcode'] ?? '');
+        if ($memNumber === '' || $personCode === '') {
+            $errors[] = 'กรุณากรอกเลขสมาชิกและรหัสบุคคล';
+        } elseif (!validate_person_code($personCode)) {
+            $errors[] = 'รหัสบุคคลต้องเป็นตัวเลข 4 หลัก';
         } else {
-            $day = (int)substr($birthInputDigits, 0, 2);
-            $month = (int)substr($birthInputDigits, 2, 2);
-            $year = (int)substr($birthInputDigits, 4, 4);
-            if (!checkdate($month, $day, $year)) {
-                $errors[] = 'วันเดือนปีเกิดไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง (DDMMYYYY)';
-            } else {
-                $db = db();
-                $stm = $db->prepare('SELECT mem_id, mem_fullname, mem_number, mem_birthtext, mem_group, mem_class FROM tbl_member WHERE mem_number = ? LIMIT 1');
-                if ($stm) {
-                    $stm->bind_param('s', $memNumber);
-                    $stm->execute();
-                    $res = $stm->get_result();
-                    $row = $res ? $res->fetch_assoc() : null;
-                    $stm->close();
+            $db = db();
+            $stm = $db->prepare('SELECT mem_id, mem_fullname, mem_number, mem_personcode, mem_group, mem_class FROM tbl_member WHERE mem_number = ? LIMIT 1');
+            if ($stm) {
+                $stm->bind_param('s', $memNumber);
+                $stm->execute();
+                $res = $stm->get_result();
+                $row = $res ? $res->fetch_assoc() : null;
+                $stm->close();
 
-                    if ($row) {
-                        $storedDigits = ensure_ddmmyyyy(normalize_birth_digits($row['mem_birthtext'] ?? ''));
-                        if ($storedDigits !== '' && $storedDigits === ensure_ddmmyyyy($birthInputDigits)) {
-                            $_SESSION[MEMBER_SESSION_KEY] = [
-                                'mem_id' => (int)$row['mem_id'],
-                                'mem_number' => $row['mem_number'],
-                                'mem_fullname' => $row['mem_fullname'],
-                                'mem_group' => $row['mem_group'],
-                                'mem_class' => $row['mem_class'],
-                                'mem_birthtext' => $storedDigits,
-                            ];
-                            header('Location: allmember.php');
-                            exit;
-                        }
-                        $errors[] = 'วันเดือนปีเกิดไม่ถูกต้อง';
-                    } else {
-                        $errors[] = 'ไม่พบข้อมูลเลขสมาชิกนี้';
+                if ($row) {
+                    $storedPersonCode = normalize_person_code($row['mem_personcode'] ?? '');
+                    if ($storedPersonCode !== '' && $storedPersonCode === $personCode) {
+                        $_SESSION[MEMBER_SESSION_KEY] = [
+                            'mem_id' => (int)$row['mem_id'],
+                            'mem_number' => $row['mem_number'],
+                            'mem_fullname' => $row['mem_fullname'],
+                            'mem_group' => $row['mem_group'],
+                            'mem_class' => $row['mem_class'],
+                            'mem_personcode' => $storedPersonCode,
+                        ];
+                        header('Location: allmember.php');
+                        exit;
                     }
+                    $errors[] = 'รหัสบุคคลไม่ถูกต้อง';
                 } else {
-                    $errors[] = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้: ' . db()->error;
+                    $errors[] = 'ไม่พบข้อมูลเลขสมาชิกนี้';
                 }
+            } else {
+                $errors[] = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้: ' . db()->error;
             }
         }
     }
@@ -247,289 +215,788 @@ if ($member) {
 <html lang="th">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Member Rubber Data Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#2e7d32">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="สมาชิกยาง">
+    <title>ระบบสมาชิก – ข้อมูลยาง</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --green-dark:  #1b5e20;
+            --green-main:  #2e7d32;
+            --green-mid:   #4caf50;
+            --green-light: #81c784;
+            --green-pale:  #e8f5e9;
+            --amber:       #f59e0b;
+            --amber-pale:  #fef3c7;
+            --red-pale:    #fef2f2;
+            --red-main:    #dc2626;
+            --surface:     #ffffff;
+            --bg:          #f0f4f0;
+            --text-main:   #1a2e1a;
+            --text-muted:  #6b7c6b;
+            --radius-lg:   1.25rem;
+            --radius-md:   0.875rem;
+            --radius-sm:   0.5rem;
+            --shadow-sm:   0 2px 8px rgba(0,0,0,.07);
+            --shadow-md:   0 4px 20px rgba(0,0,0,.10);
+            --shadow-lg:   0 10px 40px rgba(0,0,0,.14);
+        }
+
+        * { -webkit-tap-highlight-color: transparent; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            background: var(--bg);
+            min-height: 100dvh;
             font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
+            color: var(--text-main);
+            overscroll-behavior-y: contain;
         }
-        .portal-card {
-            background: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(15, 68, 45, 0.08);
-            border: 1px solid rgba(15, 68, 45, 0.08);
-        }
-        .portal-header {
-            background: linear-gradient(135deg, #81c784, #4caf50);
-            color: #ffffff;
-            border-radius: 1rem 1rem 0 0;
-            padding: 2rem;
-        }
-        .summary-card {
-            border-radius: 1rem;
-            background: #ffffff;
-            border: 1px solid rgba(76, 175, 80, 0.15);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.08);
-        }
-        .year-badge {
-            display: inline-flex;
+
+        /* ───── LOGIN PAGE ───── */
+        .login-wrap {
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.35rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(76, 175, 80, 0.12);
-            color: #2e7d32;
-            font-weight: 600;
+            background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-mid) 60%, #a5d6a7 100%);
+            padding: 1.5rem 1rem env(safe-area-inset-bottom, 1rem);
         }
-        .table thead {
-            background: rgba(76, 175, 80, 0.08);
-            color: #1b5e20;
+        .login-logo {
+            width: 72px; height: 72px;
+            background: rgba(255,255,255,.2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem;
+            margin-bottom: 1.2rem;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 20px rgba(0,0,0,.2);
         }
         .login-card {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 2rem;
-            border-radius: 1rem;
-            background: #ffffff;
-            box-shadow: 0 10px 25px rgba(15, 68, 45, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.15);
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255,255,255,.97);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem 1.75rem 1.75rem;
+            backdrop-filter: blur(12px);
         }
-        .deduction-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.35rem 0.85rem;
+        .login-card h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--green-dark);
+            margin-bottom: .25rem;
+        }
+        .login-card .subtitle {
+            font-size: .9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.75rem;
+        }
+        .field-wrap { position: relative; margin-bottom: 1.1rem; }
+        .field-wrap label {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--green-dark);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            display: block;
+            margin-bottom: .35rem;
+        }
+        .field-wrap .form-control {
+            border: 1.5px solid #d4e4d4;
+            border-radius: var(--radius-sm);
+            padding: .8rem 1rem;
+            font-size: 1.05rem;
+            font-family: inherit;
+            transition: border-color .2s, box-shadow .2s;
+            background: #fff;
+        }
+        .field-wrap .form-control:focus {
+            border-color: var(--green-mid);
+            box-shadow: 0 0 0 3px rgba(76,175,80,.18);
+            outline: none;
+        }
+        .pin-input {
+            letter-spacing: .5em;
+            font-size: 1.6rem !important;
+            text-align: center;
+            font-weight: 700 !important;
+            padding: .9rem 1rem !important;
+        }
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, var(--green-main), var(--green-mid));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: .9rem;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+            box-shadow: 0 4px 14px rgba(46,125,50,.35);
+            font-family: inherit;
+        }
+        .btn-login:active { transform: scale(.98); opacity: .9; }
+        .login-error {
+            background: var(--red-pale);
+            border: 1px solid #fecaca;
+            border-radius: var(--radius-sm);
+            color: var(--red-main);
+            padding: .75rem 1rem;
+            font-size: .9rem;
+            display: flex; align-items: flex-start; gap: .5rem;
+            margin-bottom: 1.1rem;
+        }
+        .login-home-link {
+            margin-top: 1.4rem;
+            text-align: center;
+            font-size: .9rem;
+        }
+        .login-home-link a {
+            color: rgba(255,255,255,.85);
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: .35rem;
+        }
+        .login-home-link a:hover { color: #fff; }
+
+        /* ───── APP SHELL (logged-in) ───── */
+        .app-wrap {
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top App Bar */
+        .app-bar {
+            position: sticky; top: 0; z-index: 100;
+            background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+            color: #fff;
+            padding: .85rem 1rem .85rem;
+            padding-top: calc(.85rem + env(safe-area-inset-top, 0px));
+            box-shadow: 0 2px 12px rgba(0,0,0,.18);
+        }
+        .app-bar-inner {
+            display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+            max-width: 800px; margin: 0 auto;
+        }
+        .app-bar-title { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+        .app-bar-sub { font-size: .75rem; opacity: .8; margin-top: .1rem; }
+        .btn-logout {
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.3);
+            color: #fff;
             border-radius: 999px;
-            background: rgba(255, 193, 7, 0.18);
-            color: #8a6d1d;
-            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: .35rem .85rem;
+            font-size: .8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: .3rem;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,.28); color: #fff; }
+
+        /* Main content */
+        .app-content {
+            flex: 1;
+            padding: 1rem 1rem env(safe-area-inset-bottom, 1rem);
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ─── Year filter chips ─── */
+        .year-filter-wrap {
+            display: flex;
+            gap: .5rem;
+            overflow-x: auto;
+            padding-bottom: .5rem;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            margin: .75rem 0;
+        }
+        .year-filter-wrap::-webkit-scrollbar { display: none; }
+        .year-chip {
+            flex-shrink: 0;
+            padding: .45rem 1rem;
+            border-radius: 999px;
+            border: 1.5px solid #c8e6c9;
+            background: #fff;
+            color: var(--green-main);
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .18s;
+            white-space: nowrap;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .year-chip:hover, .year-chip.active {
+            background: var(--green-main);
+            border-color: var(--green-main);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(46,125,50,.3);
+        }
+
+        /* ─── Stat cards (2-up grid on mobile) ─── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .stat-card.green::before { background: linear-gradient(90deg, var(--green-main), var(--green-light)); }
+        .stat-card.amber::before { background: linear-gradient(90deg, var(--amber), #fcd34d); }
+        .stat-card.blue::before  { background: linear-gradient(90deg, #1d4ed8, #60a5fa); }
+        .stat-card .stat-label { font-size: .78rem; color: var(--text-muted); font-weight: 500; margin-bottom: .3rem; }
+        .stat-card .stat-icon {
+            position: absolute; top: .8rem; right: .8rem;
+            font-size: 1.5rem; opacity: .12;
+        }
+        .stat-card .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .stat-card .stat-value.green { color: var(--green-main); }
+        .stat-card .stat-value.amber { color: #b45309; }
+        .stat-card .stat-value.blue  { color: #1d4ed8; }
+        .stat-card .stat-unit { font-size: .75rem; font-weight: 400; }
+
+        /* ─── Section header ─── */
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin: 1.25rem 0 .75rem;
+        }
+        .section-title {
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--green-dark);
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .section-badge {
+            background: var(--green-pale);
+            color: var(--green-main);
+            border-radius: 999px;
+            padding: .2rem .6rem;
+            font-size: .75rem;
             font-weight: 600;
         }
-        .collapse-card-button {
+
+        /* ─── Deduction summary card ─── */
+        .deduct-summary {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,.05);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .deduct-summary-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: .85rem 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .deduct-summary-header .label {
+            font-size: .9rem; font-weight: 600;
+            display: flex; align-items: center; gap: .4rem;
+            color: var(--green-dark);
+        }
+        .deduct-summary-header .chevron {
+            transition: transform .25s;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .deduct-summary-header[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+        .deduct-chips {
+            display: flex; flex-wrap: wrap; gap: .4rem;
+            padding: 0 1rem 1rem;
+        }
+        .deduct-chip {
+            display: inline-flex; align-items: center; gap: .25rem;
+            background: var(--amber-pale);
+            color: #92400e;
+            border: 1px solid #fde68a;
+            border-radius: 999px;
+            padding: .3rem .75rem;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+
+        /* ─── Year section ─── */
+        .year-section {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,.05);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .year-section-header {
+            padding: .9rem 1rem;
+            background: linear-gradient(90deg, var(--green-pale), #f1f8e9);
+            display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+            flex-wrap: wrap;
+        }
+        .year-pill {
+            background: var(--green-main);
+            color: #fff;
+            border-radius: 999px;
+            padding: .3rem .85rem;
+            font-size: .875rem;
+            font-weight: 700;
+            display: inline-flex; align-items: center; gap: .35rem;
+        }
+        .year-meta { font-size: .8rem; color: var(--text-muted); }
+        .btn-year-deduct {
+            background: rgba(46,125,50,.1);
+            border: 1px solid rgba(46,125,50,.25);
+            color: var(--green-main);
+            border-radius: var(--radius-sm);
+            padding: .3rem .75rem;
+            font-size: .78rem;
+            font-weight: 600;
+            cursor: pointer;
             white-space: nowrap;
+            font-family: inherit;
+            display: inline-flex; align-items: center; gap: .3rem;
+            transition: background .2s;
+        }
+        .btn-year-deduct:hover { background: rgba(46,125,50,.18); }
+
+        /* ─── Transaction rows (mobile-card style) ─── */
+        .txn-list { padding: .25rem 0; }
+        .txn-item {
+            border-bottom: 1px solid #f0f4f0;
+        }
+        .txn-item:last-child { border-bottom: none; }
+        .txn-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: .35rem;
+            align-items: center;
+            padding: .85rem 1rem;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .txn-row:active, .txn-row.expanded { background: #f9fdf9; }
+        .txn-date { font-size: .85rem; font-weight: 600; color: var(--text-main); }
+        .txn-qty  { font-size: .78rem; color: var(--text-muted); margin-top: .1rem; }
+        .txn-value-col { text-align: right; }
+        .txn-gross { font-size: .85rem; font-weight: 600; color: #1d4ed8; }
+        .txn-net   { font-size: .85rem; font-weight: 700; color: var(--green-main); }
+        .txn-expend-col { text-align: right; }
+        .txn-expend { font-size: .8rem; color: #b45309; font-weight: 600; }
+        .txn-chevron {
+            font-size: .9rem; color: var(--text-muted);
+            transition: transform .22s;
+        }
+        .txn-row.expanded .txn-chevron { transform: rotate(180deg); }
+        .txn-detail {
+            padding: .75rem 1rem 1rem;
+            background: #fafcfa;
+            border-top: 1px dashed #e0ede0;
+        }
+        .txn-detail-title { font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .5rem; }
+        .txn-detail-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+        .txn-detail-chip {
+            background: var(--amber-pale);
+            color: #92400e;
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-sm);
+            padding: .25rem .6rem;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        /* ─── Year totals footer ─── */
+        .year-totals {
+            background: linear-gradient(90deg, var(--green-pale), #f1f8e9);
+            padding: .8rem 1rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: .5rem;
+            border-top: 2px solid #c8e6c9;
+        }
+        .year-total-item { text-align: center; }
+        .year-total-label { font-size: .7rem; color: var(--text-muted); font-weight: 500; }
+        .year-total-value { font-size: .9rem; font-weight: 700; color: var(--green-dark); }
+        .year-total-value.amber { color: #b45309; }
+
+        /* ─── Empty state ─── */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 3rem; opacity: .35; display: block; margin-bottom: .75rem; }
+
+        /* ─── Install banner ─── */
+        #pwa-install-banner {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+            background: var(--surface);
+            border-top: 1px solid #e2e8e2;
+            box-shadow: 0 -4px 20px rgba(0,0,0,.12);
+            padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
+        }
+        #pwa-install-banner.show { display: flex; align-items: center; gap: 1rem; }
+        #pwa-install-banner .banner-text { flex: 1; font-size: .875rem; }
+        #pwa-install-banner .banner-text strong { display: block; color: var(--green-dark); }
+        .btn-install {
+            background: var(--green-main);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: .55rem 1.1rem;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .btn-dismiss {
+            background: none; border: none;
+            color: var(--text-muted); font-size: 1.2rem;
+            cursor: pointer; padding: .25rem;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .txn-row { grid-template-columns: 1.5fr 1fr 1fr auto; }
         }
     </style>
 </head>
 <body>
-    <div class="container py-4 py-md-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-11">
-                <?php if (!$member): ?>
-                    <div class="login-card">
-                        <h2 class="text-center mb-3">เข้าสู่ระบบสมาชิก</h2>
-                        <p class="text-center text-muted mb-4">ใช้เลขสมาชิกและวันเดือนปีเกิด (ววดดปปปป)เพื่อดูสรุปการรวบรวมยางของคุณ</p>
-                        <?php if ($errors): ?>
-                            <div class="alert alert-warning" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo e(implode(' | ', $errors)); ?>
-                            </div>
-                        <?php endif; ?>
-                        <form method="post" autocomplete="off">
-                            <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-                            <input type="hidden" name="action" value="member_login">
-                            <div class="mb-3">
-                                <label class="form-label">เลขสมาชิก (Username)</label>
-                                <input type="text" name="mem_number" class="form-control" required maxlength="255" placeholder="ใส่รหัสสมาชิก" autofocus>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">วันเดือนปีเกิด (Password) <span class="text-muted">รูปแบบ DDMMYYYY</span></label>
-                                <input type="text" name="mem_birthtext" class="form-control" required maxlength="8" minlength="8" pattern="\d{8}" inputmode="numeric" placeholder="เช่น 15021990">
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success">เข้าสู่ระบบ</button>
-                            </div>
-                        </form>
-                        <div class="text-end mt-3">
-                            <!-- add icon home -->
-                            <a href="index.php" class="text-decoration-none"><i class="bi bi-house-door"></i> กลับไปหน้าหลัก</a>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="portal-card mb-4">
-                        <div class="portal-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                            <div>
-                                <h1 class="h3 mb-1">สรุปการรวบรวมยางของสมาชิก</h1>
-                                <div class="fs-5">คุณ <?php echo e($member['mem_fullname']); ?> (เลขสมาชิก <?php echo e($member['mem_number']); ?>)</div>
-                                <div class="text-white-50">กลุ่ม: <?php echo e($member['mem_group']); ?> | ชั้น: <?php echo e($member['mem_class']); ?></div>
-                            </div>
-                            <div class="text-md-end">
-                                <div class="small">วันเดือนปีเกิดในระบบ: <?php echo e(format_ddmmyyyy_display($member['mem_birthtext'] ?? '')); ?></div>
-                                <a href="allmember.php?logout=1" class="btn btn-outline-light btn-sm mt-2">ออกจากระบบ</a>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <?php if ($availableYears): ?>
-                                <form class="row g-3 align-items-end" method="get">
-                                    <div class="col-md-4 col-lg-3">
-                                        <label class="form-label">เลือกปีที่ต้องการดู</label>
-                                        <select name="year" class="form-select" onchange="this.form.submit()">
-                                            <option value="">ทั้งหมด</option>
-                                            <?php foreach ($availableYears as $yearOption): ?>
-                                                <option value="<?php echo (int)$yearOption; ?>" <?php echo ($selectedYear === (int)$yearOption) ? 'selected' : ''; ?>><?php echo (int)$yearOption + 543; ?> (พ.ศ.)</option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button type="submit" class="btn btn-success">แสดงข้อมูล</button>
-                                        <?php if ($selectedYear !== null): ?>
-                                            <a href="allmember.php" class="btn btn-outline-secondary ms-2">ล้างตัวกรอง</a>
-                                        <?php endif; ?>
-                                    </div>
-                                </form>
-                            <?php else: ?>
-                                <div class="alert alert-info mb-0">ยังไม่มีข้อมูลการรวบรวมยางสำหรับเลขสมาชิกนี้</div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
 
-                    <?php if ($summaryRows): ?>
-                        <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-lg-4 mb-4">
-                            <div class="col">
-                                <div class="summary-card p-3 h-100">
-                                    <div class="text-muted">ปริมาณรวม</div>
-                                    <div class="display-6 fw-bold text-success"><?php echo number_format($overallTotals['quantity'], 2); ?> <small class="fs-5">กก.</small></div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="summary-card p-3 h-100">
-                                    <div class="text-muted">ยอดเงินรวม</div>
-                                    <div class="display-6 fw-bold text-success">฿<?php echo number_format($overallTotals['value'], 2); ?></div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="summary-card p-3 h-100">
-                                    <div class="text-muted">ยอดหักรวม</div>
-                                    <div class="display-6 fw-bold text-warning">฿<?php echo number_format($overallTotals['expend'], 2); ?></div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="summary-card p-3 h-100">
-                                    <div class="text-muted">รับสุทธิรวม</div>
-                                    <div class="display-6 fw-bold text-success">฿<?php echo number_format($overallTotals['netvalue'], 2); ?></div>
-                                </div>
-                            </div>
-                        </div>
+<?php if (!$member): ?>
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div class="login-wrap">
+    <div class="login-logo">🌿</div>
+    <div class="login-card">
+        <h1>เข้าสู่ระบบสมาชิก</h1>
+        <p class="subtitle">ใช้เลขสมาชิก&nbsp;และ&nbsp;รหัสบุคคล&nbsp;4&nbsp;หลัก เพื่อดูข้อมูลยางของคุณ</p>
 
-                        <div class="mb-4">
-                            <button class="btn btn-outline-secondary collapse-card-button" type="button" data-bs-toggle="collapse" data-bs-target="#overallDeduction" aria-expanded="false" aria-controls="overallDeduction">
-                                <i class="bi bi-list-ul me-1"></i>ดูรายละเอียดยอดหักรวมทั้งหมด
-                            </button>
-                            <div class="collapse mt-3" id="overallDeduction">
-                                <div class="card card-body">
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <?php foreach ($deductionLabels as $key => $label): ?>
-                                            <span class="deduction-badge"><?php echo e($label); ?>: <?php echo number_format($overallDeductionBreakdown[$key] ?? 0.0, 2); ?> ฿</span>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <?php if ($errors): ?>
+            <div class="login-error">
+                <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
+                <span><?php echo e(implode(' ', $errors)); ?></span>
+            </div>
+        <?php endif; ?>
 
-                        <?php foreach ($summaryRows as $year => $rows): ?>
-                            <?php $yearCollapseId = 'year-deduct-' . $year; ?>
-                            <div class="card mb-4">
-                                <div class="card-header bg-white border-0">
-                                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
-                                        <span class="year-badge"><i class="bi bi-calendar3"></i> ปี <?php echo $year + 543; ?> (พ.ศ.)</span>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span class="text-muted">จำนวนรอบทั้งหมด <?php echo count($rows); ?> รอบ</span>
-                                            <button class="btn btn-outline-secondary btn-sm collapse-card-button" type="button" data-bs-toggle="collapse" data-bs-target="#<?php echo e($yearCollapseId); ?>" aria-expanded="false" aria-controls="<?php echo e($yearCollapseId); ?>">
-                                                <i class="bi bi-list-ul me-1"></i>ดูยอดหักรวมต่อปี
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="collapse" id="<?php echo e($yearCollapseId); ?>">
-                                    <div class="px-4 pb-3">
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <?php foreach ($deductionLabels as $key => $label): ?>
-                                                <span class="deduction-badge"><?php echo e($label); ?>: <?php echo number_format($deductionTotalsByYear[$year][$key] ?? 0.0, 2); ?> ฿</span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">รอบวันที่</th>
-                                                    <!-- <th scope="col">ช่องทาง (ลาน)</th> -->
-                                                    <th scope="col" class="text-end">ปริมาณรวม (กก.)</th>
-                                                    <th scope="col" class="text-end">ยอดเงินรวม (บาท)</th>
-                                                    <th scope="col" class="text-end">ยอดหักรวม (บาท)</th>
-                                                    <th scope="col" class="text-end">รับสุทธิ (บาท)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($rows as $index => $row): ?>
-                                                    <?php $collapseId = 'deduct-' . $year . '-' . $index; ?>
-                                                    <tr>
-                                                        <td><?php echo e(thai_date_format($row['ru_date'])); ?></td>
-                                                        <!-- <td><?php // echo e($row['ru_lan']); ?></td> -->
-                                                        <td class="text-end"><?php echo number_format($row['total_quantity'], 2); ?></td>
-                                                        <td class="text-end"><?php echo number_format($row['total_value'], 2); ?></td>
-                                                        <td class="text-end">
-                                                            <div class="text-end">
-                                                                <?php echo number_format($row['total_expend'], 2); ?>
-                                                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#<?php echo e($collapseId); ?>" aria-expanded="false" aria-controls="<?php echo e($collapseId); ?>" title="ดูรายละเอียดการหัก">
-                                                                    <i class="bi bi-list-ul"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-end"><?php echo number_format($row['total_netvalue'], 2); ?></td>
-                                                    </tr>
-                                                    <tr class="collapse bg-light" id="<?php echo e($collapseId); ?>">
-                                                        <td colspan="6">
-                                                            <div class="p-3">
-                                                                <div class="fw-semibold mb-2">รายละเอียดยอดหัก</div>
-                                                                <?php
-                                                                    $deductions = [
-                                                                        'หุ้น' => $row['total_hoon'],
-                                                                        'เงินกู้' => $row['total_loan'],
-                                                                        'หนี้สั้น' => $row['total_shortdebt'],
-                                                                        'เงินฝาก' => $row['total_deposit'],
-                                                                        'กู้ซื้อขาย' => $row['total_tradeloan'],
-                                                                        'ประกันภัย' => $row['total_insurance'],
-                                                                    ];
-                                                                ?>
-                                                                <div class="d-flex flex-wrap gap-2">
-                                                                    <?php foreach ($deductions as $label => $amount): ?>
-                                                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                                                                            <?php echo e($label); ?>: <?php echo number_format($amount, 2); ?> ฿
-                                                                        </span>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                            <tfoot class="table-light">
-                                                <tr>
-                                                    <th class="text-end">รวมทั้งปี</th>
-                                                    <th class="text-end"><?php echo number_format($totalsByYear[$year]['quantity'], 2); ?></th>
-                                                    <th class="text-end"><?php echo number_format($totalsByYear[$year]['value'], 2); ?></th>
-                                                    <th class="text-end"><?php echo number_format($totalsByYear[$year]['expend'], 2); ?></th>
-                                                    <th class="text-end"><?php echo number_format($totalsByYear[$year]['netvalue'], 2); ?></th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="alert alert-info">ยังไม่มีข้อมูลการรวบรวมยางสำหรับเกณฑ์ที่เลือก</div>
-                    <?php endif; ?>
-                <?php endif; ?>
+        <form method="post" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+            <input type="hidden" name="action" value="member_login">
+
+            <div class="field-wrap">
+                <label for="mem_number">เลขสมาชิก</label>
+                <input type="text" id="mem_number" name="mem_number"
+                       class="form-control" required maxlength="255"
+                       placeholder="รหัสสมาชิก" autofocus
+                       inputmode="text" autocomplete="username">
+            </div>
+
+            <div class="field-wrap">
+                <label for="mem_personcode">รหัสบุคคล</label>
+                <input type="password" id="mem_personcode" name="mem_personcode"
+                       class="form-control pin-input" required maxlength="4" minlength="4"
+                       pattern="\d{4}" inputmode="numeric" placeholder="••••"
+                       autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn-login">
+                <i class="bi bi-box-arrow-in-right"></i>&nbsp; เข้าสู่ระบบ
+            </button>
+        </form>
+    </div>
+    <div class="login-home-link">
+        <a href="index.php"><i class="bi bi-house-door"></i> กลับหน้าหลัก</a>
+    </div>
+</div>
+
+<?php else: ?>
+<!-- ═══════════════ APP SHELL ═══════════════ -->
+<div class="app-wrap">
+
+    <!-- App Bar -->
+    <header class="app-bar">
+        <div class="app-bar-inner">
+            <div>
+                <div class="app-bar-title">🌿 <?php echo e($member['mem_fullname']); ?></div>
+                <div class="app-bar-sub">สมาชิก <?php echo e($member['mem_number']); ?> &nbsp;|&nbsp; กลุ่ม <?php echo e($member['mem_group']); ?> ชั้น <?php echo e($member['mem_class']); ?></div>
+            </div>
+            <a href="allmember.php?logout=1" class="btn-logout">
+                <i class="bi bi-box-arrow-right"></i> ออก
+            </a>
+        </div>
+    </header>
+
+    <main class="app-content">
+
+        <?php if ($availableYears): ?>
+        <!-- Year Filter Chips -->
+        <div class="year-filter-wrap">
+            <a href="allmember.php" class="year-chip <?php echo $selectedYear === null ? 'active' : ''; ?>">ทั้งหมด</a>
+            <?php foreach ($availableYears as $yo): ?>
+                <a href="allmember.php?year=<?php echo (int)$yo; ?>"
+                   class="year-chip <?php echo $selectedYear === (int)$yo ? 'active' : ''; ?>">
+                    พ.ศ. <?php echo (int)$yo + 543; ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($summaryRows): ?>
+
+        <!-- ── Overall stat cards ── -->
+        <div class="stats-grid">
+            <div class="stat-card green">
+                <i class="bi bi-box-seam stat-icon"></i>
+                <div class="stat-label">ปริมาณรวม</div>
+                <div class="stat-value green"><?php echo number_format($overallTotals['quantity'], 2); ?> <span class="stat-unit">กก.</span></div>
+            </div>
+            <div class="stat-card blue">
+                <i class="bi bi-cash-stack stat-icon"></i>
+                <div class="stat-label">ยอดเงินรวม</div>
+                <div class="stat-value blue">฿<?php echo number_format($overallTotals['value'], 2); ?></div>
+            </div>
+            <div class="stat-card amber">
+                <i class="bi bi-arrow-down-circle stat-icon"></i>
+                <div class="stat-label">ยอดหักรวม</div>
+                <div class="stat-value amber">฿<?php echo number_format($overallTotals['expend'], 2); ?></div>
+            </div>
+            <div class="stat-card green">
+                <i class="bi bi-wallet2 stat-icon"></i>
+                <div class="stat-label">รับสุทธิรวม</div>
+                <div class="stat-value green">฿<?php echo number_format($overallTotals['netvalue'], 2); ?></div>
             </div>
         </div>
+
+        <!-- ── Overall deduction breakdown ── -->
+        <div class="deduct-summary">
+            <div class="deduct-summary-header" data-bs-toggle="collapse" data-bs-target="#overallDeduct"
+                 aria-expanded="false" aria-controls="overallDeduct">
+                <span class="label"><i class="bi bi-receipt-cutoff"></i> รายละเอียดยอดหักรวมทั้งหมด</span>
+                <i class="bi bi-chevron-down chevron"></i>
+            </div>
+            <div class="collapse" id="overallDeduct">
+                <div class="deduct-chips">
+                    <?php foreach ($deductionLabels as $key => $label): ?>
+                        <span class="deduct-chip"><i class="bi bi-tag-fill"></i> <?php echo e($label); ?>: <?php echo number_format($overallDeductionBreakdown[$key] ?? 0.0, 2); ?> ฿</span>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Per-year sections ── -->
+        <?php foreach ($summaryRows as $year => $rows):
+            $yearCollapseId = 'yd-' . $year;
+        ?>
+        <div class="year-section">
+            <div class="year-section-header">
+                <div>
+                    <span class="year-pill"><i class="bi bi-calendar3"></i> พ.ศ. <?php echo $year + 543; ?></span>
+                    <span class="year-meta ms-2"><?php echo count($rows); ?> รอบ</span>
+                </div>
+                <button class="btn-year-deduct" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#<?php echo e($yearCollapseId); ?>"
+                        aria-expanded="false">
+                    <i class="bi bi-bar-chart-line"></i> ยอดหักต่อปี
+                </button>
+            </div>
+
+            <!-- year deduction breakdown -->
+            <div class="collapse" id="<?php echo e($yearCollapseId); ?>">
+                <div class="deduct-chips" style="padding:.75rem 1rem;">
+                    <?php foreach ($deductionLabels as $key => $label): ?>
+                        <span class="deduct-chip"><?php echo e($label); ?>: <?php echo number_format($deductionTotalsByYear[$year][$key] ?? 0.0, 2); ?> ฿</span>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- transaction list -->
+            <div class="txn-list">
+                <?php foreach ($rows as $index => $row):
+                    $cid = 'txd-' . $year . '-' . $index; ?>
+                <div class="txn-item">
+                    <div class="txn-row" data-bs-toggle="collapse" data-bs-target="#<?php echo e($cid); ?>"
+                         aria-expanded="false" aria-controls="<?php echo e($cid); ?>"
+                         onclick="this.classList.toggle('expanded')">
+                        <div>
+                            <div class="txn-date"><i class="bi bi-calendar-event text-success me-1"></i><?php echo e(thai_date_format($row['ru_date'])); ?></div>
+                            <div class="txn-qty"><i class="bi bi-box-seam me-1"></i><?php echo number_format($row['total_quantity'], 2); ?> กก.</div>
+                        </div>
+                        <div class="txn-value-col">
+                            <div class="txn-gross">฿<?php echo number_format($row['total_value'], 2); ?></div>
+                            <div class="txn-expend" style="font-size:.73rem;">-<?php echo number_format($row['total_expend'], 2); ?></div>
+                        </div>
+                        <div class="txn-value-col">
+                            <div class="txn-net">฿<?php echo number_format($row['total_netvalue'], 2); ?></div>
+                            <div style="font-size:.7rem;color:var(--text-muted);">สุทธิ</div>
+                        </div>
+                        <i class="bi bi-chevron-down txn-chevron"></i>
+                    </div>
+                    <div class="collapse" id="<?php echo e($cid); ?>">
+                        <div class="txn-detail">
+                            <div class="txn-detail-title"><i class="bi bi-scissors me-1"></i>รายการหัก</div>
+                            <div class="txn-detail-chips">
+                                <?php
+                                $deductions = [
+                                    'หุ้น'       => $row['total_hoon'],
+                                    'เงินกู้'    => $row['total_loan'],
+                                    'หนี้สั้น'   => $row['total_shortdebt'],
+                                    'เงินฝาก'   => $row['total_deposit'],
+                                    'กู้ซื้อขาย' => $row['total_tradeloan'],
+                                    'ประกันภัย'  => $row['total_insurance'],
+                                ];
+                                foreach ($deductions as $lbl => $amt):
+                                    if ($amt > 0):
+                                ?>
+                                    <span class="txn-detail-chip"><?php echo e($lbl); ?>: <?php echo number_format($amt, 2); ?> ฿</span>
+                                <?php endif; endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- year totals footer -->
+            <div class="year-totals">
+                <div class="year-total-item">
+                    <div class="year-total-label">ปริมาณรวม</div>
+                    <div class="year-total-value"><?php echo number_format($totalsByYear[$year]['quantity'], 2); ?> กก.</div>
+                </div>
+                <div class="year-total-item">
+                    <div class="year-total-label">ยอดหัก</div>
+                    <div class="year-total-value amber">฿<?php echo number_format($totalsByYear[$year]['expend'], 2); ?></div>
+                </div>
+                <div class="year-total-item">
+                    <div class="year-total-label">รับสุทธิ</div>
+                    <div class="year-total-value">฿<?php echo number_format($totalsByYear[$year]['netvalue'], 2); ?></div>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+
+        <?php else: ?>
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            ยังไม่มีข้อมูลการรวบรวมยาง<?php echo $selectedYear ? ' สำหรับปีที่เลือก' : ''; ?>
+            <?php if ($selectedYear): ?>
+                <div class="mt-3"><a href="allmember.php" class="year-chip">ดูทั้งหมด</a></div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+    </main>
+</div>
+
+<!-- PWA Install Banner -->
+<div id="pwa-install-banner">
+    <div class="banner-text">
+        <strong>เพิ่มลงหน้าจอหลัก</strong>
+        <span>เปิดแอปได้เร็วขึ้นโดยไม่ต้องเปิดเบราว์เซอร์</span>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <button class="btn-install" id="btn-pwa-install">ติดตั้ง</button>
+    <button class="btn-dismiss" id="btn-pwa-dismiss" aria-label="ปิด"><i class="bi bi-x-lg"></i></button>
+</div>
+
+<?php endif; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script>
+(function () {
+    /* Service Worker */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    /* Toggle txn chevron via Bootstrap collapse events */
+    document.querySelectorAll('.txn-row').forEach(function(row) {
+        var targetId = row.getAttribute('data-bs-target');
+        if (!targetId) return;
+        var panel = document.querySelector(targetId);
+        if (!panel) return;
+        panel.addEventListener('show.bs.collapse', function () { row.classList.add('expanded'); });
+        panel.addEventListener('hide.bs.collapse', function () { row.classList.remove('expanded'); });
+    });
+
+    /* deduct-summary-header chevron */
+    document.querySelectorAll('.deduct-summary-header').forEach(function(hdr) {
+        var targetId = hdr.getAttribute('data-bs-target');
+        if (!targetId) return;
+        var panel = document.querySelector(targetId);
+        if (!panel) return;
+        panel.addEventListener('show.bs.collapse', function () { hdr.setAttribute('aria-expanded', 'true'); });
+        panel.addEventListener('hide.bs.collapse', function () { hdr.setAttribute('aria-expanded', 'false'); });
+    });
+
+    /* PWA Install prompt */
+    var deferredPrompt = null;
+    var banner = document.getElementById('pwa-install-banner');
+    var btnInstall = document.getElementById('btn-pwa-install');
+    var btnDismiss = document.getElementById('btn-pwa-dismiss');
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (banner && !sessionStorage.getItem('pwa-dismissed')) {
+            banner.classList.add('show');
+        }
+    });
+
+    if (btnInstall) {
+        btnInstall.addEventListener('click', function () {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function () {
+                    deferredPrompt = null;
+                    banner.classList.remove('show');
+                });
+            }
+        });
+    }
+
+    if (btnDismiss) {
+        btnDismiss.addEventListener('click', function () {
+            banner.classList.remove('show');
+            sessionStorage.setItem('pwa-dismissed', '1');
+        });
+    }
+
+    window.addEventListener('appinstalled', function () {
+        if (banner) banner.classList.remove('show');
+    });
+})();
+</script>
 </body>
 </html>

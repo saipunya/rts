@@ -320,7 +320,7 @@ html, body {
                     <div class="row gy-2">
                         <div class="col-auto"><a href="members.php" class="btn btn-success btn-sm"><i class="bi bi-list-ul me-1"></i>รายการสมาชิก</a></div>
                         <div class="col-auto"><a href="member_form.php?action=create" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มสมาชิก</a></div>
-                        <div class="col-auto"><a href="add_birth_date.php" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มรหัสประจำตัว</a></div>
+                        <div class="col-auto"><a href="add_person_code.php" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มรหัสบุคคล</a></div>
                     </div>
                 </div>
             </div>
