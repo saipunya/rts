@@ -413,7 +413,7 @@ $db = db();
 	.stat-card:hover {
 		transform: none;
 	}
-}
+
 </style>
 
 <?php
