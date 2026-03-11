@@ -4,7 +4,38 @@ require_login();
 include 'header.php';
 $cu = current_user();
 ?>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+html, body {
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.container,
+.card,
+.table,
+.form-control,
+.form-select,
+.form-label,
+.btn,
+.btn-sm,
+.nav-link,
+.alert,
+.badge {
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.small,
+.form-text {
+  font-size: 14px !important;
+  font-weight: 300 !important;
+}
+
 /* Enhanced Responsive Design */
 @media (max-width: 992px) {
     .container.my-4 {
@@ -289,7 +320,7 @@ $cu = current_user();
                     <div class="row gy-2">
                         <div class="col-auto"><a href="members.php" class="btn btn-success btn-sm"><i class="bi bi-list-ul me-1"></i>รายการสมาชิก</a></div>
                         <div class="col-auto"><a href="member_form.php?action=create" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มสมาชิก</a></div>
-                        <div class="col-auto"><a href="add_birth_date.php" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มวันเดือนปีเกิด</a></div>
+                        <div class="col-auto"><a href="add_birth_date.php" class="btn btn-outline-success btn-sm"><i class="bi bi-person-plus me-1"></i>เพิ่มรหัสประจำตัว</a></div>
                     </div>
                 </div>
             </div>

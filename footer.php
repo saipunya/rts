@@ -2,7 +2,7 @@
 </main>
 <footer class="site-footer">
     <div class="footer-highlight"></div>
-    <div class="container">
+    <div class="container-md">
         <div class="footer-top">
             <div class="footer-brand">
                 <div class="footer-logo">
@@ -16,16 +16,6 @@
                     <span><i class="bi bi-grid-1x2-fill"></i> ระบบบริหารจัดการครบวงจร</span>
                     <span><i class="bi bi-shield-check"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
                 </div>
-            </div>
-            <div class="d-none d-md-block">
-                <h6 class="footer-heading">เมนูสำคัญ</h6>
-                <ul class="footer-links list-unstyled">
-                    <li><a href="dashboard.php"><i class="bi bi-speedometer2"></i> แดชบอร์ด</a></li>
-                    <li><a href="members.php"><i class="bi bi-people"></i> สมาชิกและผู้ส่งมอบ</a></li>
-                    <li><a href="rubbers.php"><i class="bi bi-droplet"></i> บันทึกรายการยาง</a></li>
-                    <li><a href="prices.php"><i class="bi bi-cash-coin"></i> ราคาอ้างอิง</a></li>
-                    <li><a href="report_rubber.php"><i class="bi bi-graph-up"></i> รายงานสรุป</a></li>
-                </ul>
             </div>
             <div class="footer-column">
                 <h6 class="footer-heading">ติดต่อสหกรณ์</h6>
@@ -105,16 +95,16 @@
 }
 
 .footer-title {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     font-weight: 700;
     margin: 0;
     color: #0d5322;
 }
 
 .footer-text {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     margin: 0;
-    line-height: 1.7;
+    line-height: 1.6;
     color: #19692c;
 }
 
@@ -131,8 +121,8 @@
     background: rgba(255, 255, 255, 0.55);
     border: 1px solid rgba(195, 230, 203, 0.8);
     border-radius: 999px;
-    padding: 0.35rem 0.9rem;
-    font-size: 1.1rem;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.9rem;
     color: #155724;
     backdrop-filter: blur(4px);
 }
@@ -149,7 +139,7 @@
 }
 
 .footer-heading {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #0d5322;
@@ -197,8 +187,8 @@
     display: flex;
     gap: 0.75rem;
     align-items: flex-start;
-    font-size: 1.2rem;
-    line-height: 1.7;
+    font-size: 0.9rem;
+    line-height: 1.6;
 }
 
 .footer-contact i {
@@ -248,7 +238,7 @@
 }
 
 .footer-bottom-text {
-    font-size: 1.2rem;
+    font-size: 0.85rem;
     color: rgba(13, 83, 34, 0.9);
     margin: 0;
 }

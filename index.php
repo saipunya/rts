@@ -6,30 +6,28 @@ include 'header.php';
 $db = db();
 ?>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-	.index-toolbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-		padding-bottom: 1rem;
-		border-bottom: 2px solid #e9ecef;
-		margin-bottom: 1.5rem;
-	}
-
-	.index-toolbar h2 {
-		font-size: 1.75rem;
-		font-weight: 600;
-		margin: 0;
-		color: #495057;
-	}
-
-	/* Match rubbers.php baseline scale */
 	html, body {
-		font-size: 18px;
+		font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+		font-size: 16px;
+		font-weight: 300;
+		background: #eef6f0;
+		color: var(--bs-body-color);
 	}
-	.container,
+
+	.container {
+		background: var(--bs-body-bg);
+		border-radius: 1.25rem;
+		padding: 2rem;
+		margin-top: 2rem;
+		margin-bottom: 2rem;
+		box-shadow: var(--bs-box-shadow-sm);
+	}
+
 	.card,
 	.table,
 	.form-control,
@@ -40,314 +38,382 @@ $db = db();
 	.nav-link,
 	.alert,
 	.badge {
-		font-size: 1rem;
-	}
-	.small, .form-text {
-		font-size: 1rem !important;
+		font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+		font-size: 16px;
+		font-weight: 300;
 	}
 
-	.index-actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		align-items: center;
+	.small,
+	.form-text {
+		font-size: 14px !important;
+		font-weight: 300 !important;
 	}
-	.stat-card {
-		border-radius: 0.75rem;
-		border: 1px solid #e9ecef;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+	.hero-section {
+		padding: 1rem 0 2rem;
+	}
+
+	.hero-title {
+		font-size: 2.35rem;
+		font-weight: 700;
+		line-height: 1.2;
+		margin-bottom: 0.75rem;
+		color: var(--bs-success-text-emphasis);
+	}
+
+	.hero-subtitle {
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: #4e7c59;
+	}
+
+	.hero-description {
+		font-size: 1.2rem;
+		color: #6b7d70;
+		margin-bottom: 1.5rem;
+	}
+
+	.index-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
 		padding: 1.25rem 1.5rem;
+		margin-bottom: 1.5rem;
+		background: var(--bs-success-bg-subtle);
+		border: 1px solid var(--bs-success-border-subtle);
+		border-radius: 1rem;
+	}
+
+	.index-toolbar h2 {
+		font-size: 1.75rem;
+		font-weight: 600;
+		color: var(--bs-success-text-emphasis);
+	}
+
+	.stat-card {
+		position: relative;
 		height: 100%;
-		background: #ffffff;
+		padding: 1.4rem 1.5rem 1.4rem 1.75rem;
+		border: 1px solid var(--bs-border-color);
+		border-radius: 1rem;
+		background: var(--bs-body-bg);
+		box-shadow: var(--bs-box-shadow-sm);
+		overflow: hidden;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+
+	.stat-card::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 6px;
+		background: var(--bs-success);
+	}
+
+	.stat-card.stat-card-accent-2::before {
+		background: #68ae7a;
+	}
+
+	.stat-card.stat-card-accent-3::before {
+		background: #4f8f61;
+	}
+
+	.stat-card:hover {
+		transform: translateY(-3px);
+		box-shadow: var(--bs-box-shadow);
 	}
 
 	.stat-label {
-		color: #6c757d;
-		font-size: 1.3rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.75rem;
+		font-size: 1rem;
+		font-weight: 600;
+		color: #5f7465;
 	}
 
 	.stat-label i {
-		font-size: 1.3rem;
-		color: #4a90e2;
+		font-size: 1.25rem;
+		color: var(--bs-success);
 	}
 
 	.stat-value {
-		font-size: 2.8rem;
+		font-size: 2.4rem;
 		font-weight: 700;
-		color: #495057;
 		line-height: 1.2;
-		margin-bottom: 0.25rem;
+		margin-bottom: 0.35rem;
+		color: var(--bs-emphasis-color);
 	}
 
 	.stat-sub {
-		color: #adb5bd;
-		font-size: 1rem;
-		margin-top: 0.25rem;
+		font-size: 0.95rem;
+		color: #7b8d7f;
 	}
-	.filter-bar {
+
+	.stat-sub .fw-semibold {
+		color: var(--bs-success-text-emphasis);
+	}
+
+	.section-title {
 		display: flex;
-		flex-wrap: wrap;
-		gap: .75rem;
-		align-items: end;
-		justify-content: space-between;
-		margin: 1.2rem 0 1.5rem;
-		padding: 1.1rem 1.2rem;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 1rem 1.25rem;
+		margin-bottom: 1rem;
+		border: 1px solid var(--bs-success-border-subtle);
+		border-radius: 0.9rem;
+		background: var(--bs-success-bg-subtle);
+		color: var(--bs-success-text-emphasis);
+		font-size: 1.2rem;
+		font-weight: 600;
+	}
+
+	.card-table {
+		margin-bottom: 1.5rem;
+		border: 1px solid var(--bs-border-color);
 		border-radius: 1rem;
-		border: 1px solid rgba(226,232,240,0.95);
-		background: #f8fafc;
-	}
-	.filter-bar .form-label {
-		margin-bottom: .2rem;
-		color: #475569;
-		font-weight: 600;
-		font-size: 1.05rem;
-	}
-	.filter-bar .form-control {
-		min-width: 240px;
-		font-size: 1.05rem;
-	}
-	.filter-actions {
-		display: flex;
-		gap: .5rem;
-		flex-wrap: wrap;
+		background: var(--bs-body-bg);
+		box-shadow: var(--bs-box-shadow-sm);
+		overflow: hidden;
 	}
 
-	/* Global table header styling */
+	.table-responsive {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.table {
+		font-size: 1.2rem;
+		margin-bottom: 0;
+	}
+
 	.table th {
-		font-size: 1.3rem;
+		font-size: 1.15rem;
 		font-weight: 600;
-		color: #495057;
-		background-color: #f8f9fa;
+		padding: 0.95rem 0.85rem;
+		background: var(--bs-success);
+		color: #fff;
+		border: none;
 	}
 
-	/* Highlighted summary tables */
+	.table td {
+		font-size: 1.2rem;
+		padding: 0.85rem 0.75rem;
+		vertical-align: middle;
+		color: #2f3d33;
+	}
+
 	.lan-summary-table,
 	.daily-summary-table {
-		font-size: 1.3rem;
+		font-size: 1.2rem;
 	}
 
 	.lan-summary-table th,
 	.daily-summary-table th {
-		font-size: 1.45rem;
+		white-space: nowrap;
 	}
 
-	/* Enhanced Responsive Design */
+	.table-success {
+		--bs-table-bg: #e9f6ed;
+		--bs-table-striped-bg: #e9f6ed;
+		--bs-table-hover-bg: #dff0e4;
+		color: #24472d;
+	}
+
+	.daily-summary-section .daily-summary-table {
+		min-width: 900px;
+		table-layout: auto;
+	}
+
+	.daily-summary-section .daily-summary-table th,
+	.daily-summary-section .daily-summary-table td {
+		white-space: nowrap;
+	}
+
+	.daily-summary-section .daily-summary-table th:last-child,
+	.daily-summary-section .daily-summary-table td:last-child {
+		min-width: 180px;
+	}
+
 	@media (max-width: 992px) {
 		.index-toolbar {
 			flex-direction: column;
 			align-items: stretch !important;
 			text-align: center;
-			gap: 1rem;
 		}
-		
+
 		.index-toolbar h2 {
 			font-size: 1.5rem;
 		}
-		
-		.filter-bar .form-control {
-			min-width: 200px;
-		}
-		
+
 		.stat-value {
-			font-size: 2.2rem;
+			font-size: 2rem;
 		}
-		
+
 		.stat-label {
-			font-size: 1.2rem;
+			font-size: 1rem;
+		}
+
+		.daily-summary-section {
+			margin-left: -0.25rem;
+			margin-right: -0.25rem;
+		}
+
+		.daily-summary-section .section-title {
+			font-size: 1.1rem;
+			padding: 0.9rem 1rem;
+		}
+
+		.daily-summary-section .card-table {
+			margin: 0;
+		}
+
+		.daily-summary-section .table-responsive {
+			padding: 0;
+		}
+
+		.daily-summary-section .daily-summary-table {
+			min-width: 820px;
 		}
 	}
 
 	@media (max-width: 768px) {
 		.index-toolbar {
-			padding-bottom: 0.75rem;
-			margin-bottom: 1rem;
+			padding: 1rem 1.1rem;
 		}
-		
+
 		.index-toolbar h2 {
-			font-size: 1.3rem;
+			font-size: 1.35rem;
 		}
-		
-		.index-actions {
-			width: 100%;
-			justify-content: center;
-		}
-		
-		.row.g-3.mb-4 {
-			gap: 1rem;
-		}
-		
-		.col-12.col-md-6.col-lg-4 {
-			flex: 0 0 100%;
-			max-width: 100%;
-		}
-		
+
 		.stat-card {
-			padding: 1rem;
+			padding: 1.1rem 1rem 1rem 1.25rem;
 		}
-		
+
 		.stat-value {
-			font-size: 2.0rem;
+			font-size: 1.9rem;
 		}
-		
+
 		.stat-label {
-			font-size: 1.2rem;
+			font-size: 0.98rem;
 		}
-		
+
 		.stat-sub {
 			font-size: 0.9rem;
 		}
-		
-		.filter-bar {
-			padding: 1rem;
-			margin: 1rem 0 1.2rem;
-			flex-direction: column;
-			align-items: stretch !important;
-		}
-		
-		.filter-bar .form-control {
-			min-width: 100%;
-		}
-		
-		.filter-actions {
-			justify-content: center;
-			width: 100%;
-		}
-		
-		.filter-actions .btn {
-			flex: 1;
-			min-height: 44px;
-		}
-		
+
 		.card-table {
 			margin: 0 -0.5rem;
 		}
-		
+
 		.table-responsive {
 			font-size: 1.2rem;
 			padding: 0 0.5rem;
 		}
-		
+
 		.table th {
-			font-size: 1.2rem;
-			font-weight: 600;
-			color: #495057;
+			font-size: 0.98rem;
 		}
-		
+
 		.table th,
 		.table td {
-			padding: 0.5rem 0.3rem;
+			padding: 0.65rem 0.55rem;
 		}
-		
+
 		.section-title {
-			font-size: 1.3rem;
-			padding: 0.5rem 0;
-			font-weight: 600;
-			color: #495057;
+			font-size: 1.2rem;
+			padding: 0.85rem 1rem;
 		}
-		
-		.btn {
-			min-height: 44px;
-			font-size: 1rem;
+
+		.daily-summary-section .daily-summary-table {
+			min-width: 780px;
 		}
-		
-		.btn-sm {
-			min-height: 38px;
-			font-size: 0.85rem;
+
+		.daily-summary-section .daily-summary-table th,
+		.daily-summary-section .daily-summary-table td {
+			font-size: 0.98rem;
+			padding: 0.6rem 0.5rem;
 		}
 	}
 
 	@media (max-width: 576px) {
+		.container {
+			padding: 1.25rem 1rem;
+			border-radius: 1rem;
+			margin-top: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.hero-title {
+			font-size: 1.8rem;
+		}
+
+		.hero-description {
+			font-size: 1.05rem;
+		}
+
+		.hero-section .btn {
+			width: 100%;
+		}
+
 		.index-toolbar h2 {
 			font-size: 1.2rem;
 		}
-		
+
 		.stat-card {
-			padding: 0.75rem;
+			padding: 0.85rem 0.85rem 0.85rem 1rem;
 		}
-		
+
 		.stat-value {
 			font-size: 1.8rem;
 		}
-		
+
 		.stat-label {
 			font-size: 1.1rem;
 		}
-		
-		.stat-sub {
-			font-size: 0.85rem;
-		}
-		
-		.filter-bar {
-			padding: 0.75rem;
-		}
-		
-		.filter-bar .form-label {
-			font-size: 1rem;
-		}
-		
-		.filter-bar .form-control {
-			font-size: 1rem;
-		}
-		
+
 		.table-responsive {
-			font-size: 1.2rem;
+			font-size: 0.95rem;
 			padding: 0 0.25rem;
 		}
-		
-		.table th,
-		.table td {
-			padding: 0.4rem 0.2rem;
-		}
-		
-		.table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
-		.table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
-			display: none;
-		}
-		
-		.text-center.mt-4 {
-			padding: 0 0.5rem;
-		}
-		
-		.btn {
-			font-size: 0.9rem;
-			padding: 0.5rem 0.75rem;
-		}
+
 	}
 
-	/* Landscape orientation */
-	@media (max-width: 768px) and (orientation: landscape) {
-		.index-toolbar {
-			padding-bottom: 0.5rem;
-		}
-		
-		.stat-card {
-			padding: 0.75rem 1rem;
-		}
-		
-		.filter-bar {
-			padding: 0.75rem;
-		}
+	.index-toolbar h2 {
+		font-size: 1.2rem;
 	}
 
-	/* Touch-friendly improvements */
-	@media (hover: none) and (pointer: coarse) {
-		.table-hover tbody tr:hover td {
-			background-color: transparent;
-		}
-		
-		.btn,
-		.form-control {
-			min-height: 44px;
-		}
-		
-		.stat-card:hover {
-			transform: none;
-		}
+	.stat-card {
+		padding: 0.85rem 0.85rem 0.85rem 1rem;
 	}
+
+	.stat-value {
+		font-size: 1.8rem;
+	}
+
+	.stat-label {
+		font-size: 1.1rem;
+	}
+
+	.table-responsive {
+		font-size: 0.95rem;
+		padding: 0 0.25rem;
+	}
+
+	.table th,
+	.table td {
+		padding: 0.6rem 0.5rem;
+	}
+
+	.stat-card:hover {
+		transform: none;
+	}
+}
 </style>
 
 <?php
@@ -362,7 +428,7 @@ if ($stmt) {
 	} else {
 		$latest_price = 0;
 	}
-	
+
 } else {
 	$latest_price = 0;
 }
@@ -501,52 +567,52 @@ if ($stmt) {
 	$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
 	?>
 
-	<!-- เพิ่ม center hero -->
-	<div class="text-center mb-4">
-		<h3 class="fw-bold text-primary">ระบบจัดการยางพารา สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h3>
-		<p class="lead text-muted">ภาพรวมการรวบรวมยางพาราของสมาชิกรายคน</p>
-		<!-- เพิ่มปุ่ม ดูยอดรวมรายคน -->
-		<a href="allmember.php" class="btn btn-primary btn-lg">
-			<!-- เพิ่ม icon member -->
-			<i class="bi bi-person-fill"></i>
-			 สำหรับสมาชิก
+	<!-- Enhanced hero section -->
+	<div class="hero-section text-center mb-4">
+		<h1 class="hero-title">
+			<i class="bi bi-clipboard-data-fill"></i> ระบบจัดการยางพารา
+		</h1>
+		<h4 class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
+		<p class="hero-description">ภาพรวมการรวบรวมยางพาราของสมาชิกรายคน</p>
+		<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
+			<i class="bi bi-person-fill"></i> สำหรับสมาชิก
 		</a>
 	</div>
-	<hr>
 
 	<div class="index-toolbar">
-		<h2 class="d-flex align-items-center gap-2">
-			<i class="bi bi-grid-1x2-fill text-primary"></i>
+		<h2 class="d-flex align-items-center gap-2 mb-0">
+			<i class="bi bi-grid-1x2-fill"></i>
 			ภาพรวมวันนี้
 		</h2>
-		
+
 	</div>
 
 	<!-- Quick stats -->
 	<div class="row g-3 mb-4">
 		<div class="col-12 col-md-6 col-lg-4">
 			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-tag-fill text-primary"></i>ราคาที่ใช้คำนวณ</div>
+				<div class="stat-label"><i class="bi bi-tag-fill"></i>ราคาที่ใช้คำนวณ</div>
 				<div class="stat-value"><?php echo number_format($latest_price,2); ?> ฿</div>
-				<div class="stat-sub">อัปเดต: <span class="fw-semibold text-danger"><?php echo $latest_price_date_text; ?></span></div>
+				<div class="stat-sub">อัปเดต: <span class="fw-semibold"><?php echo $latest_price_date_text; ?></span></div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-calendar2-check-fill text-info"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
+			<div class="stat-card stat-card-accent-2">
+				<div class="stat-label"><i class="bi bi-calendar2-check-fill"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_quantity,2); ?> kg</div>
 				<div class="stat-sub">อ้างอิงวันที่ราคายาง</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-receipt-cutoff text-danger"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
+			<div class="stat-card stat-card-accent-3">
+				<div class="stat-label"><i class="bi bi-receipt-cutoff"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
 				<div class="stat-sub">ปริมาณ x ราคาล่าสุด</div>
 			</div>
+
 		</div>
 	</div>
-	
+
 	<!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
 	<div class="row mb-4">
 		<div class="col-12">
@@ -555,11 +621,13 @@ if ($stmt) {
 				ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
 			</div>
 			<div class="card-table">
-				<table class="table table-hover table-sm mb-0 lan-summary-table">
+				<div class="table-responsive">
+					<table class="table table-hover table-sm mb-0 lan-summary-table">
 					<thead>
 						<tr class="text-center">
 							<th>ลาน</th>
 							<th>ปริมาณรวม (kg)</th>
+
 							<th>ยอดเงินรวม (฿)</th>
 						</tr>
 					</thead>
@@ -606,15 +674,20 @@ if ($stmt) {
 						<td><?php echo number_format($grand_total_value,2); ?></td>
 					</tr>
 					</tbody>
-				</table>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Daily summary table (all lans combined) -->
-	<div class="row">
+	<div class="row daily-summary-section">
 		<div class="col-12">
-			<div class="section-title"><i class="bi bi-clipboard-data"></i>สรุปรับซื้อรายวัน (รวมทุกลาน)</div>
+			<div class="section-title">
+				<i class="bi bi-clipboard-data"></i>
+				สรุปรับซื้อรายวัน (รวมทุกลาน)
+			</div>
+
 			<div class="card-table">
 				<div class="table-responsive">
 					<table class="table table-striped table-hover w-100 mb-0 daily-summary-table">
@@ -627,7 +700,7 @@ if ($stmt) {
 								<th>ยอดหัก (฿)</th>
 								<th>คงเหลือ/สุทธิ (฿)</th>
 								<th>รายการ</th>
-									<th>สมาชิก/เกษตรกรทั่วไป (คน)</th>
+								<th>สมาชิก/เกษตรกร (คน)</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -764,9 +837,11 @@ if ($stmt) {
 		</div>
 	</div>
 
-	<div class="text-center mt-4">
-		<div class="text-muted mb-2">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</div>
-		<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>บันทึกข้อมูล</a>
+	<div class="text-center mt-2 py-2">
+		<div class="text-muted mb-3 fs-5">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</div>
+		<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
+			<i class="bi bi-plus-circle me-2"></i>บันทึกข้อมูล
+		</a>
 	</div>
 
 <?php

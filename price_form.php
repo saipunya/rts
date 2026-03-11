@@ -34,13 +34,42 @@ if ($action === 'edit' && $id > 0) {
 }
 
 ?>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+html, body {
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.container,
+.card,
+.table,
+.form-control,
+.form-select,
+.form-label,
+.btn,
+.btn-sm,
+.nav-link,
+.alert,
+.badge {
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.small,
+.form-text {
+  font-size: 14px !important;
+  font-weight: 300 !important;
+}
+</style>
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col-8">
             <h3><?php echo ($action === 'edit') ? 'แก้ไขราคา' : 'เพิ่มราคายาง'; ?></h3>
-        </div>
-        <div class="col-4 text-end">
-            <a href="prices.php" class="btn btn-secondary">กลับ</a>
         </div>
     </div>
 

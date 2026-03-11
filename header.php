@@ -182,7 +182,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 text-decoration: none;
                 font-weight: 500;
                 transition: color 0.2s ease;
-                font-size: 1.2rem;
+                font-size: 0.9rem;
             }
 
             .topbar-link:hover {
@@ -725,7 +725,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 }
                 
                 .stat-value {
-                    font-size: 1.2rem;
+                    font-size: 1rem;
                 }
                 
                 .stat-label {
@@ -779,9 +779,9 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     <div class="topbar-info d-flex flex-wrap align-items-center gap-2 text-white-75 small">
                         <span class="status-pill">
                             <i class="bi bi-droplet-half"></i>
-                            <span>สถานะรอบรับซื้อ: <strong><?php echo htmlspecialchars($cycleLabel, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+                            <span class="d-none d-md-inline fs-6">ระบบการรวบรวมยาง</span>
                         </span>
-                        <span class="d-none d-md-inline fs-6">อัปเดตล่าสุด: <?php echo date('d M Y'); ?></span>
+                        
                     </div>
                     <button
                         class="topbar-toggle d-lg-none"
@@ -812,7 +812,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                         
                         <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
                         <a href="dashboard.php" class="topbar-link"><i class="bi bi-speedometer2 me-1"></i>แดชบอร์ด</a>
-                        <a href="logout.php" class="topbar-link text-warning fw-semibold"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ</a>
+                        <a href="logout.php" class="topbar-link text-danger fw-semibold"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ</a>
                         <?php else: ?>
                         <a href="login.php" class="topbar-link text-primary fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i>เข้าสู่ระบบ</a>
                         <?php endif; ?>

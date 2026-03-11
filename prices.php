@@ -16,10 +16,15 @@ $result = $stmt->get_result();
 $prices = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* Match rubbers.php baseline scale */
 html, body {
-  font-size: 18px;
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
 }
 .container,
 .card,
@@ -32,10 +37,13 @@ html, body {
 .nav-link,
 .alert,
 .badge {
-  font-size: 1rem;
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
 }
 .small, .form-text {
-  font-size: 1rem !important;
+  font-size: 14px !important;
+  font-weight: 300 !important;
 }
 
 /* Enhanced Responsive Design */

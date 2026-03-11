@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 ob_start();
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/header.php';
 
-// ตรวจสอบการล็อกอิน - ถ้ายังไม่ล็อกอินให้ redirect ไปหน้า login
+// เธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเธฅเนเธญเธเธญเธดเธ - เธ–เนเธฒเธขเธฑเธเนเธกเนเธฅเนเธญเธเธญเธดเธเนเธซเน redirect เนเธเธซเธเนเธฒ login
 if (!is_logged_in()) {
     header('Location: login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
@@ -13,7 +13,7 @@ $db = db();
 $errors = [];
 $msg = $_GET['msg'] ?? '';
 $csrf = csrf_token();
-$default_saveby = $_SESSION['user_name'] ?? 'เจ้าหน้าที่';
+$default_saveby = $_SESSION['user_name'] ?? 'เน€เธเนเธฒเธซเธเนเธฒเธ—เธตเน';
 $today = date('Y-m-d');
 
 // add: dompdf availability check
@@ -55,7 +55,7 @@ $member_id = isset($_GET['member_id']) ? (int)$_GET['member_id'] : 0;
 $msearch = isset($_GET['msearch']) ? trim((string)($_GET['msearch'])) : '';
 $memberSelectedRow = null;
 
-// สร้างตาราง
+// เธชเธฃเนเธฒเธเธ•เธฒเธฃเธฒเธ
 $db->query("CREATE TABLE IF NOT EXISTS tbl_rubber (
 	ru_id INT(11) NOT NULL AUTO_INCREMENT,
 	ru_date DATE NOT NULL,
@@ -106,7 +106,7 @@ if ($dbName !== '') {
   }
 }
 
-// เตรียมค่าเริ่มต้นของฟอร์ม
+// เน€เธ•เธฃเธตเธขเธกเธเนเธฒเน€เธฃเธดเนเธกเธ•เนเธเธเธญเธเธเธญเธฃเนเธก
 $form = [
   'ru_id' => null,
   'ru_date' => $today,
@@ -140,7 +140,7 @@ if (($member_id > 0) && (($_GET['action'] ?? '') !== 'edit')) {
   $stm->close();
 }
 
-// โหลดข้อมูลสำหรับแก้ไข
+// เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเธชเธณเธซเธฃเธฑเธเนเธเนเนเธ
 if (($_GET['action'] ?? '') === 'edit') {
   $id = (int)($_GET['id'] ?? 0);
   if ($id > 0) {
@@ -155,16 +155,16 @@ if (($_GET['action'] ?? '') === 'edit') {
         $currentLan = (int)$row['ru_lan'];
       }
     } else {
-      $errors[] = 'ไม่พบรายการสำหรับแก้ไข';
+      $errors[] = 'เนเธกเนเธเธเธฃเธฒเธขเธเธฒเธฃเธชเธณเธซเธฃเธฑเธเนเธเนเนเธ';
     }
     $st->close();
   }
 }
 
-// จัดการ POST: create/update/delete
+// เธเธฑเธ”เธเธฒเธฃ POST: create/update/delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!csrf_check($_POST['csrf_token'] ?? '')) {
-    $errors[] = 'โทเค็นไม่ถูกต้อง';
+    $errors[] = 'เนเธ—เน€เธเนเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ';
   } else {
     $action = $_POST['action'] ?? '';
     if ($action === 'delete') {
@@ -174,10 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $st->bind_param('i', $id);
         $st->execute();
         $st->close();
-        header('Location: rubbers.php?lan=' . ($currentLan === 'all' ? 'all' : (int)$currentLan) . '&msg=' . urlencode('ลบรายการแล้ว'));
+        header('Location: rubbers.php?lan=' . ($currentLan === 'all' ? 'all' : (int)$currentLan) . '&msg=' . urlencode('เธฅเธเธฃเธฒเธขเธเธฒเธฃเนเธฅเนเธง'));
         exit;
       }
-      $errors[] = 'ระบุรายการที่จะลบไม่ถูกต้อง';
+      $errors[] = 'เธฃเธฐเธเธธเธฃเธฒเธขเธเธฒเธฃเธ—เธตเนเธเธฐเธฅเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ';
     } elseif ($action === 'save') {
       // added: enforce member-linked fields for new record
       $post_member_id = isset($_POST['ru_member_id']) ? (int)$_POST['ru_member_id'] : 0;
@@ -194,10 +194,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $_POST['ru_fullname'] = $mr['mem_fullname'];
           $_POST['ru_class'] = $mr['mem_class'];
         } else {
-          $errors[] = 'ไม่พบสมาชิกที่เลือก';
+          $errors[] = 'เนเธกเนเธเธเธชเธกเธฒเธเธดเธเธ—เธตเนเน€เธฅเธทเธญเธ';
         }
       }
-      // รับค่าและตรวจสอบ
+      // เธฃเธฑเธเธเนเธฒเนเธฅเธฐเธ•เธฃเธงเธเธชเธญเธ
       $data = [];
       $fieldsText = ['ru_lan', 'ru_group', 'ru_number', 'ru_fullname', 'ru_class']; // ensure ru_lan present
       $fieldsDate = ['ru_date', 'ru_savedate'];
@@ -205,18 +205,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       foreach ($fieldsText as $f) {
         $data[$f] = trim((string)($_POST[$f] ?? ''));
-        if ($data[$f] === '') $errors[] = "กรุณากรอก {$f}";
+        if ($data[$f] === '') $errors[] = "เธเธฃเธธเธ“เธฒเธเธฃเธญเธ {$f}";
       }
       foreach ($fieldsDate as $f) {
         $data[$f] = trim((string)($_POST[$f] ?? ''));
         $dt = DateTime::createFromFormat('Y-m-d', $data[$f]);
-        if (!$dt || $dt->format('Y-m-d') !== $data[$f]) $errors[] = "รูปแบบวันที่ไม่ถูกต้อง: {$f}";
+        if (!$dt || $dt->format('Y-m-d') !== $data[$f]) $errors[] = "เธฃเธนเธเนเธเธเธงเธฑเธเธ—เธตเนเนเธกเนเธ–เธนเธเธ•เนเธญเธ: {$f}";
       }
       foreach ($fieldsNum as $f) {
         $val = $_POST[$f] ?? '';
         $flt = filter_var($val, FILTER_VALIDATE_FLOAT);
         if ($flt === false) {
-          $errors[] = "ต้องเป็นตัวเลข: {$f}";
+          $errors[] = "เธ•เนเธญเธเน€เธเนเธเธ•เธฑเธงเน€เธฅเธ: {$f}";
           $data[$f] = '0.00';
         } else {
           $data[$f] = number_format((float)$flt, 2, '.', '');
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // new: validate lane 1..4
       $lanVal = isset($_POST['ru_lan']) ? (int)$_POST['ru_lan'] : ($currentLan === 'all' ? 1 : $currentLan);
       if (!in_array($lanVal, [1, 2, 3, 4], true)) {
-        $errors[] = 'ลานไม่ถูกต้อง';
+        $errors[] = 'เธฅเธฒเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ';
       }
       $data['ru_lan'] = (string)$lanVal;
 
@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $cuTmp = current_user();
       $savebyFull = $cuTmp['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
       $savebyUser = $cuTmp['user_name'] ?? ($_SESSION['user_name'] ?? '');
-      $data['ru_saveby'] = $savebyFull !== '' ? $savebyFull : ($savebyUser !== '' ? $savebyUser : 'เจ้าหน้าที่');
+      $data['ru_saveby'] = $savebyFull !== '' ? $savebyFull : ($savebyUser !== '' ? $savebyUser : 'เน€เธเนเธฒเธซเธเนเธฒเธ—เธตเน');
 
       if (!$errors) {
         $id = isset($_POST['ru_id']) && $_POST['ru_id'] !== '' ? (int)$_POST['ru_id'] : 0;
@@ -282,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $st->execute();
           $st->close();
           $lanRedirect = ($lanParam === 'all') ? 'all' : (int)$data['ru_lan'];
-          header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('บันทึกการแก้ไขแล้ว'));
+          header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('เธเธฑเธเธ—เธถเธเธเธฒเธฃเนเธเนเนเธเนเธฅเนเธง'));
           exit;
         } else {
           $st = $db->prepare("INSERT INTO tbl_rubber
@@ -313,23 +313,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $st->execute();
           $st->close();
           $lanRedirect = ($lanParam === 'all') ? 'all' : (int)$data['ru_lan'];
-          header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('บันทึกข้อมูลแล้ว'));
+          header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅเนเธฅเนเธง'));
           exit;
         }
       } else {
-        $form = array_merge($form, $_POST); // คืนค่าฟอร์มเดิมเมื่อมี error
+        $form = array_merge($form, $_POST); // เธเธทเธเธเนเธฒเธเธญเธฃเนเธกเน€เธ”เธดเธกเน€เธกเธทเนเธญเธกเธต error
       }
     }
   }
 }
 
-$cu = current_user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
+$cu = current_user(); // เธ”เธถเธเธเนเธญเธกเธนเธฅเธเธนเนเนเธเนเธเธฑเธเธเธธเธเธฑเธ
 $isAdmin = isset($cu['user_level']) && $cu['user_level'] === 'admin';
 
-// ดึงข้อมูลรายการ (รองรับ all + filters)
+// เธ”เธถเธเธเนเธญเธกเธนเธฅเธฃเธฒเธขเธเธฒเธฃ (เธฃเธญเธเธฃเธฑเธ all + filters)
 $rows = [];
 if ($currentLan === 'all') {
-  // เฉพาะ admin เห็นทุกลาน, ผู้ใช้ทั่วไปเห็นเฉพาะที่ตัวเองบันทึก (รองรับค้นหา/ช่วงวันที่)
+  // เน€เธเธเธฒเธฐ admin เน€เธซเนเธเธ—เธธเธเธฅเธฒเธ, เธเธนเนเนเธเนเธ—เธฑเนเธงเนเธเน€เธซเนเธเน€เธเธเธฒเธฐเธ—เธตเนเธ•เธฑเธงเน€เธญเธเธเธฑเธเธ—เธถเธ (เธฃเธญเธเธฃเธฑเธเธเนเธเธซเธฒ/เธเนเธงเธเธงเธฑเธเธ—เธตเน)
   $conds = [];
   $binds = [];
   $types = '';
@@ -374,7 +374,7 @@ if ($currentLan === 'all') {
     $st->execute();
     $res = $st->get_result();
   } else {
-    // ไม่มีเงื่อนไข แสดงทั้งหมด (เฉพาะ admin เท่านั้นถึงจะมาถึงส่วนนี้)
+    // เนเธกเนเธกเธตเน€เธเธทเนเธญเธเนเธ เนเธชเธ”เธเธ—เธฑเนเธเธซเธกเธ” (เน€เธเธเธฒเธฐ admin เน€เธ—เนเธฒเธเธฑเนเธเธ–เธถเธเธเธฐเธกเธฒเธ–เธถเธเธชเนเธงเธเธเธตเน)
     $res = $db->query($sql);
   }
 
@@ -393,7 +393,7 @@ if ($currentLan === 'all') {
     $sumNet    += (float)$ag['ru_netvalue'];
   }
 } else {
-  // ผู้ใช้ปกติ filter ด้วย ru_saveby (รองรับทั้ง fullname และ username)
+  // เธเธนเนเนเธเนเธเธเธ•เธด filter เธ”เนเธงเธข ru_saveby (เธฃเธญเธเธฃเธฑเธเธ—เธฑเนเธ fullname เนเธฅเธฐ username)
   if (!$isAdmin) {
     $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_date = ? AND (ru_saveby = ? OR ru_saveby = ?) ORDER BY ru_date DESC, ru_id DESC");
     $lanStr = (string)$currentLan;
@@ -423,255 +423,67 @@ $exportBaseParams = [
 ];
 $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !== ''));
 ?>
+<!doctype html>
 <html lang="th">
+
 <head>
   <meta charset="utf-8">
-  <title>จัดการข้อมูลยางพารา</title>
+  <title>เธเธฑเธ”เธเธฒเธฃเธเนเธญเธกเธนเธฅเธขเธฒเธเธเธฒเธฃเธฒ</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
   <style>
-    .rubbers-page {
-      --rubber-primary: #198754;
-      --rubber-primary-soft: #e9f6ed;
-      --rubber-surface: #ffffff;
-      --rubber-border: #cfe2d4;
-      --rubber-text: #245c38;
-      --rubber-shadow: var(--bs-box-shadow-sm);
-      font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-      font-size: 16px;
-      font-weight: 300;
+    /* เธเธฃเธฑเธเน€เธซเธฅเธทเธญเน€เธเธเธฒเธฐเธชเนเธงเธ dropdown member */
+    .member-chooser {
+      position: relative;
     }
 
-    .rubbers-page,
-    .rubbers-page .card,
-    .rubbers-page .table,
-    .rubbers-page .form-control,
-    .rubbers-page .form-select,
-    .rubbers-page .form-label,
-    .rubbers-page .nav-link,
-    .rubbers-page .alert,
-    .rubbers-page .badge,
-    .rubbers-page .btn {
-      font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-      font-size: 16px;
-      font-weight: 300;
+    .member-chooser .dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      z-index: 1000;
     }
 
-    .rubbers-page .page-shell {
-      max-width: 1240px;
-      margin: 0 auto;
+    #memberResults.list-group {
+      max-height: 260px;
+      overflow: auto;
     }
 
-    .rubbers-page .container.py-4 {
-      background: var(--rubber-surface);
-      border-radius: 1.25rem;
-      padding: 2rem;
-      margin-top: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: var(--rubber-shadow);
+    .tag {
+      display: inline-block;
+      padding: .25rem .6rem;
+      background: #eef2ff;
+      color: #3730a3;
+      border-radius: 50rem;
+      font-size: 1rem;
     }
 
-    .rubbers-page .hero-panel {
-      background: var(--bs-success-bg-subtle);
-      color: var(--bs-success-text-emphasis);
-      border-radius: 1.25rem;
-      padding: 1.35rem 1.5rem;
-      box-shadow: none;
-      border: 1px solid var(--bs-success-border-subtle);
-      margin-bottom: 1rem;
+    .link-btn {
+      background: none;
+      border: none;
+      color: #0d6efd;
+      cursor: pointer;
+      padding: 0 .25rem;
     }
 
-    .rubbers-page .hero-title {
-      font-size: 1.55rem;
-      font-weight: 700;
-      margin-bottom: 0.35rem;
-    }
+    /* new compact form styles */
+    .form-wrap { max-width: 960px; margin: 0 auto; }
+    fieldset { border: 1px solid #e4e6eb; padding: .85rem 1.1rem 1rem; border-radius: .65rem; margin-bottom: 1rem; background:#fff; }
+    fieldset legend { font-size: 1rem; font-weight: 600; width: auto; padding: 0 .6rem; margin-bottom: .2rem; }
+    .num-group .input-group-text { min-width:70px; justify-content:center; }
 
-    .rubbers-page .hero-subtitle {
-      margin-bottom: 0;
-      color: #4e7c59;
-    }
-
-    .rubbers-page .hero-chip-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: flex-end;
-    }
-
-    .rubbers-page .hero-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.55rem 0.85rem;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid var(--bs-success-border-subtle);
-      color: var(--bs-success-text-emphasis);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .rubbers-page .surface-card {
-      background: var(--rubber-surface);
-      border: 1px solid var(--bs-border-color);
-      border-radius: 1.15rem;
-      box-shadow: var(--rubber-shadow);
-    }
-
-    .rubbers-page .surface-card .card-header,
-    .rubbers-page .surface-card .card-footer {
-      background: #fff;
-      border-color: var(--rubber-border);
-    }
-
-    .rubbers-page .lane-tabs {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .rubbers-page .lane-tabs .nav {
-      gap: 0.45rem;
-    }
-
-    .rubbers-page .lane-tabs .nav-link {
-      border-radius: 999px;
-      padding: 0.45rem 1rem;
-      font-weight: 600;
-      color: var(--bs-success-text-emphasis);
-      background: var(--bs-success-bg-subtle);
-      border: 1px solid var(--bs-success-border-subtle);
-    }
-
-    .rubbers-page .lane-tabs .nav-link.active {
-      background: var(--bs-success);
-      color: #fff;
-      box-shadow: var(--bs-box-shadow-sm);
-    }
-
-    .rubbers-page .toolbar-actions {
-      display: flex;
-      gap: 0.65rem;
-      flex-wrap: wrap;
-    }
-
-    .rubbers-page .form-control,
-    .rubbers-page .input-group-text,
-    .rubbers-page .list-group-item {
-      border-radius: .85rem;
-    }
-
-    .rubbers-page .form-control {
-      border: 1px solid #d5ddd8;
-      min-height: 46px;
-      box-shadow: none;
-    }
-
-    .rubbers-page .form-control:focus {
-      border-color: #9fcca6;
-      box-shadow: 0 0 0 .2rem rgba(25, 135, 84, 0.12);
-    }
-
-    .rubbers-page .input-group-text {
-      background: var(--bs-success-bg-subtle);
-      border: 1px solid #d5ddd8;
-      color: var(--rubber-text);
-      font-weight: 700;
-    }
-
-    .rubbers-page .member-summary {
-      background: var(--bs-success-bg-subtle);
-      border: 1px solid var(--bs-success-border-subtle);
-      border-radius: .9rem;
-      padding: .75rem .9rem;
-    }
-
-    .rubbers-page .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: .85rem;
-    }
-
-    .rubbers-page .metric-card {
-      background: #ffffff;
-      border: 1px solid var(--bs-success-border-subtle);
-      border-radius: 1rem;
-      padding: .9rem 1rem;
-    }
-
-    .rubbers-page .metric-label {
-      display: block;
-      color: #5d7568;
-      font-size: .95rem;
-      margin-bottom: .25rem;
-    }
-
-    .rubbers-page .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: .75rem;
-    }
-
-    .rubbers-page .summary-card {
-      border-radius: 1rem;
-      padding: .9rem 1rem;
-      color: #183529;
-      background: var(--bs-success-bg-subtle);
-      border: 1px solid var(--bs-success-border-subtle);
-    }
-
-    .rubbers-page .summary-title {
-      display: block;
-      font-size: .9rem;
-      color: #60786c;
-      margin-bottom: .15rem;
-    }
-
-    .rubbers-page .table-shell {
-      padding: 0 .75rem .75rem;
-    }
-
+    /* added: table polish */
     .table-responsive .table thead.sticky-header th {
       position: sticky; top: 0; z-index: 3;
-      background: var(--bs-success);
-      color: #fff;
+      background: var(--bs-light);
       box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
     }
-
     .table td.text-end, .table th.text-end { font-variant-numeric: tabular-nums; }
     .table-hover tbody tr:hover td { background-color: rgba(13,110,253,.04); }
     .table caption { color:#6c757d; padding-left:.5rem; }
-    .rubbers-page .table { margin-bottom: 0; }
-    .rubbers-page .table th { color: var(--rubber-text); font-weight: 700; }
-    .rubbers-page .table td, .rubbers-page .table th { border-color: #e7efea; vertical-align: middle; }
-
-    .rubbers-page .name-cell { min-width: 220px; }
-    .rubbers-page .action-stack { display: flex; gap: .35rem; flex-wrap: wrap; }
-    .rubbers-page .bottom-backlink { display: flex; justify-content: center; margin-top: 1rem; }
-
-    /* Reduce font size for data table section */
-    .rubbers-page .data-card .table-toolbar,
-    .rubbers-page .data-card .table-shell,
-    .rubbers-page .data-card .table,
-    .rubbers-page .data-card .table th,
-    .rubbers-page .data-card .table td,
-    .rubbers-page .data-card .table-toolbar-title,
-    .rubbers-page .data-card .table-toolbar-subtitle,
-    .rubbers-page .data-card .btn {
-      font-size: 14px !important;
-      font-weight: 300 !important;
-    }
-    .rubbers-page .data-card .badge {
-      font-size: 12px !important;
-      font-weight: 400 !important;
-    }
 
     /* Enhanced Responsive Design */
     @media (max-width: 992px) {
@@ -679,18 +491,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
         max-width: 100%;
         padding: 0 1rem;
       }
-      .rubbers-page .hero-chip-wrap {
-        justify-content: flex-start;
-      }
-      .rubbers-page .metric-grid,
-      .rubbers-page .summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
+      
       fieldset {
         padding: 0.75rem 1rem;
       }
-
+      
       .nav-pills .nav-link {
         font-size: 0.9rem;
         padding: 0.4rem 0.8rem;
@@ -701,75 +506,72 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       .container.py-4 {
         padding: 1rem 0.5rem !important;
       }
-
-      .rubbers-page .lane-toolbar,
-      .rubbers-page .lane-tabs,
-      .rubbers-page .toolbar-actions,
-      .rubbers-page .table-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .rubbers-page .hero-title {
-        font-size: 1.3rem;
-      }
-
+      
       h1.h4 {
         font-size: 1.25rem;
         margin-bottom: 1rem;
       }
-
+      
       .nav-pills {
         flex-direction: column;
         gap: 0.5rem;
       }
-
+      
+      .nav-pills .nav-item {
+        width: 100%;
+      }
+      
+      .nav-pills .nav-link {
+        text-align: center;
+        padding: 0.75rem;
+      }
+      
       .nav-item.me-2 {
         margin-right: 0 !important;
         margin-bottom: 0.5rem;
       }
-
+      
       .ms-auto {
         margin-left: 0 !important;
         margin-top: 1rem;
         justify-content: center;
       }
-
+      
       .ms-auto .d-flex {
         flex-direction: column;
         width: 100%;
         gap: 0.5rem;
       }
-
+      
       .form-wrap {
         margin: 0;
         padding: 0;
       }
-
+      
       fieldset {
         padding: 1rem;
         margin-bottom: 1rem;
       }
-
+      
       fieldset legend {
         font-size: 1.1rem;
         padding: 0 0.5rem;
         margin-bottom: 0.5rem;
       }
-
+      
       .row.g-3 {
         gap: 1rem;
       }
-
+      
       .col-md-3, .col-md-9 {
         flex: 0 0 100%;
         max-width: 100%;
       }
-
+      
       .input-group {
         flex-direction: column;
       }
-
+      
       .input-group .input-group-text {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
@@ -782,103 +584,103 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
         color: #495057;
         font-weight: 600;
       }
-
+      
       .input-group .form-control {
         border-top-left-radius: 0.375rem;
         border-top-right-radius: 0.375rem;
       }
-
+      
       .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4 {
         gap: 0.75rem;
       }
-
+      
       .row-cols-lg-4 > .col {
         flex: 0 0 calc(50% - 0.375rem);
         max-width: calc(50% - 0.375rem);
       }
-
+      
       .card-footer {
         flex-direction: column;
         gap: 1rem;
         align-items: stretch !important;
       }
-
+      
       .card-footer .d-flex {
         justify-content: center;
         gap: 0.5rem;
       }
-
+      
       .btn {
         min-height: 44px;
         font-size: 0.95rem;
       }
-
+      
       .btn-sm {
         min-height: 38px;
         font-size: 0.85rem;
       }
-
+      
       /* Responsive table */
       .table-responsive {
         font-size: 0.85rem;
         margin: 0 -0.5rem;
         padding: 0 0.5rem;
       }
-
+      
       .table th,
       .table td {
         padding: 0.4rem 0.3rem;
         white-space: nowrap;
       }
-
+      
       .table th:nth-child(n+6),
       .table td:nth-child(n+6) {
         white-space: normal;
         min-width: 80px;
       }
-
+      
       .table .d-flex.gap-1 {
         flex-direction: column;
         gap: 0.25rem !important;
       }
-
+      
       .table .btn-sm {
         font-size: 0.75rem;
         padding: 0.25rem 0.4rem;
         min-height: auto;
       }
-
+      
       /* Search form responsive */
       .card.mb-4.form-wrap {
         margin: 0 -0.5rem 1rem;
         padding: 0 0.5rem;
       }
-
+      
       .row.gy-3.gx-3 {
         gap: 1rem;
       }
-
+      
       .col-md-8,
       .col-md-2 {
         flex: 0 0 100%;
         max-width: 100%;
       }
-
+      
       .badge.bg-secondary {
         font-size: 0.8rem;
         padding: 0.25rem 0.5rem;
       }
-
+      
       /* Summary badges */
       .d-flex.flex-wrap.gap-2 {
         gap: 0.5rem !important;
       }
-
+      
       .badge.p-2 {
         padding: 0.5rem 0.75rem !important;
         font-size: 0.8rem;
       }
-
+      
       /* Alert messages */
       .alert {
         font-size: 0.9rem;
@@ -892,11 +694,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       .container.py-4 {
         padding: 0.5rem 0.25rem !important;
       }
-
+      
       h1.h4 {
         font-size: 1.1rem;
       }
-
+      
       fieldset {
         padding: 0.75rem;
       }
@@ -979,48 +781,44 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
   </style>
 </head>
 
-<body class="bg-light rubbers-page">
-  <div class="container page-shell">
-    <section class="hero-panel">
-      <div class="row g-3 align-items-center">
-        <div class="col-lg-7">
-          <h1 class="hero-title"><i class="bi bi-droplet-half me-2"></i>จัดการข้อมูลยางพารา</h1>
-          <p class="hero-subtitle">บันทึกรายการรับซื้อ ติดตามยอดหัก และตรวจสอบข้อมูลประจำรอบล่าสุดได้ในหน้าจอเดียว</p>
-        </div>
-        <div class="col-lg-5">
-          <div class="hero-chip-wrap">
-            <span class="hero-chip"><i class="bi bi-calendar-event"></i><?php echo e(thai_date_format($latest_round_date)); ?></span>
-            <span class="hero-chip"><i class="bi bi-list-check"></i><?php echo number_format(count($rows)); ?> รายการ</span>
-          </div>
-        </div>
-      </div>
-    </section>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="h4 mb-3">เธเธฑเธ”เธเธฒเธฃเธเนเธญเธกเธนเธฅเธขเธฒเธเธเธฒเธฃเธฒ</h1>
 
-    <!-- nav: add 'ทั้งหมด' -->
-    <nav class="surface-card toolbar-card p-2">
-      <div class="lane-toolbar">
-        <div class="lane-tabs">
-          <span class="lane-label">
-            <i class="bi bi-droplet-half"></i>เลือกลานรับยาง
-          </span>
-          <ul class="nav nav-pills align-items-center small mb-0">
-          <li class="nav-item">
-            <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">
-            ทั้งหมด
-            </a>
-          </li>
-          <?php for ($i = 1; $i <= 4; $i++): ?>
-            <li class="nav-item">
-            <a class="nav-link <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
-              ลานที่ <?php echo $i; ?>
-            </a>
-            </li>
-          <?php endfor; ?>
-          </ul>
-        </div>
-        <div class="toolbar-actions">
-      
-        </div>
+    <!-- nav: add 'เธ—เธฑเนเธเธซเธกเธ”' -->
+    <nav class="container-md mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <ul class="nav nav-pills align-items-center gap-1 small">
+      <li class="nav-item me-2">
+        <span class="text-secondary fw-semibold">
+        <i class="bi bi-droplet-half me-1 text-primary"></i>เน€เธฅเธทเธญเธเธฅเธฒเธเธฃเธฑเธเธขเธฒเธ:
+        </span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link rounded-pill px-3 py-1 <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">
+        เธ—เธฑเนเธเธซเธกเธ”
+        </a>
+      </li>
+      <?php for ($i = 1; $i <= 4; $i++): ?>
+        <li class="nav-item">
+        <a class="nav-link rounded-pill px-3 py-1 <?php echo ($currentLan === $i) ? 'active' : ''; ?>" href="rubbers.php?lan=<?php echo $i; ?>">
+          เธฅเธฒเธเธ—เธตเน <?php echo $i; ?>
+        </a>
+        </li>
+      <?php endfor; ?>
+      </ul>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <!-- เน€เธเธดเนเธก link เธเธฅเธฑเธเธซเธเนเธฒเธ•เธฑเนเธเธเนเธฒ (dashboard.php) -->
+        <a href="dashboard.php" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 rounded-pill">
+          <i class="bi bi-gear-fill"></i>
+          <span class="d-none d-sm-inline">เธเธฅเธฑเธเธซเธเนเธฒเธ•เธฑเนเธเธเนเธฒ</span>
+          <span class="d-inline d-sm-none">เธ•เธฑเนเธเธเนเธฒ</span>
+        </a>
+        <!-- เน€เธเธดเนเธกเธฅเธดเธเธเน เธเธฅเธฑเธเธซเธเนเธฒ (index.php) -->
+        <a href="index.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 rounded-pill">
+          <i class="bi bi-arrow-left"></i>
+          <span class="d-none d-sm-inline">เธเธฅเธฑเธเธซเธเนเธฒเนเธฃเธ</span>
+          <span class="d-inline d-sm-none">เธเธฅเธฑเธ</span>
+        </a>
       </div>
     </nav>
 
@@ -1032,10 +830,10 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <?php endif; ?>
 
     <?php if ($currentLan !== 'all'): ?>
-      <form method="post" autocomplete="off" class="card mb-4 form-wrap surface-card" id="rubberForm">
+      <form method="post" autocomplete="off" class="card mb-4 form-wrap" id="rubberForm">
         <div class="card-header d-flex justify-content-between align-items-center small">
-          <span>ลาน: <?php echo ($currentLan === 'all') ? 'ทั้งหมด (เพิ่มใช้ลาน 1 เริ่มต้น)' : 'ลาน ' . (int)$currentLan; ?></span>
-          <span class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'เพิ่มรายการใหม่'; ?></span>
+          <span>เธฅเธฒเธ: <?php echo ($currentLan === 'all') ? 'เธ—เธฑเนเธเธซเธกเธ” (เน€เธเธดเนเธกเนเธเนเธฅเธฒเธ 1 เน€เธฃเธดเนเธกเธ•เนเธ)' : 'เธฅเธฒเธ ' . (int)$currentLan; ?></span>
+          <span class="text-muted"><?php echo !empty($form['ru_id']) ? 'เนเธเนเนเธ #' . (int)$form['ru_id'] : 'เน€เธเธดเนเธกเธฃเธฒเธขเธเธฒเธฃเนเธซเธกเน'; ?></span>
         </div>
         <div class="card-body">
           <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
@@ -1050,48 +848,48 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
 
           <?php if (empty($form['ru_id'])): ?>
           <fieldset>
-            <legend>เลือกสมาชิก</legend>
+            <legend>เน€เธฅเธทเธญเธเธชเธกเธฒเธเธดเธ</legend>
             <!-- member chooser (unchanged logic, only wrapper) -->
             <div class="member-chooser">
               <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-search me-1"></i>ค้นหา</span>
-                <input id="memberSearch" type="text" class="form-control" placeholder="ชื่อ / เลขที่ / กลุ่ม / ชั้น">
+                <span class="input-group-text">เธเนเธเธซเธฒ</span>
+                <input id="memberSearch" type="text" class="form-control" placeholder="เธเธทเนเธญ / เน€เธฅเธเธ—เธตเน / เธเธฅเธธเนเธก / เธเธฑเนเธ">
               </div>
               <ul id="memberResults" class="list-group mt-1" hidden></ul>
-              <div id="memberSelected" class="form-text mt-2 member-summary" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
+              <div id="memberSelected" class="form-text mt-2" <?php if (empty($memberSelectedRow)) echo 'hidden'; ?>>
                 <?php if (!empty($memberSelectedRow)): ?>
-                  ใช้สมาชิก: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
+                  เนเธเนเธชเธกเธฒเธเธดเธ: <span class="tag">#<?php echo (int)$memberSelectedRow['mem_id']; ?></span>
                   <?php echo e($memberSelectedRow['mem_fullname']); ?> |
-                  กลุ่ม: <?php echo e($memberSelectedRow['mem_group']); ?> |
-                  เลขที่: <?php echo e($memberSelectedRow['mem_number']); ?> |
-                  ชั้น: <?php echo e($memberSelectedRow['mem_class']); ?>
-                  <button type="button" id="clearMember" class="btn btn-sm btn-danger">เปลี่ยน</button>
+                  เธเธฅเธธเนเธก: <?php echo e($memberSelectedRow['mem_group']); ?> |
+                  เน€เธฅเธเธ—เธตเน: <?php echo e($memberSelectedRow['mem_number']); ?> |
+                  เธเธฑเนเธ: <?php echo e($memberSelectedRow['mem_class']); ?>
+                  <button type="button" id="clearMember" class="link-btn">เน€เธเธฅเธตเนเธขเธ</button>
                 <?php endif; ?>
               </div>
             </div>
           </fieldset>
           <?php endif; ?>
-          <hr>
+
           <fieldset>
-            <legend>ข้อมูลพื้นฐาน</legend>
+            <legend>เธเนเธญเธกเธนเธฅเธเธทเนเธเธเธฒเธ</legend>
             <div class="row g-3">
               <div class="col-md-3">
-                <label class="form-label">วันที่
+                <label class="form-label">เธงเธฑเธเธ—เธตเน
                   <input type="date" name="ru_date" required class="form-control" value="<?php echo e($form['ru_date']); ?>">
                 </label>
               </div>
               <div class=" col-md-3">
-                <label class="form-label">กลุ่ม
+                <label class="form-label">เธเธฅเธธเนเธก
                   <input id="ru_group" name="ru_group" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_group']); ?>">
                 </label>
               </div>
               <div class=" col-md-3">
-                <label class="form-label">เลขที่
+                <label class="form-label">เน€เธฅเธเธ—เธตเน
                   <input id="ru_number" name="ru_number" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_number']); ?>">
                 </label>
               </div>
               <div class="col-md-3">
-                <label class="form-label">ชั้น
+                <label class="form-label">เธเธฑเนเธ
                   <input id="ru_class" name="ru_class" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_class']); ?>">
                 </label>
               </div>
@@ -1101,13 +899,13 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <div class="row my-2">
               <div class="col-md-9">
               <div class="input-group">
-              <span class="input-group-text">ชื่อ-สกุล</span>
+              <span class="input-group-text">เธเธทเนเธญ-เธชเธเธธเธฅ</span>
                   <input id="ru_fullname" name="ru_fullname" required class="form-control" <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?> value="<?php echo e($form['ru_fullname']); ?>">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="input-group">
-                  <span class="input-group-text">ปริมาณ</span>
+                  <span class="input-group-text">เธเธฃเธดเธกเธฒเธ“</span>
                   <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
@@ -1115,60 +913,59 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           </fieldset>
 
           <fieldset>
-            <legend>การหัก</legend>
+            <legend>เธเธฒเธฃเธซเธฑเธ</legend>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 num-group">
               <div class="col">
                 <div class="input-group">
-                  <span class="input-group-text">หุ้น</span>
+                  <span class="input-group-text">เธซเธธเนเธ</span>
                   <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_hoon']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
-                  <span class="input-group-text">เงินกู้</span>
+                  <span class="input-group-text">เน€เธเธดเธเธเธนเน</span>
                   <input id="ru_loan" name="ru_loan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_loan']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
-                  <span class="input-group-text">หนี้สั้น</span>
+                  <span class="input-group-text">เธซเธเธตเนเธชเธฑเนเธ</span>
                   <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
-                  <span class="input-group-text">เงินฝาก</span>
+                  <span class="input-group-text">เน€เธเธดเธเธเธฒเธ</span>
                   <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_deposit']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
-                  <span class="input-group-text">กู้ซื้อขาย</span>
+                  <span class="input-group-text">เธเธนเนเธเธทเนเธญเธเธฒเธข</span>
                   <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
                 </div>
               </div>
               <div class="col">
                 <div class="input-group">
-                  <span class="input-group-text">ประกันภัย</span>
+                  <span class="input-group-text">เธเธฃเธฐเธเธฑเธเธ เธฑเธข</span>
                   <input id="ru_insurance" name="ru_insurance" required inputmode="decimal" class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
                 </div>
               </div>
             </div>
             <input type="hidden" name="ru_savedate" value="<?php echo e($form['ru_savedate']); ?>">
           </fieldset>
-          <hr>
           <fieldset>
-            <legend>ยอดเงินคงเหลือที่ได้รับ</legend>
+            <legend>เธขเธญเธ”เน€เธเธดเธเธเธเน€เธซเธฅเธทเธญเธ—เธตเนเนเธ”เนเธฃเธฑเธ</legend>
             <div class="alert alert-info py-2">
                 <?php
-                // ดึงราคาล่าสุด
+                // เธ”เธถเธเธฃเธฒเธเธฒเธฅเนเธฒเธชเธธเธ”
                 $latestPrice = 0.00;
                 $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
                 if ($res && ($r = $res->fetch_assoc())) { $latestPrice = (float)$r['pr_price']; }
                 $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
                 $amount = ($qty > 0 && $latestPrice > 0) ? $qty * $latestPrice : 0;
 
-                // รวมยอดหักเริ่มต้น
+                // เธฃเธงเธกเธขเธญเธ”เธซเธฑเธเน€เธฃเธดเนเธกเธ•เนเธ
                 $deductTotal =
                   (float)$form['ru_hoon'] +
                   (float)$form['ru_loan'] +
@@ -1177,28 +974,24 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                   (float)$form['ru_tradeloan'] +
                   (float)$form['ru_insurance'];
 
-                // ค่าเริ่มต้นสำหรับแสดงผล (ถ้ามีค่าจากฐานข้อมูลให้ใช้ค่านั้น)
+                // เธเนเธฒเน€เธฃเธดเนเธกเธ•เนเธเธชเธณเธซเธฃเธฑเธเนเธชเธ”เธเธเธฅ (เธ–เนเธฒเธกเธตเธเนเธฒเธเธฒเธเธเธฒเธเธเนเธญเธกเธนเธฅเนเธซเนเนเธเนเธเนเธฒเธเธฑเนเธ)
                 $initialRuValue  = isset($form['ru_value'])    ? (float)$form['ru_value']    : $amount;
                 $initialExpend   = isset($form['ru_expend'])   ? (float)$form['ru_expend']   : $deductTotal;
                 $initialNetValue = isset($form['ru_netvalue']) ? (float)$form['ru_netvalue'] : ($initialRuValue - $initialExpend);
                 ?>
-                <p class="mb-3 small text-muted">
-                  ราคาล่าสุด: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
+                <p class="mb-1 small text-muted">
+                  เธฃเธฒเธเธฒเธฅเนเธฒเธชเธธเธ”: <span id="latestPrice" data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> เธเธฒเธ—/เธเธ.
                 </p>
-                <div class="metric-grid">
-                  <div class="metric-card">
-                    <span class="metric-label">มูลค่ายาง = ราคา x ปริมาณ</span>
-                    <strong id="ruValue" class="metric-value"><?php echo number_format($initialRuValue, 2); ?></strong>
-                  </div>
-                  <div class="metric-card">
-                    <span class="metric-label">ยอดหักรวม</span>
-                    <strong id="ruExpend" class="metric-value"><?php echo number_format($initialExpend, 2); ?></strong>
-                  </div>
-                  <div class="metric-card">
-                    <span class="metric-label">ยอดสุทธิที่ได้รับ</span>
-                    <strong id="ruNetValue" class="metric-value"><?php echo number_format($initialNetValue, 2); ?></strong>
-                  </div>
-                </div>
+                <p class="mb-1">
+                  เธกเธนเธฅเธเนเธฒเธขเธฒเธ = เธฃเธฒเธเธฒ x เธเธฃเธดเธกเธฒเธ“: <strong id="ruValue"><?php echo number_format($initialRuValue, 2); ?></strong> เธเธฒเธ—
+                </p>
+                <p class="mb-1">
+                  เธขเธญเธ”เธซเธฑเธเธฃเธงเธก: <strong id="ruExpend"><?php echo number_format($initialExpend, 2); ?></strong> เธเธฒเธ—
+                </p>
+                <p class="mb-0">
+                  เธขเธญเธ”เธชเธธเธ—เธเธด : <strong id="ruNetValue"><?php echo number_format($initialNetValue, 2); ?></strong> เธเธฒเธ—
+                </p>
+
                 <script>
                   (function () {
                     const priceEl = document.getElementById('latestPrice');
@@ -1241,14 +1034,14 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           </fieldset>
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
-          <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'แก้ไข #' . (int)$form['ru_id'] : 'สร้างรายการใหม่'; ?></small>
+          <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'เนเธเนเนเธ #' . (int)$form['ru_id'] : 'เธชเธฃเนเธฒเธเธฃเธฒเธขเธเธฒเธฃเนเธซเธกเน'; ?></small>
           <div>
             <button type="button" id="btnSave" class="btn btn-primary px-4">
-              <i class="bi bi-floppy2 me-1"></i>บันทึก
+              <i class="bi bi-floppy2 me-1"></i>เธเธฑเธเธ—เธถเธ
             </button>
             <?php if (!empty($form['ru_id'])): ?>
               <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">
-                <i class="bi bi-arrow-counterclockwise me-1"></i>ยกเลิก
+                <i class="bi bi-arrow-counterclockwise me-1"></i>เธขเธเน€เธฅเธดเธ
               </a>
             <?php endif; ?>
           </div>
@@ -1256,169 +1049,166 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       </form>
     <?php else: ?>
       <!-- improved search layout -->
-      <div class="card mb-4 form-wrap surface-card">
+      <div class="card mb-4 form-wrap">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span class="small fw-semibold">ค้นหาข้อมูลทุกลาน</span>
-          <span class="small text-muted">แสดงผล <?php echo count($rows); ?> รายการ</span>
+          <span class="small fw-semibold">เธเนเธเธซเธฒเธเนเธญเธกเธนเธฅเธ—เธธเธเธฅเธฒเธ</span>
+          <span class="small text-muted">เนเธชเธ”เธเธเธฅ <?php echo count($rows); ?> เธฃเธฒเธขเธเธฒเธฃ</span>
         </div>
         <div class="card-body">
           <form method="get" class="row gy-3 gx-3">
             <input type="hidden" name="lan" value="all">
             <div class="col-md-8">
-              <label class="form-label mb-1">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
+              <label class="form-label mb-1">เธเธณเธเนเธ (เธเธฅเธธเนเธก / เน€เธฅเธเธ—เธตเน / เธเธทเนเธญ / เธเธฑเนเธ)</label>
               <div class="input-group">
-                <span class="input-group-text">ค้นหา</span>
-                <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
+                <span class="input-group-text">เธเนเธเธซเธฒ</span>
+                <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เน€เธเนเธ เธเธฅเธธเนเธก 1, 001, เธเธฒเธขเน€เธญ, เธ.6">
                 <?php if ($search !== ''): ?>
-                  <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">
-                    <i class="bi bi-x-circle me-1"></i>ล้าง
+                  <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="เธฅเนเธฒเธ">
+                    <i class="bi bi-x-circle me-1"></i>เธฅเนเธฒเธ
                   </a>
                 <?php endif; ?>
               </div>
             </div>
             <div class="col-md-2">
-              <label class="form-label mb-1">รอบล่าสุด</label>
+              <label class="form-label mb-1">เธฃเธญเธเธฅเนเธฒเธชเธธเธ”</label>
               <div class="form-control d-flex align-items-center" style="height: 38px;">
                 <span class="badge bg-secondary"><?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?></span>
               </div>
             </div>
             <div class="col-md-2 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-check2 me-1"></i>ตกลง
+                <i class="bi bi-check2 me-1"></i>เธ•เธเธฅเธ
               </button>
             </div>
           </form>
 
           <!-- summary badges -->
-          <div class="mt-3 summary-grid">
-            <div class="summary-card">
-              <span class="summary-title">ปริมาณรวม</span>
-              <span class="summary-value"><?php echo number_format($sumQty,2); ?> กก.</span>
+          <div class="mt-3 d-flex flex-wrap gap-2">
+            <div class="badge bg-secondary text-wrap p-2">
+              เธเธฃเธดเธกเธฒเธ“เธฃเธงเธก: <?php echo number_format($sumQty,2); ?> เธเธ.
             </div>
-            <div class="summary-card">
-              <span class="summary-title">มูลค่ารวม</span>
-              <span class="summary-value"><?php echo number_format($sumValue,2); ?> ฿</span>
+            <div class="badge bg-info text-dark text-wrap p-2">
+              เธกเธนเธฅเธเนเธฒ (ru_value): <?php echo number_format($sumValue,2); ?> เธฟ
             </div>
-            <div class="summary-card">
-              <span class="summary-title">ยอดหักรวม</span>
-              <span class="summary-value"><?php echo number_format($sumExpend,2); ?> ฿</span>
+            <div class="badge bg-warning text-dark text-wrap p-2">
+              เธซเธฑเธเธฃเธงเธก (ru_expend): <?php echo number_format($sumExpend,2); ?> เธฟ
             </div>
-            <div class="summary-card">
-              <span class="summary-title">ยอดสุทธิ</span>
-              <span class="summary-value"><?php echo number_format($sumNet,2); ?> ฿</span>
+            <div class="badge bg-success text-wrap p-2">
+              เธชเธธเธ—เธเธด (ru_netvalue): <?php echo number_format($sumNet,2); ?> เธฟ
             </div>
           </div>
           <div class="mt-2 small text-muted">
-            เงื่อนไข:
-            <?php echo $search ? 'คำค้น="'.e($search).'" ' : 'ทั้งหมด '; ?>
-            <span class="ms-1">รอบล่าสุด <?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?> (ล็อกตามวันที่ราคายางล่าสุด)</span>
+            เน€เธเธทเนเธญเธเนเธ:
+            <?php echo $search ? 'เธเธณเธเนเธ="'.e($search).'" ' : 'เธ—เธฑเนเธเธซเธกเธ” '; ?>
+            <span class="ms-1">เธฃเธญเธเธฅเนเธฒเธชเธธเธ” <?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?> (เธฅเนเธญเธเธ•เธฒเธกเธงเธฑเธเธ—เธตเนเธฃเธฒเธเธฒเธขเธฒเธเธฅเนเธฒเธชเธธเธ”)</span>
           </div>
         </div>
       </div>
     <?php endif; ?>
 
-    <!-- ตาราง -->
-    <div class="surface-card data-card">
-      <div class="table-toolbar">
-        <div>
-          <p class="table-toolbar-title">ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ</p>
-          <p class="table-toolbar-subtitle"><?php echo ($currentLan === 'all') ? 'แสดงข้อมูลทุกลาน' : 'แสดงข้อมูลลาน '.(int)$currentLan; ?></p>
-        </div>
-        <div>
+    <!-- เธ•เธฒเธฃเธฒเธ -->
+    <div class="table-responsive rounded-3 border shadow-sm">
+      <table class="table table-sm table-hover align-middle caption-top">
+        <caption>
+          เธเธฅเธฅเธฑเธเธเน <?php echo number_format(count($rows)); ?> เธฃเธฒเธขเธเธฒเธฃ
+          <span class="ms-2 text-muted">
+            <?php echo ($currentLan === 'all') ? '(เธ—เธธเธเธฅเธฒเธ)' : '(เธฅเธฒเธ '.(int)$currentLan.')'; ?>
+          </span>
           <?php if (!empty($rows)): ?>
-            <a href="export_rubbers_excel.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success">
+           
+            <!-- export: Excel (per-row) -->
+            <a href="export_rubbers_excel.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success ms-2">
               <i class="bi bi-file-earmark-excel me-1"></i>Excel
             </a>
           <?php endif; ?>
-        </div>
-      </div>
-      <div class="table-shell">
-        <div class="table-responsive rounded-3">
-          <table class="table table-sm table-hover align-middle caption-top">
-            <thead class="table-light sticky-header">
-              <tr>
-            
-                <th>วันที่</th>
-                <th>ลาน</th>
-                <th>กลุ่ม</th>
-                <th>เลขที่</th>
-                <th>ชื่อ-สกุล</th>
-                <th class="text-end">ปริมาณ</th>
-                <th class="text-end">หุ้น</th>
-                <th class="text-end">เงินกู้</th>
-                <th class="text-end">หนี้สั้น</th>
-                <th class="text-end">เงินฝาก</th>
-                <th class="text-end">ลูกหนี้การค้า</th>
-                <th class="text-end">ประกันภัย</th>
-                <th>จัดการ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php if (!$rows): ?>
-                <tr>
-                  <td colspan="17" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
-                </tr>
-              <?php else: foreach ($rows as $r): ?>
-                <tr>
-          
-                  <td><?php echo thai_date_format($r['ru_date']); ?></td>
-                  <td><?php echo e($r['ru_lan']); ?></td>
-                  <td><?php echo e($r['ru_group']); ?></td>
-                  <td><?php echo e($r['ru_number']); ?></td>
-                  <td class="name-cell">
-                    <?php echo e($r['ru_fullname']); ?>
-                    <?php if ($r['ru_class'] == 'general'): ?>
-                      <span class="badge bg-danger">เกษตรกร</span>
-                    <?php elseif ($r['ru_class'] == 'member'): ?>
-                      <span class="badge bg-success">สมาชิก</span>
-                    <?php else: ?>
-                      <span class="badge bg-secondary">ไม่ระบุ</span>
-                    <?php endif; ?>
-                  </td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_shortdebt'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
-                  <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
-                  <td>
-                    <div class="action-stack">
-                      <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">
-                        <i class="bi bi-pencil-square me-1"></i>แก้ไข
-                      </a>
-                      <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
-                        <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
-                        <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
-                        <button type="submit" class="btn btn-sm btn-danger">
-                          <i class="bi bi-trash me-1"></i>ลบ
-                        </button>
-                      </form>
-                      <?php if ($hasDompdf): ?>
-                        <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">
-                          <i class="bi bi-file-earmark-pdf me-1"></i>PDF 
-                        </a>
-                      <?php else: ?>
-                        <button class="btn btn-sm btn-outline-secondary" disabled title="โปรดติดตั้ง dompdf ด้วย Composer ก่อน">
-                          <i class="bi bi-file-earmark-pdf me-1"></i>PDF
-                        </button>
-                      <?php endif; ?>
-                    </div>
-                  </td>
-                </tr>
-              <?php endforeach; endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </caption>
+        <thead class="table-light sticky-header">
+          <tr>
+            <th>ID</th>
+            <th>เธงเธฑเธเธ—เธตเน</th>
+            <th>เธฅเธฒเธ</th>
+            <th>เธเธฅเธธเนเธก</th>
+            <th>เน€เธฅเธเธ—เธตเน</th>
+            <th>เธเธทเนเธญ-เธชเธเธธเธฅ</th>
+        
+            <th class="text-end">เธเธฃเธดเธกเธฒเธ“</th>
+            <th class="text-end">เธซเธธเนเธ</th>
+            <th class="text-end">เน€เธเธดเธเธเธนเน</th>
+            <th class="text-end">เธซเธเธตเนเธชเธฑเนเธ</th>
+            <th class="text-end">เน€เธเธดเธเธเธฒเธ</th>
+            <th class="text-end">เธฅเธนเธเธซเธเธตเนเธเธฒเธฃเธเนเธฒ</th>
+            <th class="text-end">เธเธฃเธฐเธเธฑเธเธ เธฑเธข</th>
+            <th>เธเธฑเธ”เธเธฒเธฃ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if (!$rows): ?>
+            <tr>
+              <td colspan="17" class="text-center text-muted py-4">เธขเธฑเธเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅ</td>
+            </tr>
+          <?php else: foreach ($rows as $r): ?>
+            <tr>
+              <td><?php echo (int)$r['ru_id']; ?></td>
+              <td><?php echo thai_date_format($r['ru_date']); ?></td>
+              <td><?php echo e($r['ru_lan']); ?></td>
+              <td><?php echo e($r['ru_group']); ?></td>
+              <td><?php echo e($r['ru_number']); ?></td>
+              <td>
+                <?php echo e($r['ru_fullname']); ?>
+                <!-- เธ–เนเธฒ  ru_class == 'general'  -->
+                <?php if ($r['ru_class'] == 'general'): ?>
+                  <span class="badge bg-danger">เน€เธเธฉเธ•เธฃเธเธฃ</span>
+                <?php elseif ($r['ru_class'] == 'member'): ?>
+                  <span class="badge bg-success">เธชเธกเธฒเธเธดเธ</span>
+                <?php else: ?>
+                  <span class="badge bg-secondary">เนเธกเนเธฃเธฐเธเธธ</span>
+                <?php endif; ?>
+              </td>
+              
+              <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
+              <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
+              <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
+              <td class="text-end"><?php echo number_format((float)$r['ru_shortdebt'], 2); ?></td>
+              <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
+              <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
+              <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil-square me-1"></i>เนเธเนเนเธ
+                  </a>
+                  <form method="post" onsubmit="return confirm('เธฅเธเธฃเธฒเธขเธเธฒเธฃเธเธตเน?');" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
+                    <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash me-1"></i>เธฅเธ
+                    </button>
+                  </form>
+                  <?php if ($hasDompdf): ?>
+                    <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">
+                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF 
+                    </a>
+                  <?php else: ?>
+                    <button class="btn btn-sm btn-outline-secondary" disabled title="เนเธเธฃเธ”เธ•เธดเธ”เธ•เธฑเนเธ dompdf เธ”เนเธงเธข Composer เธเนเธญเธ">
+                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                    </button>
+                  <?php endif; ?>
+                </div>
+              </td>
+            </tr>
+          <?php endforeach; endif; ?>
+        </tbody>
+      </table>
     </div>
 
-
+    <div class="row my-2 text-center">
+      <a href="index.php"><button class="btn btn-sm btn-info"><i class="bi bi-arrow-left ms-2"></i>เธเธฅเธฑเธเธซเธเนเธฒเธซเธฅเธฑเธ</button></a>
+    </div>
 
     <?php if ($currentLan !== 'all'): ?>
-      <!-- added: inline JS for member search/selection (แสดงเฉพาะโหมดเพิ่ม/แก้ไข) -->
+      <!-- added: inline JS for member search/selection (เนเธชเธ”เธเน€เธเธเธฒเธฐเนเธซเธกเธ”เน€เธเธดเนเธก/เนเธเนเนเธ) -->
       <script>
         (function() {
           const inCreateMode = <?php echo json_encode(empty($form['ru_id'])); ?>;
@@ -1453,7 +1243,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
 
           function renderSelected(m) {
             selectedBox.hidden = false;
-            selectedBox.innerHTML = `ใช้สมาชิก: <span class="tag">#${m.mem_id}</span> ${m.mem_fullname} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class} <button type="button" id="clearMember" class="btn btn-sm btn-danger">เปลี่ยน</button>`;
+            selectedBox.innerHTML = `เนเธเนเธชเธกเธฒเธเธดเธ: <span class="tag">#${m.mem_id}</span> ${m.mem_fullname} | เธเธฅเธธเนเธก: ${m.mem_group} | เน€เธฅเธเธ—เธตเน: ${m.mem_number} | เธเธฑเนเธ: ${m.mem_class} <button type="button" id="clearMember" class="link-btn">เน€เธเธฅเธตเนเธขเธ</button>`;
             // re-bind clear after replacing innerHTML
             selectedBox.querySelector('#clearMember').addEventListener('click', () => {
               hid.value = '';
@@ -1491,7 +1281,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 list.innerHTML = rows.map(m => `
             <li data-item='${JSON.stringify(m).replace(/'/g, "&apos;")}' class="list-group-item list-group-item-action">
               <strong>${m.mem_fullname}</strong>
-              <div class="small">#${m.mem_id} | กลุ่ม: ${m.mem_group} | เลขที่: ${m.mem_number} | ชั้น: ${m.mem_class}</div>
+              <div class="small">#${m.mem_id} | เธเธฅเธธเนเธก: ${m.mem_group} | เน€เธฅเธเธ—เธตเน: ${m.mem_number} | เธเธฑเนเธ: ${m.mem_class}</div>
             </li>`).join('');
                 list.hidden = false;
               })
@@ -1555,7 +1345,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
 
         // extra guard: prevent submits not coming from the Save button
         form.addEventListener('submit', function(e) {
-          // when requestSubmit is used, submitter อาจไม่มี ให้ปล่อยผ่าน
+          // when requestSubmit is used, submitter เธญเธฒเธเนเธกเนเธกเธต เนเธซเนเธเธฅเนเธญเธขเธเนเธฒเธ
           if (e.submitter && e.submitter.id !== 'btnSave') {
             e.preventDefault();
           }
