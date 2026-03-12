@@ -126,7 +126,6 @@ if ($member) {
 
     $sql = 'SELECT YEAR(ru_date) AS year,
                    ru_date,
-                   ru_lan,
                    SUM(ru_quantity) AS total_quantity,
                    SUM(ru_value) AS total_value,
                    SUM(ru_expend) AS total_expend,
@@ -146,7 +145,7 @@ if ($member) {
         $types .= 'i';
         $params[] = $selectedYear;
     }
-    $sql .= ' GROUP BY YEAR(ru_date), ru_date, ru_lan ORDER BY year DESC, ru_date DESC, ru_lan ASC';
+    $sql .= ' GROUP BY YEAR(ru_date), ru_date ORDER BY year DESC, ru_date DESC';
 
     $stmt = $db->prepare($sql);
     if ($stmt) {
@@ -174,7 +173,6 @@ if ($member) {
             }
             $summaryRows[$year][] = [
                 'ru_date' => $row['ru_date'],
-                'ru_lan' => $row['ru_lan'],
                 'total_quantity' => (float)$row['total_quantity'],
                 'total_value' => (float)$row['total_value'],
                 'total_expend' => (float)$row['total_expend'],
@@ -824,7 +822,7 @@ if ($member) {
             <div class="year-section-header">
                 <div>
                     <span class="year-pill"><i class="bi bi-calendar3"></i> พ.ศ. <?php echo $year + 543; ?></span>
-                    <span class="year-meta ms-2"><?php echo count($rows); ?> รอบ</span>
+                    <span class="year-meta ms-2"><?php echo count($rows); ?> วัน</span>
                 </div>
                 <button class="btn-year-deduct" type="button"
                         data-bs-toggle="collapse" data-bs-target="#<?php echo e($yearCollapseId); ?>"
