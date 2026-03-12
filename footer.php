@@ -21,8 +21,12 @@
                 <h6 class="footer-heading">ติดต่อสหกรณ์</h6>
                 <ul class="footer-contact list-unstyled">
                     <li><i class="bi bi-geo-alt-fill"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180</li>
-                    <li><i class="bi bi-telephone-outbound"></i> 044-123-456 ต่อ 101</li>
-                    <li><i class="bi bi-envelope-open"></i> coop@tungluilai.or.th</li>
+                    <li><i class="bi bi-telephone-outbound"></i> 044-109752,089-9441753</li>
+                    <li>
+                        <!-- insert home icon -->
+                         <i class="bi bi-house-door"></i> 080-0062515(ร้านค้าสหกรณ์)
+                    </li>
+                    <li><i class="bi bi-envelope-open"></i> tungluilay@gmail.com</li>
                     <li><i class="bi bi-clock-history"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
                 </ul>
                
