@@ -296,7 +296,7 @@ if ($member) {
             margin-bottom: .25rem;
         }
         .login-card .subtitle {
-            font-size: .9rem;
+            font-size: 1rem;
             color: var(--text-muted);
             margin-bottom: 1.75rem;
         }
@@ -700,8 +700,8 @@ if ($member) {
 <div class="login-wrap">
     <div class="login-logo">🌿</div>
     <div class="login-card">
-        <h1>เข้าสู่ระบบสมาชิก</h1>
-        <p class="subtitle">ใช้เลขสมาชิก&nbsp;และ&nbsp;รหัสบุคคล&nbsp;4&nbsp;หลัก เพื่อดูข้อมูลยางของคุณ</p>
+        <h1 class="text-center">ระบบสมาชิก</h1>
+        <h3 class="subtitle text-center">Rubber Trade System : ข้อมูลการรวบรวมยาง</h3>
 
         <?php if ($errors): ?>
             <div class="login-error">
@@ -723,7 +723,7 @@ if ($member) {
             </div>
 
             <div class="field-wrap">
-                <label for="mem_personcode">รหัสบุคคล</label>
+                <label for="mem_personcode">รหัสผ่าน</label>
                 <input type="password" id="mem_personcode" name="mem_personcode"
                        class="form-control pin-input" required maxlength="4" minlength="4"
                        pattern="\d{4}" inputmode="numeric" placeholder="••••"
@@ -734,10 +734,15 @@ if ($member) {
                 <i class="bi bi-box-arrow-in-right"></i>&nbsp; เข้าสู่ระบบ
             </button>
         </form>
+              <div class="mt-3 text-muted text-center" style="font-size: 0.875rem;color:red;">
+                <!-- insert icon card -->
+                <i class="bi bi-credit-card"></i>
+                รหัสผ่านคือเลข4ตัวท้ายของเลขบัตรประจำตัวประชาชน
+            </div>
     </div>
-    <div class="login-home-link">
+    <!-- <div class="login-home-link">
         <a href="index.php"><i class="bi bi-house-door"></i> กลับหน้าหลัก</a>
-    </div>
+    </div> -->
 </div>
 
 <?php else: ?>

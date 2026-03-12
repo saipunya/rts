@@ -2,6 +2,13 @@
 require_once 'functions.php';
 require_login();
 include 'header.php';
+?>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;600;700&display=swap" rel="stylesheet">
+
+<?php
 
 // Handle form submission for updating person code
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_person_code') {
@@ -31,17 +38,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Search functionality - auto search on input
+// Search functionality - show all members initially, filter when searching
 $q = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
 $members = [];
 $editing_member = null;
 
-// Always search if there's a query parameter
+// Always load data - either all members or filtered results
 if ($q !== '' && mb_strlen($q) >= 2) {
+    // Search with query
     $like = '%' . $q . '%';
     $stmt = $mysqli->prepare("SELECT mem_id, mem_group, mem_number, mem_fullname, mem_birthtext, mem_class, mem_personcode, mem_saveby, mem_savedate FROM tbl_member WHERE mem_fullname LIKE ? OR mem_number LIKE ? OR mem_group LIKE ? ORDER BY mem_fullname ASC");
     if ($stmt) {
         $stmt->bind_param('sss', $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $members = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+    }
+} else {
+    // Load all members when no search query or query is too short
+    $stmt = $mysqli->prepare("SELECT mem_id, mem_group, mem_number, mem_fullname, mem_birthtext, mem_class, mem_personcode, mem_saveby, mem_savedate FROM tbl_member ORDER BY mem_fullname ASC");
+    if ($stmt) {
         $stmt->execute();
         $result = $stmt->get_result();
         $members = $result->fetch_all(MYSQLI_ASSOC);
@@ -65,7 +82,9 @@ if (isset($_GET['edit_id']) && is_numeric($_GET['edit_id'])) {
 <style>
 /* Match existing page styles */
 html, body {
-  font-size: 18px;
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 200;
 }
 .container,
 .card,
@@ -78,10 +97,13 @@ html, body {
 .nav-link,
 .alert,
 .badge {
+  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   font-size: 1rem;
+  font-weight: 200;
 }
 .small, .form-text {
   font-size: 1rem !important;
+  font-weight: 200 !important;
 }
 
 /* Enhanced Responsive Design */
@@ -246,12 +268,9 @@ html, body {
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col-6">
-            <h3>เพิ่มรหัสบุคคลสมาชิก</h3>
+            <h4>เพิ่มรหัสบุคคลสมาชิก</h4>
         </div>
-        <div class="col-6 text-end">
-            <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
-            <a href="members.php" class="btn btn-info">จัดการสมาชิก</a>
-        </div>
+      
     </div>
 
     <?php if (isset($success_msg)): ?>
@@ -351,27 +370,28 @@ html, body {
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>เลขสมาชิก</th>
                             <th>กลุ่ม</th>
-                            <th>เลขที่สมาชิก</th>
+                       
                             <th>ชื่อ-สกุล</th>
-                            <th>วันเกิด</th>
                             <th>ชั้น</th>
                             <th>รหัสบุคคล</th>
-                            <th>บันทึกโดย</th>
-                            <th>วันที่บันทึก</th>
+                          
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($members as $member): ?>
                             <tr>
-                                <td><?php echo (int)$member['mem_id']; ?></td>
-                                <td><?php echo htmlspecialchars($member['mem_group']); ?></td>
                                 <td><?php echo htmlspecialchars($member['mem_number']); ?></td>
+                                <td><?php echo htmlspecialchars($member['mem_group']); ?></td>
+                               
                                 <td><?php echo htmlspecialchars($member['mem_fullname']); ?></td>
-                                <td><?php echo !empty($member['mem_birthtext']) ? htmlspecialchars($member['mem_birthtext']) : '-'; ?></td>
-                                <td><?php echo htmlspecialchars($member['mem_class']); ?></td>
+
+                                <td>
+                                  <!-- ถ้า mem_class == member ให้แสดงข้อความว่า สมาชิก ถ้าไม่ใช่ให้แสดงว่า เกษตรกร -->
+                                  <?php echo $member['mem_class'] == 'member' ? 'สมาชิก' : 'เกษตรกร'; ?>
+                                </td>
                                 <td>
                                     <?php if (!empty($member['mem_personcode'])): ?>
                                         <span class="badge bg-success"><?php echo htmlspecialchars($member['mem_personcode']); ?></span>
@@ -379,8 +399,6 @@ html, body {
                                         <span class="badge bg-secondary">ยังไม่มี</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($member['mem_saveby']); ?></td>
-                                <td><?php echo htmlspecialchars(thai_date_format($member['mem_savedate'])); ?></td>
                                 <td>
                                     <a href="add_person_code.php?edit_id=<?php echo (int)$member['mem_id']; ?>" 
                                        class="btn btn-sm btn-primary">
@@ -395,16 +413,22 @@ html, body {
             
             <div class="row mt-3">
                 <div class="col-12 text-center">
-                    <small class="text-muted">พบ <?php echo count($members); ?> รายการ</small>
+                    <small class="text-muted">
+                        <?php if ($q !== '' && mb_strlen($q) >= 2): ?>
+                            พบ <?php echo count($members); ?> รายการ (จากการค้นหา: "<?php echo htmlspecialchars($q); ?>")
+                        <?php else: ?>
+                            แสดงทั้งหมด <?php echo count($members); ?> รายการ
+                        <?php endif; ?>
+                    </small>
                 </div>
             </div>
-        <?php elseif ($q !== ''): ?>
+        <?php elseif ($q !== '' && mb_strlen($q) >= 2): ?>
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i> ไม่พบสมาชิกที่ค้นหา: "<?php echo htmlspecialchars($q); ?>"
             </div>
         <?php else: ?>
             <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> กรุณาค้นหาสมาชิกเพื่อเพิ่มหรือแก้ไขรหัสบุคคล
+                <i class="bi bi-info-circle"></i> ไม่พบข้อมูลสมาชิกในระบบ
             </div>
         <?php endif; ?>
     <?php endif; ?>

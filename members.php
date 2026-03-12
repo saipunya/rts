@@ -28,27 +28,68 @@ $result = $stmt->get_result();
 $members = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-/* Match rubbers.php baseline scale */
-html, body {
-  font-size: 18px;
-}
-.container,
-.card,
-.table,
-.form-control,
-.form-select,
-.form-label,
-.btn,
-.btn-sm,
-.nav-link,
-.alert,
-.badge {
-  font-size: 1rem;
-}
-.small, .form-text {
-  font-size: 1rem !important;
-}
+	html, body {
+		font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+		font-size: 16px;
+		font-weight: 300;
+		background: #eef6f0;
+		color: var(--bs-body-color);
+	}
+
+	.container {
+		background: var(--bs-body-bg);
+		border-radius: 1.25rem;
+		padding: 2rem;
+		margin-top: 2rem;
+		margin-bottom: 2rem;
+		box-shadow: var(--bs-box-shadow-sm);
+	}
+
+	.card,
+	.table,
+	.form-control,
+	.form-select,
+	.form-label,
+	.btn,
+	.btn-sm,
+	.nav-link,
+	.alert,
+	.badge {
+		font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+		font-size: 16px;
+		font-weight: 300;
+	}
+
+	.small,
+	.form-text {
+		font-size: 14px !important;
+		font-weight: 300 !important;
+	}
+
+	/* Match rubbers.php baseline scale */
+	html, body {
+	  font-size: 18px;
+	}
+
+	.container,
+	.card,
+	.table,
+	.form-control,
+	.form-select,
+	.form-label,
+	.btn,
+	.btn-sm,
+	.nav-link,
+	.alert,
+	.badge {
+	  font-size: 1rem;
+	}
 
 /* Enhanced Responsive Design */
 @media (max-width: 992px) {
@@ -191,15 +232,13 @@ html, body {
   }
 }
 </style>
-<div class="container mt-4">
+
     <div class="row mb-3">
         <div class="col-6">
             <h3>สมาชิกสหกรณ์</h3>
         </div>
         <div class="col-6 text-end">
-            <a href="dashboard.php" class="btn btn-secondary me-2">กลับหน้า dashboard</a>
-            <a href="rubbers.php" class="btn btn-info">หน้ารวบรวมยาง</a>
-            <a href="member_form.php?action=create" class="btn btn-success">เพิ่มสมาชิก</a>
+            <a href="member_form.php?action=create" class="btn btn-success">+เพิ่มสมาชิก</a>
         </div>
     </div>
 
@@ -226,27 +265,26 @@ html, body {
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>#</th>
+    
                     <th>กลุ่ม</th>
-                    <th>เลขที่สมาชิก</th>
+                    <th>เลขสมาชิก</th>
                     <th>ชื่อ-สกุล</th>
                     <th>ชั้น</th>
                     <th>บันทึกโดย</th>
                     <th>วันที่บันทึก</th>
-                    <th>Actions</th>
+                    <th class="text-nowrap">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($members as $m): ?>
                     <tr>
-                        <td><?php echo (int)$m['mem_id']; ?></td>
                         <td><?php echo htmlspecialchars($m['mem_group']); ?></td>
                         <td><?php echo htmlspecialchars($m['mem_number']); ?></td>
                         <td><?php echo htmlspecialchars($m['mem_fullname']); ?></td>
                         <td><?php echo htmlspecialchars($m['mem_class']); ?></td>
                         <td><?php echo htmlspecialchars($m['mem_saveby']); ?></td>
-                        <td><?php echo htmlspecialchars(thai_date_format($m['mem_savedate'])); ?></td>
-                        <td>
+                        <td ><?php echo htmlspecialchars(thai_date_format($m['mem_savedate'])); ?></td>
+                        <td class="text-nowrap">
                             <a href="member_form.php?action=edit&id=<?php echo (int)$m['mem_id']; ?>" class="btn btn-sm btn-primary">แก้ไข</a>
                             <form method="post" action="member_delete.php" style="display:inline-block;" onsubmit="return confirm('ลบสมาชิก?');">
                                 <input type="hidden" name="id" value="<?php echo (int)$m['mem_id']; ?>">
@@ -257,15 +295,8 @@ html, body {
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <div class="container">
-            <div class="row my-2">
-                <div class="col-12 text-center">
-                    <a href="dashboard.php" class="btn btn-secondary">กลับไปหน้าหลัก</a>
-                </div>
-            </div>
-        </div>
     </div>
-</div>
+
 
 <script>
 (function(){

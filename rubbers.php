@@ -985,7 +985,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       <div class="row g-3 align-items-center">
         <div class="col-lg-7">
           <h1 class="hero-title"><i class="bi bi-droplet-half me-2"></i>จัดการข้อมูลยางพารา</h1>
-          <p class="hero-subtitle">บันทึกรายการรับซื้อ ติดตามยอดหัก และตรวจสอบข้อมูลประจำรอบล่าสุดได้ในหน้าจอเดียว</p>
+          <p class="hero-subtitle">บันทึกรับซื้อ ติดตามยอดหัก และตรวจสอบข้อมูลประจำรอบล่าสุดได้ในหน้าจอเดียว</p>
         </div>
         <div class="col-lg-5">
           <div class="hero-chip-wrap">
@@ -1320,11 +1320,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <!-- ตาราง -->
     <div class="surface-card data-card">
       <div class="table-toolbar">
-        <div>
-          <p class="table-toolbar-title">ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ</p>
-          <p class="table-toolbar-subtitle"><?php echo ($currentLan === 'all') ? 'แสดงข้อมูลทุกลาน' : 'แสดงข้อมูลลาน '.(int)$currentLan; ?></p>
+        <div class="text-center d-flex justify-content-center align-items-center gap-3 mt-2">
+          <div style="font-size: 16px;">ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ</div>
+          <div style="font-size: 16px;"><?php echo ($currentLan === 'all') ? 'แสดงข้อมูลทุกลาน' : 'แสดงข้อมูลลาน '.(int)$currentLan; ?></div>
         </div>
-        <div>
+        <div class="text-end mb-2 p-2">
           <?php if (!empty($rows)): ?>
             <a href="export_rubbers_excel.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success">
               <i class="bi bi-file-earmark-excel me-1"></i>Excel
@@ -1350,7 +1350,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <th class="text-end">เงินฝาก</th>
                 <th class="text-end">ลูกหนี้การค้า</th>
                 <th class="text-end">ประกันภัย</th>
-                <th>จัดการ</th>
+                <th class="text-center">จัดการ</th>
               </tr>
             </thead>
             <tbody>
