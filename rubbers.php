@@ -1337,6 +1337,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           <table class="table table-sm table-hover align-middle caption-top">
             <thead class="table-light sticky-header">
               <tr>
+                <th>ID</th>
             
                 <th>วันที่</th>
                 <th>ลาน</th>
@@ -1360,6 +1361,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 </tr>
               <?php else: foreach ($rows as $r): ?>
                 <tr>
+                  <td><?php echo e($r['ru_id']); ?></td>
           
                   <td><?php echo thai_date_format($r['ru_date']); ?></td>
                   <td><?php echo e($r['ru_lan']); ?></td>
