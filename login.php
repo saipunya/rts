@@ -6,357 +6,390 @@ $errors = [];
 $msg = $_GET['msg'] ?? '';
 $csrf = csrf_token();
 
-// redirect if already logged-in
 if (!empty($_SESSION['user_id'])) {
-	header('Location: index.php');
-	exit;
+    header('Location: index.php');
+    exit;
 }
 
-// handle POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	if (!csrf_check($_POST['csrf_token'] ?? '')) {
-		$errors[] = 'โทเค็นไม่ถูกต้อง';
-	} else {
-		$username = trim((string)($_POST['username'] ?? ''));
-		$password = (string)($_POST['password'] ?? '');
-		if ($username === '' || $password === '') {
-			$errors[] = 'กรอกชื่อผู้ใช้และรหัสผ่าน';
-		} else {
-			$row = null;
+    if (!csrf_check($_POST['csrf_token'] ?? '')) {
+        $errors[] = 'โทเค็นไม่ถูกต้อง';
+    } else {
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
 
-			 // updated: correct columns for tbl_user
-			if ($st = $db->prepare('SELECT user_id, user_username, user_password, user_fullname, user_level, user_status FROM tbl_user WHERE user_username = ? LIMIT 1')) {
-				$st->bind_param('s', $username);
-				$st->execute();
-				$res = $st->get_result();
-				$row = $res->fetch_assoc() ?: null;
-				$st->close();
-			}
+        if ($username === '' || $password === '') {
+            $errors[] = 'กรอกชื่อผู้ใช้และรหัสผ่าน';
+        } else {
+            $row = null;
 
-			// fallback to users
-			if (!$row && ($st = $db->prepare('SELECT * FROM users WHERE username = ? LIMIT 1'))) {
-				$st->bind_param('s', $username);
-				$st->execute();
-				$res = $st->get_result();
-				$row = $res->fetch_assoc() ?: null;
-				$st->close();
-			}
+            if ($st = $db->prepare('SELECT user_id, user_username, user_password, user_fullname, user_level, user_status FROM tbl_user WHERE user_username = ? LIMIT 1')) {
+                $st->bind_param('s', $username);
+                $st->execute();
+                $res = $st->get_result();
+                $row = $res->fetch_assoc() ?: null;
+                $st->close();
+            }
 
-			if ($row) {
-				 // updated: map real columns
-				$hash = $row['user_password'] ?? ($row['password'] ?? '');
-				$uid  = $row['user_id'] ?? ($row['id'] ?? null);
-				$uname_db = $row['user_username'] ?? ($row['username'] ?? $username);
-				$fullname = $row['user_fullname'] ?? ($row['fullname'] ?? $uname_db);
-				$level = $row['user_level'] ?? ($row['role'] ?? 'user');
-				$status = $row['user_status'] ?? ($row['status'] ?? 'active');
+            if (!$row && ($st = $db->prepare('SELECT * FROM users WHERE username = ? LIMIT 1'))) {
+                $st->bind_param('s', $username);
+                $st->execute();
+                $res = $st->get_result();
+                $row = $res->fetch_assoc() ?: null;
+                $st->close();
+            }
 
-				// added: status check
-				$active = in_array(strtolower($status), ['active','1','enabled','true'], true);
+            if ($row) {
+                $hash = $row['user_password'] ?? ($row['password'] ?? '');
+                $uid = $row['user_id'] ?? ($row['id'] ?? null);
+                $unameDb = $row['user_username'] ?? ($row['username'] ?? $username);
+                $fullname = $row['user_fullname'] ?? ($row['fullname'] ?? $unameDb);
+                $level = $row['user_level'] ?? ($row['role'] ?? 'user');
+                $status = $row['user_status'] ?? ($row['status'] ?? 'active');
 
-				if (!$active) {
-					$errors[] = 'บัญชีถูกระงับการใช้งาน';
-				} elseif ($hash !== '' && password_verify($password, $hash)) {
-					// set session keys expected by the rest of the app
-					$_SESSION['user_id'] = (int)$uid;
-					$_SESSION['user_username'] = (string)$uname_db;
-					$_SESSION['user_fullname'] = (string)$fullname;
-					$_SESSION['user_level'] = (string)$level;
-					$_SESSION['user_status'] = (string)$status;
+                $active = in_array(strtolower($status), ['active', '1', 'enabled', 'true'], true);
 
-					$redirect = $_GET['redirect'] ?? 'dashboard.php';
-					if (strpos($redirect, '/') === 0) $redirect = ltrim($redirect, '/'); // simple safety
-					header('Location: ' . $redirect);
-					exit;
-				} else {
-					$errors[] = 'รหัสผ่านไม่ถูกต้อง';
-				}
-			} else {
-				$errors[] = 'ไม่พบบัญชีผู้ใช้';
-			}
-		}
-	}
+                if (!$active) {
+                    $errors[] = 'บัญชีถูกระงับการใช้งาน';
+                } elseif ($hash !== '' && password_verify($password, $hash)) {
+                    $_SESSION['user_id'] = (int) $uid;
+                    $_SESSION['user_username'] = (string) $unameDb;
+                    $_SESSION['user_fullname'] = (string) $fullname;
+                    $_SESSION['user_level'] = (string) $level;
+                    $_SESSION['user_status'] = (string) $status;
+
+                    $redirect = $_GET['redirect'] ?? 'dashboard.php';
+                    if (strpos($redirect, '/') === 0) {
+                        $redirect = ltrim($redirect, '/');
+                    }
+
+                    header('Location: ' . $redirect);
+                    exit;
+                } else {
+                    $errors[] = 'รหัสผ่านไม่ถูกต้อง';
+                }
+            } else {
+                $errors[] = 'ไม่พบบัญชีผู้ใช้';
+            }
+        }
+    }
 }
 
-// view
 include 'header.php';
 ?>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-html, body {
-  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 300;
+.login-shell,
+.login-layout,
+.login-layout .form-control,
+.login-layout .form-label,
+.login-layout .btn,
+.login-layout .alert,
+.login-layout p,
+.login-layout h1,
+.login-layout h2,
+.login-layout span,
+.login-layout div {
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
-.login-card,
-.form-control,
-.form-select,
-.form-label,
-.btn,
-.btn-sm,
-.nav-link,
-.alert,
-.badge {
-  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 300;
+.content-card {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
 }
 
-.small,
-.form-text {
-  font-size: 14px !important;
-  font-weight: 300 !important;
+.login-shell {
+    min-height: clamp(540px, 72vh, 760px);
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem 1rem;
 }
 
-.login-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2.5rem 1rem 2rem 2rem;
-  margin-top: 60px;
+.login-layout {
+    width: min(1080px, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 430px);
+    background: #ffffff;
+    border: 1px solid rgba(21, 87, 36, 0.12);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 28px 60px rgba(16, 24, 40, 0.12);
 }
+
+.login-hero {
+    position: relative;
+    padding: 3rem;
+    color: #f5fff6;
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.12), transparent 30%),
+        linear-gradient(145deg, #1f6f43 0%, #2f9e57 48%, #95d5b2 100%);
+}
+
+.login-hero::after {
+    content: '';
+    position: absolute;
+    inset: auto -80px -110px auto;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.login-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+}
+
+.login-hero h1 {
+    font-size: clamp(2rem, 3vw, 3rem);
+    line-height: 1.15;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.login-hero p {
+    max-width: 34rem;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.92);
+    margin-bottom: 1.75rem;
+}
+
+.login-highlights {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.login-highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+}
+
+.login-highlight i {
+    font-size: 1.2rem;
+}
+
+.login-panel {
+    padding: 2.5rem 2.25rem;
+    background: linear-gradient(180deg, #fcfefc 0%, #f3faf5 100%);
+}
+
+.login-panel-head {
+    margin-bottom: 1.5rem;
+}
+
+.login-kicker {
+    display: inline-block;
+    color: #157347;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+}
+
 .login-title {
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #2d3748;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #163020;
+    margin: 0;
 }
-.login-btns .btn {
-  min-width: 120px;
+
+.login-subtitle {
+    margin: 0.5rem 0 0;
+    color: #4f6b58;
+    line-height: 1.7;
 }
-.form-control {
-  font-size: 1.2rem;
+
+.login-alert {
+    border: none;
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+    font-size: 0.98rem;
+    margin-bottom: 1rem;
 }
+
+.login-alert.alert-danger {
+    background: #fff0f0;
+    color: #a61b1b;
+}
+
+.login-alert.alert-info {
+    background: #edf9f0;
+    color: #1f6f43;
+}
+
+.login-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.login-field {
+    display: grid;
+    gap: 0.5rem;
+}
+
 .form-label {
-  font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #294335;
 }
 
-/* Enhanced Responsive Design */
-@media (max-width: 992px) {
-  .login-card {
-    margin: 40px 1rem 0;
-    padding: 2rem 1.5rem;
-  }
-  
-  .login-title {
-    font-size: 1.5rem;
-  }
+.form-control {
+    min-height: 54px;
+    border-radius: 16px;
+    border: 1px solid #d6e6d9;
+    background: #ffffff;
+    font-size: 1rem;
+    padding: 0.85rem 1rem;
+    box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-@media (max-width: 768px) {
-  .login-card {
-    margin: 20px 0.5rem 0;
-    padding: 1.5rem 1rem;
-    border-radius: 12px;
-  }
-  
-  .login-title {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-  }
-  
-  .row.mb-4 {
-    margin-bottom: 1rem !important;
-  }
-  
-  .mb-3 {
-    margin-bottom: 1rem !important;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1.5rem !important;
-  }
-  
-  .form-label {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-  }
-  
-  .form-control {
-    font-size: 1.2rem;
-    padding: 0.75rem 1rem;
-    min-height: 48px;
-    border-radius: 8px;
-  }
-  
-  .btn {
-    min-height: 48px;
-    font-size: 1.2rem;
-    padding: 0.75rem 2rem;
-    border-radius: 8px;
-    font-weight: 600;
-  }
-  
-  .alert {
-    font-size: 1.2rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-  }
-  
-  .text-center {
-    text-align: center !important;
-  }
+.form-control::placeholder {
+    color: #8aa092;
 }
 
-@media (max-width: 576px) {
-  .login-card {
-    margin: 10px 0.25rem 0;
-    padding: 1.25rem 0.75rem;
-    border-radius: 8px;
-  }
-  
-  .login-title {
-    font-size: 1.2rem;
-  }
-  
-  .container-fluid {
-    padding: 0 0.5rem;
-  }
-  
-  .form-label {
-    font-size: 1.2rem;
-  }
-  
-  .form-control {
-    font-size: 1.2rem;
-    padding: 0.6rem 0.8rem;
-    min-height: 44px;
-  }
-  
-  .btn {
-    min-height: 44px;
-    font-size: 1.2rem;
-    padding: 0.6rem 1.5rem;
-  }
-  
-  .alert {
-    font-size: 1.2rem;
-    padding: 0.6rem 0.8rem;
-  }
-  
-  .row.mb-4 {
-    margin-bottom: 0.75rem !important;
-  }
-  
-  .mb-3 {
-    margin-bottom: 0.75rem !important;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1.25rem !important;
-  }
+.form-control:focus {
+    border-color: #2f9e57;
+    box-shadow: 0 0 0 0.25rem rgba(47, 158, 87, 0.14);
+    transform: translateY(-1px);
 }
 
-/* Landscape orientation */
-@media (max-width: 768px) and (orientation: landscape) {
-  .login-card {
-    margin-top: 10px;
-    padding: 1rem 1.5rem;
-  }
-  
-  .login-title {
-    font-size: 1.2rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  .mb-3 {
-    margin-bottom: 0.5rem !important;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1rem !important;
-  }
+.login-actions {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 0.25rem;
 }
 
-/* Extra small screens */
-@media (max-width: 480px) {
-  .login-card {
-    padding: 1rem 0.5rem;
-  }
-  
-  .login-title {
-    font-size: 1.1rem;
-  }
-  
-  .form-control {
-    padding: 0.5rem 0.7rem;
-  }
-  
-  .btn {
-    padding: 0.5rem 1rem;
-  }
+.login-btn {
+    min-height: 54px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #1f6f43 0%, #2f9e57 55%, #74c69d 100%);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 16px 30px rgba(31, 111, 67, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-/* Touch-friendly improvements */
-@media (hover: none) and (pointer: coarse) {
-  .form-control,
-  .btn {
-    min-height: 44px;
-  }
-  
-  .btn:hover {
-    transform: none;
-  }
-  
-  .form-control:focus {
-    transform: none;
-  }
+.login-btn:hover,
+.login-btn:focus {
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 20px 34px rgba(31, 111, 67, 0.24);
+    filter: saturate(1.05);
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .login-card {
-    border: 2px solid #000;
-  }
-  
-  .form-control {
-    border: 2px solid #000;
-  }
-  
-  .btn {
-    border: 2px solid #000;
-  }
+.login-note {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #6c7f73;
+    text-align: center;
 }
 
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .login-card,
-  .btn,
-  .form-control {
-    transition: none;
-  }
+@media (max-width: 991.98px) {
+    .login-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .login-hero {
+        padding: 2.25rem 1.5rem;
+    }
+
+    .login-panel {
+        padding: 2rem 1.35rem 1.5rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .login-shell {
+        padding: 1rem 0.35rem 0;
+    }
+
+    .login-layout {
+        border-radius: 22px;
+    }
+
+    .login-hero,
+    .login-panel {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .login-title {
+        font-size: 1.7rem;
+    }
 }
 </style>
 
-  <div class="login-card container-fluid">
-    <div class="row mb-4">
-      <div class="col-12 text-center">
-        <h3 class="login-title mb-0">เข้าสู่ระบบ</h3>
-      </div>
+<section class="login-shell">
+    <div class="login-layout">
+        <div class="login-hero">
+            <div class="login-badge"><i class="bi bi-shield-check"></i> ระบบงานสหกรณ์ยางพารา</div>
+            <h1>จัดการข้อมูลรับซื้อยางให้เป็นระบบ ชัดเจน และตรวจสอบง่าย</h1>
+            <p>เข้าสู่ระบบเพื่อดูข้อมูลการรับซื้อ ราคาอ้างอิง รายงาน และการจัดการสมาชิกภายในระบบเดียวที่ออกแบบให้ใช้งานง่ายทั้งคอมพิวเตอร์และมือถือ</p>
+
+            <div class="login-highlights">
+                <div class="login-highlight"><i class="bi bi-graph-up-arrow"></i><span>ติดตามข้อมูลและรายงานได้อย่างรวดเร็ว</span></div>
+                <div class="login-highlight"><i class="bi bi-people"></i><span>จัดการสมาชิก ผู้ใช้งาน และรายการรับซื้ออย่างเป็นระเบียบ</span></div>
+                <div class="login-highlight"><i class="bi bi-phone"></i><span>รองรับการใช้งานบนหน้าจอขนาดเล็กได้ดีขึ้น</span></div>
+            </div>
+        </div>
+
+        <div class="login-panel">
+            <div class="login-panel-head">
+                <span class="login-kicker">Sign In</span>
+                <h2 class="login-title">เข้าสู่ระบบ</h2>
+                <p class="login-subtitle">กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ระบบบริหารจัดการข้อมูล</p>
+            </div>
+
+            <?php if ($msg): ?>
+                <div class="alert alert-info login-alert"><?php echo e($msg); ?></div>
+            <?php endif; ?>
+
+            <?php if ($errors): ?>
+                <div class="alert alert-danger login-alert"><?php echo e(implode(' | ', $errors)); ?></div>
+            <?php endif; ?>
+
+            <form method="post" autocomplete="off" class="login-form">
+                <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
+
+                <div class="login-field">
+                    <label class="form-label" for="username"><i class="bi bi-person-fill"></i> ชื่อผู้ใช้</label>
+                    <input class="form-control" id="username" name="username" required autofocus placeholder="กรอกชื่อผู้ใช้" value="<?php echo e($_POST['username'] ?? ''); ?>">
+                </div>
+
+                <div class="login-field">
+                    <label class="form-label" for="password"><i class="bi bi-lock-fill"></i> รหัสผ่าน</label>
+                    <input class="form-control" id="password" type="password" name="password" required placeholder="กรอกรหัสผ่าน">
+                </div>
+
+                <div class="login-actions">
+                    <button class="btn login-btn w-100" type="submit"><i class="bi bi-box-arrow-in-right me-2"></i>เข้าสู่ระบบ</button>
+                    <p class="login-note">หากพบปัญหาในการใช้งาน กรุณาติดต่อผู้ดูแลระบบของสหกรณ์</p>
+                </div>
+            </form>
+        </div>
     </div>
-    <?php if ($msg): ?>
-      <div class="alert alert-info text-center"><?php echo e($msg); ?></div>
-    <?php endif; ?>
-    <?php if ($errors): ?>
-      <div class="alert alert-danger text-center"><?php echo e(implode(' | ', $errors)); ?></div>
-    <?php endif; ?>
-    <form method="post" autocomplete="off">
-      <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-      <div class="mb-3">
-        <label class="form-label">ชื่อผู้ใช้</label>
-        <input class="form-control" name="username" required autofocus>
-      </div>
-      <div class="mb-4">
-        <label class="form-label">รหัสผ่าน</label>
-        <input class="form-control" type="password" name="password" required>
-      </div>
-      <div class="text-center">
-        <button class="btn btn-primary" type="submit">เข้าสู่ระบบ</button>
-      </div>
-    </form>
-  </div>
+</section>
 <?php include 'footer.php'; ?>

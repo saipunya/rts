@@ -49,6 +49,7 @@
     position: relative;
     overflow: hidden;
     color: #155724;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .site-footer .footer-highlight {
@@ -103,6 +104,7 @@
     font-weight: 700;
     margin: 0;
     color: #0d5322;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .footer-text {
@@ -110,6 +112,7 @@
     margin: 0;
     line-height: 1.6;
     color: #19692c;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .footer-meta {

@@ -33,7 +33,11 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
         <!-- AOS Animation Library -->
         <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
         <style>
-            /* Fonts */
+            /* Fonts: Sarabun and fallback THSarabunNew */
+            @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype'); }
+            @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype'); }
+            @font-face { font-family: 'Sarabun'; font-style: italic; font-weight: 400; src: url('assets/fonts/Sarabun-Italic.ttf') format('truetype'); }
+            @font-face { font-family: 'Sarabun'; font-style: italic; font-weight: 700; src: url('assets/fonts/Sarabun-BoldItalic.ttf') format('truetype'); }
             @font-face { font-family: 'THSarabunNew'; font-style: normal; font-weight: 400; src: url('assets/fonts/THSarabunNew.ttf') format('truetype'); }
             @font-face { font-family: 'THSarabunNew'; font-style: normal; font-weight: 700; src: url('assets/fonts/THSarabunNew-Bold.ttf') format('truetype'); }
             @font-face { font-family: 'THSarabunNew'; font-style: italic; font-weight: 400; src: url('assets/fonts/THSarabunNew-italic.ttf') format('truetype'); }
@@ -54,33 +58,52 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     width: 100%;
                 }
 
-                .topbar-actions.collapse .topbar-link {
+                .topbar-actions.collapsing,
+                .topbar-actions.collapse.show {
+                    display: block;
+                    width: 100%;
+                    margin-top: 0.75rem;
+                    padding-top: 0.75rem;
+                    border-top: 1px solid #b8dabc;
+                }
+
+                .topbar-actions.collapse .topbar-link,
+                .topbar-actions.collapsing .topbar-link {
                     display: block;
                     width: 100%;
                     text-align: left;
                     padding: 0.65rem 0.75rem;
                 }
 
-                .topbar-actions.collapse.show {
-                    margin-top: 0.75rem;
-                    padding-top: 0.75rem;
-                    border-top: 1px solid #b8dabc;
+                .topbar-actions > * {
+                    width: 100%;
                 }
 
-                .topbar-actions.collapse.show > * {
+                .topbar-actions.collapse.show > *,
+                .topbar-actions.collapsing > * {
                     margin-bottom: 0.35rem;
                 }
 
-                .topbar-actions.collapse.show > *:last-child {
+                .topbar-actions.collapse.show > *:last-child,
+                .topbar-actions.collapsing > *:last-child {
                     margin-bottom: 0;
                 }
 
-                .topbar-actions .d-flex.align-items-center.gap-2 {
+                .topbar-user {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
                     width: 100%;
                     justify-content: flex-start;
                     padding: 0.65rem 0.75rem;
                     background: rgba(255, 255, 255, 0.4);
                     border-radius: 0.5rem;
+                }
+
+                .topbar-actions.collapsing .topbar-user,
+                .topbar-actions.collapse.show .topbar-user {
+                    display: flex;
+                    width: 100%;
                 }
 
                 .topbar-actions .topbar-link.text-warning,
@@ -158,12 +181,14 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 position: relative;
                 z-index: 10;
                 border-bottom: 1px solid #c3e6cb;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .topbar {
                 background: #c3e6cb;
                 font-size: 1rem;
                 border-bottom: 1px solid #b8dabc;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .status-pill {
@@ -175,6 +200,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 background: rgba(255, 255, 255, 0.3);
                 color: #155724;
                 font-size: 1rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .topbar-link {
@@ -183,6 +209,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 font-weight: 500;
                 transition: color 0.2s ease;
                 font-size: 0.9rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .topbar-link:hover {
@@ -191,10 +218,19 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
 
             .topbar-actions {
                 font-size: 1rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            }
+
+            .topbar-user {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .topbar-info {
                 font-size: 1rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .topbar-toggle {
@@ -445,6 +481,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             .navbar-brand {
                 font-weight: 700;
                 letter-spacing: .02em;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             header .navbar {
@@ -467,10 +504,12 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 font-size: 1.1rem;
                 text-transform: uppercase;
                 letter-spacing: 0.06em;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .brand-subtitle {
                 font-size: 1rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .navbar-nav .nav-link,
@@ -480,7 +519,8 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 padding: 0.5rem 0.75rem;
                 border-radius: 0.5rem;
                 transition: background-color 0.2s ease, color 0.2s ease;
-                font-size: 1.2rem;
+                font-size: 1rem;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
             }
 
             .navbar-nav .nav-link:hover,
@@ -574,9 +614,6 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 
                 .topbar-actions {
                     order: 2;
-                    justify-content: center;
-                    flex-wrap: wrap !important;
-                    gap: 0.5rem !important;
                 }
                 
                 .topbar-link {
@@ -657,6 +694,30 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                 
                 .stat-label {
                     font-size: 1rem;
+                }
+            }
+
+            @media (min-width: 992px) {
+                .topbar-actions {
+                    display: flex !important;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 0.75rem;
+                }
+
+                .topbar-actions.collapse {
+                    width: auto;
+                }
+
+                .topbar-actions > * {
+                    width: auto;
+                }
+
+                .topbar-user {
+                    width: auto;
+                    padding: 0;
+                    background: transparent;
+                    border-radius: 0;
                 }
             }
 
@@ -798,8 +859,8 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                             <span class="bar"></span>
                         </span>
                     </button>
-                    <div class="topbar-actions collapse d-lg-flex flex-wrap align-items-center gap-3" id="topbarNav">
-                        <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-actions collapse" id="topbarNav">
+                        <div class="topbar-user">
                             <i class="bi bi-person-circle text-accent"></i>
                             <span><?php echo $displayNameSafe; ?></span>
                         </div>

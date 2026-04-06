@@ -6,58 +6,56 @@ include 'header.php';
 $db = db();
 ?>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+
 
 <style>
-	html, body {
-		font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-		font-size: 16px;
-		font-weight: 300;
-		background: #eef6f0;
-		color: var(--bs-body-color);
-	}
+html, body {
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    background: #eef6f0;
+    color: var(--bs-body-color);
+}
 
-	.container {
-		background: var(--bs-body-bg);
-		border-radius: 1.25rem;
-		padding: 2rem;
-		margin-top: 2rem;
-		margin-bottom: 2rem;
-		box-shadow: var(--bs-box-shadow-sm);
-	}
+.container {
+    background: var(--bs-body-bg);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--bs-box-shadow-sm);
+}
 
-	.card,
-	.table,
-	.form-control,
-	.form-select,
-	.form-label,
-	.btn,
-	.btn-sm,
-	.nav-link,
-	.alert,
-	.badge {
-		font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-		font-size: 16px;
-		font-weight: 300;
-	}
+.card,
+.table,
+.form-control,
+.form-select,
+.form-label,
+.btn,
+.btn-sm,
+.nav-link,
+.alert,
+.badge {
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+}
 
-	.small,
-	.form-text {
-		font-size: 14px !important;
-		font-weight: 300 !important;
-	}
+.small,
+.form-text {
+    font-size: 14px !important;
+    font-weight: 300 !important;
+}
 
-	.hero-section {
-		padding: 1rem 0 2rem;
-	}
+.hero-section {
+    padding: 1rem 0 2rem;
+}
 
-	.hero-title {
-		font-size: 2.35rem;
-		font-weight: 700;
-		line-height: 1.2;
-		margin-bottom: 0.75rem;
+.hero-title {
+    font-size: 2.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
 		color: var(--bs-success-text-emphasis);
 	}
 

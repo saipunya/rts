@@ -442,7 +442,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       --rubber-border: #cfe2d4;
       --rubber-text: #245c38;
       --rubber-shadow: var(--bs-box-shadow-sm);
-      font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
       font-size: 16px;
       font-weight: 300;
     }
@@ -457,7 +457,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     .rubbers-page .alert,
     .rubbers-page .badge,
     .rubbers-page .btn {
-      font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
       font-size: 16px;
       font-weight: 300;
     }
