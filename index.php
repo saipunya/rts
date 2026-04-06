@@ -13,17 +13,19 @@ html, body {
     font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     font-size: 16px;
     font-weight: 300;
-    background: #eef6f0;
+	background: linear-gradient(180deg, #f3f8f4 0%, #eef6f0 100%);
     color: var(--bs-body-color);
 }
 
 .container {
-    background: var(--bs-body-bg);
-    border-radius: 1.25rem;
-    padding: 2rem;
+	background: rgba(255, 255, 255, 0.72);
+	border: 1px solid rgba(21, 87, 36, 0.08);
+	border-radius: 1.5rem;
+	padding: 2rem;
     margin-top: 2rem;
     margin-bottom: 2rem;
-    box-shadow: var(--bs-box-shadow-sm);
+	box-shadow: 0 24px 48px rgba(16, 24, 40, 0.06);
+	backdrop-filter: blur(10px);
 }
 
 .card,
@@ -48,7 +50,28 @@ html, body {
 }
 
 .hero-section {
-    padding: 1rem 0 2rem;
+    padding: 0.5rem 0 2rem;
+}
+
+.hero-panel {
+	background: linear-gradient(135deg, #ffffff 0%, #f5fbf6 100%);
+	border: 1px solid rgba(47, 110, 67, 0.12);
+	border-radius: 1.5rem;
+	padding: 2rem;
+	box-shadow: 0 18px 40px rgba(16, 24, 40, 0.06);
+}
+
+.hero-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.45rem 0.9rem;
+	border-radius: 999px;
+	background: #e8f5eb;
+	color: #2f6e43;
+	font-size: 0.95rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
 }
 
 .hero-title {
@@ -56,19 +79,46 @@ html, body {
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 0.75rem;
-		color: var(--bs-success-text-emphasis);
-	}
+	color: #204e31;
+}
 
 	.hero-subtitle {
 		font-weight: 600;
 		margin-bottom: 0.75rem;
-		color: #4e7c59;
+		color: #4a6b55;
 	}
 
 	.hero-description {
-		font-size: 1.2rem;
-		color: #6b7d70;
+		font-size: 1.05rem;
+		color: #617565;
 		margin-bottom: 1.5rem;
+	}
+
+	.hero-actions {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-bottom: 1rem;
+	}
+
+	.hero-meta {
+		display: flex;
+		justify-content: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.hero-meta span {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.45rem 0.8rem;
+		border-radius: 999px;
+		background: #f2f8f3;
+		color: #4e6656;
+		font-size: 0.95rem;
 	}
 
 	.index-toolbar {
@@ -77,27 +127,33 @@ html, body {
 		justify-content: space-between;
 		gap: 1rem;
 		flex-wrap: wrap;
-		padding: 1.25rem 1.5rem;
+		padding: 1rem 1.25rem;
 		margin-bottom: 1.5rem;
-		background: var(--bs-success-bg-subtle);
-		border: 1px solid var(--bs-success-border-subtle);
+		background: #f7fbf8;
+		border: 1px solid rgba(47, 110, 67, 0.12);
 		border-radius: 1rem;
 	}
 
 	.index-toolbar h2 {
-		font-size: 1.75rem;
+		font-size: 1.35rem;
 		font-weight: 600;
-		color: var(--bs-success-text-emphasis);
+		color: #28553a;
+	}
+
+	.index-toolbar-note {
+		margin: 0;
+		font-size: 0.95rem;
+		color: #708374;
 	}
 
 	.stat-card {
 		position: relative;
 		height: 100%;
 		padding: 1.4rem 1.5rem 1.4rem 1.75rem;
-		border: 1px solid var(--bs-border-color);
+		border: 1px solid rgba(47, 110, 67, 0.12);
 		border-radius: 1rem;
-		background: var(--bs-body-bg);
-		box-shadow: var(--bs-box-shadow-sm);
+		background: #ffffff;
+		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
 		overflow: hidden;
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
 	}
@@ -121,8 +177,8 @@ html, body {
 	}
 
 	.stat-card:hover {
-		transform: translateY(-3px);
-		box-shadow: var(--bs-box-shadow);
+		transform: translateY(-2px);
+		box-shadow: 0 18px 32px rgba(16, 24, 40, 0.08);
 	}
 
 	.stat-label {
@@ -141,11 +197,11 @@ html, body {
 	}
 
 	.stat-value {
-		font-size: 2.4rem;
+		font-size: 2.1rem;
 		font-weight: 700;
 		line-height: 1.2;
 		margin-bottom: 0.35rem;
-		color: var(--bs-emphasis-color);
+		color: #183524;
 	}
 
 	.stat-sub {
@@ -161,22 +217,22 @@ html, body {
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
-		padding: 1rem 1.25rem;
+		padding: 0.95rem 1.1rem;
 		margin-bottom: 1rem;
-		border: 1px solid var(--bs-success-border-subtle);
+		border: 1px solid rgba(47, 110, 67, 0.12);
 		border-radius: 0.9rem;
-		background: var(--bs-success-bg-subtle);
-		color: var(--bs-success-text-emphasis);
-		font-size: 1.2rem;
+		background: #f7fbf8;
+		color: #28553a;
+		font-size: 1.08rem;
 		font-weight: 600;
 	}
 
 	.card-table {
 		margin-bottom: 1.5rem;
-		border: 1px solid var(--bs-border-color);
+		border: 1px solid rgba(47, 110, 67, 0.12);
 		border-radius: 1rem;
-		background: var(--bs-body-bg);
-		box-shadow: var(--bs-box-shadow-sm);
+		background: #ffffff;
+		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
 		overflow: hidden;
 	}
 
@@ -239,6 +295,10 @@ html, body {
 	}
 
 	@media (max-width: 992px) {
+		.hero-panel {
+			padding: 1.5rem;
+		}
+
 		.index-toolbar {
 			flex-direction: column;
 			align-items: stretch !important;
@@ -347,6 +407,10 @@ html, body {
 			margin-bottom: 1rem;
 		}
 
+		.hero-panel {
+			padding: 1.25rem 1rem;
+		}
+
 		.hero-title {
 			font-size: 1.8rem;
 		}
@@ -355,7 +419,7 @@ html, body {
 			font-size: 1.05rem;
 		}
 
-		.hero-section .btn {
+		.hero-actions .btn {
 			width: 100%;
 		}
 
@@ -380,32 +444,6 @@ html, body {
 			padding: 0 0.25rem;
 		}
 
-	}
-
-	.index-toolbar h2 {
-		font-size: 1.2rem;
-	}
-
-	.stat-card {
-		padding: 0.85rem 0.85rem 0.85rem 1rem;
-	}
-
-	.stat-value {
-		font-size: 1.8rem;
-	}
-
-	.stat-label {
-		font-size: 1.1rem;
-	}
-
-	.table-responsive {
-		font-size: 0.95rem;
-		padding: 0 0.25rem;
-	}
-
-	.table th,
-	.table td {
-		padding: 0.6rem 0.5rem;
 	}
 
 	.stat-card:hover {
@@ -565,16 +603,29 @@ if ($stmt) {
 	$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
 	?>
 
-	<!-- Enhanced hero section -->
-	<div class="hero-section text-center mb-4">
-		<h1 class="hero-title">
-			<i class="bi bi-clipboard-data-fill"></i> ระบบจัดการยางพารา
-		</h1>
-		<h4 class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
-		<p class="hero-description">ภาพรวมการรวบรวมยางพาราของสมาชิกรายคน</p>
-		<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
-			<i class="bi bi-person-fill"></i> สำหรับสมาชิก
-		</a>
+	<div class="hero-section mb-4">
+		<div class="hero-panel text-center">
+			<div class="hero-badge">
+				<i class="bi bi-droplet-half"></i>
+				ระบบภาพรวมข้อมูลยางพารา
+			</div>
+			<h1 class="hero-title">ระบบจัดการยางพารา</h1>
+			<h4 class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
+			<p class="hero-description">ดูภาพรวมการรวบรวมยาง ราคาอ้างอิง และสรุปข้อมูลสำคัญในหน้าเดียวแบบอ่านง่าย</p>
+			<div class="hero-actions">
+				<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 fw-semibold">
+					<i class="bi bi-person-fill"></i> สำหรับสมาชิก
+				</a>
+				<a href="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-success btn-lg rounded-pill px-4 fw-semibold">
+					<i class="bi bi-clipboard-data"></i> ดูรายการรับซื้อ
+				</a>
+			</div>
+			<div class="hero-meta">
+				<span><i class="bi bi-cash-stack"></i> ราคาล่าสุด <?php echo number_format($latest_price,2); ?> บาท</span>
+				<span><i class="bi bi-calendar-event"></i> วันที่ <?php echo htmlspecialchars($latest_price_date_text); ?></span>
+				<span><i class="bi bi-database-check"></i> ทั้งหมด <?php echo number_format($total_records); ?> รายการ</span>
+			</div>
+		</div>
 	</div>
 
 	<div class="index-toolbar">
@@ -582,7 +633,7 @@ if ($stmt) {
 			<i class="bi bi-grid-1x2-fill"></i>
 			ภาพรวมวันนี้
 		</h2>
-
+		<p class="index-toolbar-note">สรุปข้อมูลสำคัญของระบบในรูปแบบที่อ่านง่ายและอัปเดตจากฐานข้อมูลล่าสุด</p>
 	</div>
 
 	<!-- Quick stats -->

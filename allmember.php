@@ -270,16 +270,6 @@ if ($member) {
             background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-mid) 60%, #a5d6a7 100%);
             padding: 1.5rem 1rem env(safe-area-inset-bottom, 1rem);
         }
-        .login-logo {
-            width: 72px; height: 72px;
-            background: rgba(255,255,255,.2);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem;
-            margin-bottom: 1.2rem;
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 20px rgba(0,0,0,.2);
-        }
         .login-card {
             width: 100%;
             max-width: 420px;
@@ -289,11 +279,32 @@ if ($member) {
             padding: 2rem 1.75rem 1.75rem;
             backdrop-filter: blur(12px);
         }
+        .login-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .85rem;
+            margin-bottom: .35rem;
+            text-align: center;
+        }
+        .login-title-logo {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(46,125,50,.12), rgba(129,199,132,.28));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.55rem;
+            color: var(--green-dark);
+            box-shadow: 0 8px 18px rgba(27,94,32,.12);
+            flex-shrink: 0;
+        }
         .login-card h1 {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--green-dark);
-            margin-bottom: .25rem;
+            margin-bottom: 0;
         }
         .login-card .subtitle {
             font-size: 1rem;
@@ -367,6 +378,131 @@ if ($member) {
             display: inline-flex; align-items: center; gap: .35rem;
         }
         .login-home-link a:hover { color: #fff; }
+
+        .login-install-row {
+            display: flex;
+            justify-content: center;
+            gap: .6rem;
+            flex-wrap: wrap;
+            margin: .1rem 0 1rem;
+        }
+        .install-icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(27, 94, 32, .12);
+            background: #f6fbf7;
+            color: var(--green-dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(27, 94, 32, .08);
+            cursor: pointer;
+            transition: transform .15s, box-shadow .2s, background .2s;
+        }
+        .install-icon-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(27, 94, 32, .14);
+            background: #eef8f0;
+        }
+        .install-icon-btn.ios {
+            color: #1d4ed8;
+            background: #f5f9ff;
+            border-color: #dbeafe;
+        }
+        .install-icon-label {
+            width: 100%;
+            text-align: center;
+            font-size: .72rem;
+            color: var(--text-muted);
+            margin-top: -.1rem;
+            margin-bottom: .5rem;
+        }
+        .login-install-note {
+            display: none;
+            margin: .65rem 0 0;
+            padding: .7rem .8rem;
+            border-radius: var(--radius-sm);
+            font-size: .76rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+        .login-install-note.show { display: block; }
+        .login-install-note.android {
+            background: #f5fbf6;
+            border: 1px solid #d6ead9;
+            color: var(--green-dark);
+        }
+
+        .install-panel {
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255,255,255,.22);
+            background: rgba(255,255,255,.16);
+            box-shadow: 0 10px 30px rgba(0,0,0,.12);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #fff;
+        }
+        .install-panel.surface {
+            background: var(--surface);
+            border-color: rgba(0,0,0,.06);
+            box-shadow: var(--shadow-sm);
+            color: var(--text-main);
+        }
+        .install-panel-title {
+            font-size: .95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin-bottom: .35rem;
+        }
+        .install-panel-subtitle {
+            font-size: .82rem;
+            line-height: 1.55;
+            margin-bottom: .85rem;
+            color: inherit;
+            opacity: .92;
+        }
+        .install-panel.surface .install-panel-subtitle {
+            color: var(--text-muted);
+            opacity: 1;
+        }
+        .install-panel-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .55rem;
+        }
+        .install-panel-note {
+            display: none;
+            margin-top: .8rem;
+            padding: .75rem .85rem;
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            line-height: 1.6;
+        }
+        .install-panel-note.show { display: block; }
+        .install-panel-note.android {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+        }
+        .install-panel-note.ios {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+        }
+        .install-panel.surface .install-panel-note.android {
+            background: #f6fbf6;
+            border: 1px solid #d1e7d4;
+            color: #28553a;
+        }
+        .install-panel.surface .install-panel-note.ios {
+            background: #f7fbff;
+            border: 1px solid #dbeafe;
+            color: #1e3a8a;
+        }
 
         /* ───── APP SHELL (logged-in) ───── */
         .app-wrap {
@@ -666,9 +802,15 @@ if ($member) {
             box-shadow: 0 -4px 20px rgba(0,0,0,.12);
             padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
         }
-        #pwa-install-banner.show { display: flex; align-items: center; gap: 1rem; }
+        #pwa-install-banner.show { display: flex; align-items: flex-start; gap: 1rem; }
         #pwa-install-banner .banner-text { flex: 1; font-size: .875rem; }
         #pwa-install-banner .banner-text strong { display: block; color: var(--green-dark); }
+        .install-actions {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            flex-wrap: wrap;
+        }
         .btn-install {
             background: var(--green-main);
             color: #fff;
@@ -681,15 +823,39 @@ if ($member) {
             white-space: nowrap;
             font-family: inherit;
         }
+        .btn-install-ios {
+            background: #eef6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .btn-install[hidden] { display: none !important; }
         .btn-dismiss {
             background: none; border: none;
             color: var(--text-muted); font-size: 1.2rem;
             cursor: pointer; padding: .25rem;
         }
-
         @media (min-width: 600px) {
             .stats-grid { grid-template-columns: repeat(4, 1fr); }
             .txn-row { grid-template-columns: 1.5fr 1fr 1fr auto; }
+        }
+
+        @media (max-width: 576px) {
+            #pwa-install-banner.show {
+                flex-direction: column;
+            }
+
+            .install-actions {
+                width: 100%;
+            }
+
+            .install-panel-actions {
+                flex-direction: column;
+            }
+
+            .btn-install {
+                flex: 1 1 auto;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -698,9 +864,11 @@ if ($member) {
 <?php if (!$member): ?>
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div class="login-wrap">
-    <div class="login-logo">🌿</div>
     <div class="login-card">
-        <h1 class="text-center">ระบบสมาชิก</h1>
+        <div class="login-title">
+            <div class="login-title-logo">🌿</div>
+            <h1>ระบบสมาชิก</h1>
+        </div>
         <h3 class="subtitle text-center">Rubber Trade System : ข้อมูลการรวบรวมยาง</h3>
 
         <?php if ($errors): ?>
@@ -713,6 +881,16 @@ if ($member) {
         <form method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
             <input type="hidden" name="action" value="member_login">
+
+            <div class="login-install-row" aria-label="mobile-install-icons-login">
+                <button type="button" class="install-icon-btn js-pwa-install" data-note-target="#login-android-note" aria-label="ติดตั้ง Android">
+                    <i class="bi bi-android2"></i>
+                </button>
+                <button type="button" class="install-icon-btn ios js-ios-install" data-bs-toggle="modal" data-bs-target="#iosInstallModal" aria-label="ติดตั้ง iPhone/iPad">
+                    <i class="bi bi-apple"></i>
+                </button>
+            </div>
+            <div class="login-install-note android js-android-note" id="login-android-note">หากยังติดตั้ง Android ไม่ได้ ให้เปิดหน้านี้ด้วย Chrome บน Android แล้วกดอีกครั้ง หรือใช้เมนูเบราว์เซอร์เพื่อเพิ่มลงหน้าจอหลัก</div>
 
             <div class="field-wrap">
                 <label for="mem_number">เลขสมาชิก</label>
@@ -747,7 +925,7 @@ if ($member) {
 
 <?php else: ?>
 <!-- ═══════════════ APP SHELL ═══════════════ -->
-<div class="app-wrap">
+<div class="app-wrap mb-sm-3">
 
     <!-- App Bar -->
     <header class="app-bar">
@@ -763,6 +941,16 @@ if ($member) {
     </header>
 
     <main class="app-content">
+
+        <div class="install-panel surface mb-3" aria-label="mobile-install-panel-app">
+            <div class="install-panel-title"><i class="bi bi-download"></i> ติดตั้งบนอุปกรณ์</div>
+            <div class="install-panel-subtitle">เพิ่มหน้านี้ลงหน้าจอหลักเพื่อเปิดดูข้อมูลสมาชิกได้สะดวกเหมือนแอป</div>
+            <div class="install-panel-actions">
+                <button type="button" class="btn-install js-pwa-install" data-note-target="#app-android-note">ติดตั้ง Android</button>
+                <button type="button" class="btn-install btn-install-ios js-ios-install" data-bs-toggle="modal" data-bs-target="#iosInstallModal">ติดตั้ง iPhone/iPad</button>
+            </div>
+            <div class="install-panel-note android js-android-note" id="app-android-note">หากระบบยังไม่ขึ้นหน้าติดตั้ง ให้เปิดผ่าน Chrome บน Android แล้วลองใหม่อีกครั้ง</div>
+        </div>
 
         <?php if ($availableYears): ?>
         <!-- Year Filter Chips -->
@@ -927,13 +1115,33 @@ if ($member) {
 <div id="pwa-install-banner">
     <div class="banner-text">
         <strong>เพิ่มลงหน้าจอหลัก</strong>
-        <span>เปิดแอปได้เร็วขึ้นโดยไม่ต้องเปิดเบราว์เซอร์</span>
+        <span id="pwa-install-message">เปิดแอปได้เร็วขึ้นโดยไม่ต้องเปิดเบราว์เซอร์</span>
     </div>
-    <button class="btn-install" id="btn-pwa-install">ติดตั้ง</button>
+    <div class="install-actions">
+        <button class="btn-install" id="btn-pwa-install" hidden>ติดตั้ง Android</button>
+        <button class="btn-install btn-install-ios" id="btn-ios-install" hidden>ติดตั้ง iPhone/iPad</button>
+    </div>
     <button class="btn-dismiss" id="btn-pwa-dismiss" aria-label="ปิด"><i class="bi bi-x-lg"></i></button>
 </div>
 
 <?php endif; ?>
+
+<div class="modal fade" id="iosInstallModal" tabindex="-1" aria-labelledby="iosInstallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="iosInstallModalLabel"><i class="bi bi-apple me-2"></i>ติดตั้งบน iPhone/iPad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="font-size:.92rem; line-height:1.7;">
+                1. กดปุ่มแชร์ <i class="bi bi-box-arrow-up"></i> ใน Safari<br>
+                2. เลือก <strong>เพิ่มไปยังหน้าจอโฮม</strong> หรือ Add to Home Screen<br>
+                3. กด <strong>เพิ่ม</strong> เพื่อสร้างไอคอนแอปบนเครื่อง
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script>
@@ -967,37 +1175,126 @@ if ($member) {
     var deferredPrompt = null;
     var banner = document.getElementById('pwa-install-banner');
     var btnInstall = document.getElementById('btn-pwa-install');
+    var btnIosInstall = document.getElementById('btn-ios-install');
     var btnDismiss = document.getElementById('btn-pwa-dismiss');
+    var installMessage = document.getElementById('pwa-install-message');
+    var iosInstallModalElement = document.getElementById('iosInstallModal');
+    var iosInstallModal = iosInstallModalElement ? new bootstrap.Modal(iosInstallModalElement) : null;
+    var isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    var hasDismissed = sessionStorage.getItem('pwa-dismissed');
+    var inlineAndroidButtons = Array.prototype.slice.call(document.querySelectorAll('.js-pwa-install'));
+    var inlineIosButtons = Array.prototype.slice.call(document.querySelectorAll('.js-ios-install'));
+    var inlineAndroidNotes = Array.prototype.slice.call(document.querySelectorAll('.js-android-note'));
+
+    function showBanner() {
+        if (banner && !hasDismissed) {
+            banner.classList.add('show');
+        }
+    }
+
+    function hideAndroidNote() {
+        inlineAndroidNotes.forEach(function (note) {
+            note.classList.remove('show');
+        });
+    }
+
+    function resolveNoteTarget(button) {
+        var selector = button ? button.getAttribute('data-note-target') : null;
+        return selector ? document.querySelector(selector) : null;
+    }
+
+    function showAndroidFallbackNote(targetNote) {
+        hideAndroidNote();
+        if (targetNote) {
+            targetNote.classList.add('show');
+        }
+    }
+
+    function openIosInstallModal() {
+        if (iosInstallModal) {
+            iosInstallModal.show();
+        }
+    }
+
+    if (isIos && !isStandalone && btnIosInstall) {
+        btnIosInstall.hidden = false;
+        if (installMessage) {
+            installMessage.textContent = 'บน iPhone/iPad ให้เพิ่มเว็บไซต์นี้ไปที่หน้าจอหลักผ่าน Safari';
+        }
+        showBanner();
+    }
 
     window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredPrompt = e;
-        if (banner && !sessionStorage.getItem('pwa-dismissed')) {
-            banner.classList.add('show');
+        if (btnInstall && !isStandalone) {
+            btnInstall.hidden = false;
         }
+        if (!isIos && installMessage) {
+            installMessage.textContent = 'ติดตั้งบน Android เพื่อเปิดใช้งานได้เหมือนแอปบนมือถือ';
+        }
+        showBanner();
     });
 
     if (btnInstall) {
         btnInstall.addEventListener('click', function () {
             if (deferredPrompt) {
+                hideAndroidNote();
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then(function () {
                     deferredPrompt = null;
                     banner.classList.remove('show');
+                    btnInstall.hidden = true;
                 });
+            } else {
+                showAndroidFallbackNote();
             }
         });
     }
 
+    inlineAndroidButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            var targetNote = resolveNoteTarget(button);
+            if (deferredPrompt) {
+                hideAndroidNote();
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function () {
+                    deferredPrompt = null;
+                    if (banner) banner.classList.remove('show');
+                    if (btnInstall) btnInstall.hidden = true;
+                });
+            } else {
+                showAndroidFallbackNote(targetNote);
+            }
+        });
+    });
+
+    if (btnIosInstall) {
+        btnIosInstall.addEventListener('click', function () {
+            openIosInstallModal();
+        });
+    }
+
+    inlineIosButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openIosInstallModal();
+        });
+    });
+
     if (btnDismiss) {
         btnDismiss.addEventListener('click', function () {
             banner.classList.remove('show');
+            hideAndroidNote();
             sessionStorage.setItem('pwa-dismissed', '1');
         });
     }
 
     window.addEventListener('appinstalled', function () {
         if (banner) banner.classList.remove('show');
+        if (btnInstall) btnInstall.hidden = true;
+        if (btnIosInstall) btnIosInstall.hidden = true;
+        hideAndroidNote();
     });
 })();
 </script>
