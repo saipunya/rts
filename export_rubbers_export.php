@@ -108,11 +108,12 @@ if ($type === 'excel') {
     // BOM สำหรับ UTF-8
     echo "\xEF\xBB\xBF";
 
-    $style = 'body { font-family: THSarabunNew, Sarabun, DejaVu Sans, Tahoma, sans-serif; font-size: 12pt; } '
-           . 'table { width: 100%; border-collapse: collapse; } '
-           . 'th, td { border: 1px solid #ccc; padding: 6px; } '
-           . 'th { background: #f1f1f1; } '
-           . '.t-right { text-align: right; }';
+            // Use Google Sarabun as primary for HTML/Excel export and increase readability
+            $style = 'body { font-family: Sarabun, THSarabunNew, DejaVu Sans, Tahoma, sans-serif; font-size: 16pt; line-height:1.5; } '
+                . 'table { width: 100%; border-collapse: collapse; font-size:15pt; } '
+                . 'th, td { border: 1px solid #ccc; padding: 10px; } '
+                . 'th { background: #f7faf7; font-weight:700; } '
+                . '.t-right { text-align: right; }';
 
     $html = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><style>' . $style . '</style></head><body>';
     $html .= '<h3 style="text-align:center">รายงานข้อมูลรับซื้อยาง';
@@ -209,10 +210,10 @@ $options->set('defaultFont', $defaultFont);
 $dompdf = new Dompdf($options);
 
 // CSS แบบเรียบง่าย และฟอนต์เล็กลงเพื่อลดภาระในการจัดหน้า
-$style = 'body { font-family: THSarabunNew, DejaVu Sans, sans-serif; font-size: 14px; } '
-    . 'table { width: 100%; border-collapse: collapse; font-size: 12px; } '
-    . 'th, td { border: 1px solid #ccc; padding: 3px; } '
-    . 'th { background: #f1f1f1; }';
+$style = 'body { font-family: THSarabunNew, Sarabun, DejaVu Sans, sans-serif; font-size: 20px; line-height:1.5; } '
+    . 'table { width: 100%; border-collapse: collapse; font-size: 18px; } '
+    . 'th, td { border: 1px solid #ccc; padding: 10px; } '
+    . 'th { background: #f7faf7; font-weight:700; }';
 $html = '<!doctype html><html lang="th"><head><meta charset="UTF-8"><style>'.$style.'</style></head><body>';
 $html .= '<h2 style="text-align:center">รายงานข้อมูลรับซื้อยาง (สรุปยอดรวมต่อสมาชิก)';
 if ($pr_date) {

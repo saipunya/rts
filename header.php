@@ -32,6 +32,8 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
         <!-- AOS Animation Library -->
         <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <!-- Google Fonts: Sarabun -->
+        <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
             /* Fonts: Sarabun and fallback THSarabunNew */
             @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype'); }
@@ -134,7 +136,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             body {
                 min-height: 100vh;
                 background: #f5f7f9;
-                font-family: 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+                font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
                 font-size: 1rem;
                 line-height: 1.5;
                 color: #475467;
