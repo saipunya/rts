@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/functions.php';
-$db = db();
 
+$db = db();
 $errors = [];
 $msg = $_GET['msg'] ?? '';
 $csrf = csrf_token();
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $level = $row['user_level'] ?? ($row['role'] ?? 'user');
                 $status = $row['user_status'] ?? ($row['status'] ?? 'active');
 
-                $active = in_array(strtolower($status), ['active', '1', 'enabled', 'true'], true);
+                $active = in_array(strtolower((string) $status), ['active', '1', 'enabled', 'true'], true);
 
                 if (!$active) {
                     $errors[] = 'บัญชีถูกระงับการใช้งาน';
@@ -74,322 +74,146 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-include 'header.php';
 ?>
-<style>
-.login-shell,
-.login-layout,
-.login-layout .form-control,
-.login-layout .form-label,
-.login-layout .btn,
-.login-layout .alert,
-.login-layout p,
-.login-layout h1,
-.login-layout h2,
-.login-layout span,
-.login-layout div {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-}
+<!doctype html>
+<html lang="th" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>เข้าสู่ระบบ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <style>
+        html, body {
+            font-family: 'Sarabun', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-full bg-slate-50 text-slate-800">
+    <?php
+    $siteNavOuterClass = 'sticky top-0 z-50 border-b border-emerald-200 bg-emerald-100/95 text-emerald-950 shadow-sm backdrop-blur';
+    $siteNavInnerClass = 'mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8';
+    $siteNavBrandBadge = 'ระบบการรวบรวมยาง';
+    $siteNavBrandTitle = 'สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด';
+    $siteNavBrandIcon = 'banknotes';
+    $siteNavNavId = 'loginNav';
+    include __DIR__ . '/partials/site_nav.php';
+    ?>
 
-.content-card {
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
-}
+    <main class="bg-slate-50">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-start lg:px-8">
+            <section class="hidden lg:block">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-100">
+                        <?php echo heroicon('shield-exclamation', 'h-4 w-4'); ?>
+                        ระบบงานสหกรณ์ยางพารา
+                    </div>
+                    <h1 class="mt-5 text-4xl font-bold leading-tight text-slate-950">
+                        เข้าสู่ระบบเพื่อจัดการข้อมูลรับซื้อยางอย่างเป็นระเบียบ
+                    </h1>
+                    <p class="mt-4 max-w-xl text-base leading-8 text-slate-600">
+                        ใช้งานข้อมูลราคาอ้างอิง รายการรับซื้อ รายงาน และการจัดการสมาชิกในระบบเดียวที่ออกแบบให้สแกนข้อมูลได้เร็วและไม่รกตา
+                    </p>
 
-.login-shell {
-    min-height: clamp(540px, 72vh, 760px);
-    display: grid;
-    place-items: center;
-    padding: 2rem 1rem 1rem;
-}
+                    <div class="mt-8 grid max-w-2xl gap-4 sm:grid-cols-3">
+                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+                                <?php echo heroicon('chart-bar', 'h-5 w-5'); ?>
+                            </span>
+                            <p class="mt-4 text-sm font-semibold text-slate-900">ดูภาพรวมเร็ว</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-500">ติดตามราคาและยอดรับซื้อ</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-md bg-cyan-50 text-cyan-700">
+                                <?php echo heroicon('archive-box', 'h-5 w-5'); ?>
+                            </span>
+                            <p class="mt-4 text-sm font-semibold text-slate-900">จัดการรายการ</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-500">บันทึกและตรวจสอบข้อมูล</p>
+                        </div>
+                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-md bg-amber-50 text-amber-700">
+                                <?php echo heroicon('users', 'h-5 w-5'); ?>
+                            </span>
+                            <p class="mt-4 text-sm font-semibold text-slate-900">รองรับสมาชิก</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-500">เชื่อมข้อมูลสมาชิกและทั่วไป</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-.login-layout {
-    width: min(1080px, 100%);
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 430px);
-    background: #ffffff;
-    border: 1px solid rgba(21, 87, 36, 0.12);
-    border-radius: 28px;
-    overflow: hidden;
-    box-shadow: 0 28px 60px rgba(16, 24, 40, 0.12);
-}
+            <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Sign In</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-950">เข้าสู่ระบบ</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ระบบบริหารจัดการข้อมูล</p>
+                </div>
 
-.login-hero {
-    position: relative;
-    padding: 3rem;
-    color: #f5fff6;
-    background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.12), transparent 30%),
-        linear-gradient(145deg, #1f6f43 0%, #2f9e57 48%, #95d5b2 100%);
-}
+                <?php if ($msg): ?>
+                    <div class="mt-5 rounded-md border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-800">
+                        <?php echo e($msg); ?>
+                    </div>
+                <?php endif; ?>
 
-.login-hero::after {
-    content: '';
-    position: absolute;
-    inset: auto -80px -110px auto;
-    width: 280px;
-    height: 280px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
-}
+                <?php if ($errors): ?>
+                    <div class="mt-5 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-800">
+                        <?php echo e(implode(' | ', $errors)); ?>
+                    </div>
+                <?php endif; ?>
 
-.login-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.9rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.16);
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 1.2rem;
-}
+                <form method="post" autocomplete="off" class="mt-6 space-y-5">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
 
-.login-hero h1 {
-    font-size: clamp(2rem, 3vw, 3rem);
-    line-height: 1.15;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
+                    <div>
+                        <label for="username" class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                            <?php echo heroicon('user-circle', 'h-5 w-5 text-slate-400'); ?>
+                            ชื่อผู้ใช้
+                        </label>
+                        <input
+                            class="min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-base outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                            id="username"
+                            name="username"
+                            required
+                            autofocus
+                            placeholder="กรอกชื่อผู้ใช้"
+                            value="<?php echo e($_POST['username'] ?? ''); ?>"
+                        >
+                    </div>
 
-.login-hero p {
-    max-width: 34rem;
-    font-size: 1.05rem;
-    line-height: 1.8;
-    color: rgba(255, 255, 255, 0.92);
-    margin-bottom: 1.75rem;
-}
+                    <div>
+                        <label for="password" class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                            <?php echo heroicon('shield-exclamation', 'h-5 w-5 text-slate-400'); ?>
+                            รหัสผ่าน
+                        </label>
+                        <input
+                            class="min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-base outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            placeholder="กรอกรหัสผ่าน"
+                        >
+                    </div>
 
-.login-highlights {
-    display: grid;
-    gap: 0.85rem;
-}
+                    <button class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700" type="submit">
+                        <?php echo heroicon('arrow-right-on-rectangle', 'h-5 w-5'); ?>
+                        เข้าสู่ระบบ
+                    </button>
 
-.login-highlight {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
-}
-
-.login-highlight i {
-    font-size: 1.2rem;
-}
-
-.login-panel {
-    padding: 2.5rem 2.25rem;
-    background: linear-gradient(180deg, #fcfefc 0%, #f3faf5 100%);
-}
-
-.login-panel-head {
-    margin-bottom: 1.5rem;
-}
-
-.login-kicker {
-    display: inline-block;
-    color: #157347;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 0.35rem;
-}
-
-.login-title {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #163020;
-    margin: 0;
-}
-
-.login-subtitle {
-    margin: 0.5rem 0 0;
-    color: #4f6b58;
-    line-height: 1.7;
-}
-
-.login-alert {
-    border: none;
-    border-radius: 16px;
-    padding: 0.9rem 1rem;
-    font-size: 0.98rem;
-    margin-bottom: 1rem;
-}
-
-.login-alert.alert-danger {
-    background: #fff0f0;
-    color: #a61b1b;
-}
-
-.login-alert.alert-info {
-    background: #edf9f0;
-    color: #1f6f43;
-}
-
-.login-form {
-    display: grid;
-    gap: 1rem;
-}
-
-.login-field {
-    display: grid;
-    gap: 0.5rem;
-}
-
-.form-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #294335;
-}
-
-.form-control {
-    min-height: 54px;
-    border-radius: 16px;
-    border: 1px solid #d6e6d9;
-    background: #ffffff;
-    font-size: 1rem;
-    padding: 0.85rem 1rem;
-    box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.form-control::placeholder {
-    color: #8aa092;
-}
-
-.form-control:focus {
-    border-color: #2f9e57;
-    box-shadow: 0 0 0 0.25rem rgba(47, 158, 87, 0.14);
-    transform: translateY(-1px);
-}
-
-.login-actions {
-    display: grid;
-    gap: 0.85rem;
-    margin-top: 0.25rem;
-}
-
-.login-btn {
-    min-height: 54px;
-    border: none;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #1f6f43 0%, #2f9e57 55%, #74c69d 100%);
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    box-shadow: 0 16px 30px rgba(31, 111, 67, 0.18);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-}
-
-.login-btn:hover,
-.login-btn:focus {
-    color: #ffffff;
-    transform: translateY(-1px);
-    box-shadow: 0 20px 34px rgba(31, 111, 67, 0.24);
-    filter: saturate(1.05);
-}
-
-.login-note {
-    margin: 0;
-    font-size: 0.95rem;
-    color: #6c7f73;
-    text-align: center;
-}
-
-@media (max-width: 991.98px) {
-    .login-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .login-hero {
-        padding: 2.25rem 1.5rem;
-    }
-
-    .login-panel {
-        padding: 2rem 1.35rem 1.5rem;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .login-shell {
-        padding: 1rem 0.35rem 0;
-    }
-
-    .login-layout {
-        border-radius: 22px;
-    }
-
-    .login-hero,
-    .login-panel {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    .login-title {
-        font-size: 1.7rem;
-    }
-}
-</style>
-
-<section class="login-shell">
-    <div class="login-layout">
-        <div class="login-hero">
-            <div class="login-badge"><i class="bi bi-shield-check"></i> ระบบงานสหกรณ์ยางพารา</div>
-            <h1>จัดการข้อมูลรับซื้อยางให้เป็นระบบ ชัดเจน และตรวจสอบง่าย</h1>
-            <p>เข้าสู่ระบบเพื่อดูข้อมูลการรับซื้อ ราคาอ้างอิง รายงาน และการจัดการสมาชิกภายในระบบเดียวที่ออกแบบให้ใช้งานง่ายทั้งคอมพิวเตอร์และมือถือ</p>
-
-            <div class="login-highlights">
-                <div class="login-highlight"><i class="bi bi-graph-up-arrow"></i><span>ติดตามข้อมูลและรายงานได้อย่างรวดเร็ว</span></div>
-                <div class="login-highlight"><i class="bi bi-people"></i><span>จัดการสมาชิก ผู้ใช้งาน และรายการรับซื้ออย่างเป็นระเบียบ</span></div>
-                <div class="login-highlight"><i class="bi bi-phone"></i><span>รองรับการใช้งานบนหน้าจอขนาดเล็กได้ดีขึ้น</span></div>
-            </div>
+                    <p class="text-center text-sm leading-6 text-slate-500">
+                        หากพบปัญหาในการใช้งาน กรุณาติดต่อผู้ดูแลระบบของสหกรณ์
+                    </p>
+                </form>
+            </section>
         </div>
+    </main>
 
-        <div class="login-panel">
-            <div class="login-panel-head">
-                <span class="login-kicker">Sign In</span>
-                <h2 class="login-title">เข้าสู่ระบบ</h2>
-                <p class="login-subtitle">กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ระบบบริหารจัดการข้อมูล</p>
-            </div>
-
-            <?php if ($msg): ?>
-                <div class="alert alert-info login-alert"><?php echo e($msg); ?></div>
-            <?php endif; ?>
-
-            <?php if ($errors): ?>
-                <div class="alert alert-danger login-alert"><?php echo e(implode(' | ', $errors)); ?></div>
-            <?php endif; ?>
-
-            <form method="post" autocomplete="off" class="login-form">
-                <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
-
-                <div class="login-field">
-                    <label class="form-label" for="username"><i class="bi bi-person-fill"></i> ชื่อผู้ใช้</label>
-                    <input class="form-control" id="username" name="username" required autofocus placeholder="กรอกชื่อผู้ใช้" value="<?php echo e($_POST['username'] ?? ''); ?>">
-                </div>
-
-                <div class="login-field">
-                    <label class="form-label" for="password"><i class="bi bi-lock-fill"></i> รหัสผ่าน</label>
-                    <input class="form-control" id="password" type="password" name="password" required placeholder="กรอกรหัสผ่าน">
-                </div>
-
-                <div class="login-actions">
-                    <button class="btn login-btn w-100" type="submit"><i class="bi bi-box-arrow-in-right me-2"></i>เข้าสู่ระบบ</button>
-                    <p class="login-note">หากพบปัญหาในการใช้งาน กรุณาติดต่อผู้ดูแลระบบของสหกรณ์</p>
-                </div>
-            </form>
+    <footer class="border-t border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-sm text-slate-500 sm:px-6 lg:px-8">
+            <p class="font-semibold text-slate-700">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</p>
+            <p>&copy; <?php echo date('Y'); ?> ระบบการซื้อขายยางพารา</p>
         </div>
-    </div>
-</section>
-<?php include 'footer.php'; ?>
+    </footer>
+</body>
+</html>

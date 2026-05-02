@@ -1,358 +1,262 @@
 <?php
-// filepath: /Users/sumetmac/Desktop/GitHub/rts-1/prices.php
 require_once 'functions.php';
-// require_admin();
-include 'header.php';
 
-$msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
+$db = db();
+$msg = isset($_GET['msg']) ? trim((string) $_GET['msg']) : '';
+$canManagePrices = function_exists('is_admin') && is_admin();
 
-// fetch prices
-$stmt = $mysqli->prepare("SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate FROM tbl_price ORDER BY pr_date DESC, pr_id DESC");
+$stmt = $db->prepare("SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate FROM tbl_price ORDER BY pr_date DESC, pr_id DESC");
 if (!$stmt) {
-    die('Prepare failed: ' . $mysqli->error);
+    die('Prepare failed: ' . $db->error);
 }
+
 $stmt->execute();
 $result = $stmt->get_result();
 $prices = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+$priceCount = count($prices);
+$latestPrice = $prices[0]['pr_price'] ?? null;
+$latestDate = $prices[0]['pr_date'] ?? null;
 ?>
-<!-- Removed Google Fonts, now using local Sarabun -->
-<style>
-html, body {
-  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", sans-serif;
-  font-size: 16px;
-  font-weight: 300;
-  background: #f6f8fb;
-}
+<!doctype html>
+<html lang="th" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ราคายาง</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <style>
+        html, body {
+            font-family: 'Sarabun', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-full bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50 text-slate-700">
+    <?php
+    $siteNavOuterClass = 'sticky top-0 z-50 border-b border-emerald-200 bg-emerald-100/95 text-emerald-950 shadow-sm backdrop-blur';
+    $siteNavInnerClass = 'mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8';
+    $siteNavBrandBadge = 'ระบบการรวบรวมยาง';
+    $siteNavBrandTitle = 'สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด';
+    $siteNavBrandIcon = 'banknotes';
+    $siteNavNavId = 'priceNav';
+    include __DIR__ . '/partials/site_nav.php';
+    ?>
 
-.price-page {
-  max-width: 1180px;
-}
+    <main class="min-h-full">
+        <div class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <section class="overflow-hidden rounded-3xl border border-emerald-100 bg-white/85 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur">
+                <div class="border-b border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-teal-50 px-6 py-5 sm:px-8">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div class="space-y-2">
+                            <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-100/70 px-3 py-1 text-sm font-medium text-emerald-800">
+                                <?php echo heroicon('banknotes', 'h-4 w-4'); ?>
+                                ระบบจัดการราคายาง
+                            </div>
+                            <div>
+                                <h1 class="text-3xl font-bold tracking-tight text-slate-900">ราคายาง</h1>
+                                <p class="mt-1 text-sm text-slate-500">รายการราคายางล่าสุด เรียงจากวันที่ใหม่ไปเก่า</p>
+                            </div>
+                        </div>
 
-.price-hero {
-  border: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-  border-radius: 1.25rem;
-  padding: 1.25rem;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
-}
-
-.price-title {
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.price-subtitle {
-  color: #64748b;
-  margin: .25rem 0 0;
-}
-
-.price-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 1.25rem;
-  overflow: hidden;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
-}
-
-.price-table {
-  margin-bottom: 0;
-  vertical-align: middle;
-}
-
-.price-table thead th {
-  background: #f8fafc;
-  color: #334155;
-  font-weight: 700;
-  white-space: nowrap;
-  padding: .9rem .85rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.price-table tbody td {
-  padding: .85rem;
-  color: #334155;
-}
-
-.price-table tbody tr:hover td {
-  background: #f1f5f9;
-  transition: background-color 0.3s ease;
-}
-
-.price-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  border-radius: 999px;
-  padding: .35rem .7rem;
-  background: #ecfdf5;
-  color: #047857;
-  font-weight: 700;
-}
-
-.action-group {
-  display: inline-flex;
-  gap: .4rem;
-  align-items: center;
-}
-
-.action-group form {
-  margin: 0;
-}
-
-.action-group .btn {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.action-group .btn:hover {
-  background-color: #e2e8f0;
-  transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-  .container.price-page {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 0.85rem;
-    padding-right: 0.85rem;
-    margin-top: 1rem !important;
-  }
-
-  .price-hero {
-    padding: 1rem;
-    border-radius: 1rem;
-  }
-
-  .price-toolbar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 0.85rem;
-  }
-
-  .price-title {
-    font-size: 1.25rem;
-    line-height: 1.35;
-  }
-
-  .price-subtitle {
-    font-size: 0.92rem;
-    line-height: 1.5;
-  }
-
-  .price-toolbar .btn {
-    width: 100%;
-    min-height: 44px;
-  }
-
-  .price-card {
-    border: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-
-  .price-card .card-body {
-    padding: 0 !important;
-  }
-
-  .table-responsive {
-    overflow: visible !important;
-  }
-
-  .responsive-table {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    border-collapse: separate !important;
-  }
-
-  .responsive-table thead {
-    display: none !important;
-  }
-
-  .responsive-table tbody {
-    display: block !important;
-    width: 100% !important;
-  }
-
-  .responsive-table tr {
-    display: block !important;
-    width: 100% !important;
-    box-sizing: border-box;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 0.85rem;
-    margin-bottom: 0.85rem;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
-  }
-
-  .responsive-table td {
-    display: grid !important;
-    grid-template-columns: 82px minmax(0, 1fr);
-    align-items: center;
-    gap: 0.75rem;
-    width: 100% !important;
-    box-sizing: border-box;
-    border: 0 !important;
-    padding: 0.55rem 0 !important;
-    text-align: right;
-    white-space: normal !important;
-    word-break: break-word;
-  }
-
-  .responsive-table td::before {
-    content: attr(data-label);
-    color: #64748b;
-    font-weight: 700;
-    text-align: left;
-    white-space: nowrap;
-  }
-
-  .responsive-table td > * {
-    min-width: 0;
-  }
-
-  .responsive-table td[data-label="ราคา"] {
-    font-size: 1rem;
-  }
-
-  .responsive-table td[data-label="ราคา"] .price-badge {
-    justify-self: end;
-    max-width: 100%;
-    white-space: nowrap;
-  }
-
-  .responsive-table td[data-label="จัดการ"] {
-    align-items: center;
-  }
-
-  .responsive-table td[data-label="จัดการ"] .action-group {
-    justify-self: end;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-
-  .responsive-table td[data-label="จัดการ"] form {
-    margin: 0 !important;
-  }
-
-  .responsive-table .btn-sm {
-    min-width: 40px;
-    min-height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-@media (max-width: 420px) {
-  .price-title {
-    font-size: 1.12rem;
-  }
-
-  .responsive-table td {
-    font-size: .92rem;
-    padding: 0.5rem;
-  }
-
-  .responsive-table tr {
-    padding: 0.75rem;
-  }
-
-  .action-group .btn {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.6rem;
-  }
-}
-</style>
-
-<div class="container price-page mt-4 mb-4">
-  <div class="price-hero mb-3">
-    <div class="price-toolbar d-flex justify-content-between align-items-center">
-      <div>
-        <h3 class="price-title">
-          <i class="bi bi-cash-coin me-2 text-success"></i>ราคายาง
-        </h3>
-        <p class="price-subtitle">รายการราคายางล่าสุด เรียงจากวันที่ใหม่ไปเก่า</p>
-      </div>
-
-      <?php if (function_exists('is_admin') && is_admin()): ?>
-        <a href="price_form.php?action=create" class="btn btn-success rounded-pill px-4">
-          <i class="bi bi-plus-circle me-1"></i>เพิ่มราคายาง
-        </a>
-      <?php endif; ?>
-    </div>
-  </div>
-
-  <?php if ($msg): ?>
-    <div class="alert alert-info rounded-4 border-0 shadow-sm">
-      <i class="bi bi-info-circle me-1"></i><?php echo htmlspecialchars($msg); ?>
-    </div>
-  <?php endif; ?>
-
-  <div class="card price-card">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover table-sm datatable responsive-table price-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th><i class="bi bi-calendar2-week me-1"></i>ปี</th>
-              <th><i class="bi bi-calendar-date me-1"></i>วันที่</th>
-              <th><i class="bi bi-clock-history me-1"></i>รอบ</th>
-              <th><i class="bi bi-cash-stack me-1"></i>ราคา</th>
-              <?php if (function_exists('is_admin') && is_admin()): ?>
-                <th class="no-sort text-end"><i class="bi bi-gear me-1"></i>จัดการ</th>
-              <?php endif; ?>
-            </tr>
-          </thead>
-
-          <tbody>
-            <?php foreach ($prices as $p): ?>
-              <tr>
-                <td data-label="#"><?php echo (int)$p['pr_id']; ?></td>
-                <td data-label="ปี"><?php echo (int)$p['pr_year']; ?></td>
-                <td data-label="วันที่">
-                  <i class="bi bi-calendar-date me-1 text-secondary"></i>
-                  <?php echo thai_date_format($p['pr_date']); ?>
-                </td>
-                <td data-label="รอบ">
-                  <i class="bi bi-clock-history me-1 text-secondary"></i>
-                  <?php echo htmlspecialchars($p['pr_number']); ?>
-                </td>
-                <td data-label="ราคา">
-                  <span class="price-badge">
-                    <i class="bi bi-cash-stack"></i>
-                    <?php echo number_format((float)$p['pr_price'], 2); ?>
-                  </span>
-                </td>
-
-                <?php if (function_exists('is_admin') && is_admin()): ?>
-                  <td data-label="จัดการ" class="text-end">
-                    <div class="action-group">
-                      <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                      </a>
-
-                      <form method="post" action="price_delete.php" onsubmit="return confirm('ลบราคานี้หรือไม่?');">
-                        <input type="hidden" name="id" value="<?php echo (int)$p['pr_id']; ?>">
-                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
+                        <div class="flex flex-wrap gap-3">
+                            <?php if ($canManagePrices): ?>
+                                <a href="dashboard.php" class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                    <?php echo heroicon('arrow-left', 'h-4 w-4'); ?>
+                                    กลับ Dashboard
+                                </a>
+                                <a href="price_form.php?action=create" class="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                                    <?php echo heroicon('plus', 'h-4 w-4'); ?>
+                                    เพิ่มราคายาง
+                                </a>
+                            <?php else: ?>
+                              
+                            <?php endif; ?>
+                        </div>
                     </div>
-                  </td>
-                <?php endif; ?>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+                </div>
 
-<?php include 'footer.php'; ?>
+                <div class="space-y-6 px-6 py-6 sm:px-8">
+                    <?php if ($msg !== ''): ?>
+                        <div class="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+                            <div class="flex items-start gap-2">
+                                <?php echo heroicon('information-circle', 'mt-0.5 h-4 w-4 flex-none'); ?>
+                                <p><?php echo htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); ?></p>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <section class="grid gap-4 md:grid-cols-3">
+                        <div class="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-emerald-700">จำนวนรายการ</p>
+                                    <p class="mt-2 text-3xl font-bold text-slate-900"><?php echo number_format($priceCount); ?></p>
+                                </div>
+                                <div class="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
+                                    <?php echo heroicon('list-bullet', 'h-6 w-6'); ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-teal-700">วันที่ล่าสุด</p>
+                                    <p class="mt-2 text-xl font-bold text-slate-900">
+                                        <?php echo $latestDate ? htmlspecialchars(thai_date_format((string) $latestDate), ENT_QUOTES, 'UTF-8') : '-'; ?>
+                                    </p>
+                                </div>
+                                <div class="rounded-2xl bg-teal-100 p-3 text-teal-700">
+                                    <?php echo heroicon('calendar-days', 'h-6 w-6'); ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-amber-700">ราคาล่าสุด</p>
+                                    <p class="mt-2 text-3xl font-bold text-slate-900">
+                                        <?php echo $latestPrice !== null ? number_format((float) $latestPrice, 2) : '-'; ?>
+                                    </p>
+                                </div>
+                                <div class="rounded-2xl bg-amber-100 p-3 text-amber-700">
+                                    <?php echo heroicon('banknotes', 'h-6 w-6'); ?>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div class="flex flex-col gap-3 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="text-lg font-semibold text-slate-900">ตารางราคายาง</h2>
+                                <p class="text-sm text-slate-500">ค้นหาได้จากปี, วันที่, รอบ หรือราคา</p>
+                            </div>
+
+                            <label class="relative block w-full sm:w-96">
+                                <span class="sr-only">ค้นหา</span>
+                                <?php echo heroicon('magnifying-glass', 'pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400'); ?>
+                                <input
+                                    id="priceSearch"
+                                    type="search"
+                                    placeholder="ค้นหาในตาราง..."
+                                    class="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                                >
+                            </label>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                    <tr>
+                                        <th class="px-4 py-3">#</th>
+                                        <th class="px-4 py-3">ปี</th>
+                                        <th class="px-4 py-3">วันที่</th>
+                                        <th class="px-4 py-3">รอบ</th>
+                                        <th class="px-4 py-3">ราคา</th>
+                                <?php if ($canManagePrices): ?>
+                                    <th class="px-4 py-3 text-right">จัดการ</th>
+                                <?php endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody id="priceTableBody" class="divide-y divide-slate-100 bg-white">
+                                    <?php foreach ($prices as $p): ?>
+                                        <tr class="price-row hover:bg-emerald-50/50">
+                                            <td class="whitespace-nowrap px-4 py-4 font-medium text-slate-900"><?php echo (int) $p['pr_id']; ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-slate-700"><?php echo (int) $p['pr_year']; ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-slate-700">
+                                                <?php echo htmlspecialchars(thai_date_format((string) $p['pr_date']), ENT_QUOTES, 'UTF-8'); ?>
+                                            </td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-slate-700">
+                                                <?php echo htmlspecialchars((string) $p['pr_number'], ENT_QUOTES, 'UTF-8'); ?>
+                                            </td>
+                                            <td class="whitespace-nowrap px-4 py-4">
+                                                <span class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 font-semibold text-emerald-700">
+                                                    <?php echo heroicon('banknotes', 'h-4 w-4'); ?>
+                                                    <?php echo number_format((float) $p['pr_price'], 2); ?> บาท
+                                                </span>
+                                            </td>
+                                            <?php if ($canManagePrices): ?>
+                                                <td class="whitespace-nowrap px-4 py-4 text-right">
+                                                    <div class="inline-flex items-center gap-2">
+                                                        <a
+                                                            href="price_form.php?action=edit&id=<?php echo (int) $p['pr_id']; ?>"
+                                                            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-sky-700 transition hover:border-sky-300 hover:bg-sky-100"
+                                                            title="แก้ไข"
+                                                        >
+                                                            <?php echo heroicon('pencil', 'h-4 w-4'); ?>
+                                                        </a>
+                                                        <form method="post" action="price_delete.php" onsubmit="return confirm('ลบราคานี้หรือไม่?');">
+                                                            <input type="hidden" name="id" value="<?php echo (int) $p['pr_id']; ?>">
+                                                            <button
+                                                                type="submit"
+                                                                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-rose-50 text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                                                                title="ลบ"
+                                                            >
+                                                                <?php echo heroicon('trash', 'h-4 w-4'); ?>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="noMatchState" class="hidden border-t border-slate-200 px-6 py-12 text-center">
+                            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                <?php echo heroicon('magnifying-glass', 'h-6 w-6'); ?>
+                            </div>
+                            <h3 class="mt-4 text-base font-semibold text-slate-900">ไม่พบรายการที่ค้นหา</h3>
+                            <p class="mt-2 text-sm text-slate-500">ลองพิมพ์ปี วันที่ รอบ หรือราคาที่ต้องการค้นหาใหม่</p>
+                        </div>
+
+                        <?php if (empty($prices)): ?>
+                            <div class="border-t border-slate-200 px-6 py-14 text-center">
+                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                    <?php echo heroicon('inbox', 'h-6 w-6'); ?>
+                                </div>
+                                <h3 class="mt-4 text-base font-semibold text-slate-900">ยังไม่มีข้อมูลราคายาง</h3>
+                                <p class="mt-2 text-sm text-slate-500">กดปุ่ม "เพิ่มราคายาง" เพื่อสร้างรายการแรก</p>
+                            </div>
+                        <?php endif; ?>
+                    </section>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const searchInput = document.getElementById('priceSearch');
+        const rows = Array.from(document.querySelectorAll('.price-row'));
+        const noMatchState = document.getElementById('noMatchState');
+
+        if (searchInput && rows.length) {
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                rows.forEach((row) => {
+                    const text = row.textContent.toLowerCase();
+                    const isVisible = query === '' || text.includes(query);
+                    row.classList.toggle('hidden', !isVisible);
+                    if (isVisible) {
+                        visibleCount += 1;
+                    }
+                });
+
+                if (noMatchState) {
+                    noMatchState.classList.toggle('hidden', !(query !== '' && visibleCount === 0));
+                }
+            });
+        }
+    </script>
+</body>
+</html>

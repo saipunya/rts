@@ -1,0 +1,16 @@
+{
+  "name": "rts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/tailwind.css -o ./assets/css/tailwind.css",
+    "watch:css": "tailwindcss -i ./assets/tailwind.css -o ./assets/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.6",
+    "tailwindcss": "^4.1.6"
+  },
+  "dependencies": {
+    "heroicons": "^2.2.0"
+  }
+}

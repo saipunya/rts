@@ -33,7 +33,45 @@ if (!defined('USER_TABLE')) {
 $GLOBALS['mysqli'] = db();
 
 function e($v): string {
-	return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+}
+
+function heroicon(string $name, string $class = ''): string {
+    static $cache = [];
+
+    $safeName = preg_replace('/[^a-z0-9\-]/', '', strtolower($name));
+    if ($safeName === '') {
+        return '';
+    }
+
+    $cacheKey = $safeName . '|' . trim($class);
+    if (isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+
+    $path = __DIR__ . '/assets/icons/heroicons/outline/' . $safeName . '.svg';
+    if (!is_file($path)) {
+        return '';
+    }
+
+    $svg = file_get_contents($path);
+    if ($svg === false) {
+        return '';
+    }
+
+    if ($class !== '') {
+        $classAttr = htmlspecialchars(trim($class), ENT_QUOTES, 'UTF-8');
+        $svg = preg_replace(
+            '/<svg\b/',
+            '<svg class="inline-block align-middle shrink-0 ' . $classAttr . '"',
+            $svg,
+            1
+        ) ?? $svg;
+    }
+
+    $cache[$cacheKey] = $svg;
+
+    return $svg;
 }
 
 function csrf_token(): string {

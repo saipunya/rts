@@ -1,898 +1,501 @@
 <?php
 require_once 'functions.php';
-include 'header.php';
 
-// added: use db() instead of undefined $mysqli
 $db = db();
-?>
 
-
-
-<style>
-html, body {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-	background: linear-gradient(180deg, #f3f8f4 0%, #eef6f0 100%);
-    color: var(--bs-body-color);
-}
-
-.container {
-	background: rgba(255, 255, 255, 0.72);
-	border: 1px solid rgba(21, 87, 36, 0.08);
-	border-radius: 1.5rem;
-	padding: 2rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-	box-shadow: 0 24px 48px rgba(16, 24, 40, 0.06);
-	backdrop-filter: blur(10px);
-}
-
-.card,
-.table,
-.form-control,
-.form-select,
-.form-label,
-.btn,
-.btn-sm,
-.nav-link,
-.alert,
-.badge {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-}
-
-.small,
-.form-text {
-    font-size: 14px !important;
-    font-weight: 300 !important;
-}
-
-.hero-section {
-    padding: 0.5rem 0 2rem;
-}
-
-.hero-panel {
-	background: linear-gradient(135deg, #ffffff 0%, #f5fbf6 100%);
-	border: 1px solid rgba(47, 110, 67, 0.12);
-	border-radius: 1.5rem;
-	padding: 2rem;
-	box-shadow: 0 18px 40px rgba(16, 24, 40, 0.06);
-}
-
-.hero-badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.45rem 0.9rem;
-	border-radius: 999px;
-	background: #e8f5eb;
-	color: #2f6e43;
-	font-size: 0.95rem;
-	font-weight: 600;
-	margin-bottom: 1rem;
-}
-
-.hero-title {
-    font-size: 2.35rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 0.75rem;
-	color: #204e31;
-}
-
-	.hero-subtitle {
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-		color: #4a6b55;
-	}
-
-	.hero-description {
-		font-size: 1.05rem;
-		color: #617565;
-		margin-bottom: 1.5rem;
-	}
-
-	.hero-actions {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-		margin-bottom: 1rem;
-	}
-
-	.hero-meta {
-		display: flex;
-		justify-content: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.hero-meta span {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.45rem;
-		padding: 0.45rem 0.8rem;
-		border-radius: 999px;
-		background: #f2f8f3;
-		color: #4e6656;
-		font-size: 0.95rem;
-	}
-
-	.index-toolbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-		padding: 1rem 1.25rem;
-		margin-bottom: 1.5rem;
-		background: #f7fbf8;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-	}
-
-	.index-toolbar h2 {
-		font-size: 1.35rem;
-		font-weight: 600;
-		color: #28553a;
-	}
-
-	.index-toolbar-note {
-		margin: 0;
-		font-size: 0.95rem;
-		color: #708374;
-	}
-
-	.stat-card {
-		position: relative;
-		height: 100%;
-		padding: 1.4rem 1.5rem 1.4rem 1.75rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-		background: #ffffff;
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-		overflow: hidden;
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
-	}
-
-	.stat-card::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		top: 0;
-		bottom: 0;
-		width: 6px;
-		background: var(--bs-success);
-	}
-
-	.stat-card.stat-card-accent-2::before {
-		background: #68ae7a;
-	}
-
-	.stat-card.stat-card-accent-3::before {
-		background: #4f8f61;
-	}
-
-	.stat-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 18px 32px rgba(16, 24, 40, 0.08);
-	}
-
-	.stat-label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 0.75rem;
-		font-size: 1rem;
-		font-weight: 600;
-		color: #5f7465;
-	}
-
-	.stat-label i {
-		font-size: 1.25rem;
-		color: var(--bs-success);
-	}
-
-	.stat-value {
-		font-size: 2.1rem;
-		font-weight: 700;
-		line-height: 1.2;
-		margin-bottom: 0.35rem;
-		color: #183524;
-	}
-
-	.stat-sub {
-		font-size: 0.95rem;
-		color: #7b8d7f;
-	}
-
-	.stat-sub .fw-semibold {
-		color: var(--bs-success-text-emphasis);
-	}
-
-	.section-title {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		padding: 0.95rem 1.1rem;
-		margin-bottom: 1rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 0.9rem;
-		background: #f7fbf8;
-		color: #28553a;
-		font-size: 1.08rem;
-		font-weight: 600;
-	}
-
-	.card-table {
-		margin-bottom: 1.5rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-		background: #ffffff;
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-		overflow: hidden;
-	}
-
-	.table-responsive {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	.table {
-		font-size: 1.2rem;
-		margin-bottom: 0;
-	}
-
-	.table th {
-		font-size: 1.15rem;
-		font-weight: 600;
-		padding: 0.95rem 0.85rem;
-		background: var(--bs-success);
-		color: #fff;
-		border: none;
-	}
-
-	.table td {
-		font-size: 1.2rem;
-		padding: 0.85rem 0.75rem;
-		vertical-align: middle;
-		color: #2f3d33;
-	}
-
-	.lan-summary-table,
-	.daily-summary-table {
-		font-size: 1.2rem;
-	}
-
-	.lan-summary-table th,
-	.daily-summary-table th {
-		white-space: nowrap;
-	}
-
-	.table-success {
-		--bs-table-bg: #e9f6ed;
-		--bs-table-striped-bg: #e9f6ed;
-		--bs-table-hover-bg: #dff0e4;
-		color: #24472d;
-	}
-
-	.daily-summary-section .daily-summary-table {
-		min-width: 900px;
-		table-layout: auto;
-	}
-
-	.daily-summary-section .daily-summary-table th,
-	.daily-summary-section .daily-summary-table td {
-		white-space: nowrap;
-	}
-
-	.daily-summary-section .daily-summary-table th:last-child,
-	.daily-summary-section .daily-summary-table td:last-child {
-		min-width: 180px;
-	}
-
-	@media (max-width: 992px) {
-		.hero-panel {
-			padding: 1.5rem;
-		}
-
-		.index-toolbar {
-			flex-direction: column;
-			align-items: stretch !important;
-			text-align: center;
-		}
-
-		.index-toolbar h2 {
-			font-size: 1.5rem;
-		}
-
-		.stat-value {
-			font-size: 2rem;
-		}
-
-		.stat-label {
-			font-size: 1rem;
-		}
-
-		.daily-summary-section {
-			margin-left: -0.25rem;
-			margin-right: -0.25rem;
-		}
-
-		.daily-summary-section .section-title {
-			font-size: 1.1rem;
-			padding: 0.9rem 1rem;
-		}
-
-		.daily-summary-section .card-table {
-			margin: 0;
-		}
-
-		.daily-summary-section .table-responsive {
-			padding: 0;
-		}
-
-		.daily-summary-section .daily-summary-table {
-			min-width: 820px;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.index-toolbar {
-			padding: 1rem 1.1rem;
-		}
-
-		.index-toolbar h2 {
-			font-size: 1.35rem;
-		}
-
-		.stat-card {
-			padding: 1.1rem 1rem 1rem 1.25rem;
-		}
-
-		.stat-value {
-			font-size: 1.9rem;
-		}
-
-		.stat-label {
-			font-size: 0.98rem;
-		}
-
-		.stat-sub {
-			font-size: 0.9rem;
-		}
-
-		.card-table {
-			margin: 0 -0.5rem;
-		}
-
-		.table-responsive {
-			font-size: 1.2rem;
-			padding: 0 0.5rem;
-		}
-
-		.table th {
-			font-size: 0.98rem;
-		}
-
-		.table th,
-		.table td {
-			padding: 0.65rem 0.55rem;
-		}
-
-		.section-title {
-			font-size: 1.2rem;
-			padding: 0.85rem 1rem;
-		}
-
-		.daily-summary-section .daily-summary-table {
-			min-width: 780px;
-		}
-
-		.daily-summary-section .daily-summary-table th,
-		.daily-summary-section .daily-summary-table td {
-			font-size: 0.98rem;
-			padding: 0.6rem 0.5rem;
-		}
-	}
-
-	@media (max-width: 576px) {
-		.container {
-			padding: 1.25rem 1rem;
-			border-radius: 1rem;
-			margin-top: 1rem;
-			margin-bottom: 1rem;
-		}
-
-		.hero-panel {
-			padding: 1.25rem 1rem;
-		}
-
-		.hero-title {
-			font-size: 1.8rem;
-		}
-
-		.hero-description {
-			font-size: 1.05rem;
-		}
-
-		.hero-actions .btn {
-			width: 100%;
-		}
-
-		.index-toolbar h2 {
-			font-size: 1.2rem;
-		}
-
-		.stat-card {
-			padding: 0.85rem 0.85rem 0.85rem 1rem;
-		}
-
-		.stat-value {
-			font-size: 1.8rem;
-		}
-
-		.stat-label {
-			font-size: 1.1rem;
-		}
-
-		.table-responsive {
-			font-size: 0.95rem;
-			padding: 0 0.25rem;
-		}
-
-	}
-
-	.stat-card:hover {
-		transform: none;
-	}
-
-</style>
-
-<?php
-// late price from tbl_price
-$stmt = $db->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
+$stmt = $db->prepare("SELECT pr_price, pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
 if ($stmt) {
-	$stmt->execute();
-	$res = $stmt->get_result();
-	$row = $res->fetch_assoc();
-	if ($row) {
-		$latest_price = $row['pr_price'];
-	} else {
-		$latest_price = 0;
-	}
-
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $latest_price = $row ? (float) ($row['pr_price'] ?? 0) : 0.0;
+    $latest_price_date = $row['pr_date'] ?? null;
+    if ($res) {
+        $res->free();
+    }
+    $stmt->close();
 } else {
-	$latest_price = 0;
-}
-// pr_date of latest_price
-
-
-$stmt = $db->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
-if ($stmt) {
-	$stmt->execute();
-	$res = $stmt->get_result();
-	$row = $res->fetch_assoc();
-	$latest_price_date = $row ? $row['pr_date'] : null;
-} else {
-	$latest_price_date = null;
+    $latest_price = 0.0;
+    $latest_price_date = null;
 }
 
-// added: safe display for latest price date
-$latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
+$latest_price_date_text = $latest_price_date ? thai_date_format((string) $latest_price_date) : '-';
 
-// Sum totals for the date of latest price (match by ru_date == $latest_price_date)
-// ยอดปริมาณรวม: ผลรวม ru_quantity ของ tbl_rubber ที่ ru_date == pr_date ล่าสุด
-// ยอดเงินรวม: ผลรวม ru_quantity * ราคายางล่าสุด (pr_price)
-$price_date_total_quantity = 0;
-$price_date_total_value = 0;
+$price_date_total_quantity = 0.0;
+$price_date_total_value = 0.0;
 if ($latest_price_date) {
-    // Query จากฐานข้อมูลโดยตรงเพื่อให้ได้ผลรวมที่ถูกต้องทุกลาน (ไม่ใช้ LIMIT)
-	$stmt = $db->prepare("SELECT SUM(ru_quantity) as total_qty FROM tbl_rubber WHERE ru_date = ?");
+    $stmt = $db->prepare("SELECT SUM(ru_quantity) AS total_qty FROM tbl_rubber WHERE ru_date = ?");
     if ($stmt) {
         $stmt->bind_param('s', $latest_price_date);
         $stmt->execute();
         $res = $stmt->get_result();
-        $row = $res->fetch_assoc();
-        $price_date_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
+        $row = $res ? $res->fetch_assoc() : null;
+        $price_date_total_quantity = $row && $row['total_qty'] ? (float) $row['total_qty'] : 0.0;
+        if ($res) {
+            $res->free();
+        }
         $stmt->close();
     }
     $price_date_total_value = $price_date_total_quantity * $latest_price;
 }
 
-// Summary filters (for daily/lan round summary)
-$sum_date_from = isset($_GET['date_from']) ? trim((string)$_GET['date_from']) : '';
-$sum_date_to   = isset($_GET['date_to']) ? trim((string)$_GET['date_to']) : '';
-$sum_lan_param = isset($_GET['lan']) ? trim((string)$_GET['lan']) : 'all';
+$sum_date_from = isset($_GET['date_from']) ? trim((string) $_GET['date_from']) : '';
+$sum_date_to = isset($_GET['date_to']) ? trim((string) $_GET['date_to']) : '';
+$sum_lan_param = isset($_GET['lan']) ? trim((string) $_GET['lan']) : 'all';
 
 $sum_lan = 'all';
 if ($sum_lan_param !== '' && strtolower($sum_lan_param) !== 'all') {
-	$lanInt = (int)$sum_lan_param;
-	if (in_array($lanInt, [1, 2, 3, 4], true)) {
-		$sum_lan = (string)$lanInt;
-	}
+    $lanInt = (int) $sum_lan_param;
+    if (in_array($lanInt, [1, 2, 3, 4], true)) {
+        $sum_lan = (string) $lanInt;
+    }
 }
 
-// validate date filters (Y-m-d)
 $dt = $sum_date_from !== '' ? DateTime::createFromFormat('Y-m-d', $sum_date_from) : null;
 if ($sum_date_from !== '' && (!$dt || $dt->format('Y-m-d') !== $sum_date_from)) {
-	$sum_date_from = '';
+    $sum_date_from = '';
 }
+
 $dt = $sum_date_to !== '' ? DateTime::createFromFormat('Y-m-d', $sum_date_to) : null;
 if ($sum_date_to !== '' && (!$dt || $dt->format('Y-m-d') !== $sum_date_to)) {
-	$sum_date_to = '';
+    $sum_date_to = '';
 }
 
-// Total record count for display
 $total_records = 0;
 if ($rs = $db->query("SELECT COUNT(*) AS cnt FROM tbl_rubber")) {
-	$row = $rs->fetch_assoc();
-	$total_records = $row && $row['cnt'] ? (int)$row['cnt'] : 0;
-	$rs->free();
+    $row = $rs->fetch_assoc();
+    $total_records = $row && $row['cnt'] ? (int) $row['cnt'] : 0;
+    $rs->free();
 }
 
-// Query ปริมาณรวมและยอดเงินรวมของทุกลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
-$all_total_quantity = 0;
-$all_total_value = 0;
-$all_stats = $db->query("SELECT SUM(ru_quantity) as total_qty FROM tbl_rubber");
-if ($all_stats) {
+$all_total_quantity = 0.0;
+$all_total_value = 0.0;
+if ($all_stats = $db->query("SELECT SUM(ru_quantity) AS total_qty FROM tbl_rubber")) {
     $row = $all_stats->fetch_assoc();
-    $all_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
-    // คำนวณยอดเงินรวมด้วยราคายางล่าสุด (เหมือนกับการคำนวณวันที่ราคายาง)
+    $all_total_quantity = $row && $row['total_qty'] ? (float) $row['total_qty'] : 0.0;
     $all_total_value = $all_total_quantity * $latest_price;
     $all_stats->free();
 }
 
-// Daily/Lan summary query
 $sum_where = [];
 $sum_params = [];
 $sum_types = '';
 if ($sum_date_from !== '') {
-	$sum_where[] = 'r.ru_date >= ?';
-	$sum_params[] = $sum_date_from;
-	$sum_types .= 's';
+    $sum_where[] = 'r.ru_date >= ?';
+    $sum_params[] = $sum_date_from;
+    $sum_types .= 's';
 }
 if ($sum_date_to !== '') {
-	$sum_where[] = 'r.ru_date <= ?';
-	$sum_params[] = $sum_date_to;
-	$sum_types .= 's';
+    $sum_where[] = 'r.ru_date <= ?';
+    $sum_params[] = $sum_date_to;
+    $sum_types .= 's';
 }
 if ($sum_lan !== 'all') {
-	$sum_where[] = 'r.ru_lan = ?';
-	$sum_params[] = $sum_lan;
-	$sum_types .= 's';
+    $sum_where[] = 'r.ru_lan = ?';
+    $sum_params[] = $sum_lan;
+    $sum_types .= 's';
 }
 $sum_where_sql = $sum_where ? ('WHERE ' . implode(' AND ', $sum_where)) : '';
 
 $summary_rows = [];
 $sql = "SELECT r.ru_date, r.ru_lan, MAX(p.pr_price) AS pr_price,
-		SUM(r.ru_quantity) AS total_qty,
-		SUM(r.ru_value) AS total_value,
-		SUM(r.ru_expend) AS total_expend,
-		SUM(r.ru_netvalue) AS total_net,
-		COUNT(*) AS row_count
-	FROM tbl_rubber r
-	LEFT JOIN tbl_price p ON p.pr_date = r.ru_date
-	$sum_where_sql
-	GROUP BY r.ru_date, r.ru_lan
-	ORDER BY r.ru_date DESC, CAST(r.ru_lan AS UNSIGNED) ASC
-	LIMIT 200";
+        SUM(r.ru_quantity) AS total_qty,
+        SUM(r.ru_value) AS total_value,
+        SUM(r.ru_expend) AS total_expend,
+        SUM(r.ru_netvalue) AS total_net,
+        COUNT(*) AS row_count
+    FROM tbl_rubber r
+    LEFT JOIN tbl_price p ON p.pr_date = r.ru_date
+    $sum_where_sql
+    GROUP BY r.ru_date, r.ru_lan
+    ORDER BY r.ru_date DESC, CAST(r.ru_lan AS UNSIGNED) ASC
+    LIMIT 200";
 
 $stmt = $db->prepare($sql);
 if ($stmt) {
-	if ($sum_params) {
-		$stmt->bind_param($sum_types, ...$sum_params);
-	}
-	$stmt->execute();
-	$res = $stmt->get_result();
-	if ($res) {
-		$summary_rows = $res->fetch_all(MYSQLI_ASSOC);
-		$res->free();
-	}
-	$stmt->close();
+    if ($sum_params) {
+        $stmt->bind_param($sum_types, ...$sum_params);
+    }
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res) {
+        $summary_rows = $res->fetch_all(MYSQLI_ASSOC);
+        $res->free();
+    }
+    $stmt->close();
 }
+
+$lan_rows = [];
+$grand_total_qty = 0.0;
+$grand_total_value = 0.0;
+if ($latest_price_date) {
+    $lan_sql = "SELECT ru_lan, SUM(ru_quantity) AS total_qty
+        FROM tbl_rubber
+        WHERE ru_date = ?
+        GROUP BY ru_lan
+        ORDER BY CAST(ru_lan AS UNSIGNED) ASC";
+    $lan_stmt = $db->prepare($lan_sql);
+    if ($lan_stmt) {
+        $lan_stmt->bind_param('s', $latest_price_date);
+        $lan_stmt->execute();
+        $lan_res = $lan_stmt->get_result();
+        if ($lan_res) {
+            while ($lan_row = $lan_res->fetch_assoc()) {
+                $qty = (float) ($lan_row['total_qty'] ?? 0);
+                $value = $qty * $latest_price;
+                $grand_total_qty += $qty;
+                $grand_total_value += $value;
+                $lan_rows[] = [
+                    'lan' => (string) ($lan_row['ru_lan'] ?? '-'),
+                    'qty' => $qty,
+                    'value' => $value,
+                ];
+            }
+            $lan_res->free();
+        }
+        $lan_stmt->close();
+    }
+}
+
+$daily_summary = [];
+foreach ($summary_rows as $row) {
+    $ruDate = $row['ru_date'] ?? '';
+    if ($ruDate === '') {
+        continue;
+    }
+
+    if (!isset($daily_summary[$ruDate])) {
+        $daily_summary[$ruDate] = [
+            'ru_date' => $ruDate,
+            'total_qty' => 0.0,
+            'total_value' => 0.0,
+            'total_expend' => 0.0,
+            'total_net' => 0.0,
+            'row_count' => 0,
+            'pr_price' => null,
+        ];
+    }
+
+    $daily_summary[$ruDate]['total_qty'] += (float) ($row['total_qty'] ?? 0);
+    $daily_summary[$ruDate]['total_value'] += (float) ($row['total_value'] ?? 0);
+    $daily_summary[$ruDate]['total_expend'] += (float) ($row['total_expend'] ?? 0);
+    $daily_summary[$ruDate]['total_net'] += (float) ($row['total_net'] ?? 0);
+    $daily_summary[$ruDate]['row_count'] += (int) ($row['row_count'] ?? 0);
+
+    if ($daily_summary[$ruDate]['pr_price'] === null && isset($row['pr_price']) && $row['pr_price'] !== null) {
+        $daily_summary[$ruDate]['pr_price'] = (float) $row['pr_price'];
+    }
+}
+
+$people_count_by_date = [];
+$countSql = "SELECT
+        r.ru_date,
+        COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'member' THEN TRIM(r.ru_number) END) AS member_people,
+        COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'general' THEN TRIM(r.ru_fullname) END) AS general_people
+    FROM tbl_rubber r
+    $sum_where_sql
+    GROUP BY r.ru_date";
+$countStmt = $db->prepare($countSql);
+if ($countStmt) {
+    if (!empty($sum_params)) {
+        $countStmt->bind_param($sum_types, ...$sum_params);
+    }
+    $countStmt->execute();
+    $countRes = $countStmt->get_result();
+    if ($countRes) {
+        while ($cr = $countRes->fetch_assoc()) {
+            $d = (string) ($cr['ru_date'] ?? '');
+            if ($d === '') {
+                continue;
+            }
+            $people_count_by_date[$d] = [
+                'member' => (int) ($cr['member_people'] ?? 0),
+                'general' => (int) ($cr['general_people'] ?? 0),
+            ];
+        }
+        $countRes->free();
+    }
+    $countStmt->close();
+}
+
+$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
+$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
 ?>
+<!doctype html>
+<html lang="th" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ระบบจัดการยางพารา</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <style>
+        html, body {
+            font-family: 'Sarabun', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-full bg-slate-50 text-slate-800">
+    <?php
+    $siteNavOuterClass = 'sticky top-0 z-50 border-b border-emerald-200 bg-emerald-100/95 text-emerald-950 shadow-sm backdrop-blur';
+    $siteNavInnerClass = 'mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8';
+    $siteNavBrandBadge = 'ระบบการรวบรวมยาง';
+    $siteNavBrandTitle = 'สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด';
+    $siteNavBrandIcon = 'banknotes';
+    $siteNavNavId = 'indexNav';
+    include __DIR__ . '/partials/site_nav.php';
+    ?>
 
-	<?php
-	if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-	$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
-	$username = $_SESSION['username'] ?? ($_SESSION['user_name'] ?? '');
-	$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
-	?>
+    <main class="bg-slate-50">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <section class="border-b border-slate-200 pb-6">
+                <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="max-w-3xl">
+                        <div class="inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-100">
+                            <?php echo heroicon('chart-bar', 'h-4 w-4'); ?>
+                            ภาพรวมระบบ
+                        </div>
+                        <h1 class="mt-4 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl">
+                            ระบบจัดการยางพารา
+                        </h1>
+                        <p class="mt-3 max-w-2xl text-base leading-8 text-slate-600">
+                            ติดตามราคายางล่าสุด ปริมาณรับซื้อ ยอดเงินรวม และสรุปรายวันในหน้าเดียวที่ออกแบบให้อ่านง่ายและทำงานซ้ำได้เร็ว
+                        </p>
+                    </div>
 
-	<div class="hero-section mb-4">
-		<div class="hero-panel text-center">
-			<div class="hero-badge">
-				<i class="bi bi-droplet-half"></i>
-				ระบบภาพรวมข้อมูลยางพารา
-			</div>
-			<h1 class="hero-title">ระบบจัดการยางพารา</h1>
-			<h4 class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
-			<p class="hero-description">ดูภาพรวมการรวบรวมยาง ราคาอ้างอิง และสรุปข้อมูลสำคัญในหน้าเดียวแบบอ่านง่าย</p>
-			<div class="hero-actions">
-				<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 fw-semibold">
-					<i class="bi bi-person-fill"></i> สำหรับสมาชิก
-				</a>
-				<a href="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-success btn-lg rounded-pill px-4 fw-semibold">
-					<i class="bi bi-clipboard-data"></i> ดูรายการรับซื้อ
-				</a>
-			</div>
-			<div class="hero-meta">
-				<span><i class="bi bi-cash-stack"></i> ราคาล่าสุด <?php echo number_format($latest_price,2); ?> บาท</span>
-				<span><i class="bi bi-calendar-event"></i> วันที่ <?php echo htmlspecialchars($latest_price_date_text); ?></span>
-				<span><i class="bi bi-database-check"></i> ทั้งหมด <?php echo number_format($total_records); ?> รายการ</span>
-			</div>
-		</div>
-	</div>
+                    <div class="flex flex-col gap-3 sm:flex-row">
+                        <a href="allmember.php" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700">
+                            <?php echo heroicon('users', 'h-5 w-5'); ?>
+                            สำหรับสมาชิก
+                        </a>
+                        <a href="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                            <?php echo heroicon('archive-box', 'h-5 w-5'); ?>
+                            ดูรายการรับซื้อ
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-	<div class="index-toolbar">
-		<h2 class="d-flex align-items-center gap-2 mb-0">
-			<i class="bi bi-grid-1x2-fill"></i>
-			ภาพรวมวันนี้
-		</h2>
-		<p class="index-toolbar-note">สรุปข้อมูลสำคัญของระบบในรูปแบบที่อ่านง่ายและอัปเดตจากฐานข้อมูลล่าสุด</p>
-	</div>
+            <section class="grid gap-4 py-6 sm:grid-cols-2 xl:grid-cols-5">
+                <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm xl:col-span-2">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-emerald-700">ราคาล่าสุด</p>
+                            <p class="mt-3 text-3xl font-bold leading-none text-slate-950"><?php echo number_format($latest_price, 2); ?> ฿</p>
+                            <p class="mt-3 text-sm leading-6 text-slate-500">อัปเดตวันที่ <?php echo htmlspecialchars($latest_price_date_text, ENT_QUOTES, 'UTF-8'); ?></p>
+                        </div>
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+                            <?php echo heroicon('banknotes', 'h-5 w-5'); ?>
+                        </span>
+                    </div>
+                </div>
 
-	<!-- Quick stats -->
-	<div class="row g-3 mb-4">
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-tag-fill"></i>ราคาที่ใช้คำนวณ</div>
-				<div class="stat-value"><?php echo number_format($latest_price,2); ?> ฿</div>
-				<div class="stat-sub">อัปเดต: <span class="fw-semibold"><?php echo $latest_price_date_text; ?></span></div>
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card stat-card-accent-2">
-				<div class="stat-label"><i class="bi bi-calendar2-check-fill"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
-				<div class="stat-value"><?php echo number_format($price_date_total_quantity,2); ?> kg</div>
-				<div class="stat-sub">อ้างอิงวันที่ราคายาง</div>
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card stat-card-accent-3">
-				<div class="stat-label"><i class="bi bi-receipt-cutoff"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
-				<div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
-				<div class="stat-sub">ปริมาณ x ราคาล่าสุด</div>
-			</div>
+                <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-semibold text-slate-500">ปริมาณรวมทั้งหมด</p>
+                    <p class="mt-3 text-2xl font-bold leading-tight text-slate-950"><?php echo number_format($all_total_quantity, 2); ?></p>
+                    <p class="mt-2 text-sm text-slate-500">กิโลกรัม</p>
+                </div>
 
-		</div>
-	</div>
+                <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-semibold text-slate-500">ยอดเงินรวมทั้งหมด</p>
+                    <p class="mt-3 text-2xl font-bold leading-tight text-slate-950"><?php echo number_format($all_total_value, 2); ?></p>
+                    <p class="mt-2 text-sm text-slate-500">บาท</p>
+                </div>
 
-	<!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
-	<div class="row mb-4">
-		<div class="col-12">
-			<div class="section-title">
-				<i class="bi bi-bar-chart-line-fill"></i>
-				ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
-			</div>
-			<div class="card-table">
-				<div class="table-responsive">
-					<table class="table table-hover table-sm mb-0 lan-summary-table">
-					<thead>
-						<tr class="text-center">
-							<th>ลาน</th>
-							<th>ปริมาณรวม (kg)</th>
+                <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="text-sm font-semibold text-slate-500">รายการทั้งหมด</p>
+                    <p class="mt-3 text-2xl font-bold leading-tight text-slate-950"><?php echo number_format($total_records); ?></p>
+                    <p class="mt-2 text-sm text-slate-500">รายการ</p>
+                </div>
+            </section>
 
-							<th>ยอดเงินรวม (฿)</th>
-						</tr>
-					</thead>
-					<tbody>
-					<?php
-					$grand_total_qty = 0;
-					$grand_total_value = 0;
+            <section class="grid gap-4 pb-6 lg:grid-cols-2">
+                <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-cyan-50 text-cyan-700">
+                            <?php echo heroicon('calendar-days', 'h-5 w-5'); ?>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-500">ปริมาณวันล่าสุด</p>
+                            <p class="mt-2 text-2xl font-bold text-slate-950"><?php echo number_format($price_date_total_quantity, 2); ?> kg</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-500">อ้างอิงวันที่ <?php echo htmlspecialchars($latest_price_date_text, ENT_QUOTES, 'UTF-8'); ?></p>
+                        </div>
+                    </div>
+                </div>
 
-					if ($latest_price_date) {
-						$lan_sql = "SELECT ru_lan, SUM(ru_quantity) AS total_qty
-									FROM tbl_rubber
-									WHERE ru_date = ?
-									GROUP BY ru_lan
-									ORDER BY CAST(ru_lan AS UNSIGNED) ASC";
-						$lan_stmt = $db->prepare($lan_sql);
-						if ($lan_stmt) {
-							$lan_stmt->bind_param('s', $latest_price_date);
-							$lan_stmt->execute();
-							$lan_res = $lan_stmt->get_result();
-							if ($lan_res) {
-								while ($lan_row = $lan_res->fetch_assoc()) {
-									$lan = $lan_row['ru_lan'] ?? '-';
-									$qty = (float)$lan_row['total_qty'];
-									$value = $qty * $latest_price;
+                <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-amber-50 text-amber-700">
+                            <?php echo heroicon('chart-bar', 'h-5 w-5'); ?>
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-500">มูลค่าวันล่าสุด</p>
+                            <p class="mt-2 text-2xl font-bold text-slate-950"><?php echo number_format($price_date_total_value, 2); ?> ฿</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-500">ปริมาณของวันที่ราคาล่าสุด x ราคาล่าสุด</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-									$grand_total_qty += $qty;
-									$grand_total_value += $value;
+            <section class="border-t border-slate-200 py-6">
+                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-950">ปริมาณรวบรวมแต่ละลาน</h2>
+                        <p class="mt-1 text-sm leading-6 text-slate-500">วันที่อ้างอิง <?php echo htmlspecialchars($latest_price_date_text, ENT_QUOTES, 'UTF-8'); ?></p>
+                    </div>
+                </div>
 
-									echo '<tr class="text-center">';
-									echo '<td>'.htmlspecialchars($lan).'</td>';
-									echo '<td>'.number_format($qty,2).'</td>';
-									echo '<td>'.number_format($value,2).'</td>';
-									echo '</tr>';
-								}
-								$lan_res->free();
-							}
-							$lan_stmt->close();
-						}
-					}
-					?>
-					<tr class="table-success fw-bold text-center">
-						<td>รวมทั้งหมด</td>
-						<td><?php echo number_format($grand_total_qty,2); ?></td>
-						<td><?php echo number_format($grand_total_value,2); ?></td>
-					</tr>
-					</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-[640px] w-full text-sm">
+                            <thead class="bg-slate-100 text-slate-600">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold">ลาน</th>
+                                    <th class="px-4 py-3 text-right font-semibold">ปริมาณรวม (kg)</th>
+                                    <th class="px-4 py-3 text-right font-semibold">ยอดเงินรวม (฿)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <?php foreach ($lan_rows as $row): ?>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="whitespace-nowrap px-4 py-4 font-semibold text-slate-900">ลาน <?php echo htmlspecialchars($row['lan'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo number_format($row['qty'], 2); ?></td>
+                                        <td class="whitespace-nowrap px-4 py-4 text-right font-semibold text-slate-900"><?php echo number_format($row['value'], 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <tr class="bg-emerald-50 font-bold text-emerald-900">
+                                    <td class="px-4 py-4">รวมทั้งหมด</td>
+                                    <td class="px-4 py-4 text-right"><?php echo number_format($grand_total_qty, 2); ?></td>
+                                    <td class="px-4 py-4 text-right"><?php echo number_format($grand_total_value, 2); ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
-	<!-- Daily summary table (all lans combined) -->
-	<div class="row daily-summary-section">
-		<div class="col-12">
-			<div class="section-title">
-				<i class="bi bi-clipboard-data"></i>
-				สรุปรับซื้อรายวัน (รวมทุกลาน)
-			</div>
+            <section class="border-t border-slate-200 py-6">
+                <div class="mb-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-950">สรุปรับซื้อรายวัน</h2>
+                        <p class="mt-1 text-sm leading-6 text-slate-500">รวมทุกลาน พร้อมจำนวนรายการและจำนวนสมาชิก/เกษตรกร</p>
+                    </div>
 
-			<div class="card-table">
-				<div class="table-responsive">
-					<table class="table table-striped table-hover w-100 mb-0 daily-summary-table">
-						<thead>
-							<tr class="text-center">
-								<th>วันที่</th>
-								<th>ราคา (฿/kg)</th>
-								<th>ปริมาณรวม (kg)</th>
-								<th>เงินรวม (฿)</th>
-								<th>ยอดหัก (฿)</th>
-								<th>คงเหลือ/สุทธิ (฿)</th>
-								<th>รายการ</th>
-								<th>สมาชิก/เกษตรกร (คน)</th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php
-							// รวมข้อมูลทุกลานให้เหลือวันที่ละ 1 แถว
-							$daily_summary = [];
-							if (!empty($summary_rows)) {
-								foreach ($summary_rows as $row) {
-									$ruDate = $row['ru_date'] ?? '';
-									if ($ruDate === '') {
-										continue;
-									}
-									if (!isset($daily_summary[$ruDate])) {
-										$daily_summary[$ruDate] = [
-											'ru_date'      => $ruDate,
-											'total_qty'    => 0.0,
-											'total_value'  => 0.0,
-											'total_expend' => 0.0,
-											'total_net'    => 0.0,
-											'row_count'    => 0,
-											'pr_price'     => null,
-										];
-									}
+                    <form method="get" class="grid gap-3 sm:grid-cols-2 lg:min-w-[34rem] lg:grid-cols-[1fr_1fr_1fr_auto]">
+                        <input type="date" name="date_from" value="<?php echo htmlspecialchars($sum_date_from, ENT_QUOTES, 'UTF-8'); ?>" class="min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
+                        <input type="date" name="date_to" value="<?php echo htmlspecialchars($sum_date_to, ENT_QUOTES, 'UTF-8'); ?>" class="min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
+                        <select name="lan" class="min-h-11 rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100">
+                            <option value="all" <?php echo $sum_lan === 'all' ? 'selected' : ''; ?>>ทุกลาน</option>
+                            <option value="1" <?php echo $sum_lan === '1' ? 'selected' : ''; ?>>ลาน 1</option>
+                            <option value="2" <?php echo $sum_lan === '2' ? 'selected' : ''; ?>>ลาน 2</option>
+                            <option value="3" <?php echo $sum_lan === '3' ? 'selected' : ''; ?>>ลาน 3</option>
+                            <option value="4" <?php echo $sum_lan === '4' ? 'selected' : ''; ?>>ลาน 4</option>
+                        </select>
+                        <button type="submit" class="min-h-11 rounded-md bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-700">
+                            กรอง
+                        </button>
+                    </form>
+                </div>
 
-									$qty    = isset($row['total_qty']) ? (float)$row['total_qty'] : 0.0;
-									$value  = isset($row['total_value']) ? (float)$row['total_value'] : 0.0;
-									$expend = isset($row['total_expend']) ? (float)$row['total_expend'] : 0.0;
-									$net    = isset($row['total_net']) ? (float)$row['total_net'] : 0.0;
-									$count  = isset($row['row_count']) ? (int)$row['row_count'] : 0;
+                <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-[980px] w-full text-sm">
+                            <thead class="bg-slate-100 text-slate-600">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold">วันที่</th>
+                                    <th class="px-4 py-3 text-right font-semibold">ราคา</th>
+                                    <th class="px-4 py-3 text-right font-semibold">ปริมาณ</th>
+                                    <th class="px-4 py-3 text-right font-semibold">เงินรวม</th>
+                                    <th class="px-4 py-3 text-right font-semibold">ยอดหัก</th>
+                                    <th class="px-4 py-3 text-right font-semibold">สุทธิ</th>
+                                    <th class="px-4 py-3 text-right font-semibold">รายการ</th>
+                                    <th class="px-4 py-3 text-right font-semibold">สมาชิก/ทั่วไป</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <?php
+                                $sum_total_qty = 0.0;
+                                $sum_total_value = 0.0;
+                                $sum_total_expend = 0.0;
+                                $sum_total_net = 0.0;
+                                $sum_total_rows = 0;
+                                ?>
+                                <?php if (!empty($daily_summary)): ?>
+                                    <?php foreach ($daily_summary as $ruDate => $row): ?>
+                                        <?php
+                                        $qty = (float) $row['total_qty'];
+                                        $value = (float) $row['total_value'];
+                                        $expend = (float) $row['total_expend'];
+                                        $net = (float) $row['total_net'];
+                                        $count = (int) $row['row_count'];
 
-									$daily_summary[$ruDate]['total_qty']    += $qty;
-									$daily_summary[$ruDate]['total_value']  += $value;
-									$daily_summary[$ruDate]['total_expend'] += $expend;
-									$daily_summary[$ruDate]['total_net']    += $net;
-									$daily_summary[$ruDate]['row_count']    += $count;
+                                        $sum_total_qty += $qty;
+                                        $sum_total_value += $value;
+                                        $sum_total_expend += $expend;
+                                        $sum_total_net += $net;
+                                        $sum_total_rows += $count;
 
-									if ($daily_summary[$ruDate]['pr_price'] === null && isset($row['pr_price']) && $row['pr_price'] !== null) {
-										$daily_summary[$ruDate]['pr_price'] = (float)$row['pr_price'];
-									}
-								}
-							}
+                                        $price = $row['pr_price'] !== null ? (float) $row['pr_price'] : null;
+                                        if ($price === null && $qty > 0) {
+                                            $price = $value / $qty;
+                                        }
 
-							$sum_total_qty    = 0.0;
-							$sum_total_value  = 0.0;
-							$sum_total_expend = 0.0;
-							$sum_total_net    = 0.0;
-							$sum_total_rows   = 0;
+                                        $member_count = $people_count_by_date[$ruDate]['member'] ?? 0;
+                                        $general_count = $people_count_by_date[$ruDate]['general'] ?? 0;
+                                        ?>
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="whitespace-nowrap px-4 py-4 font-semibold text-slate-900"><?php echo htmlspecialchars($ruDate ? thai_date_format((string) $ruDate) : '-', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo $price !== null ? number_format($price, 2) : '-'; ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo number_format($qty, 2); ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo number_format($value, 2); ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo number_format($expend, 2); ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right font-semibold text-slate-900"><?php echo number_format($net, 2); ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo number_format($count); ?></td>
+                                            <td class="whitespace-nowrap px-4 py-4 text-right text-slate-700"><?php echo number_format($member_count); ?>/<?php echo number_format($general_count); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
 
-								// นับจำนวน "คน" (ไม่ซ้ำ) ต่อวัน แยก member/general
-								// member: นับตามเลขสมาชิก (ru_number)
-								// general: นับตามชื่อ-สกุล (ru_fullname) (ถ้าชื่อซ้ำให้นับเป็นคนเดียวกัน)
-								$people_count_by_date = []; // [ru_date => ['member'=>int,'general'=>int]]
-								$countSql = "SELECT
-									r.ru_date,
-									COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'member' THEN TRIM(r.ru_number) END)    AS member_people,
-									COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'general' THEN TRIM(r.ru_fullname) END) AS general_people
-								FROM tbl_rubber r
-								$sum_where_sql
-								GROUP BY r.ru_date";
-								$countStmt = $db->prepare($countSql);
-								if ($countStmt) {
-									if (!empty($sum_params)) {
-										$countStmt->bind_param($sum_types, ...$sum_params);
-									}
-									$countStmt->execute();
-									$countRes = $countStmt->get_result();
-									if ($countRes) {
-										while ($cr = $countRes->fetch_assoc()) {
-											$d = (string)($cr['ru_date'] ?? '');
-											if ($d === '') continue;
-											$people_count_by_date[$d] = [
-												'member'  => isset($cr['member_people']) ? (int)$cr['member_people'] : 0,
-												'general' => isset($cr['general_people']) ? (int)$cr['general_people'] : 0,
-											];
-										}
-										$countRes->free();
-									}
-									$countStmt->close();
-								}
-							?>
+                                    <tr class="bg-emerald-50 font-bold text-emerald-900">
+                                        <td class="px-4 py-4">รวมตามตัวกรอง</td>
+                                        <td class="px-4 py-4 text-right">-</td>
+                                        <td class="px-4 py-4 text-right"><?php echo number_format($sum_total_qty, 2); ?></td>
+                                        <td class="px-4 py-4 text-right"><?php echo number_format($sum_total_value, 2); ?></td>
+                                        <td class="px-4 py-4 text-right"><?php echo number_format($sum_total_expend, 2); ?></td>
+                                        <td class="px-4 py-4 text-right"><?php echo number_format($sum_total_net, 2); ?></td>
+                                        <td class="px-4 py-4 text-right"><?php echo number_format($sum_total_rows); ?></td>
+                                        <td class="px-4 py-4 text-right">-</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="8" class="px-4 py-12 text-center text-slate-500">
+                                            <?php echo heroicon('inbox', 'mx-auto mb-3 h-8 w-8 text-slate-400'); ?>
+                                            ยังไม่มีข้อมูลสรุปในช่วงที่เลือก
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
-							<?php if (!empty($daily_summary)): ?>
-								<?php foreach ($daily_summary as $ruDate => $row): ?>
-									<?php
-									$qty    = (float)$row['total_qty'];
-									$value  = (float)$row['total_value'];
-									$expend = (float)$row['total_expend'];
-									$net    = (float)$row['total_net'];
-									$count  = (int)$row['row_count'];
+            <section class="border-t border-slate-200 py-6 text-center">
+                <p class="text-base font-semibold text-slate-800">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</p>
+                <a href="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>" class="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                    <?php echo heroicon('plus', 'h-5 w-5'); ?>
+                    บันทึกข้อมูล
+                </a>
+            </section>
+        </div>
+    </main>
 
-									$sum_total_qty    += $qty;
-									$sum_total_value  += $value;
-									$sum_total_expend += $expend;
-									$sum_total_net    += $net;
-									$sum_total_rows   += $count;
-
-									$price = $row['pr_price'] !== null ? (float)$row['pr_price'] : null;
-									if ($price === null && $qty > 0) {
-										$price = $value / $qty;
-									}
-
-									$member_count  = $people_count_by_date[$ruDate]['member'] ?? 0;
-									$general_count = $people_count_by_date[$ruDate]['general'] ?? 0;
-									?>
-									<tr class="text-center">
-										<td class="text-nowrap"><?php echo htmlspecialchars($ruDate ? thai_date_format((string)$ruDate) : '-'); ?></td>
-										<td><?php echo $price !== null ? number_format($price, 2) : '-'; ?></td>
-										<td><?php echo number_format($qty, 2); ?></td>
-										<td><?php echo number_format($value, 2); ?></td>
-										<td><?php echo number_format($expend, 2); ?></td>
-										<td class="fw-semibold"><?php echo number_format($net, 2); ?></td>
-										<td><?php echo number_format($count); ?></td>
-										<td><?php echo number_format($member_count); ?>/<?php echo number_format($general_count); ?></td>
-									</tr>
-								<?php endforeach; ?>
-								<tr class="table-success fw-bold text-center">
-									<td colspan="2">รวมตามตัวกรอง</td>
-									<td><?php echo number_format($sum_total_qty, 2); ?></td>
-									<td><?php echo number_format($sum_total_value, 2); ?></td>
-									<td><?php echo number_format($sum_total_expend, 2); ?></td>
-									<td><?php echo number_format($sum_total_net, 2); ?></td>
-									<td><?php echo number_format($sum_total_rows); ?></td>
-									<td>-</td>
-								</tr>
-							<?php else: ?>
-								<tr>
-									<td colspan="8" class="text-center text-muted py-4">ยังไม่มีข้อมูลสรุปในช่วงที่เลือก</td>
-								</tr>
-							<?php endif; ?>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="text-center mt-2 py-2">
-		<div class="text-muted mb-3 fs-5">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</div>
-		<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
-			<i class="bi bi-plus-circle me-2"></i>บันทึกข้อมูล
-		</a>
-	</div>
-
-<?php
-include 'footer.php';
-?>
+    <footer class="border-t border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-sm text-slate-500 sm:px-6 lg:px-8">
+            <p class="font-semibold text-slate-700">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</p>
+            <p>&copy; <?php echo date('Y'); ?> ระบบการซื้อขายยางพารา</p>
+        </div>
+    </footer>
+</body>
+</html>

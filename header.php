@@ -5,6 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $displayName = $_SESSION['user_fullname'] ?? $_SESSION['user_username'] ?? $_SESSION['fullname'] ?? $_SESSION['username'] ?? 'ผู้ใช้งานระบบ';
+
+
 $cycleLabel = $_SESSION['current_cycle_label'] ?? 'รอบรับซื้อปัจจุบัน';
 $displayNameSafe = htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8');
 $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
@@ -26,6 +28,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link rel="stylesheet" href="assets/css/tailwind.css">
         <!-- Bootstrap Icons -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
         <!-- DataTables CSS (Bootstrap5 integration) -->
@@ -56,12 +59,12 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     align-items: center;
                 }
 
-                .topbar-actions.collapse {
+                .topbar-actions {
+                    display: none;
                     width: 100%;
                 }
 
-                .topbar-actions.collapsing,
-                .topbar-actions.collapse.show {
+                .topbar-actions.is-open {
                     display: block;
                     width: 100%;
                     margin-top: 0.75rem;
@@ -69,8 +72,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     border-top: 1px solid #b8dabc;
                 }
 
-                .topbar-actions.collapse .topbar-link,
-                .topbar-actions.collapsing .topbar-link {
+                .topbar-actions .topbar-link {
                     display: block;
                     width: 100%;
                     text-align: left;
@@ -81,13 +83,11 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     width: 100%;
                 }
 
-                .topbar-actions.collapse.show > *,
-                .topbar-actions.collapsing > * {
+                .topbar-actions.is-open > * {
                     margin-bottom: 0.35rem;
                 }
 
-                .topbar-actions.collapse.show > *:last-child,
-                .topbar-actions.collapsing > *:last-child {
+                .topbar-actions.is-open > *:last-child {
                     margin-bottom: 0;
                 }
 
@@ -102,8 +102,7 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     border-radius: 0.5rem;
                 }
 
-                .topbar-actions.collapsing .topbar-user,
-                .topbar-actions.collapse.show .topbar-user {
+                .topbar-actions.is-open .topbar-user {
                     display: flex;
                     width: 100%;
                 }
@@ -393,6 +392,15 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
 
             .section-title i {
                 color: #28a745;
+            }
+
+            .site-nav a {
+                text-decoration: none !important;
+            }
+
+            .site-nav a:hover,
+            .site-nav a:focus {
+                text-decoration: none !important;
             }
 
             /* Normal font inside tables */
@@ -707,10 +715,6 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
                     gap: 0.75rem;
                 }
 
-                .topbar-actions.collapse {
-                    width: auto;
-                }
-
                 .topbar-actions > * {
                     width: auto;
                 }
@@ -836,53 +840,15 @@ $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
         </style>
     </head>
     <body>
-        <header class="app-header">
-            <div class="topbar">
-                <div class="app-shell d-flex flex-wrap gap-2 justify-content-between align-items-center py-2">
-                    <div class="topbar-info d-flex flex-wrap align-items-center gap-2 text-white-75 small">
-                        <span class="status-pill">
-                            <i class="bi bi-droplet-half"></i>
-                            <span class="d-none d-md-inline fs-6">ระบบการรวบรวมยาง</span>
-                        </span>
-                        
-                    </div>
-                    <button
-                        class="topbar-toggle d-lg-none"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#topbarNav"
-                        aria-controls="topbarNav"
-                        aria-expanded="false"
-                        aria-label="สลับเมนูนำทาง"
-                    >
-                        <span class="toggle-bars" aria-hidden="true">
-                            <span class="bar"></span>
-                            <span class="bar"></span>
-                            <span class="bar"></span>
-                        </span>
-                    </button>
-                    <div class="topbar-actions collapse" id="topbarNav">
-                        <div class="topbar-user">
-                            <i class="bi bi-person-circle text-accent"></i>
-                            <span><?php echo $displayNameSafe; ?></span>
-                        </div>
-                       <!-- เพิ่มหน้าหลัก -->
-                        <a href="index.php" class="topbar-link"><i class="bi bi-house me-1"></i>หน้าหลัก</a>
-                        <a href="rubbers.php" class="topbar-link"><i class="bi bi-droplet me-1"></i>รวบรวมยาง</a>
-                        <a href="prices.php" class="topbar-link"><i class="bi bi-cash-coin me-1"></i>ราคาอ้างอิง</a>
-
-                      
-                        
-                        <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
-                        <a href="dashboard.php" class="topbar-link"><i class="bi bi-speedometer2 me-1"></i>แดชบอร์ด</a>
-                        <a href="logout.php" class="topbar-link text-danger fw-semibold"><i class="bi bi-box-arrow-right me-1"></i>ออกจากระบบ</a>
-                        <?php else: ?>
-                        <a href="login.php" class="topbar-link text-primary fw-semibold"><i class="bi bi-box-arrow-in-right me-1"></i>เข้าสู่ระบบ</a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-                    </header>
+        <?php
+        $siteNavOuterClass = 'sticky top-0 z-50 border-b border-emerald-200 bg-emerald-100/90 text-emerald-950 shadow-sm backdrop-blur';
+        $siteNavInnerClass = 'mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8';
+        $siteNavBrandBadge = 'ระบบการรวบรวมยาง';
+        $siteNavBrandTitle = 'สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด';
+        $siteNavBrandIcon = 'banknotes';
+        $siteNavNavId = 'siteNav';
+        include __DIR__ . '/partials/site_nav.php';
+        ?>
         <main>
             <div class="app-shell">
 
