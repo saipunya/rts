@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php echo heroicon('shield-exclamation', 'h-4 w-4'); ?>
                         ระบบงานสหกรณ์ยางพารา
                     </div>
-                    <h1 class="mt-5 text-4xl font-bold leading-tight text-slate-950">
+                    <h1 class="mt-5 text-2xl font-bold leading-tight text-slate-950">
                         เข้าสู่ระบบเพื่อจัดการข้อมูลรับซื้อยางอย่างเป็นระเบียบ
                     </h1>
                     <p class="mt-4 max-w-xl text-base leading-8 text-slate-600">

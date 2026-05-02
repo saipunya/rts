@@ -24,19 +24,19 @@ $latest_price_date_text = $latest_price_date ? thai_date_format((string) $latest
 $price_date_total_quantity = 0.0;
 $price_date_total_value = 0.0;
 if ($latest_price_date) {
-    $stmt = $db->prepare("SELECT SUM(ru_quantity) AS total_qty FROM tbl_rubber WHERE ru_date = ?");
+    $stmt = $db->prepare("SELECT SUM(ru_quantity) AS total_qty, SUM(ru_value) AS total_value FROM tbl_rubber WHERE ru_date = ?");
     if ($stmt) {
         $stmt->bind_param('s', $latest_price_date);
         $stmt->execute();
         $res = $stmt->get_result();
         $row = $res ? $res->fetch_assoc() : null;
         $price_date_total_quantity = $row && $row['total_qty'] ? (float) $row['total_qty'] : 0.0;
+        $price_date_total_value = $row && $row['total_value'] ? (float) $row['total_value'] : 0.0;
         if ($res) {
             $res->free();
         }
         $stmt->close();
     }
-    $price_date_total_value = $price_date_total_quantity * $latest_price;
 }
 
 $sum_date_from = isset($_GET['date_from']) ? trim((string) $_GET['date_from']) : '';
@@ -70,10 +70,10 @@ if ($rs = $db->query("SELECT COUNT(*) AS cnt FROM tbl_rubber")) {
 
 $all_total_quantity = 0.0;
 $all_total_value = 0.0;
-if ($all_stats = $db->query("SELECT SUM(ru_quantity) AS total_qty FROM tbl_rubber")) {
+if ($all_stats = $db->query("SELECT SUM(ru_quantity) AS total_qty, SUM(ru_value) AS total_value FROM tbl_rubber")) {
     $row = $all_stats->fetch_assoc();
     $all_total_quantity = $row && $row['total_qty'] ? (float) $row['total_qty'] : 0.0;
-    $all_total_value = $all_total_quantity * $latest_price;
+    $all_total_value = $row && $row['total_value'] ? (float) $row['total_value'] : 0.0;
     $all_stats->free();
 }
 
@@ -129,7 +129,7 @@ $lan_rows = [];
 $grand_total_qty = 0.0;
 $grand_total_value = 0.0;
 if ($latest_price_date) {
-    $lan_sql = "SELECT ru_lan, SUM(ru_quantity) AS total_qty
+    $lan_sql = "SELECT ru_lan, SUM(ru_quantity) AS total_qty, SUM(ru_value) AS total_value
         FROM tbl_rubber
         WHERE ru_date = ?
         GROUP BY ru_lan
@@ -142,7 +142,7 @@ if ($latest_price_date) {
         if ($lan_res) {
             while ($lan_row = $lan_res->fetch_assoc()) {
                 $qty = (float) ($lan_row['total_qty'] ?? 0);
-                $value = $qty * $latest_price;
+                $value = (float) ($lan_row['total_value'] ?? 0);
                 $grand_total_qty += $qty;
                 $grand_total_value += $value;
                 $lan_rows[] = [
@@ -333,7 +333,7 @@ $target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode
                         <div>
                             <p class="text-sm font-semibold text-slate-500">มูลค่าวันล่าสุด</p>
                             <p class="mt-2 text-2xl font-bold text-slate-950"><?php echo number_format($price_date_total_value, 2); ?> ฿</p>
-                            <p class="mt-1 text-sm leading-6 text-slate-500">ปริมาณของวันที่ราคาล่าสุด x ราคาล่าสุด</p>
+                            <p class="mt-1 text-sm leading-6 text-slate-500">รวมจากมูลค่าที่บันทึกจริงของรายการวันที่ล่าสุด</p>
                         </div>
                     </div>
                 </div>
