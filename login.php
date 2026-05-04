@@ -148,6 +148,16 @@ include 'header.php';
     margin-bottom: 1.2rem;
 }
 
+.login-hero-icon {
+    position: absolute;
+    right: -40px;
+    top: -30px;
+    font-size: 6.5rem;
+    opacity: 0.08;
+    color: #ffffff;
+    pointer-events: none;
+}
+
 .login-hero h1 {
     font-size: clamp(2rem, 3vw, 3rem);
     line-height: 1.15;
@@ -345,14 +355,15 @@ include 'header.php';
 <section class="login-shell">
     <div class="login-layout">
         <div class="login-hero">
-            <div class="login-badge"><i class="bi bi-shield-check"></i> ระบบงานสหกรณ์ยางพารา</div>
-            <h1>จัดการข้อมูลรับซื้อยางให้เป็นระบบ ชัดเจน และตรวจสอบง่าย</h1>
+            <div class="login-badge"><i data-lucide="shield-check" aria-hidden="true"></i> ระบบงานสหกรณ์ยางพารา</div>
+            <i data-lucide="droplet" class="login-hero-icon" aria-hidden="true"></i>
+            <h3>จัดการข้อมูลรับซื้อยางให้เป็นระบบ ชัดเจน และตรวจสอบง่าย</h3>
             <p>เข้าสู่ระบบเพื่อดูข้อมูลการรับซื้อ ราคาอ้างอิง รายงาน และการจัดการสมาชิกภายในระบบเดียวที่ออกแบบให้ใช้งานง่ายทั้งคอมพิวเตอร์และมือถือ</p>
 
             <div class="login-highlights">
-                <div class="login-highlight"><i class="bi bi-graph-up-arrow"></i><span>ติดตามข้อมูลและรายงานได้อย่างรวดเร็ว</span></div>
-                <div class="login-highlight"><i class="bi bi-people"></i><span>จัดการสมาชิก ผู้ใช้งาน และรายการรับซื้ออย่างเป็นระเบียบ</span></div>
-                <div class="login-highlight"><i class="bi bi-phone"></i><span>รองรับการใช้งานบนหน้าจอขนาดเล็กได้ดีขึ้น</span></div>
+                <div class="login-highlight"><i data-lucide="bar-chart-2" aria-hidden="true"></i><span>ติดตามข้อมูลและรายงานได้อย่างรวดเร็ว</span></div>
+                <div class="login-highlight"><i data-lucide="users" aria-hidden="true"></i><span>จัดการสมาชิก ผู้ใช้งาน และรายการรับซื้ออย่างเป็นระเบียบ</span></div>
+                <div class="login-highlight"><i data-lucide="phone" aria-hidden="true"></i><span>รองรับการใช้งานบนหน้าจอขนาดเล็กได้ดีขึ้น</span></div>
             </div>
         </div>
 
@@ -375,17 +386,17 @@ include 'header.php';
                 <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
 
                 <div class="login-field">
-                    <label class="form-label" for="username"><i class="bi bi-person-fill"></i> ชื่อผู้ใช้</label>
+                    <label class="form-label" for="username"><i data-lucide="user" aria-hidden="true"></i> ชื่อผู้ใช้</label>
                     <input class="form-control" id="username" name="username" required autofocus placeholder="กรอกชื่อผู้ใช้" value="<?php echo e($_POST['username'] ?? ''); ?>">
                 </div>
 
                 <div class="login-field">
-                    <label class="form-label" for="password"><i class="bi bi-lock-fill"></i> รหัสผ่าน</label>
+                    <label class="form-label" for="password"><i data-lucide="lock" aria-hidden="true"></i> รหัสผ่าน</label>
                     <input class="form-control" id="password" type="password" name="password" required placeholder="กรอกรหัสผ่าน">
                 </div>
 
                 <div class="login-actions">
-                    <button class="btn login-btn w-100" type="submit"><i class="bi bi-box-arrow-in-right me-2"></i>เข้าสู่ระบบ</button>
+                    <button class="btn login-btn w-100" type="submit"><i data-lucide="log-in" class="me-2" aria-hidden="true"></i>เข้าสู่ระบบ</button>
                     <p class="login-note">หากพบปัญหาในการใช้งาน กรุณาติดต่อผู้ดูแลระบบของสหกรณ์</p>
                 </div>
             </form>

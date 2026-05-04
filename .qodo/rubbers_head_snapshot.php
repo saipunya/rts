@@ -790,7 +790,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       <ul class="nav nav-pills align-items-center gap-1 small">
       <li class="nav-item me-2">
         <span class="text-secondary fw-semibold">
-        <i class="bi bi-droplet-half me-1 text-primary"></i>เน€เธฅเธทเธญเธเธฅเธฒเธเธฃเธฑเธเธขเธฒเธ:
+        <i  data-lucide="droplet" class="me-1 text-primary" aria-hidden="true"></i>เน€เธฅเธทเธญเธเธฅเธฒเธเธฃเธฑเธเธขเธฒเธ:
         </span>
       </li>
       <li class="nav-item">
@@ -809,13 +809,13 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       <div class="ms-auto d-flex align-items-center gap-2">
         <!-- เน€เธเธดเนเธก link เธเธฅเธฑเธเธซเธเนเธฒเธ•เธฑเนเธเธเนเธฒ (dashboard.php) -->
         <a href="dashboard.php" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 rounded-pill">
-          <i class="bi bi-gear-fill"></i>
+          <i  data-lucide="gear" aria-hidden="true"></i>
           <span class="d-none d-sm-inline">เธเธฅเธฑเธเธซเธเนเธฒเธ•เธฑเนเธเธเนเธฒ</span>
           <span class="d-inline d-sm-none">เธ•เธฑเนเธเธเนเธฒ</span>
         </a>
         <!-- เน€เธเธดเนเธกเธฅเธดเธเธเน เธเธฅเธฑเธเธซเธเนเธฒ (index.php) -->
         <a href="index.php" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 rounded-pill">
-          <i class="bi bi-arrow-left"></i>
+          <i  data-lucide="arrow-left" aria-hidden="true"></i>
           <span class="d-none d-sm-inline">เธเธฅเธฑเธเธซเธเนเธฒเนเธฃเธ</span>
           <span class="d-inline d-sm-none">เธเธฅเธฑเธ</span>
         </a>
@@ -1037,11 +1037,11 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           <small class="text-muted"><?php echo !empty($form['ru_id']) ? 'เนเธเนเนเธ #' . (int)$form['ru_id'] : 'เธชเธฃเนเธฒเธเธฃเธฒเธขเธเธฒเธฃเนเธซเธกเน'; ?></small>
           <div>
             <button type="button" id="btnSave" class="btn btn-primary px-4">
-              <i class="bi bi-floppy2 me-1"></i>เธเธฑเธเธ—เธถเธ
+              <i  data-lucide="floppy2" class="me-1" aria-hidden="true"></i>เธเธฑเธเธ—เธถเธ
             </button>
             <?php if (!empty($form['ru_id'])): ?>
               <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>" class="btn btn-outline-secondary ms-2">
-                <i class="bi bi-arrow-counterclockwise me-1"></i>เธขเธเน€เธฅเธดเธ
+                <i  data-lucide="rotate-ccw" class="me-1" aria-hidden="true"></i>เธขเธเน€เธฅเธดเธ
               </a>
             <?php endif; ?>
           </div>
@@ -1064,7 +1064,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="เน€เธเนเธ เธเธฅเธธเนเธก 1, 001, เธเธฒเธขเน€เธญ, เธ.6">
                 <?php if ($search !== ''): ?>
                   <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="เธฅเนเธฒเธ">
-                    <i class="bi bi-x-circle me-1"></i>เธฅเนเธฒเธ
+                    <i  data-lucide="x-circle" class="me-1" aria-hidden="true"></i>เธฅเนเธฒเธ
                   </a>
                 <?php endif; ?>
               </div>
@@ -1077,7 +1077,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             </div>
             <div class="col-md-2 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-check2 me-1"></i>เธ•เธเธฅเธ
+                <i  data-lucide="check" class="me-1" aria-hidden="true"></i>เธ•เธเธฅเธ
               </button>
             </div>
           </form>
@@ -1118,7 +1118,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
            
             <!-- export: Excel (per-row) -->
             <a href="export_rubbers_excel.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success ms-2">
-              <i class="bi bi-file-earmark-excel me-1"></i>Excel
+              <i  data-lucide="file-text" class="me-1" aria-hidden="true"></i>Excel
             </a>
           <?php endif; ?>
         </caption>
@@ -1175,7 +1175,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <td>
                 <div class="d-flex gap-1">
                   <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>" class="btn btn-sm btn-warning">
-                    <i class="bi bi-pencil-square me-1"></i>เนเธเนเนเธ
+                    <i  data-lucide="edit" class="me-1" aria-hidden="true"></i>เนเธเนเนเธ
                   </a>
                   <form method="post" onsubmit="return confirm('เธฅเธเธฃเธฒเธขเธเธฒเธฃเธเธตเน?');" class="d-inline">
                     <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
@@ -1183,16 +1183,16 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                     <input type="hidden" name="lan" value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
                     <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
                     <button type="submit" class="btn btn-sm btn-danger">
-                      <i class="bi bi-trash me-1"></i>เธฅเธ
+                      <i  data-lucide="trash-2" class="me-1" aria-hidden="true"></i>เธฅเธ
                     </button>
                   </form>
                   <?php if ($hasDompdf): ?>
                     <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank" class="btn btn-sm btn-outline-dark">
-                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF 
+                      <i  data-lucide="file-text" class="me-1" aria-hidden="true"></i>PDF 
                     </a>
                   <?php else: ?>
                     <button class="btn btn-sm btn-outline-secondary" disabled title="เนเธเธฃเธ”เธ•เธดเธ”เธ•เธฑเนเธ dompdf เธ”เนเธงเธข Composer เธเนเธญเธ">
-                      <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                      <i  data-lucide="file-text" class="me-1" aria-hidden="true"></i>PDF
                     </button>
                   <?php endif; ?>
                 </div>
@@ -1204,7 +1204,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     </div>
 
     <div class="row my-2 text-center">
-      <a href="index.php"><button class="btn btn-sm btn-info"><i class="bi bi-arrow-left ms-2"></i>เธเธฅเธฑเธเธซเธเนเธฒเธซเธฅเธฑเธ</button></a>
+      <a href="index.php"><button class="btn btn-sm btn-info"><i  data-lucide="arrow-left" class="ms-2" aria-hidden="true"></i>เธเธฅเธฑเธเธซเธเนเธฒเธซเธฅเธฑเธ</button></a>
     </div>
 
     <?php if ($currentLan !== 'all'): ?>

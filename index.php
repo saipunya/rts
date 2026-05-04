@@ -176,6 +176,14 @@ html, body {
 		background: #4f8f61;
 	}
 
+	.stat-card.stat-card-accent-4::before {
+		background: #2f6e43;
+	}
+
+	.stat-card.stat-card-accent-5::before {
+		background: #8bbf95;
+	}
+
 	.stat-card:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 18px 32px rgba(16, 24, 40, 0.08);
@@ -534,15 +542,14 @@ if ($rs = $db->query("SELECT COUNT(*) AS cnt FROM tbl_rubber")) {
 	$rs->free();
 }
 
-// Query ปริมาณรวมและยอดเงินรวมของทุกลานจากฐานข้อมูลโดยตรง (ไม่ใช้ LIMIT)
+// Query ปริมาณรวมและยอดเงินรวมสะสมของทุกลานจากฐานข้อมูลโดยตรง
 $all_total_quantity = 0;
 $all_total_value = 0;
-$all_stats = $db->query("SELECT SUM(ru_quantity) as total_qty FROM tbl_rubber");
+$all_stats = $db->query("SELECT COALESCE(SUM(ru_quantity), 0) AS total_qty, COALESCE(SUM(ru_value), 0) AS total_value FROM tbl_rubber");
 if ($all_stats) {
     $row = $all_stats->fetch_assoc();
     $all_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
-    // คำนวณยอดเงินรวมด้วยราคายางล่าสุด (เหมือนกับการคำนวณวันที่ราคายาง)
-    $all_total_value = $all_total_quantity * $latest_price;
+    $all_total_value = $row['total_value'] ? (float)$row['total_value'] : 0;
     $all_stats->free();
 }
 
@@ -606,7 +613,7 @@ if ($stmt) {
 	<div class="hero-section mb-4">
 		<div class="hero-panel text-center">
 			<div class="hero-badge">
-				<i class="bi bi-droplet-half"></i>
+				<i data-lucide="droplet" aria-hidden="true"></i>
 				ระบบภาพรวมข้อมูลยางพารา
 			</div>
 			<h1 class="hero-title">ระบบจัดการยางพารา</h1>
@@ -614,25 +621,25 @@ if ($stmt) {
 			<p class="hero-description">ดูภาพรวมการรวบรวมยาง ราคาอ้างอิง และสรุปข้อมูลสำคัญในหน้าเดียวแบบอ่านง่าย</p>
 			<div class="hero-actions">
 				<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 fw-semibold">
-					<i class="bi bi-person-fill"></i> สำหรับสมาชิก
+					<i data-lucide="user" aria-hidden="true"></i> สำหรับสมาชิก
 				</a>
 				<a href="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-success btn-lg rounded-pill px-4 fw-semibold">
-					<i class="bi bi-clipboard-data"></i> ดูรายการรับซื้อ
+					<i data-lucide="clipboard" aria-hidden="true"></i> ดูรายการรับซื้อ
 				</a>
 			</div>
 			<div class="hero-meta">
-				<span><i class="bi bi-cash-stack"></i> ราคาล่าสุด <?php echo number_format($latest_price,2); ?> บาท</span>
-				<span><i class="bi bi-calendar-event"></i> วันที่ <?php echo htmlspecialchars($latest_price_date_text); ?></span>
-				<span><i class="bi bi-database-check"></i> ทั้งหมด <?php echo number_format($total_records); ?> รายการ</span>
+				<span><i data-lucide="coins" aria-hidden="true"></i> ราคาล่าสุด <?php echo number_format($latest_price,2); ?> บาท</span>
+				<span><i data-lucide="calendar" aria-hidden="true"></i> วันที่ <?php echo htmlspecialchars($latest_price_date_text); ?></span>
+				<span><i data-lucide="database" aria-hidden="true"></i> ทั้งหมด <?php echo number_format($total_records); ?> รายการ</span>
 			</div>
 		</div>
 	</div>
 
 	<div class="index-toolbar">
-		<h2 class="d-flex align-items-center gap-2 mb-0">
-			<i class="bi bi-grid-1x2-fill"></i>
-			ภาพรวมวันนี้
-		</h2>
+			<h2 class="d-flex align-items-center gap-2 mb-0">
+				<i data-lucide="grid" aria-hidden="true"></i>
+				ภาพรวมวันนี้
+			</h2>
 		<p class="index-toolbar-note">สรุปข้อมูลสำคัญของระบบในรูปแบบที่อ่านง่ายและอัปเดตจากฐานข้อมูลล่าสุด</p>
 	</div>
 
@@ -640,35 +647,51 @@ if ($stmt) {
 	<div class="row g-3 mb-4">
 		<div class="col-12 col-md-6 col-lg-4">
 			<div class="stat-card">
-				<div class="stat-label"><i class="bi bi-tag-fill"></i>ราคาที่ใช้คำนวณ</div>
+				<div class="stat-label"><i data-lucide="tag" aria-hidden="true"></i>ราคาที่ใช้คำนวณ</div>
 				<div class="stat-value"><?php echo number_format($latest_price,2); ?> ฿</div>
 				<div class="stat-sub">อัปเดต: <span class="fw-semibold"><?php echo $latest_price_date_text; ?></span></div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
 			<div class="stat-card stat-card-accent-2">
-				<div class="stat-label"><i class="bi bi-calendar2-check-fill"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
+				<div class="stat-label"><i data-lucide="calendar-check" aria-hidden="true"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_quantity,2); ?> kg</div>
 				<div class="stat-sub">อ้างอิงวันที่ราคายาง</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-4">
 			<div class="stat-card stat-card-accent-3">
-				<div class="stat-label"><i class="bi bi-receipt-cutoff"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
+				<div class="stat-label"><i data-lucide="file-text" aria-hidden="true"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
 				<div class="stat-sub">ปริมาณ x ราคาล่าสุด</div>
 			</div>
+		</div>
+	</div>
 
+	<div class="row g-3 mb-4">
+		<div class="col-12 col-lg-6">
+			<div class="stat-card stat-card-accent-4">
+				<div class="stat-label"><i data-lucide="box" aria-hidden="true"></i>ปริมาณยางทั้งหมด</div>
+				<div class="stat-value"><?php echo number_format($all_total_quantity,2); ?> kg</div>
+				<div class="stat-sub">รวมจากรายการรับซื้อทั้งหมด</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-6">
+			<div class="stat-card stat-card-accent-5">
+				<div class="stat-label"><i data-lucide="dollar-sign" aria-hidden="true"></i>ยอดเงินทั้งหมด</div>
+				<div class="stat-value"><?php echo number_format($all_total_value,2); ?> ฿</div>
+				<div class="stat-sub">รวมยอดเงินจากแต่ละช่วงราคา</div>
+			</div>
 		</div>
 	</div>
 
 	<!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
 	<div class="row mb-4">
 		<div class="col-12">
-			<div class="section-title">
-				<i class="bi bi-bar-chart-line-fill"></i>
-				ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
-			</div>
+					<div class="section-title">
+						<i data-lucide="bar-chart-2" aria-hidden="true"></i>
+						ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
+					</div>
 			<div class="card-table">
 				<div class="table-responsive">
 					<table class="table table-hover table-sm mb-0 lan-summary-table">
@@ -732,10 +755,10 @@ if ($stmt) {
 	<!-- Daily summary table (all lans combined) -->
 	<div class="row daily-summary-section">
 		<div class="col-12">
-			<div class="section-title">
-				<i class="bi bi-clipboard-data"></i>
-				สรุปรับซื้อรายวัน (รวมทุกลาน)
-			</div>
+					<div class="section-title">
+						<i data-lucide="clipboard" aria-hidden="true"></i>
+						สรุปรับซื้อรายวัน (รวมทุกลาน)
+					</div>
 
 			<div class="card-table">
 				<div class="table-responsive">
@@ -888,9 +911,9 @@ if ($stmt) {
 
 	<div class="text-center mt-2 py-2">
 		<div class="text-muted mb-3 fs-5">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</div>
-		<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
-			<i class="bi bi-plus-circle me-2"></i>บันทึกข้อมูล
-		</a>
+			<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
+				<i data-lucide="plus-circle" class="me-2" aria-hidden="true"></i>บันทึกข้อมูล
+			</a>
 	</div>
 
 <?php

@@ -16,9 +16,9 @@ $result = $stmt->get_result();
 $prices = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
-<!-- Removed Google Fonts, now using local Sarabun -->
 <style>
-html, body {
+html,
+body {
   font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 16px;
   font-weight: 300;
@@ -55,30 +55,6 @@ html, body {
   box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
 }
 
-.price-table {
-  margin-bottom: 0;
-  vertical-align: middle;
-}
-
-.price-table thead th {
-  background: #f8fafc;
-  color: #334155;
-  font-weight: 700;
-  white-space: nowrap;
-  padding: .9rem .85rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.price-table tbody td {
-  padding: .85rem;
-  color: #334155;
-}
-
-.price-table tbody tr:hover td {
-  background: #f1f5f9;
-  transition: background-color 0.3s ease;
-}
-
 .price-badge {
   display: inline-flex;
   align-items: center;
@@ -89,184 +65,6 @@ html, body {
   color: #047857;
   font-weight: 700;
 }
-
-.action-group {
-  display: inline-flex;
-  gap: .4rem;
-  align-items: center;
-}
-
-.action-group form {
-  margin: 0;
-}
-
-.action-group .btn {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.action-group .btn:hover {
-  background-color: #e2e8f0;
-  transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-  .container.price-page {
-    width: 100%;
-    max-width: 100%;
-    padding-left: 0.85rem;
-    padding-right: 0.85rem;
-    margin-top: 1rem !important;
-  }
-
-  .price-hero {
-    padding: 1rem;
-    border-radius: 1rem;
-  }
-
-  .price-toolbar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 0.85rem;
-  }
-
-  .price-title {
-    font-size: 1.25rem;
-    line-height: 1.35;
-  }
-
-  .price-subtitle {
-    font-size: 0.92rem;
-    line-height: 1.5;
-  }
-
-  .price-toolbar .btn {
-    width: 100%;
-    min-height: 44px;
-  }
-
-  .price-card {
-    border: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-
-  .price-card .card-body {
-    padding: 0 !important;
-  }
-
-  .table-responsive {
-    overflow: visible !important;
-  }
-
-  .responsive-table {
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    border-collapse: separate !important;
-  }
-
-  .responsive-table thead {
-    display: none !important;
-  }
-
-  .responsive-table tbody {
-    display: block !important;
-    width: 100% !important;
-  }
-
-  .responsive-table tr {
-    display: block !important;
-    width: 100% !important;
-    box-sizing: border-box;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 0.85rem;
-    margin-bottom: 0.85rem;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
-  }
-
-  .responsive-table td {
-    display: grid !important;
-    grid-template-columns: 82px minmax(0, 1fr);
-    align-items: center;
-    gap: 0.75rem;
-    width: 100% !important;
-    box-sizing: border-box;
-    border: 0 !important;
-    padding: 0.55rem 0 !important;
-    text-align: right;
-    white-space: normal !important;
-    word-break: break-word;
-  }
-
-  .responsive-table td::before {
-    content: attr(data-label);
-    color: #64748b;
-    font-weight: 700;
-    text-align: left;
-    white-space: nowrap;
-  }
-
-  .responsive-table td > * {
-    min-width: 0;
-  }
-
-  .responsive-table td[data-label="ราคา"] {
-    font-size: 1rem;
-  }
-
-  .responsive-table td[data-label="ราคา"] .price-badge {
-    justify-self: end;
-    max-width: 100%;
-    white-space: nowrap;
-  }
-
-  .responsive-table td[data-label="จัดการ"] {
-    align-items: center;
-  }
-
-  .responsive-table td[data-label="จัดการ"] .action-group {
-    justify-self: end;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-
-  .responsive-table td[data-label="จัดการ"] form {
-    margin: 0 !important;
-  }
-
-  .responsive-table .btn-sm {
-    min-width: 40px;
-    min-height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-@media (max-width: 420px) {
-  .price-title {
-    font-size: 1.12rem;
-  }
-
-  .responsive-table td {
-    font-size: .92rem;
-    padding: 0.5rem;
-  }
-
-  .responsive-table tr {
-    padding: 0.75rem;
-  }
-
-  .action-group .btn {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.6rem;
-  }
-}
 </style>
 
 <div class="container price-page mt-4 mb-4">
@@ -274,83 +72,147 @@ html, body {
     <div class="price-toolbar d-flex justify-content-between align-items-center">
       <div>
         <h3 class="price-title">
-          <i class="bi bi-cash-coin me-2 text-success"></i>ราคายาง
+          <i data-lucide="dollar-sign" class="me-2 text-success" aria-hidden="true"></i>ราคายาง
         </h3>
         <p class="price-subtitle">รายการราคายางล่าสุด เรียงจากวันที่ใหม่ไปเก่า</p>
       </div>
 
       <?php if (function_exists('is_admin') && is_admin()): ?>
-        <a href="price_form.php?action=create" class="btn btn-success rounded-pill px-4">
-          <i class="bi bi-plus-circle me-1"></i>เพิ่มราคายาง
-        </a>
+      <a href="price_form.php?action=create" class="btn btn-success rounded-pill px-4">
+        <i data-lucide="plus-circle" class="me-1" aria-hidden="true"></i>เพิ่มราคายาง
+      </a>
       <?php endif; ?>
     </div>
   </div>
 
   <?php if ($msg): ?>
-    <div class="alert alert-info rounded-4 border-0 shadow-sm">
-      <i class="bi bi-info-circle me-1"></i><?php echo htmlspecialchars($msg); ?>
-    </div>
+  <div class="alert alert-info rounded-4 border-0 shadow-sm">
+    <i data-lucide="info" class="me-1" aria-hidden="true"></i><?php echo htmlspecialchars($msg); ?>
+  </div>
   <?php endif; ?>
 
   <div class="card price-card">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover table-sm datatable responsive-table price-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th><i class="bi bi-calendar2-week me-1"></i>ปี</th>
-              <th><i class="bi bi-calendar-date me-1"></i>วันที่</th>
-              <th><i class="bi bi-clock-history me-1"></i>รอบ</th>
-              <th><i class="bi bi-cash-stack me-1"></i>ราคา</th>
-              <?php if (function_exists('is_admin') && is_admin()): ?>
-                <th class="no-sort text-end"><i class="bi bi-gear me-1"></i>จัดการ</th>
-              <?php endif; ?>
-            </tr>
-          </thead>
-
-          <tbody>
-            <?php foreach ($prices as $p): ?>
+    <div class="card-body">
+      <?php if (empty($prices)): ?>
+      <div class="text-center py-5">
+        <div class="mb-2 text-secondary">
+          <i data-lucide="inbox" class="fs-1" aria-hidden="true"></i>
+        </div>
+        <h5 class="fw-bold mb-1">ยังไม่มีข้อมูลราคายาง</h5>
+        <p class="text-secondary mb-0">เพิ่มรายการแรกเพื่อเริ่มแสดงข้อมูลในหน้านี้</p>
+      </div>
+      <?php else: ?>
+      <div class="d-none d-md-block">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
-                <td data-label="#"><?php echo (int)$p['pr_id']; ?></td>
-                <td data-label="ปี"><?php echo (int)$p['pr_year']; ?></td>
-                <td data-label="วันที่">
-                  <i class="bi bi-calendar-date me-1 text-secondary"></i>
+                <th scope="col">#</th>
+                <th scope="col"><i data-lucide="calendar" class="me-1" aria-hidden="true"></i>ปี</th>
+                <th scope="col"><i data-lucide="calendar" class="me-1" aria-hidden="true"></i>วันที่</th>
+                <th scope="col"><i data-lucide="history" class="me-1" aria-hidden="true"></i>รอบ</th>
+                <th scope="col"><i data-lucide="dollar-sign" class="me-1" aria-hidden="true"></i>ราคา</th>
+                <?php if (function_exists('is_admin') && is_admin()): ?>
+                <th scope="col" class="text-end"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการ
+                </th>
+                <?php endif; ?>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($prices as $p): ?>
+              <tr>
+                <td><?php echo (int)$p['pr_id']; ?></td>
+                <td><?php echo (int)$p['pr_year']; ?></td>
+                <td>
+                  <i data-lucide="calendar" class="me-1 text-secondary" aria-hidden="true"></i>
                   <?php echo thai_date_format($p['pr_date']); ?>
                 </td>
-                <td data-label="รอบ">
-                  <i class="bi bi-clock-history me-1 text-secondary"></i>
+                <td>
+                  <i data-lucide="history" class="me-1 text-secondary" aria-hidden="true"></i>
                   <?php echo htmlspecialchars($p['pr_number']); ?>
                 </td>
-                <td data-label="ราคา">
+                <td>
                   <span class="price-badge">
-                    <i class="bi bi-cash-stack"></i>
+                    <i data-lucide="dollar-sign" aria-hidden="true"></i>
                     <?php echo number_format((float)$p['pr_price'], 2); ?>
                   </span>
                 </td>
-
                 <?php if (function_exists('is_admin') && is_admin()): ?>
-                  <td data-label="จัดการ" class="text-end">
-                    <div class="action-group">
-                      <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                      </a>
-
-                      <form method="post" action="price_delete.php" onsubmit="return confirm('ลบราคานี้หรือไม่?');">
-                        <input type="hidden" name="id" value="<?php echo (int)$p['pr_id']; ?>">
-                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
-                    </div>
-                  </td>
+                <td class="text-end">
+                  <div class="d-inline-flex gap-2">
+	                    <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>"
+	                      class="btn btn-sm btn-outline-primary rounded-pill" title="แก้ไข" aria-label="แก้ไข">
+	                      <i data-lucide="pencil" aria-hidden="true"></i>
+	                    </a>
+                    <form method="post" action="price_delete.php" class="m-0"
+                      onsubmit="return confirm('ลบราคานี้หรือไม่?');">
+                      <input type="hidden" name="id" value="<?php echo (int)$p['pr_id']; ?>">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
+                        <i data-lucide="trash-2" aria-hidden="true"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
                 <?php endif; ?>
               </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      <div class="d-md-none">
+        <div class="row g-3">
+          <?php foreach ($prices as $p): ?>
+          <div class="col-12">
+            <div class="border rounded-4 bg-white p-3 shadow-sm">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                  <div class="text-secondary small">#<?php echo (int)$p['pr_id']; ?></div>
+                  <h5 class="mb-1 fs-6 fw-bold text-dark">
+                    ปี <?php echo (int)$p['pr_year']; ?>
+                  </h5>
+                  <div class="text-secondary small">
+                    <i data-lucide="calendar" class="me-1"
+                      aria-hidden="true"></i><?php echo thai_date_format($p['pr_date']); ?>
+                  </div>
+                </div>
+                <span class="price-badge flex-shrink-0">
+                  <i data-lucide="dollar-sign" aria-hidden="true"></i>
+                  <?php echo number_format((float)$p['pr_price'], 2); ?>
+                </span>
+              </div>
+
+              <div class="row g-2 small">
+                <div class="col-12">
+                  <div class="d-flex justify-content-between border-top pt-2">
+                    <span class="text-secondary">รอบ</span>
+                    <span class="fw-medium text-dark"><?php echo htmlspecialchars($p['pr_number']); ?></span>
+                  </div>
+                </div>
+              </div>
+
+              <?php if (function_exists('is_admin') && is_admin()): ?>
+	              <div class="d-flex gap-2 mt-3">
+	                <a href="price_form.php?action=edit&id=<?php echo (int)$p['pr_id']; ?>"
+	                  class="btn btn-sm btn-outline-primary rounded-pill flex-fill" title="แก้ไข" aria-label="แก้ไข">
+	                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไข
+	                </a>
+                <form method="post" action="price_delete.php" class="flex-fill m-0"
+                  onsubmit="return confirm('ลบราคานี้หรือไม่?');">
+                  <input type="hidden" name="id" value="<?php echo (int)$p['pr_id']; ?>">
+                  <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill w-100">
+                    <i data-lucide="trash-2" class="me-1" aria-hidden="true"></i>ลบ
+                  </button>
+                </form>
+              </div>
+              <?php endif; ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <?php endif; ?>
     </div>
   </div>
 </div>

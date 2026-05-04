@@ -99,11 +99,11 @@ if ($date_from === '' && $date_to === '' && count($dates) > 30) {
 <div class="container my-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-      <h1 class="h4 mb-1"><i class="bi bi-download me-2"></i>ส่งออกสรุปตามรอบวันที่ราคายาง</h1>
+      <h1 class="h4 mb-1"><i  data-lucide="download" class="me-2" aria-hidden="true"></i>ส่งออกสรุปตามรอบวันที่ราคายาง</h1>
       <div class="small text-muted">เลือกหลายรอบวันที่ แล้วส่งออกเป็นไฟล์ Excel (ตารางแบบ น้ำหนัก/จำนวนเงิน ต่อรอบ)</div>
     </div>
     <div>
-      <a href="dashboard.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>กลับ Dashboard</a>
+      <a href="dashboard.php" class="btn btn-outline-secondary btn-sm"><i  data-lucide="arrow-left" class="me-1" aria-hidden="true"></i>กลับ Dashboard</a>
     </div>
   </div>
 
@@ -129,8 +129,8 @@ if ($date_from === '' && $date_to === '' && count($dates) > 30) {
           </select>
         </div>
         <div class="col-12 col-md-3 d-flex gap-2">
-          <button class="btn btn-primary w-100" type="submit"><i class="bi bi-search me-1"></i>ค้นหา</button>
-          <a class="btn btn-outline-secondary" href="export_round_matrix.php"><i class="bi bi-x-circle me-1"></i>ล้าง</a>
+          <button class="btn btn-primary w-100" type="submit"><i  data-lucide="search" class="me-1" aria-hidden="true"></i>ค้นหา</button>
+          <a class="btn btn-outline-secondary" href="export_round_matrix.php"><i  data-lucide="x-circle" class="me-1" aria-hidden="true"></i>ล้าง</a>
         </div>
       </form>
     </div>
@@ -146,7 +146,7 @@ if ($date_from === '' && $date_to === '' && count($dates) > 30) {
           <div class="d-flex gap-2">
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAll(true)">เลือกทั้งหมด</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAll(false)">ยกเลิกทั้งหมด</button>
-            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-file-earmark-excel me-1"></i>ส่งออก Excel</button>
+            <button type="submit" class="btn btn-sm btn-success"><i  data-lucide="file-text" class="me-1" aria-hidden="true"></i>ส่งออก Excel</button>
           </div>
         </div>
 

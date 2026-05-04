@@ -1,0 +1,170 @@
+<?php
+/**
+ * Script: convert_icons.php
+ * Usage: php scripts/convert_icons.php
+ * Scans PHP/HTML files in the repo and replaces Bootstrap Icon <i  data-lucide="..." class="..." aria-hidden="true"></i> usages
+ * with Lucide <i data-lucide="..." ...> equivalents. Creates a .bak backup for modified files.
+ */
+
+$root = dirname(__DIR__);
+
+$excludeFiles = [
+    'allmember.php',
+];
+
+$excludePatterns = [
+    '/pdf/i', // skip any path containing 'pdf' (case-insensitive)
+];
+
+$mapping = [
+    // common mappings
+    'house' => 'home',
+    'house-door' => 'home',
+    'droplet-half' => 'droplet',
+    'droplet' => 'droplet',
+    'person-fill' => 'user',
+    'person' => 'user',
+    'person-plus' => 'user-plus',
+    'people' => 'users',
+    'people-fill' => 'users',
+    'search' => 'search',
+    'pencil' => 'edit-2',
+    'pencil-square' => 'edit',
+    'pencil-square' => 'edit',
+    'pencil-square' => 'edit',
+    'trash' => 'trash-2',
+    'trash-fill' => 'trash-2',
+    'plus-circle' => 'plus-circle',
+    'box-arrow-in-right' => 'log-in',
+    'box-arrow-right' => 'log-out',
+    'box-arrow-up-right' => 'external-link',
+    'clipboard-data' => 'clipboard',
+    'clipboard' => 'clipboard',
+    'calendar-event' => 'calendar',
+    'calendar-date' => 'calendar',
+    'calendar2-week' => 'calendar',
+    'calendar2-range' => 'calendar',
+    'calendar3' => 'calendar',
+    'clock-history' => 'history',
+    'arrow-left' => 'arrow-left',
+    'arrow-right' => 'arrow-right',
+    'arrow-counterclockwise' => 'rotate-ccw',
+    'download' => 'download',
+    'upload' => 'upload',
+    'file-earmark-excel' => 'file-text',
+    'file-earmark-pdf' => 'file-text',
+    'file-earmark' => 'file',
+    'file-earmark-bar-graph' => 'bar-chart-2',
+    'file-earmark-text' => 'file-text',
+    'inbox' => 'inbox',
+    'gear' => 'settings',
+    'settings' => 'settings',
+    'grid-1x2-fill' => 'grid',
+    'grid' => 'grid',
+    'speedometer2' => 'gauge',
+    'droplet-half' => 'droplet',
+    'cash-stack' => 'dollar-sign',
+    'cash-coin' => 'dollar-sign',
+    'currency-dollar' => 'dollar-sign',
+    'tag-fill' => 'tag',
+    'tag' => 'tag',
+    'check2' => 'check',
+    'check' => 'check',
+    'check-circle-fill' => 'check-circle',
+    'info-circle' => 'info',
+    'exclamation-triangle-fill' => 'alert-triangle',
+    'telephone-outbound' => 'phone',
+    'phone' => 'phone',
+    'box-seam' => 'box',
+    'list-ul' => 'list',
+    'list-check' => 'check-square',
+    'list-check' => 'check-square',
+    'grid-1x2-fill' => 'grid',
+    'plus' => 'plus',
+    'plus-circle' => 'plus-circle',
+    'x-circle' => 'x-circle',
+    'x-lg' => 'x',
+    'arrow-down-circle' => 'download',
+    'wallet2' => 'wallet',
+    'box-arrow-up' => 'upload',
+];
+
+$changedFiles = [];
+
+$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root));
+foreach ($iterator as $file) {
+    if (!$file->isFile()) continue;
+    $path = $file->getPathname();
+    $rel = substr($path, strlen($root) + 1);
+
+    // skip vendor and node_modules
+    if (strpos($rel, 'vendor' . DIRECTORY_SEPARATOR) === 0) continue;
+    if (strpos($rel, '.git' . DIRECTORY_SEPARATOR) === 0) continue;
+
+    // skip excluded filenames
+    foreach ($excludeFiles as $ex) {
+        if (basename($rel) === $ex) continue 2;
+    }
+
+    // skip patterns (pdf etc)
+    $skip = false;
+    foreach ($excludePatterns as $pat) {
+        if (preg_match($pat, $rel)) { $skip = true; break; }
+    }
+    if ($skip) continue;
+
+    // only process php/html files
+    if (!preg_match('/\.(php|html|htm)$/i', $rel)) continue;
+
+    $content = file_get_contents($path);
+    $orig = $content;
+
+    // regex to find <i ...  data-lucide="ICON" class="... ..." aria-hidden="true" ...></i>
+    $content = preg_replace_callback('/<i([^>]*)class\s*=\s*"([^"]*\bbi\b[^"]*)"([^>]*)>(<\/i>)?/i', function($m) use ($mapping) {
+        $before = $m[1];
+        $classAttr = $m[2];
+        $after = $m[3];
+
+        $classes = preg_split('/\s+/', trim($classAttr));
+        $biNames = [];
+        $other = [];
+        foreach ($classes as $c) {
+            if (strpos($c, 'bi-') === 0) {
+                $biNames[] = substr($c, 3);
+            } elseif ($c === 'bi') {
+                continue;
+            } else {
+                $other[] = $c;
+            }
+        }
+
+        if (empty($biNames)) return $m[0];
+
+        // choose the first bi name as primary
+        $primary = $biNames[0];
+        $lucide = $mapping[$primary] ?? null;
+        if ($lucide === null) {
+            // fallback: try to transform name (remove suffixes like -fill, replace dots)
+            $lucide = preg_replace('/-fill$/', '', $primary);
+            $lucide = str_replace('chevron-', 'chevron-', $lucide);
+        }
+
+        $otherAttr = $other ? ' class="' . implode(' ', $other) . '"' : '';
+        $aria = ' aria-hidden="true"';
+        return '<i' . $before . ' data-lucide="' . $lucide . '"' . $otherAttr . $aria . $after . '></i>';
+    }, $content);
+
+    if ($content !== $orig) {
+        // backup
+        copy($path, $path . '.bak');
+        file_put_contents($path, $content);
+        $changedFiles[] = $rel;
+    }
+}
+
+echo "Converted " . count($changedFiles) . " files:\n";
+foreach ($changedFiles as $f) echo " - $f\n";
+
+echo "\nBackups saved as .bak files next to originals. Review changes and commit as needed.\n";
+
+exit(0);

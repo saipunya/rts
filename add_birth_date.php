@@ -127,13 +127,13 @@ include __DIR__ . '/header.php';
 
         <?php if ($msg !== ''): ?>
             <div class="alert alert-success" role="alert" data-aos="zoom-in">
-                <i class="bi bi-check-circle-fill me-2"></i><?php echo e($msg); ?>
+                <i  data-lucide="check-circle" class="me-2" aria-hidden="true"></i><?php echo e($msg); ?>
             </div>
         <?php endif; ?>
 
         <?php if ($error !== ''): ?>
             <div class="alert alert-warning" role="alert" data-aos="zoom-in">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i><?php echo e($error); ?>
+                <i  data-lucide="alert-triangle" class="me-2" aria-hidden="true"></i><?php echo e($error); ?>
             </div>
         <?php endif; ?>
 
@@ -145,7 +145,7 @@ include __DIR__ . '/header.php';
                     <div class="form-text">ต้องการค้นหาอย่างน้อย 2 ตัวอักษร</div>
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i> ค้นหา</button>
+                    <button type="submit" class="btn btn-primary"><i  data-lucide="search" class="me-1" aria-hidden="true"></i> ค้นหา</button>
                     <?php if ($q !== ''): ?>
                         <a href="add_birth_date.php" class="btn btn-outline-secondary ms-2">ล้างการค้นหา</a>
                     <?php endif; ?>
@@ -154,7 +154,7 @@ include __DIR__ . '/header.php';
         </div>
 
         <div class="content-card" data-aos="fade-up">
-            <h5 class="section-title"><i class="bi bi-people"></i> รายชื่อสมาชิก</h5>
+            <h5 class="section-title"><i  data-lucide="users" aria-hidden="true"></i> รายชื่อสมาชิก</h5>
             <?php if ($q === '' || mb_strlen($q) < 2): ?>
                 <p class="text-muted mb-0">กรุณาค้นหาสมาชิกก่อน เพื่อแสดงข้อมูลวันเกิด</p>
             <?php elseif (empty($members)): ?>
@@ -202,7 +202,7 @@ include __DIR__ . '/header.php';
                                             }
                                             $editLink = 'add_birth_date.php?' . http_build_query($linkParams) . '#editForm';
                                         ?>
-                                        <a href="<?php echo e($editLink); ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil-square me-1"></i> แก้ไข</a>
+                                        <a href="<?php echo e($editLink); ?>" class="btn btn-outline-primary btn-sm"><i  data-lucide="edit" class="me-1" aria-hidden="true"></i> แก้ไข</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -214,7 +214,7 @@ include __DIR__ . '/header.php';
 
         <?php if ($memberEdit): ?>
             <div class="content-card" id="editForm" data-aos="fade-up">
-                <h5 class="section-title"><i class="bi bi-pencil"></i> แก้ไขวันเกิดสำหรับสมาชิก</h5>
+                <h5 class="section-title"><i  data-lucide="edit-2" aria-hidden="true"></i> แก้ไขวันเกิดสำหรับสมาชิก</h5>
                 <form method="post" action="add_birth_date.php" class="row g-3">
                     <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                     <input type="hidden" name="mem_id" value="<?php echo (int)$memberEdit['mem_id']; ?>">
@@ -242,7 +242,7 @@ include __DIR__ . '/header.php';
                         <div class="form-text">กรอกเป็นตัวเลข 8 หลักตามรูปแบบ วัน-เดือน-ปี (ค.ศ.)</div>
                     </div>
                     <div class="col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i> บันทึกข้อมูล</button>
+                        <button type="submit" class="btn btn-success"><i  data-lucide="save" class="me-1" aria-hidden="true"></i> บันทึกข้อมูล</button>
                         <?php
                             $cancelParams = [];
                             if ($q !== '') {

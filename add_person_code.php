@@ -402,7 +402,7 @@ html, body {
                                 <td>
                                     <a href="add_person_code.php?edit_id=<?php echo (int)$member['mem_id']; ?>" 
                                        class="btn btn-sm btn-primary">
-                                        <i class="bi bi-pencil"></i> แก้ไขรหัส
+                                        <i  data-lucide="edit-2" aria-hidden="true"></i> แก้ไขรหัส
                                     </a>
                                 </td>
                             </tr>
@@ -424,11 +424,11 @@ html, body {
             </div>
         <?php elseif ($q !== '' && mb_strlen($q) >= 2): ?>
             <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> ไม่พบสมาชิกที่ค้นหา: "<?php echo htmlspecialchars($q); ?>"
+                <i  data-lucide="info" aria-hidden="true"></i> ไม่พบสมาชิกที่ค้นหา: "<?php echo htmlspecialchars($q); ?>"
             </div>
         <?php else: ?>
             <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> ไม่พบข้อมูลสมาชิกในระบบ
+                <i  data-lucide="info" aria-hidden="true"></i> ไม่พบข้อมูลสมาชิกในระบบ
             </div>
         <?php endif; ?>
     <?php endif; ?>

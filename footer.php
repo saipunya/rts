@@ -6,28 +6,27 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div class="footer-logo">
-                    <i class="bi bi-tree-fill"></i>
+                    <i data-lucide="trees" aria-hidden="true"></i>
                 </div>
                 <div class="footer-brand-text">
                     <h5 class="footer-title">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h5>
                     <p class="footer-text">ขับเคลื่อนการรวบรวมยางพาราและการดูแลสมาชิกด้วยระบบดิจิทัลที่ทันสมัย เชื่อมโยงข้อมูลการซื้อขาย การชำระเงิน และการบริการครบวงจร</p>
                 </div>
                 <div class="footer-meta">
-                    <span><i class="bi bi-grid-1x2-fill"></i> ระบบบริหารจัดการครบวงจร</span>
-                    <span><i class="bi bi-shield-check"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
+                    <span><i data-lucide="grid" aria-hidden="true"></i> ระบบบริหารจัดการครบวงจร</span>
+                    <span><i data-lucide="shield-check" aria-hidden="true"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
                 </div>
             </div>
             <div class="footer-column">
                 <h6 class="footer-heading">ติดต่อสหกรณ์</h6>
                 <ul class="footer-contact list-unstyled">
-                    <li><i class="bi bi-geo-alt-fill"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180</li>
-                    <li><i class="bi bi-telephone-outbound"></i> 044-109752,089-9441753</li>
+                    <li><i data-lucide="map-pin" aria-hidden="true"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180</li>
+                    <li><i data-lucide="phone" aria-hidden="true"></i> 044-109752,089-9441753</li>
                     <li>
-                        <!-- insert home icon -->
-                         <i class="bi bi-house-door"></i> 080-0062515(ร้านค้าสหกรณ์)
+                        <i data-lucide="home" aria-hidden="true"></i> 080-0062515(ร้านค้าสหกรณ์)
                     </li>
-                    <li><i class="bi bi-envelope-open"></i> tungluilay@gmail.com</li>
-                    <li><i class="bi bi-clock-history"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
+                    <li><i data-lucide="mail-open" aria-hidden="true"></i> tungluilay@gmail.com</li>
+                    <li><i data-lucide="history" aria-hidden="true"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
                 </ul>
                
             </div>
@@ -338,8 +337,6 @@
 }
 </style>
 
-<!-- jQuery (required by DataTables) -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <!-- Bootstrap JavaScript Libraries -->
 <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -351,9 +348,6 @@
     integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
     crossorigin="anonymous"
 ></script>
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <!-- AOS Animation Library -->
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
@@ -364,26 +358,6 @@
         offset: 100
     });
 
-    // Initialize DataTables on tables with class 'datatable'
-    jQuery(function($){
-        $('.datatable').each(function(){
-            var opts = {
-                responsive: true,
-                pageLength: 25,
-                lengthChange: true,
-                columnDefs: [ { orderable: false, targets: 'no-sort' } ],
-                language: {
-                    search: "ค้นหา:",
-                    lengthMenu: "แสดง _MENU_ รายการ",
-                    info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
-                    paginate: { previous: "ก่อนหน้า", next: "ถัดไป" },
-                    infoEmpty: "แสดง 0 ถึง 0 จาก 0 รายการ",
-                    zeroRecords: "ไม่พบข้อมูล"
-                }
-            };
-            $(this).DataTable(opts);
-        });
-    });
 </script>
 </body>
 </html>
