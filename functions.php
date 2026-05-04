@@ -82,6 +82,348 @@ function current_user() {
     ];
 }
 
+function member_portal_log_path(): string {
+    return __DIR__ . '/storage/member_portal_log.json';
+}
+
+function ensure_member_portal_log_storage(): void {
+    $dir = dirname(member_portal_log_path());
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0775, true);
+    }
+}
+
+function read_member_portal_log_entries(): array {
+    $path = member_portal_log_path();
+    if (!is_file($path)) {
+        return [];
+    }
+
+    $raw = @file_get_contents($path);
+    if ($raw === false || trim($raw) === '') {
+        return [];
+    }
+
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    // Allow either a flat array of entries or a wrapped document with "entries"
+    if (isset($decoded['entries']) && is_array($decoded['entries'])) {
+        return $decoded['entries'];
+    }
+
+    return array_values(array_filter($decoded, 'is_array'));
+}
+
+function write_member_portal_log_entries(array $entries): bool {
+    ensure_member_portal_log_storage();
+    $path = member_portal_log_path();
+
+    $fp = @fopen($path, 'c+');
+    if (!$fp) {
+        return false;
+    }
+
+    $ok = false;
+    if (flock($fp, LOCK_EX)) {
+        ftruncate($fp, 0);
+        rewind($fp);
+        $payload = json_encode([
+            'updated_at' => date('c'),
+            'entries' => array_values($entries),
+        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        if ($payload !== false) {
+            $ok = fwrite($fp, $payload) !== false;
+        }
+        fflush($fp);
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+    return $ok;
+}
+
+function append_member_portal_log_entry(array $entry): void {
+    ensure_member_portal_log_storage();
+    $path = member_portal_log_path();
+
+    $fp = @fopen($path, 'c+');
+    if (!$fp) {
+        return;
+    }
+
+    if (flock($fp, LOCK_EX)) {
+        $raw = stream_get_contents($fp);
+        $existing = [];
+        if (trim((string)$raw) !== '') {
+            $decoded = json_decode((string)$raw, true);
+            if (is_array($decoded)) {
+                if (isset($decoded['entries']) && is_array($decoded['entries'])) {
+                    $existing = $decoded['entries'];
+                } else {
+                    $existing = array_values(array_filter($decoded, 'is_array'));
+                }
+            }
+        }
+
+        $existing[] = $entry;
+        ftruncate($fp, 0);
+        rewind($fp);
+        $payload = json_encode([
+            'updated_at' => date('c'),
+            'entries' => array_values($existing),
+        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        if ($payload !== false) {
+            fwrite($fp, $payload);
+        }
+        fflush($fp);
+        flock($fp, LOCK_UN);
+    }
+
+    fclose($fp);
+}
+
+function clear_member_portal_log_entries(): bool {
+    return write_member_portal_log_entries([]);
+}
+
+function sync_member_portal_logs_from_db_if_needed(mysqli $db): void {
+    $path = member_portal_log_path();
+    if (is_file($path)) {
+        return;
+    }
+
+    ensure_member_portal_usage_table($db);
+    $entries = [];
+    $sql = "SELECT
+                l.mem_id,
+                l.mem_number,
+                l.mem_fullname,
+                COALESCE(m.mem_group, '') AS mem_group,
+                COALESCE(m.mem_class, '') AS mem_class,
+                l.action_type,
+                l.ip_address,
+                l.user_agent,
+                l.created_at
+            FROM tbl_member_portal_log l
+            LEFT JOIN tbl_member m ON m.mem_id = l.mem_id
+            WHERE l.action_type = 'login'
+            ORDER BY l.log_id ASC";
+
+    try {
+        $res = $db->query($sql);
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $entries[] = [
+                    'mem_id' => (int)($row['mem_id'] ?? 0),
+                    'mem_number' => (string)($row['mem_number'] ?? ''),
+                    'mem_fullname' => (string)($row['mem_fullname'] ?? ''),
+                    'mem_group' => (string)($row['mem_group'] ?? ''),
+                    'mem_class' => (string)($row['mem_class'] ?? ''),
+                    'action_type' => (string)($row['action_type'] ?? 'login'),
+                    'ip_address' => (string)($row['ip_address'] ?? ''),
+                    'user_agent' => (string)($row['user_agent'] ?? ''),
+                    'created_at' => (string)($row['created_at'] ?? ''),
+                ];
+            }
+            $res->free();
+        }
+    } catch (Throwable $e) {
+        return;
+    }
+
+    if ($entries) {
+        write_member_portal_log_entries($entries);
+    }
+}
+
+function ensure_member_portal_usage_table(mysqli $db): void {
+    static $initialized = false;
+    if ($initialized) {
+        return;
+    }
+
+    $sql = "
+        CREATE TABLE IF NOT EXISTS tbl_member_portal_log (
+            log_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            mem_id INT UNSIGNED NOT NULL,
+            mem_number VARCHAR(50) NOT NULL,
+            mem_fullname VARCHAR(255) NOT NULL,
+            action_type VARCHAR(20) NOT NULL DEFAULT 'login',
+            ip_address VARCHAR(45) DEFAULT NULL,
+            user_agent VARCHAR(255) DEFAULT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (log_id),
+            KEY idx_mem_id (mem_id),
+            KEY idx_action_type (action_type),
+            KEY idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ";
+    $db->query($sql);
+    $initialized = true;
+}
+
+function log_member_portal_usage(array $member, string $actionType = 'login'): void {
+    if (empty($member['mem_id'])) {
+        return;
+    }
+
+    $db = db();
+    ensure_member_portal_usage_table($db);
+
+    $memId = (int)$member['mem_id'];
+    $memNumber = substr((string)($member['mem_number'] ?? ''), 0, 50);
+    $memFullname = substr((string)($member['mem_fullname'] ?? ''), 0, 255);
+    $ipAddress = substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
+    $userAgent = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
+
+    $stmt = $db->prepare('INSERT INTO tbl_member_portal_log (mem_id, mem_number, mem_fullname, action_type, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)');
+    if ($stmt) {
+        $stmt->bind_param('isssss', $memId, $memNumber, $memFullname, $actionType, $ipAddress, $userAgent);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    append_member_portal_log_entry([
+        'mem_id' => $memId,
+        'mem_number' => $memNumber,
+        'mem_fullname' => $memFullname,
+        'mem_group' => substr((string)($member['mem_group'] ?? ''), 0, 50),
+        'mem_class' => substr((string)($member['mem_class'] ?? ''), 0, 20),
+        'action_type' => $actionType,
+        'ip_address' => $ipAddress,
+        'user_agent' => $userAgent,
+        'created_at' => date('Y-m-d H:i:s'),
+    ]);
+}
+
+function fetch_member_portal_usage_stats(mysqli $db): array {
+    $stats = [
+        'total_logins' => 0,
+        'unique_members' => 0,
+        'today_logins' => 0,
+        'latest_login_at' => null,
+        'latest_member_name' => null,
+    ];
+
+    $pathExists = is_file(member_portal_log_path());
+    if (!$pathExists) {
+        sync_member_portal_logs_from_db_if_needed($db);
+    }
+
+    $entries = read_member_portal_log_entries();
+    $loginEntries = array_values(array_filter($entries, static function ($entry): bool {
+        return is_array($entry) && (string)($entry['action_type'] ?? 'login') === 'login';
+    }));
+
+    if (empty($loginEntries)) {
+        return $stats;
+    }
+
+    $stats['total_logins'] = count($loginEntries);
+    $stats['unique_members'] = count(array_unique(array_map(static function ($entry) {
+        return (int)($entry['mem_id'] ?? 0);
+    }, $loginEntries)));
+
+    $today = date('Y-m-d');
+    foreach ($loginEntries as $entry) {
+        $createdAt = (string)($entry['created_at'] ?? '');
+        if ($createdAt !== '' && strpos($createdAt, $today) === 0) {
+            $stats['today_logins']++;
+        }
+    }
+
+    usort($loginEntries, static function ($a, $b): int {
+        return strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? ''));
+    });
+    $latest = $loginEntries[0] ?? null;
+    if ($latest) {
+        $stats['latest_login_at'] = $latest['created_at'] ?? null;
+        $stats['latest_member_name'] = $latest['mem_fullname'] ?? null;
+    }
+
+    return $stats;
+}
+
+function fetch_member_portal_recent_log_entries(int $limit = 10): array {
+    $pathExists = is_file(member_portal_log_path());
+    if (!$pathExists) {
+        sync_member_portal_logs_from_db_if_needed(db());
+    }
+
+    $entries = read_member_portal_log_entries();
+    $loginEntries = array_values(array_filter($entries, static function ($entry): bool {
+        return is_array($entry) && (string)($entry['action_type'] ?? 'login') === 'login';
+    }));
+
+    usort($loginEntries, static function ($a, $b): int {
+        return strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? ''));
+    });
+
+    return array_slice($loginEntries, 0, max(1, $limit));
+}
+
+function fetch_member_portal_period_stats(): array {
+    $pathExists = is_file(member_portal_log_path());
+    if (!$pathExists) {
+        sync_member_portal_logs_from_db_if_needed(db());
+    }
+
+    $entries = read_member_portal_log_entries();
+    $loginEntries = array_values(array_filter($entries, static function ($entry): bool {
+        return is_array($entry) && (string)($entry['action_type'] ?? 'login') === 'login';
+    }));
+
+    $today = date('Y-m-d');
+    $month = date('Y-m');
+    $year = date('Y');
+    $monthNames = [
+        1 => 'มกราคม',
+        2 => 'กุมภาพันธ์',
+        3 => 'มีนาคม',
+        4 => 'เมษายน',
+        5 => 'พฤษภาคม',
+        6 => 'มิถุนายน',
+        7 => 'กรกฎาคม',
+        8 => 'สิงหาคม',
+        9 => 'กันยายน',
+        10 => 'ตุลาคม',
+        11 => 'พฤศจิกายน',
+        12 => 'ธันวาคม',
+    ];
+    $monthNumber = (int)date('n');
+    $thaiYear = (int)$year + 543;
+
+    $stats = [
+        'today' => 0,
+        'month' => 0,
+        'year' => 0,
+        'today_label' => thai_date_format($today),
+        'month_label' => $monthNames[$monthNumber] . ' ' . $thaiYear,
+        'year_label' => 'พ.ศ. ' . $thaiYear,
+    ];
+
+    foreach ($loginEntries as $entry) {
+        $createdAt = (string)($entry['created_at'] ?? '');
+        if ($createdAt === '') {
+            continue;
+        }
+        $entryDate = substr($createdAt, 0, 10);
+        if ($entryDate === $today) {
+            $stats['today']++;
+        }
+        if (substr($createdAt, 0, 7) === $month) {
+            $stats['month']++;
+        }
+        if (substr($createdAt, 0, 4) === $year) {
+            $stats['year']++;
+        }
+    }
+
+    return $stats;
+}
+
 // add function thai_date_format, thai month_name
 function thai_date_format(string $date_str): string {
     $months = [

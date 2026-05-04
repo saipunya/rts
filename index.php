@@ -221,6 +221,28 @@ html, body {
 		color: var(--bs-success-text-emphasis);
 	}
 
+	.chart-card {
+		border: 1px solid rgba(47, 110, 67, 0.12);
+		border-radius: 1rem;
+		background: #ffffff;
+		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+		overflow: hidden;
+		height: 100%;
+	}
+
+	.chart-card .card-header {
+		background: #f7fbf8;
+		border-bottom: 1px solid rgba(47, 110, 67, 0.12);
+		font-weight: 600;
+		color: #28553a;
+	}
+
+	.chart-wrap {
+		position: relative;
+		width: 100%;
+		height: 320px;
+	}
+
 	.section-title {
 		display: flex;
 		align-items: center;
@@ -458,6 +480,12 @@ html, body {
 		transform: none;
 	}
 
+	@media (max-width: 768px) {
+		.chart-wrap {
+			height: 260px;
+		}
+	}
+
 </style>
 
 <?php
@@ -601,6 +629,76 @@ if ($stmt) {
 	}
 	$stmt->close();
 }
+
+$chartSummaryByDate = [];
+if (!empty($summary_rows)) {
+	foreach ($summary_rows as $row) {
+		$ruDate = (string)($row['ru_date'] ?? '');
+		if ($ruDate === '') {
+			continue;
+		}
+		if (!isset($chartSummaryByDate[$ruDate])) {
+			$chartSummaryByDate[$ruDate] = [
+				'label' => thai_date_format($ruDate),
+				'quantity' => 0.0,
+				'value' => 0.0,
+			];
+		}
+		$chartSummaryByDate[$ruDate]['quantity'] += (float)($row['total_qty'] ?? 0);
+		$chartSummaryByDate[$ruDate]['value'] += (float)($row['total_value'] ?? 0);
+	}
+}
+ksort($chartSummaryByDate);
+$chartLabels = array_values(array_map(static function ($item) {
+	return $item['label'];
+}, $chartSummaryByDate));
+$chartQuantities = array_values(array_map(static function ($item) {
+	return round((float)$item['quantity'], 2);
+}, $chartSummaryByDate));
+$chartValues = array_values(array_map(static function ($item) {
+	return round((float)$item['value'], 2);
+}, $chartSummaryByDate));
+
+$chartMemberCounts = [];
+$chartGeneralCounts = [];
+if (!empty($chartSummaryByDate)) {
+	$countSql = "SELECT
+		r.ru_date,
+		COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'member' THEN TRIM(r.ru_number) END) AS member_people,
+		COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'general' THEN TRIM(r.ru_fullname) END) AS general_people
+	FROM tbl_rubber r
+	$sum_where_sql
+	GROUP BY r.ru_date
+	ORDER BY r.ru_date ASC";
+	$countStmt = $db->prepare($countSql);
+	if ($countStmt) {
+		if (!empty($sum_params)) {
+			$countStmt->bind_param($sum_types, ...$sum_params);
+		}
+		$countStmt->execute();
+		$countRes = $countStmt->get_result();
+		$countByDate = [];
+		if ($countRes) {
+			while ($cr = $countRes->fetch_assoc()) {
+				$d = (string)($cr['ru_date'] ?? '');
+				if ($d === '') {
+					continue;
+				}
+				$countByDate[$d] = [
+					'member' => (int)($cr['member_people'] ?? 0),
+					'general' => (int)($cr['general_people'] ?? 0),
+				];
+			}
+			$countRes->free();
+		}
+		$countStmt->close();
+
+		foreach (array_keys($chartSummaryByDate) as $dateKey) {
+			$chartMemberCounts[] = (int)($countByDate[$dateKey]['member'] ?? 0);
+			$chartGeneralCounts[] = (int)($countByDate[$dateKey]['general'] ?? 0);
+		}
+	}
+}
 ?>
 
 	<?php
@@ -681,6 +779,68 @@ if ($stmt) {
 				<div class="stat-label"><i data-lucide="dollar-sign" aria-hidden="true"></i>ยอดเงินทั้งหมด</div>
 				<div class="stat-value"><?php echo number_format($all_total_value,2); ?> ฿</div>
 				<div class="stat-sub">รวมยอดเงินจากแต่ละช่วงราคา</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section-title">
+		<i data-lucide="bar-chart-3" aria-hidden="true"></i>
+		กราฟสรุปตามรอบ
+	</div>
+	<div class="row g-3 mb-4">
+		<div class="col-12 col-lg-6">
+			<div class="chart-card">
+				<div class="card-header px-3 py-2">
+					<i data-lucide="bar-chart-2" class="me-1" aria-hidden="true"></i>ปริมาณยางในแต่ละรอบ
+				</div>
+				<div class="card-body p-3">
+					<div class="chart-wrap">
+						<canvas id="quantityChart" aria-label="กราฟปริมาณยางในแต่ละรอบ" role="img"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-6">
+			<div class="chart-card">
+				<div class="card-header px-3 py-2">
+					<i data-lucide="coins" class="me-1" aria-hidden="true"></i>จำนวนเงินในแต่ละรอบ
+				</div>
+				<div class="card-body p-3">
+					<div class="chart-wrap">
+						<canvas id="valueChart" aria-label="กราฟจำนวนเงินในแต่ละรอบ" role="img"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section-title">
+		<i data-lucide="users" aria-hidden="true"></i>
+		กราฟจำนวนคนที่รวบรวมตามรอบ
+	</div>
+	<div class="row g-3 mb-4">
+		<div class="col-12 col-lg-6">
+			<div class="chart-card">
+				<div class="card-header px-3 py-2">
+					<i data-lucide="user" class="me-1" aria-hidden="true"></i>จำนวนสมาชิกที่รวบรวมในแต่ละรอบ
+				</div>
+				<div class="card-body p-3">
+					<div class="chart-wrap">
+						<canvas id="memberCountChart" aria-label="กราฟจำนวนสมาชิกที่รวบรวมในแต่ละรอบ" role="img"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-6">
+			<div class="chart-card">
+				<div class="card-header px-3 py-2">
+					<i data-lucide="users" class="me-1" aria-hidden="true"></i>จำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ
+				</div>
+				<div class="card-body p-3">
+					<div class="chart-wrap">
+						<canvas id="generalCountChart" aria-label="กราฟจำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ" role="img"></canvas>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -915,6 +1075,141 @@ if ($stmt) {
 				<i data-lucide="plus-circle" class="me-2" aria-hidden="true"></i>บันทึกข้อมูล
 			</a>
 	</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const chartLabels = <?php echo json_encode($chartLabels, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartQuantities = <?php echo json_encode($chartQuantities, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartValues = <?php echo json_encode($chartValues, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartMemberCounts = <?php echo json_encode($chartMemberCounts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartGeneralCounts = <?php echo json_encode($chartGeneralCounts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+
+  const quantityCanvas = document.getElementById('quantityChart');
+  const valueCanvas = document.getElementById('valueChart');
+  const memberCountCanvas = document.getElementById('memberCountChart');
+  const generalCountCanvas = document.getElementById('generalCountChart');
+
+  if (!window.Chart || !quantityCanvas || !valueCanvas || !memberCountCanvas || !generalCountCanvas) {
+    return;
+  }
+
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        labels: {
+          usePointStyle: true,
+          boxWidth: 10
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const value = context.parsed.y ?? 0;
+            return context.dataset.label + ': ' + new Intl.NumberFormat('th-TH', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }).format(value);
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 45,
+          minRotation: 0,
+          autoSkip: true
+        },
+        grid: {
+          color: 'rgba(34, 197, 94, 0.08)'
+        }
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(34, 197, 94, 0.08)'
+        }
+      }
+    }
+  };
+
+  new Chart(quantityCanvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'ปริมาณยาง (กก.)',
+        data: chartQuantities,
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.18)',
+        pointBackgroundColor: '#16a34a',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 3,
+        tension: 0.25,
+        fill: true
+      }]
+    },
+    options: commonOptions
+  });
+
+  new Chart(valueCanvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'จำนวนเงิน (บาท)',
+        data: chartValues,
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14, 165, 233, 0.16)',
+        pointBackgroundColor: '#0ea5e9',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 3,
+        tension: 0.25,
+        fill: true
+      }]
+    },
+    options: commonOptions
+  });
+
+  new Chart(memberCountCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'จำนวนสมาชิก (คน)',
+        data: chartMemberCounts,
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.28)',
+        borderWidth: 1,
+        borderRadius: 8
+      }]
+    },
+    options: commonOptions
+  });
+
+  new Chart(generalCountCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'จำนวนเกษตรกรทั่วไป (คน)',
+        data: chartGeneralCounts,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.28)',
+        borderWidth: 1,
+        borderRadius: 8
+      }]
+    },
+    options: commonOptions
+  });
+})();
+</script>
 
 <?php
 include 'footer.php';

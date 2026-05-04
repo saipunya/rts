@@ -5,6 +5,7 @@ include 'header.php';
 $cu = current_user();
 
 $conn = db();
+$memberPortalStats = fetch_member_portal_usage_stats($conn);
 
 function get_latest_collection_date(mysqli $conn): string {
     $latest = '';
@@ -69,6 +70,254 @@ function fetch_top_rubber_quantity(mysqli $conn, string $class, ?string $roundDa
     return $rows;
 }
 
+function fetch_latest_deduction_summary(mysqli $conn, string $class, ?string $roundDate = null): array {
+    $where = ['LOWER(TRIM(ru_class)) = ?'];
+    $types = 's';
+    $params = [strtolower($class)];
+
+    if ($roundDate !== null && $roundDate !== '') {
+        $where[] = 'ru_date = ?';
+        $types .= 's';
+        $params[] = $roundDate;
+    }
+
+    $sql = "SELECT
+            SUM(ru_hoon) AS total_hoon,
+            SUM(ru_loan) AS total_loan,
+            SUM(ru_shortdebt) AS total_shortdebt,
+            SUM(ru_deposit) AS total_deposit,
+            SUM(ru_tradeloan) AS total_tradeloan,
+            SUM(ru_insurance) AS total_insurance,
+            SUM(ru_expend) AS total_expend,
+            SUM(ru_value) AS total_value,
+            SUM(ru_netvalue) AS total_netvalue,
+            SUM(ru_quantity) AS total_quantity,
+            COUNT(*) AS entry_count
+        FROM tbl_rubber
+        WHERE " . implode(' AND ', $where);
+
+    $summary = [
+        'total_hoon' => 0.0,
+        'total_loan' => 0.0,
+        'total_shortdebt' => 0.0,
+        'total_deposit' => 0.0,
+        'total_tradeloan' => 0.0,
+        'total_insurance' => 0.0,
+        'total_expend' => 0.0,
+        'total_value' => 0.0,
+        'total_netvalue' => 0.0,
+        'total_quantity' => 0.0,
+        'entry_count' => 0,
+    ];
+
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result && ($row = $result->fetch_assoc())) {
+            foreach ($summary as $key => $defaultValue) {
+                if (array_key_exists($key, $row) && $row[$key] !== null) {
+                    $summary[$key] = (float)$row[$key];
+                }
+            }
+            $summary['entry_count'] = (int)($row['entry_count'] ?? 0);
+        }
+        if ($result) {
+            $result->free();
+        }
+        $stmt->close();
+    }
+
+    $summary['total_deduct'] = array_sum([
+        $summary['total_hoon'],
+        $summary['total_loan'],
+        $summary['total_shortdebt'],
+        $summary['total_deposit'],
+        $summary['total_tradeloan'],
+        $summary['total_insurance'],
+    ]);
+
+    return $summary;
+}
+
+function fetch_latest_collection_group_summary(mysqli $conn, string $class, ?string $roundDate = null): array {
+    $where = ['LOWER(TRIM(ru_class)) = ?'];
+    $types = 's';
+    $params = [strtolower($class)];
+
+    if ($roundDate !== null && $roundDate !== '') {
+        $where[] = 'ru_date = ?';
+        $types .= 's';
+        $params[] = $roundDate;
+    }
+
+    $isMember = strtolower($class) === 'member';
+
+    if ($isMember) {
+        $sql = "SELECT
+                TRIM(ru_group) AS ru_group,
+                COUNT(DISTINCT TRIM(ru_number)) AS person_count,
+                SUM(ru_quantity) AS total_quantity,
+                COUNT(*) AS entry_count
+            FROM tbl_rubber
+            WHERE " . implode(' AND ', $where) . "
+            GROUP BY TRIM(ru_group)
+            ORDER BY CAST(TRIM(ru_group) AS UNSIGNED), TRIM(ru_group)";
+    } else {
+        $sql = "SELECT
+                COUNT(DISTINCT TRIM(ru_number)) AS person_count,
+                SUM(ru_quantity) AS total_quantity,
+                COUNT(*) AS entry_count
+            FROM tbl_rubber
+            WHERE " . implode(' AND ', $where);
+    }
+
+    $rows = [];
+    $summary = [
+        'person_count' => 0,
+        'total_quantity' => 0.0,
+        'entry_count' => 0,
+        'groups' => [],
+    ];
+
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result) {
+            if ($isMember) {
+                while ($row = $result->fetch_assoc()) {
+                    $groupName = trim((string)($row['ru_group'] ?? ''));
+                    $rows[] = [
+                        'ru_group' => $groupName !== '' ? $groupName : '-',
+                        'person_count' => (int)($row['person_count'] ?? 0),
+                        'total_quantity' => (float)($row['total_quantity'] ?? 0),
+                        'entry_count' => (int)($row['entry_count'] ?? 0),
+                    ];
+                    $summary['person_count'] += (int)($row['person_count'] ?? 0);
+                    $summary['total_quantity'] += (float)($row['total_quantity'] ?? 0);
+                    $summary['entry_count'] += (int)($row['entry_count'] ?? 0);
+                }
+            } elseif ($row = $result->fetch_assoc()) {
+                $summary['person_count'] = (int)($row['person_count'] ?? 0);
+                $summary['total_quantity'] = (float)($row['total_quantity'] ?? 0);
+                $summary['entry_count'] = (int)($row['entry_count'] ?? 0);
+            }
+            $result->free();
+        }
+        $stmt->close();
+    }
+
+    $summary['groups'] = $rows;
+    return $summary;
+}
+
+function render_deduction_summary_card(string $title, string $subtitle, array $summary, string $tone = 'success'): void {
+    $chips = [
+        'หุ้น' => $summary['total_hoon'] ?? 0,
+        'เงินกู้' => $summary['total_loan'] ?? 0,
+        'หนี้สั้น' => $summary['total_shortdebt'] ?? 0,
+        'เงินฝาก' => $summary['total_deposit'] ?? 0,
+        'กู้ซื้อขาย' => $summary['total_tradeloan'] ?? 0,
+        'ประกันภัย' => $summary['total_insurance'] ?? 0,
+    ];
+    ?>
+<div class="col-12 col-lg-6">
+  <div class="card h-100 shadow-sm deduction-card border-<?php echo e($tone); ?>">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+        <div>
+          <h5 class="card-title mb-1"><i data-lucide="scissors" class="me-2"
+              aria-hidden="true"></i><?php echo e($title); ?></h5>
+          <p class="card-text small text-muted mb-0"><?php echo e($subtitle); ?></p>
+        </div>
+        <span class="badge text-bg-<?php echo e($tone); ?>">ล่าสุด</span>
+      </div>
+
+      <div class="deduction-summary-grid mb-3">
+        <div class="deduction-summary-item">
+          <div class="deduction-label">ยอดหักรวม</div>
+          <div class="deduction-value">฿<?php echo number_format((float)($summary['total_deduct'] ?? 0), 2); ?></div>
+        </div>
+        <div class="deduction-summary-item">
+          <div class="deduction-label">รายการ</div>
+          <div class="deduction-value"><?php echo number_format((int)($summary['entry_count'] ?? 0)); ?> รายการ</div>
+        </div>
+      </div>
+
+      <div class="deduction-chip-wrap">
+        <?php foreach ($chips as $label => $amount): ?>
+        <?php if ((float)$amount > 0): ?>
+        <span class="deduction-chip">
+          <?php echo e($label); ?>: <?php echo number_format((float)$amount, 2); ?> ฿
+        </span>
+        <?php endif; ?>
+        <?php endforeach; ?>
+        <?php if (empty(array_filter($chips, fn($v) => (float)$v > 0))): ?>
+        <div class="text-muted small py-2">ยังไม่มีรายการหักในรอบนี้</div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>
+<?php
+}
+
+function render_collection_summary_card(string $title, string $subtitle, array $summary, string $tone = 'success', bool $memberMode = true): void {
+    ?>
+<div class="col-12 col-lg-6">
+  <div class="card h-100 shadow-sm collection-card border-<?php echo e($tone); ?>">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+        <div>
+          <h5 class="card-title mb-1"><i data-lucide="database" class="me-2"
+              aria-hidden="true"></i><?php echo e($title); ?></h5>
+          <p class="card-text small text-muted mb-0"><?php echo e($subtitle); ?></p>
+        </div>
+        <span class="badge text-bg-<?php echo e($tone); ?>">ล่าสุด</span>
+      </div>
+
+      <div class="collection-summary-grid mb-3">
+        <div class="collection-summary-item">
+          <div class="collection-label">จำนวนคน</div>
+          <div class="collection-value"><?php echo number_format((int)($summary['person_count'] ?? 0)); ?> คน</div>
+        </div>
+        <div class="collection-summary-item">
+          <div class="collection-label">ปริมาณรวม</div>
+          <div class="collection-value"><?php echo number_format((float)($summary['total_quantity'] ?? 0), 2); ?> กก.
+          </div>
+        </div>
+      </div>
+
+      <?php if ($memberMode): ?>
+      <div class="collection-chip-wrap">
+        <?php if (!empty($summary['groups'])): ?>
+        <?php foreach ($summary['groups'] as $groupRow): ?>
+        <span class="collection-chip">
+          กลุ่ม <?php echo e($groupRow['ru_group']); ?>:
+          <?php echo number_format((int)($groupRow['person_count'] ?? 0)); ?> คน /
+          <?php echo number_format((float)($groupRow['total_quantity'] ?? 0), 2); ?> กก.
+        </span>
+        <?php endforeach; ?>
+        <?php else: ?>
+        <div class="text-muted small py-2">ยังไม่มีข้อมูลสมาชิกในรอบนี้</div>
+        <?php endif; ?>
+      </div>
+      <?php else: ?>
+      <div class="collection-chip-wrap">
+        <span class="collection-chip">
+          <?php echo number_format((int)($summary['person_count'] ?? 0)); ?> คนที่รวบรวมในรอบนี้
+        </span>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
+<?php
+}
+
 function render_top_rubber_table(string $title, string $subtitle, array $rows): void {
     static $topRubberTableIndex = 0;
     $topRubberTableIndex++;
@@ -95,23 +344,23 @@ function render_top_rubber_table(string $title, string $subtitle, array $rows): 
         <?php if (empty($rows)): ?>
         <div class="text-muted small py-3">ยังไม่มีข้อมูลสำหรับแสดงอันดับ</div>
         <?php else: ?>
-	        <div class="top-rubber-table-wrap">
-	          <table class="table table-sm align-middle top-rubber-table mb-0">
-	            <thead>
-	              <tr>
-	                <th class="text-center rank-col">#</th>
-	                <th>ชื่อ-สกุล/เลขที่</th>
-	
-	                <th class="text-end quantity-col">รวม (กก.)</th>
-	              </tr>
-	            </thead>
-	            <tbody>
-	              <?php foreach ($rows as $idx => $row): ?>
-	              <tr>
-	                <td class="text-center fw-semibold"><?php echo $idx + 1; ?></td>
-	                <td class="top-rubber-name">
-	                  <?php echo e($row['ru_fullname'] ?? '-'); ?>/[<?php echo e(($row['ru_number'] ?? '') !== '' ? $row['ru_number'] : '-'); ?>]
-	                </td>
+        <div class="top-rubber-table-wrap">
+          <table class="table table-sm align-middle top-rubber-table mb-0">
+            <thead>
+              <tr>
+                <th class="text-center rank-col">#</th>
+                <th>ชื่อ-สกุล/เลขที่</th>
+
+                <th class="text-end quantity-col">รวม (กก.)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($rows as $idx => $row): ?>
+              <tr>
+                <td class="text-center fw-semibold"><?php echo $idx + 1; ?></td>
+                <td class="top-rubber-name">
+                  <?php echo e($row['ru_fullname'] ?? '-'); ?>/[<?php echo e(($row['ru_number'] ?? '') !== '' ? $row['ru_number'] : '-'); ?>]
+                </td>
                 <td class="text-end fw-semibold"><?php echo number_format((float)($row['total_quantity'] ?? 0), 2); ?>
                 </td>
               </tr>
@@ -132,6 +381,10 @@ $latestMemberTop = fetch_top_rubber_quantity($conn, 'member', $latestCollectionD
 $latestGeneralTop = fetch_top_rubber_quantity($conn, 'general', $latestCollectionDate);
 $allMemberTop = fetch_top_rubber_quantity($conn, 'member');
 $allGeneralTop = fetch_top_rubber_quantity($conn, 'general');
+$latestMemberDeduction = fetch_latest_deduction_summary($conn, 'member', $latestCollectionDate);
+$latestGeneralDeduction = fetch_latest_deduction_summary($conn, 'general', $latestCollectionDate);
+$latestMemberCollectionSummary = fetch_latest_collection_group_summary($conn, 'member', $latestCollectionDate);
+$latestGeneralCollectionSummary = fetch_latest_collection_group_summary($conn, 'general', $latestCollectionDate);
 ?>
 <!-- Removed Google Fonts, now using local Sarabun -->
 <style>
@@ -217,6 +470,94 @@ body {
   overflow-wrap: anywhere;
 }
 
+.deduction-card {
+  border-color: #bbf7d0;
+}
+
+.deduction-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.deduction-summary-item {
+  border: 1px solid #d7f3de;
+  border-radius: 1rem;
+  background: #f8fdf8;
+  padding: .85rem .9rem;
+}
+
+.deduction-label {
+  font-size: .85rem;
+  color: #15803d;
+  margin-bottom: .15rem;
+}
+
+.deduction-value {
+  font-weight: 700;
+  color: #14532d;
+}
+
+.deduction-chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.deduction-chip {
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  background: #fff;
+  color: #166534;
+  padding: .35rem .65rem;
+  font-size: .88rem;
+  white-space: nowrap;
+}
+
+.collection-card {
+  border-color: #bbf7d0;
+}
+
+.collection-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.collection-summary-item {
+  border: 1px solid #d7f3de;
+  border-radius: 1rem;
+  background: #f8fdf8;
+  padding: .85rem .9rem;
+}
+
+.collection-label {
+  font-size: .85rem;
+  color: #15803d;
+  margin-bottom: .15rem;
+}
+
+.collection-value {
+  font-weight: 700;
+  color: #14532d;
+}
+
+.collection-chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.collection-chip {
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  background: #fff;
+  color: #166534;
+  padding: .35rem .65rem;
+  font-size: .88rem;
+  white-space: nowrap;
+}
+
 @media (max-width: 576px) {
   .top-rubber-table {
     font-size: 0.9rem;
@@ -235,6 +576,14 @@ body {
   .top-rubber-table .quantity-col {
     width: 5.8rem;
     white-space: normal;
+  }
+
+  .deduction-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .collection-summary-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -522,7 +871,34 @@ body {
       </div>
     </div>
     <!-- Export Section End -->
-
+    <div class="col-12 mb-4">
+      <div class="card h-100 shadow-sm border-success-subtle">
+        <div class="card-body d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <span
+              class="d-inline-flex align-items-center justify-content-center rounded-4 bg-success-subtle text-success"
+              style="width:3rem;height:3rem;">
+              <i data-lucide="activity" aria-hidden="true"></i>
+            </span>
+            <div>
+              <h2 class="h5 mb-1">สรุปการใช้งานสมาชิก</h2>
+              <div class="text-muted">ดูการเข้าสู่ระบบ ประวัติล่าสุด และภาพรวมการใช้งานในหน้าแยก</div>
+            </div>
+          </div>
+          <div class="d-flex flex-column flex-sm-row gap-2">
+            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+              <?php echo number_format((int)($memberPortalStats['total_logins'] ?? 0)); ?> ครั้ง
+            </span>
+            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+              <?php echo number_format((int)($memberPortalStats['today_logins'] ?? 0)); ?> วันนี้
+            </span>
+            <a href="member_usage_summary.php" class="btn btn-success">
+              <i data-lucide="arrow-right" class="me-1" aria-hidden="true"></i>เปิดหน้าสรุป
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-body">
@@ -573,6 +949,55 @@ body {
       </div>
     </div>
     <?php endif; ?>
+
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+        <div>
+          <h2 class="h5 mb-1"><i data-lucide="scissors" class="me-2" aria-hidden="true"></i>สรุปรายการหักรอบล่าสุด</h2>
+          <div class="small text-muted">
+            <?php if ($latestCollectionDate !== ''): ?>
+            รอบล่าสุด: <?php echo e(thai_date_format($latestCollectionDate)); ?>
+            <?php else: ?>
+            ยังไม่พบรอบการรวบรวม
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <?php
+        $latestDeductSubtitle = $latestCollectionDate !== ''
+            ? 'รอบการรวบรวมล่าสุด ' . thai_date_format($latestCollectionDate)
+            : 'รอบการรวบรวมล่าสุด';
+        render_deduction_summary_card('สมาชิก', $latestDeductSubtitle, $latestMemberDeduction, 'success');
+        render_deduction_summary_card('เกษตรกรทั่วไป', $latestDeductSubtitle, $latestGeneralDeduction, 'warning');
+    ?>
+
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+        <div>
+          <h2 class="h5 mb-1"><i data-lucide="users" class="me-2" aria-hidden="true"></i>สรุปจำนวนที่รวบรวมรอบล่าสุด
+          </h2>
+          <div class="small text-muted">
+            <?php if ($latestCollectionDate !== ''): ?>
+            รอบล่าสุด: <?php echo e(thai_date_format($latestCollectionDate)); ?>
+            <?php else: ?>
+            ยังไม่พบรอบการรวบรวม
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <?php
+        $latestCollectionSubtitle = $latestCollectionDate !== ''
+            ? 'รอบการรวบรวมล่าสุด ' . thai_date_format($latestCollectionDate)
+            : 'รอบการรวบรวมล่าสุด';
+        render_collection_summary_card('สมาชิก', $latestCollectionSubtitle, $latestMemberCollectionSummary, 'success', true);
+        render_collection_summary_card('เกษตรกรทั่วไป', $latestCollectionSubtitle, $latestGeneralCollectionSummary, 'warning', false);
+    ?>
+
+
 
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mt-2 top-rubber-section-title">

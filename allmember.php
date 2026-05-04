@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'membe
                             'mem_class' => $row['mem_class'],
                             'mem_personcode' => $storedPersonCode,
                         ];
+                        log_member_portal_usage($_SESSION[MEMBER_SESSION_KEY], 'login');
                         header('Location: allmember.php');
                         exit;
                     }

@@ -4,10 +4,6 @@ require_login();
 include 'header.php';
 ?>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;600;700&display=swap" rel="stylesheet">
-
 <?php
 
 // Handle form submission for updating person code
@@ -80,358 +76,323 @@ if (isset($_GET['edit_id']) && is_numeric($_GET['edit_id'])) {
 }
 ?>
 <style>
-/* Match existing page styles */
 html, body {
-  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 200;
+  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background: #eff7f1;
+  color: #14532d;
 }
-.container,
-.card,
-.table,
+
+.person-code-shell {
+  max-width: 1240px;
+}
+
+.person-hero,
+.person-panel,
+.person-edit,
+.person-table {
+  border: 1px solid #bbf7d0;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 42px rgba(20, 83, 45, 0.08);
+}
+
+.person-hero {
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.98), rgba(236, 253, 245, 0.95));
+}
+
+.person-badge,
+.person-mini-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.person-badge {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.24);
+}
+
+.person-mini-icon {
+  width: 2.35rem;
+  color: #166534;
+}
+
 .form-control,
-.form-select,
-.form-label,
 .btn,
-.btn-sm,
-.nav-link,
+.table,
 .alert,
-.badge {
-  font-family: 'Noto Serif Thai', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  font-size: 1rem;
-  font-weight: 200;
-}
-.small, .form-text {
-  font-size: 1rem !important;
-  font-weight: 200 !important;
+.badge,
+.form-label {
+  font-family: inherit;
 }
 
-/* Enhanced Responsive Design */
-@media (max-width: 992px) {
-  .container.mt-4 {
-    padding: 0 1rem;
-  }
-  
-  h3 {
-    font-size: 1.5rem;
-  }
+.form-control,
+.form-select {
+  min-height: 46px;
+  border-radius: .9rem;
+  border-color: #bbf7d0;
 }
 
-@media (max-width: 768px) {
-  .container.mt-4 {
-    padding: 0 0.5rem;
-    margin-top: 1rem !important;
-  }
-  
-  .row.mb-3 {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch !important;
-    text-align: center;
-  }
-  
-  .col-6 {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-  
-  h3 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .col-6.text-end {
-    text-align: center !important;
-  }
-  
-  .col-6.text-end .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    min-height: 44px;
-  }
-  
-  .row.mb-3 {
-    margin-bottom: 1rem !important;
-  }
-  
-  .row.g-2.position-relative {
-    gap: 0.75rem;
-  }
-  
-  .col-auto {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-  
-  .form-control {
-    min-height: 44px;
-    font-size: 1rem;
-  }
-  
-  .btn {
-    min-height: 44px;
-    font-size: 1rem;
-  }
-  
-  .table-responsive {
-    font-size: 0.85rem;
-    margin: 0 -0.5rem;
-    padding: 0 0.5rem;
-  }
-  
-  .table th,
-  .table td {
-    padding: 0.5rem 0.3rem;
-  }
-  
-  .table .btn-sm {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.4rem;
-    min-height: auto;
-  }
-  
-  .alert {
-    font-size: 0.9rem;
-    padding: 0.75rem 1rem;
-    margin: 0 -0.5rem 1rem;
-  }
+.form-control:focus,
+.form-select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 .2rem rgba(34, 197, 94, .14);
 }
 
-@media (max-width: 576px) {
-  .container.mt-4 {
-    padding: 0 0.25rem;
-  }
-  
-  h3 {
-    font-size: 1.2rem;
-  }
-  
-  .table-responsive {
-    font-size: 0.8rem;
-    padding: 0 0.25rem;
-  }
-  
-  .table th,
-  .table td {
-    padding: 0.4rem 0.2rem;
-  }
-  
-  .table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)),
-  .table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)) {
-    display: none;
-  }
-  
-  .table .btn-sm {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.3rem;
-  }
+.btn {
+  min-height: 44px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
-/* Landscape orientation */
-@media (max-width: 768px) and (orientation: landscape) {
-  .container.mt-4 {
-    margin-top: 0.5rem !important;
-  }
+.table thead th {
+  background: #f0fdf4;
+  color: #166534;
+  border-bottom: 1px solid #bbf7d0;
+  white-space: nowrap;
 }
 
-/* Touch-friendly improvements */
-@media (hover: none) and (pointer: coarse) {
-  .table-hover tbody tr:hover td {
-    background-color: transparent;
-  }
-  
-  .btn,
-  .form-control {
-    min-height: 44px;
-  }
+.table > :not(caption) > * > * {
+  padding: .85rem .8rem;
+  vertical-align: middle;
 }
 
-/* Person code input styling */
+.table tbody tr:hover td {
+  background: #f8fdf8;
+}
+
 .person-code-input {
   font-family: monospace;
   font-size: 1.2rem;
   text-align: center;
   letter-spacing: 0.2em;
-  max-width: 150px;
 }
 
-.edit-form {
-  background-color: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #dee2e6;
+@media (max-width: 768px) {
+  .person-hero,
+  .person-panel,
+  .person-edit,
+  .person-table {
+    border-radius: 1rem;
+  }
 }
 </style>
 
-<div class="container mt-4">
-    <div class="row mb-3">
-        <div class="col-6">
-            <h4>เพิ่มรหัสบุคคลสมาชิก</h4>
+<div class="container person-code-shell my-4">
+  <section class="person-hero p-3 p-md-4 mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <span class="person-badge">
+          <i data-lucide="id-card" aria-hidden="true"></i>
+        </span>
+        <div>
+          <div class="text-uppercase text-success fw-semibold small mb-1">Person code</div>
+          <h1 class="h3 fw-bold mb-1 text-success-emphasis">เพิ่มรหัสบุคคลสมาชิก</h1>
+          <div class="text-success">ค้นหาและบันทึกรหัสบุคคลของสมาชิกได้ในหน้าเดียว</div>
         </div>
-      
+      </div>
+      <a href="members.php" class="btn btn-outline-success">
+        <i data-lucide="arrow-left" class="me-1" aria-hidden="true"></i>กลับหน้าสมาชิก
+      </a>
     </div>
+  </section>
 
-    <?php if (isset($success_msg)): ?>
-        <div class="alert alert-success"><?php echo htmlspecialchars($success_msg); ?></div>
-    <?php endif; ?>
+  <?php if (isset($success_msg)): ?>
+    <div class="alert alert-success border-0 shadow-sm">
+      <i data-lucide="check-circle" class="me-1" aria-hidden="true"></i><?php echo htmlspecialchars($success_msg); ?>
+    </div>
+  <?php endif; ?>
 
-    <?php if (isset($error_msg)): ?>
-        <div class="alert alert-danger"><?php echo htmlspecialchars($error_msg); ?></div>
-    <?php endif; ?>
+  <?php if (isset($error_msg)): ?>
+    <div class="alert alert-danger border-0 shadow-sm">
+      <i data-lucide="alert-circle" class="me-1" aria-hidden="true"></i><?php echo htmlspecialchars($error_msg); ?>
+    </div>
+  <?php endif; ?>
 
-    <?php if ($editing_member): ?>
-        <!-- Edit Form -->
-        <div class="edit-form">
-            <h4 class="mb-3">แก้ไขรหัสบุคคล: <?php echo htmlspecialchars($editing_member['mem_fullname']); ?></h4>
-            <form method="post" action="add_person_code.php">
-                <input type="hidden" name="action" value="update_person_code">
-                <input type="hidden" name="mem_id" value="<?php echo (int)$editing_member['mem_id']; ?>">
-                
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label">ชื่อสมาชิก:</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_fullname']); ?>" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">เลขที่สมาชิก:</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_number']); ?>" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">กลุ่ม:</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_group']); ?>" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">วันเกิด:</label>
-                        <input type="text" class="form-control" value="<?php echo !empty($editing_member['mem_birthtext']) ? htmlspecialchars($editing_member['mem_birthtext']) : '-'; ?>" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">ชั้น:</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_class']); ?>" readonly>
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label">บันทึกโดย:</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_saveby']); ?>" readonly>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">วันที่บันทึก:</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars(thai_date_format($editing_member['mem_savedate'])); ?>" readonly>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="mem_personcode" class="form-label">รหัสบุคคล <span class="text-danger">*</span> (4 ตัวเลข):</label>
-                        <input type="text" 
-                               id="mem_personcode" 
-                               name="mem_personcode" 
-                               class="form-control person-code-input" 
-                               value="<?php echo htmlspecialchars($editing_member['mem_personcode']); ?>" 
-                               maxlength="4" 
-                               pattern="[0-9]{4}" 
-                               required 
-                               placeholder="1234">
-                        <div class="form-text">รหัสบุคคลต้องเป็นตัวเลข 4 ตัวเท่านั้น</div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success">บันทึกรหัสบุคคล</button>
-                        <a href="add_person_code.php" class="btn btn-secondary">ยกเลิก</a>
-                    </div>
-                </div>
-            </form>
+  <?php if ($editing_member): ?>
+    <section class="person-edit p-3 p-md-4 mb-4">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+        <div>
+          <h2 class="h5 fw-bold mb-1 text-success-emphasis">
+            <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไขรหัสบุคคล
+          </h2>
+          <div class="text-success"><?php echo htmlspecialchars($editing_member['mem_fullname']); ?></div>
         </div>
+        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+          <i data-lucide="user-check" class="me-1" aria-hidden="true"></i><?php echo htmlspecialchars($editing_member['mem_number']); ?>
+        </span>
+      </div>
+
+      <form method="post" action="add_person_code.php">
+        <input type="hidden" name="action" value="update_person_code">
+        <input type="hidden" name="mem_id" value="<?php echo (int)$editing_member['mem_id']; ?>">
+
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label"><i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อสมาชิก</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_fullname']); ?>" readonly>
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label"><i data-lucide="hash" class="me-1" aria-hidden="true"></i>เลขที่สมาชิก</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_number']); ?>" readonly>
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label"><i data-lucide="folder" class="me-1" aria-hidden="true"></i>กลุ่ม</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_group']); ?>" readonly>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label"><i data-lucide="cake" class="me-1" aria-hidden="true"></i>วันเกิด</label>
+            <input type="text" class="form-control" value="<?php echo !empty($editing_member['mem_birthtext']) ? htmlspecialchars($editing_member['mem_birthtext']) : '-'; ?>" readonly>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label"><i data-lucide="badge-check" class="me-1" aria-hidden="true"></i>ชั้น</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_class']); ?>" readonly>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label"><i data-lucide="user-cog" class="me-1" aria-hidden="true"></i>บันทึกโดย</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars($editing_member['mem_saveby']); ?>" readonly>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label"><i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>วันที่บันทึก</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars(thai_date_format($editing_member['mem_savedate'])); ?>" readonly>
+          </div>
+          <div class="col-12 col-md-4">
+            <label for="mem_personcode" class="form-label">
+              <i data-lucide="barcode" class="me-1" aria-hidden="true"></i>รหัสบุคคล <span class="text-danger">*</span>
+            </label>
+            <input type="text"
+                   id="mem_personcode"
+                   name="mem_personcode"
+                   class="form-control person-code-input"
+                   value="<?php echo htmlspecialchars($editing_member['mem_personcode']); ?>"
+                   maxlength="4"
+                   pattern="[0-9]{4}"
+                   required
+                   placeholder="1234">
+            <div class="form-text">ต้องเป็นตัวเลข 4 ตัวเท่านั้น</div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end mt-4">
+          <a href="add_person_code.php" class="btn btn-outline-secondary">
+            <i data-lucide="x" class="me-1" aria-hidden="true"></i>ยกเลิก
+          </a>
+          <button type="submit" class="btn btn-success">
+            <i data-lucide="save" class="me-1" aria-hidden="true"></i>บันทึกรหัสบุคคล
+          </button>
+        </div>
+      </form>
+    </section>
+  <?php else: ?>
+    <section class="person-panel p-3 p-md-4 mb-4">
+      <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between align-items-lg-center mb-3">
+        <div>
+          <h2 class="h5 fw-bold mb-1 text-success-emphasis">
+            <i data-lucide="search" class="me-1" aria-hidden="true"></i>ค้นหาสมาชิก
+          </h2>
+          <div class="text-success">พิมพ์ชื่อสมาชิก เลขที่ หรือกลุ่ม แล้วรอผลลัพธ์</div>
+        </div>
+        <a href="add_person_code.php" class="btn btn-outline-success">
+          <i data-lucide="refresh-cw" class="me-1" aria-hidden="true"></i>ล้าง
+        </a>
+      </div>
+
+      <form method="get" class="row g-2 position-relative align-items-end" id="search-form">
+        <div class="col-12 col-lg">
+          <label for="search-input" class="form-label">
+            <i data-lucide="search" class="me-1" aria-hidden="true"></i>คำค้นหา
+          </label>
+          <input type="text"
+                 name="q"
+                 id="search-input"
+                 class="form-control"
+                 placeholder="ค้นหาชื่อสมาชิก (พิมพ์และรอผลลัพธ์)"
+                 value="<?php echo htmlspecialchars($q); ?>"
+                 autocomplete="off">
+        </div>
+        <div class="col-12 col-lg-auto d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-grow-1 flex-lg-grow-0">
+            <i data-lucide="search" class="me-1" aria-hidden="true"></i>ค้นหา
+          </button>
+          <a href="add_person_code.php" class="btn btn-outline-secondary flex-grow-1 flex-lg-grow-0">
+            <i data-lucide="x" class="me-1" aria-hidden="true"></i>ล้าง
+          </a>
+        </div>
+      </form>
+    </section>
+
+    <?php if (!empty($members)): ?>
+      <section class="person-table p-0 overflow-hidden">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 px-3 px-md-4 py-3 border-bottom">
+          <div class="fw-semibold text-success-emphasis">
+            <i data-lucide="list" class="me-1" aria-hidden="true"></i>รายการสมาชิก
+          </div>
+          <div class="text-success">
+            <?php if ($q !== '' && mb_strlen($q) >= 2): ?>
+              พบ <?php echo count($members); ?> รายการ
+            <?php else: ?>
+              แสดงทั้งหมด <?php echo count($members); ?> รายการ
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th><i data-lucide="hash" class="me-1" aria-hidden="true"></i>เลขสมาชิก</th>
+                <th><i data-lucide="folder" class="me-1" aria-hidden="true"></i>กลุ่ม</th>
+                <th><i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อ-สกุล</th>
+                <th><i data-lucide="badge-check" class="me-1" aria-hidden="true"></i>ชั้น</th>
+                <th><i data-lucide="barcode" class="me-1" aria-hidden="true"></i>รหัสบุคคล</th>
+                <th><i data-lucide="settings-2" class="me-1" aria-hidden="true"></i>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($members as $member): ?>
+                <tr>
+                  <td class="fw-semibold"><?php echo htmlspecialchars($member['mem_number']); ?></td>
+                  <td><?php echo htmlspecialchars($member['mem_group']); ?></td>
+                  <td><?php echo htmlspecialchars($member['mem_fullname']); ?></td>
+                  <td>
+                    <span class="badge <?php echo $member['mem_class'] == 'member' ? 'bg-success' : 'bg-warning text-dark'; ?>">
+                      <?php echo $member['mem_class'] == 'member' ? 'สมาชิก' : 'เกษตรกร'; ?>
+                    </span>
+                  </td>
+                  <td>
+                    <?php if (!empty($member['mem_personcode'])): ?>
+                      <span class="badge bg-success"><?php echo htmlspecialchars($member['mem_personcode']); ?></span>
+                    <?php else: ?>
+                      <span class="badge bg-secondary">ยังไม่มี</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="text-nowrap">
+                    <a href="add_person_code.php?edit_id=<?php echo (int)$member['mem_id']; ?>" class="btn btn-sm btn-outline-primary">
+                      <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไขรหัส
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    <?php elseif ($q !== '' && mb_strlen($q) >= 2): ?>
+      <div class="alert alert-info border-0 shadow-sm">
+        <i data-lucide="info" class="me-1" aria-hidden="true"></i>ไม่พบสมาชิกที่ค้นหา: "<?php echo htmlspecialchars($q); ?>"
+      </div>
     <?php else: ?>
-        <!-- Search Form -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <form method="get" class="row g-2 position-relative" id="search-form">
-                    <div class="col-auto" style="flex:1;">
-                        <input type="text" 
-                               name="q" 
-                               id="search-input"
-                               class="form-control" 
-                               placeholder="ค้นหาชื่อสมาชิก (พิมพ์และรอผลลัพธ์)" 
-                               value="<?php echo htmlspecialchars($q); ?>"
-                               autocomplete="off">
-                    </div>
-                    <div class="col-auto">
-                        <a href="add_person_code.php" class="btn btn-secondary">ล้าง</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <?php if (!empty($members)): ?>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>เลขสมาชิก</th>
-                            <th>กลุ่ม</th>
-                       
-                            <th>ชื่อ-สกุล</th>
-                            <th>ชั้น</th>
-                            <th>รหัสบุคคล</th>
-                          
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($members as $member): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($member['mem_number']); ?></td>
-                                <td><?php echo htmlspecialchars($member['mem_group']); ?></td>
-                               
-                                <td><?php echo htmlspecialchars($member['mem_fullname']); ?></td>
-
-                                <td>
-                                  <!-- ถ้า mem_class == member ให้แสดงข้อความว่า สมาชิก ถ้าไม่ใช่ให้แสดงว่า เกษตรกร -->
-                                  <?php echo $member['mem_class'] == 'member' ? 'สมาชิก' : 'เกษตรกร'; ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($member['mem_personcode'])): ?>
-                                        <span class="badge bg-success"><?php echo htmlspecialchars($member['mem_personcode']); ?></span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary">ยังไม่มี</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a href="add_person_code.php?edit_id=<?php echo (int)$member['mem_id']; ?>" 
-                                       class="btn btn-sm btn-primary">
-                                        <i  data-lucide="edit-2" aria-hidden="true"></i> แก้ไขรหัส
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="row mt-3">
-                <div class="col-12 text-center">
-                    <small class="text-muted">
-                        <?php if ($q !== '' && mb_strlen($q) >= 2): ?>
-                            พบ <?php echo count($members); ?> รายการ (จากการค้นหา: "<?php echo htmlspecialchars($q); ?>")
-                        <?php else: ?>
-                            แสดงทั้งหมด <?php echo count($members); ?> รายการ
-                        <?php endif; ?>
-                    </small>
-                </div>
-            </div>
-        <?php elseif ($q !== '' && mb_strlen($q) >= 2): ?>
-            <div class="alert alert-info">
-                <i  data-lucide="info" aria-hidden="true"></i> ไม่พบสมาชิกที่ค้นหา: "<?php echo htmlspecialchars($q); ?>"
-            </div>
-        <?php else: ?>
-            <div class="alert alert-info">
-                <i  data-lucide="info" aria-hidden="true"></i> ไม่พบข้อมูลสมาชิกในระบบ
-            </div>
-        <?php endif; ?>
+      <div class="alert alert-info border-0 shadow-sm">
+        <i data-lucide="info" class="me-1" aria-hidden="true"></i>ไม่พบข้อมูลสมาชิกในระบบ
+      </div>
     <?php endif; ?>
+  <?php endif; ?>
 </div>
 
 <script>
