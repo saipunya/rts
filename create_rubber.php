@@ -880,9 +880,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     console.warn('dataSdk not available — using local state only');
   }
 
-  // Fallback helpers when dataSdk is not present
   async function createRecord(payload) {
-    // Try server-side save first
     try {
       const res = await fetch('save_wang.php', {
         method: 'POST',
@@ -891,52 +889,55 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         },
         body: JSON.stringify(payload)
       });
-      if (res.ok) {
-        const j = await res.json();
-        if (j && j.isOk) {
-          const id = 'db-' + j.id;
-          const rec = Object.assign({
-            __backendId: id
-          }, payload);
-          records.push(rec);
-          dataHandler.onDataChanged(records);
-          return {
-            isOk: true,
-            data: rec
-          };
-        }
+      const j = await res.json().catch(() => null);
+      if (res.ok && j && j.isOk) {
+        const id = 'db-' + j.id;
+        const rec = Object.assign({
+          __backendId: id
+        }, payload);
+        records.push(rec);
+        dataHandler.onDataChanged(records);
+        return {
+          isOk: true,
+          data: rec
+        };
       }
+      throw new Error((j && j.message) ? j.message : 'Save failed');
     } catch (e) {
-      // ignore and fallback
+      if (window.dataSdk && typeof window.dataSdk.create === 'function') {
+        return await window.dataSdk.create(payload);
+      }
+      throw e;
     }
-
-    // Fallback to dataSdk if available
-    if (window.dataSdk && typeof window.dataSdk.create === 'function') {
-      return await window.dataSdk.create(payload);
-    }
-
-    // Local fallback
-    const id = 'local-' + Date.now() + Math.floor(Math.random() * 1000);
-    const rec = Object.assign({
-      __backendId: id
-    }, payload);
-    records.push(rec);
-    dataHandler.onDataChanged(records);
-    return {
-      isOk: true,
-      data: rec
-    };
   }
 
   async function deleteRecord(target) {
-    if (window.dataSdk && typeof window.dataSdk.delete === 'function') {
-      return await window.dataSdk.delete(target);
+    try {
+      const backendId = String(target.__backendId || '');
+      const res = await fetch('delete_wang.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8'
+        },
+        body: JSON.stringify({
+          backend_id: backendId
+        })
+      });
+      const j = await res.json().catch(() => null);
+      if (res.ok && j && j.isOk) {
+        records = records.filter(r => r.__backendId !== target.__backendId);
+        dataHandler.onDataChanged(records);
+        return {
+          isOk: true
+        };
+      }
+      throw new Error((j && j.message) ? j.message : 'Delete failed');
+    } catch (e) {
+      if (window.dataSdk && typeof window.dataSdk.delete === 'function') {
+        return await window.dataSdk.delete(target);
+      }
+      throw e;
     }
-    records = records.filter(r => r.__backendId !== target.__backendId);
-    dataHandler.onDataChanged(records);
-    return {
-      isOk: true
-    };
   }
 
   function updateStats() {
@@ -1091,24 +1092,31 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     const selectedMemberId = parseInt(document.getElementById('f-name').value) || null;
     const selectedMemberName = farmerSelect.options[farmerSelect.selectedIndex] ? farmerSelect.options[farmerSelect
       .selectedIndex].text : '';
-    const result = await createRecord({
-      member_id: selectedMemberId,
-      farmer_name: selectedMemberName,
-      group_name: group ? group.name : '',
-      lane: document.getElementById('f-lane').value,
-      bags: parseInt(document.getElementById('f-bags').value),
-      weight: 0,
-      date: getTodayDateString()
-    });
-    btn.disabled = false;
-    btn.textContent = 'บันทึก';
-    if (result.isOk) {
-      e.target.reset();
-      groupSelect.value = '';
-      farmerSelect.value = '';
-      farmerSelect.disabled = true;
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+    try {
+      const result = await createRecord({
+        member_id: selectedMemberId,
+        farmer_name: selectedMemberName,
+        group_name: group ? group.name : '',
+        lane: document.getElementById('f-lane').value,
+        bags: parseInt(document.getElementById('f-bags').value),
+        weight: 0,
+        date: getTodayDateString()
+      });
+      if (result.isOk) {
+        e.target.reset();
+        groupSelect.value = '';
+        farmerSelect.value = '';
+        farmerSelect.disabled = true;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      } else {
+        throw new Error('Save failed');
+      }
+    } catch (err) {
+      alert((err && err.message) ? err.message : 'บันทึกไม่สำเร็จ');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'บันทึก';
     }
   };
 
