@@ -83,7 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $rows = [];
-$totals = [
+$summaryRows = [];
+$summaryTotals = [
     'member_count' => 0,
     'total_bags' => 0.0,
     'estimated_weight' => 0.0,
@@ -100,12 +101,12 @@ $sql = "
         END) AS member_count,
         COALESCE(SUM(w.wang_sack), 0) AS total_bags,
         s.ws_weight_per_bag,
-        s.ws_estimated_weight,
+        ROUND(COALESCE(SUM(w.wang_sack), 0) * COALESCE(s.ws_weight_per_bag, 0), 2) AS ws_estimated_weight,
         s.ws_saveby,
         s.ws_savedate
     FROM tbl_wangyang w
     LEFT JOIN tbl_wangyang_daily_summary s ON s.ws_date = w.wang_date
-    GROUP BY w.wang_date, s.ws_weight_per_bag, s.ws_estimated_weight, s.ws_saveby, s.ws_savedate
+    GROUP BY w.wang_date, s.ws_weight_per_bag, s.ws_saveby, s.ws_savedate
     ORDER BY w.wang_date DESC
     LIMIT 120
 ";
@@ -118,12 +119,16 @@ if ($result = $db->query($sql)) {
         $row['ws_weight_per_bag'] = $row['ws_weight_per_bag'] !== null ? (float)$row['ws_weight_per_bag'] : 0.0;
         $row['ws_estimated_weight'] = $row['ws_estimated_weight'] !== null ? (float)$row['ws_estimated_weight'] : 0.0;
         $rows[] = $row;
-        $totals['member_count'] += $row['member_count'];
-        $totals['entry_count'] += $row['entry_count'];
-        $totals['total_bags'] += $row['total_bags'];
-        $totals['estimated_weight'] += $row['ws_estimated_weight'];
     }
     $result->free();
+}
+
+$summaryRows = array_slice($rows, 0, 2);
+foreach ($summaryRows as $row) {
+    $summaryTotals['member_count'] += $row['member_count'];
+    $summaryTotals['entry_count'] += $row['entry_count'];
+    $summaryTotals['total_bags'] += $row['total_bags'];
+    $summaryTotals['estimated_weight'] += $row['ws_estimated_weight'];
 }
 ?>
 <!doctype html>
@@ -466,6 +471,11 @@ if ($result = $db->query($sql)) {
     min-height: 42px;
   }
 
+  .summary-clear-btn {
+    border-radius: 999px;
+    min-height: 42px;
+  }
+
   .summary-save-btn:hover,
   .summary-save-btn:focus {
     color: #fff;
@@ -592,7 +602,7 @@ if ($result = $db->query($sql)) {
         </div>
         <span
           class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2 align-self-start align-self-md-center">
-          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>ล่าสุด 120 วัน
+          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>สรุป 2 วันล่าสุด
         </span>
       </div>
     </section>
@@ -618,7 +628,7 @@ if ($result = $db->query($sql)) {
                 aria-hidden="true"></i></span>
             <div>
               <div class="metric-label">จำนวนวันที่มีข้อมูล</div>
-              <div class="metric-value"><?php echo number_format(count($rows)); ?></div>
+              <div class="metric-value"><?php echo number_format(count($summaryRows)); ?></div>
             </div>
           </div>
         </div>
@@ -629,7 +639,7 @@ if ($result = $db->query($sql)) {
             <span class="stat-icon bg-primary-subtle text-primary"><i data-lucide="users" aria-hidden="true"></i></span>
             <div>
               <div class="metric-label">สมาชิกเข้าร่วมรวม</div>
-              <div class="metric-value"><?php echo number_format($totals['member_count']); ?></div>
+              <div class="metric-value"><?php echo number_format($summaryTotals['member_count']); ?></div>
             </div>
           </div>
         </div>
@@ -640,7 +650,7 @@ if ($result = $db->query($sql)) {
             <span class="stat-icon bg-info-subtle text-info"><i data-lucide="package" aria-hidden="true"></i></span>
             <div>
               <div class="metric-label">กระสอบรวม</div>
-              <div class="metric-value"><?php echo number_format($totals['total_bags']); ?></div>
+              <div class="metric-value"><?php echo number_format($summaryTotals['total_bags']); ?></div>
             </div>
           </div>
         </div>
@@ -651,7 +661,7 @@ if ($result = $db->query($sql)) {
             <span class="stat-icon bg-warning-subtle text-warning"><i data-lucide="scale" aria-hidden="true"></i></span>
             <div>
               <div class="metric-label">น้ำหนักประมาณรวม</div>
-              <div class="metric-value"><?php echo number_format($totals['estimated_weight'], 2); ?></div>
+              <div class="metric-value"><?php echo number_format($summaryTotals['estimated_weight'], 2); ?></div>
             </div>
           </div>
         </div>
@@ -716,11 +726,23 @@ if ($result = $db->query($sql)) {
                 <td data-label="น้ำหนักคำนวณ" class="text-end fw-semibold text-success-emphasis">
                   <?php echo number_format($row['ws_estimated_weight'], 2); ?> กก.
                 </td>
-                <td data-label="จัดการ" class="text-center">
-                  <button form="<?php echo e($formId); ?>" type="submit" class="btn btn-sm btn-success">
-                    บันทึก
-                  </button>
-                </td>
+                  <td data-label="จัดการ" class="text-center">
+                    <div class="d-inline-flex flex-column flex-sm-row gap-2">
+                      <button form="<?php echo e($formId); ?>" type="submit"
+                        class="btn btn-success btn-sm summary-save-btn d-inline-flex align-items-center gap-1 px-3 shadow-sm">
+                        <i data-lucide="save" aria-hidden="true"></i>
+                        <span>บันทึก</span>
+                      </button>
+                      <button type="button"
+                        class="btn btn-outline-danger btn-sm summary-clear-btn d-inline-flex align-items-center gap-1 px-3"
+                        data-summary-date="<?php echo e($row['summary_date']); ?>"
+                        data-summary-label="<?php echo e(format_thai_date_short($row['summary_date'])); ?>"
+                        onclick="clearSummary(this)">
+                        <i data-lucide="trash-2" aria-hidden="true"></i>
+                        <span>ลบ</span>
+                      </button>
+                    </div>
+                  </td>
               </tr>
               <?php endforeach; ?>
             </tbody>
@@ -736,6 +758,38 @@ if ($result = $db->query($sql)) {
   <script>
   if (window.lucide && lucide.createIcons) {
     lucide.createIcons();
+  }
+
+  async function clearSummary(btn) {
+    const summaryDate = btn.getAttribute('data-summary-date');
+    const summaryLabel = btn.getAttribute('data-summary-label') || summaryDate;
+    if (!summaryDate) return;
+    if (!confirm('ล้างน้ำหนักประมาณต่อถุงของวันที่ ' + summaryLabel + ' ใช่หรือไม่?')) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>กำลังลบ';
+
+    try {
+      const res = await fetch('reset_wang_summary.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8'
+        },
+        body: JSON.stringify({
+          summary_date: summaryDate
+        })
+      });
+      const j = await res.json().catch(() => null);
+      if (!res.ok || !j || !j.isOk) {
+        throw new Error((j && j.message) ? j.message : 'Reset failed');
+      }
+      window.location.reload();
+    } catch (err) {
+      alert((err && err.message) ? err.message : 'ลบไม่สำเร็จ');
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
   }
   </script>
 </body>

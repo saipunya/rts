@@ -2,23 +2,67 @@
 require_once 'functions.php';
 require_login();
 
-// load counts and weights per lane
+// load latest-day counts and bags per lane
 $db = db();
 $lane_data = [];
 for ($i = 1; $i <= 4; $i++) {
-    $stm = $db->prepare('SELECT COUNT(*) AS c, COALESCE(SUM(wang_weight),0) AS w FROM tbl_wangyang WHERE wang_lan = ?');
     $lan = (string)$i;
+    $latestDate = null;
+    $stm = $db->prepare('SELECT MAX(wang_date) AS latest_date FROM tbl_wangyang WHERE wang_lan = ?');
     if ($stm) {
         $stm->bind_param('s', $lan);
         $stm->execute();
         $row = $stm->get_result()->fetch_assoc();
-        $lane_data[$lan] = ['count' => (int)$row['c'], 'weight' => (float)$row['w']];
+        $latestDate = $row['latest_date'] ?? null;
         $stm->close();
+    }
+
+    if ($latestDate) {
+        $stm = $db->prepare('SELECT COUNT(*) AS c, COALESCE(SUM(wang_sack),0) AS sacks FROM tbl_wangyang WHERE wang_lan = ? AND wang_date = ?');
+        if ($stm) {
+            $stm->bind_param('ss', $lan, $latestDate);
+            $stm->execute();
+            $row = $stm->get_result()->fetch_assoc();
+            $lane_data[$lan] = [
+                'count' => (int)($row['c'] ?? 0),
+                'sacks' => (float)($row['sacks'] ?? 0),
+                'latest_date' => $latestDate,
+            ];
+            $stm->close();
+        } else {
+            $lane_data[$lan] = ['count' => 0, 'sacks' => 0, 'latest_date' => $latestDate];
+        }
     } else {
-        $lane_data[$lan] = ['count' => 0, 'weight' => 0];
+        $lane_data[$lan] = ['count' => 0, 'sacks' => 0, 'latest_date' => null];
     }
 }
 $cu = current_user();
+
+function format_thai_date_short(string $date): string {
+    $ts = strtotime($date);
+    if (!$ts) {
+        return $date;
+    }
+    $months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    return (int)date('j', $ts) . ' ' . $months[(int)date('n', $ts) - 1] . ' ' . ((int)date('Y', $ts) + 543);
+}
+
+$todayDate = date('Y-m-d');
+$todaySummary = [
+    'entries' => 0,
+    'sacks' => 0.0,
+    'lanes' => 0,
+];
+$stm = $db->prepare('SELECT COUNT(*) AS entries, COALESCE(SUM(wang_sack), 0) AS sacks, COUNT(DISTINCT wang_lan) AS lanes FROM tbl_wangyang WHERE wang_date = ?');
+if ($stm) {
+    $stm->bind_param('s', $todayDate);
+    $stm->execute();
+    $row = $stm->get_result()->fetch_assoc();
+    $todaySummary['entries'] = (int)($row['entries'] ?? 0);
+    $todaySummary['sacks'] = (float)($row['sacks'] ?? 0);
+    $todaySummary['lanes'] = (int)($row['lanes'] ?? 0);
+    $stm->close();
+}
 
 $lane_colors = [
     '1' => ['bg' => '#dcfce7', 'border' => '#16a34a', 'badge' => '#16a34a', 'icon_bg' => '#bbf7d0', 'text' => '#14532d'],
@@ -78,7 +122,7 @@ $lane_colors = [
     gap: 1rem;
   }
 
-  .app-header .main-shell > .d-flex,
+  .app-header .main-shell>.d-flex,
   .header-actions {
     display: flex;
     align-items: center;
@@ -127,7 +171,7 @@ $lane_colors = [
     margin-bottom: 1.35rem;
   }
 
-  .hero-card > .d-flex {
+  .hero-card>.d-flex {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -263,13 +307,223 @@ $lane_colors = [
     background: #f0fdf4;
   }
 
+  .today-summary-card {
+    margin-top: 1.5rem;
+    padding: 1.15rem;
+    border: 1px solid #86efac;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, .9), rgba(240, 253, 244, .95));
+    box-shadow: 0 14px 34px rgba(20, 83, 45, .07);
+  }
+
+  .today-summary-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .today-summary-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f3d23;
+  }
+
+  .today-summary-subtitle {
+    font-size: .88rem;
+    color: #2f6e43;
+  }
+
+  .today-summary-grid {
+    display: grid;
+    grid-template-columns: 1.4fr .8fr .8fr;
+    gap: .85rem;
+  }
+
+  .today-summary-main,
+  .today-summary-mini {
+    border-radius: 1rem;
+    border: 1px solid #d1fae5;
+    background: #fff;
+    padding: 1rem;
+  }
+
+  .today-summary-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 8.75rem;
+  }
+
+  .today-summary-kicker {
+    font-size: .8rem;
+    font-weight: 700;
+    color: #166534;
+    margin-bottom: .25rem;
+  }
+
+  .today-summary-value {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    font-weight: 700;
+    color: #0f3d23;
+  }
+
+  .today-summary-unit {
+    font-size: 1rem;
+    color: #166534;
+    margin-left: .35rem;
+  }
+
+  .today-summary-mini {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .35rem;
+    min-height: 8.75rem;
+  }
+
+  .today-summary-mini-label {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #14532d;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+
+  .today-summary-mini-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0f3d23;
+  }
+
+  .today-summary-mini-note {
+    font-size: .82rem;
+    color: #64748b;
+  }
+
+  .lane-summary-section {
+    margin-top: 1.5rem;
+    padding: 1.1rem;
+    border: 1px solid #bbf7d0;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, .72);
+    box-shadow: 0 14px 34px rgba(20, 83, 45, .06);
+  }
+
+  .lane-summary-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .lane-summary-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f3d23;
+  }
+
+  .lane-summary-subtitle {
+    font-size: .88rem;
+    color: #2f6e43;
+  }
+
+  .lane-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .9rem;
+  }
+
+  .lane-summary-card {
+    min-height: 10.5rem;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 1.15rem;
+    padding: 1rem;
+    background: #fff;
+    transition: transform .16s ease, box-shadow .16s ease;
+    text-decoration: none;
+  }
+
+  .lane-summary-card:hover,
+  .lane-summary-card:focus {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(15, 23, 42, .12);
+  }
+
+  .lane-summary-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: .85rem;
+  }
+
+  .lane-summary-num {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: .85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .lane-summary-lane {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .lane-summary-date {
+    font-size: .78rem;
+    color: #64748b;
+  }
+
+  .lane-summary-metric {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+    margin-bottom: .85rem;
+  }
+
+  .lane-summary-chip {
+    padding: .55rem .65rem;
+    border-radius: .85rem;
+    background: #f8fdf8;
+    border: 1px solid #e3f4e7;
+  }
+
+  .lane-summary-chip-label {
+    font-size: .7rem;
+    color: #14532d;
+    margin-bottom: .15rem;
+  }
+
+  .lane-summary-chip-value {
+    font-size: .98rem;
+    font-weight: 700;
+    color: #0f3d23;
+  }
+
+  .lane-summary-action {
+    margin-top: auto;
+    text-align: center;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #166534;
+  }
+
   @media (max-width: 575.98px) {
     .app-header .main-shell {
       flex-direction: column;
       align-items: stretch;
     }
 
-    .app-header .main-shell > .d-flex {
+    .app-header .main-shell>.d-flex {
       justify-content: flex-start;
     }
 
@@ -292,7 +546,7 @@ $lane_colors = [
       border-radius: 1rem;
     }
 
-    .hero-card > .d-flex {
+    .hero-card>.d-flex {
       flex-direction: column;
       align-items: flex-start;
     }
@@ -312,11 +566,37 @@ $lane_colors = [
       height: 3rem;
       font-size: 1.4rem;
     }
+
+    .lane-summary-section {
+      padding: .9rem;
+      border-radius: 1rem;
+    }
+
+    .lane-summary-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .lane-summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .today-summary-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (min-width: 576px) and (max-width: 991.98px) {
     section.row {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lane-summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .today-summary-grid {
+      grid-template-columns: 1fr 1fr;
     }
   }
   </style>
@@ -324,7 +604,8 @@ $lane_colors = [
 
 <body>
   <header class="app-header py-3">
-    <div class="container main-shell d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+    <div
+      class="container main-shell d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
       <div class="d-flex align-items-center gap-3">
         <span class="brand-mark">
           <i data-lucide="package-check" aria-hidden="true"></i>
@@ -352,50 +633,97 @@ $lane_colors = [
   </header>
 
   <main class="container main-shell py-4 py-md-5">
-    <section class="hero-card p-3 p-sm-4 mb-4">
-      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+
+    <section class="today-summary-card">
+      <div class="today-summary-head">
         <div>
-          <h1 class="h3 fw-bold mb-2">เลือกลาน</h1>
-          <p class="mb-0 text-success-emphasis">
-            สวัสดี <?php echo e($cu['user_fullname'] ?? $cu['user_username'] ?? ''); ?> กดเลือกลานที่ต้องการบันทึกข้อมูลวางยางพารา
-          </p>
+          <div class="today-summary-title">สรุปยอดวันนี้ของทั้ง 4 ลาน</div>
+          <div class="today-summary-subtitle">
+            วันที่ <?php echo e(format_thai_date_short($todayDate)); ?> รวมยอดจากรายการที่บันทึกเข้ามาวันนี้ทั้งหมด
+          </div>
         </div>
-        <span class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2 align-self-start align-self-md-center">
-          <i data-lucide="map" class="me-1" aria-hidden="true"></i> 4 ลานรับยาง
+        <span
+          class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2">
+          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i> วันนี้
         </span>
       </div>
-    </section>
 
-    <section class="row g-3 g-md-4 mb-4" aria-label="เลือกลานรับยาง">
-      <?php foreach ($lane_data as $lan => $data):
-          $c = $lane_colors[$lan];
-      ?>
-      <div class="col-6 col-lg-3">
-        <a href="create_rubber.php?lane=<?php echo e($lan); ?>"
-          class="lane-card card h-100 text-center justify-content-center align-items-center p-3 p-sm-4"
-          style="background:<?php echo e($c['bg']); ?>; border-color:<?php echo e($c['border']); ?>; color:<?php echo e($c['text']); ?>;">
-          <span class="lane-badge mb-2" style="background:<?php echo e($c['icon_bg']); ?>; color:<?php echo e($c['badge']); ?>;">
-            <?php echo e($lan); ?>
-          </span>
-          <span class="lane-label d-block mb-2">ลาน <?php echo e($lan); ?></span>
-          <span class="lane-stat d-block">
-            <?php echo number_format($data['count']); ?> รายการ<br>
-            <?php echo number_format($data['weight'], 2); ?> กก.
-          </span>
-        </a>
+      <div class="today-summary-grid">
+        <div class="today-summary-main">
+          <div class="today-summary-kicker">กระสอบรวมวันนี้</div>
+          <div class="today-summary-value">
+            <?php echo number_format($todaySummary['sacks'], 0); ?><span class="today-summary-unit">กระสอบ</span>
+          </div>
+          <div class="today-summary-mini-note mt-2">ข้อมูลรวมจากทั้ง 4 ลานในวันเดียวกัน</div>
+        </div>
+        <div class="today-summary-mini">
+          <div class="today-summary-mini-label">รายการวันนี้</div>
+          <div class="today-summary-mini-value"><?php echo number_format($todaySummary['entries']); ?></div>
+          <div class="today-summary-mini-note">จำนวนรายการทั้งหมดที่บันทึกในวันนี้</div>
+        </div>
+        <div class="today-summary-mini">
+          <div class="today-summary-mini-label">ลานที่มีข้อมูล</div>
+          <div class="today-summary-mini-value"><?php echo number_format($todaySummary['lanes']); ?></div>
+          <div class="today-summary-mini-note">จากลานที่มีการวางยางในวันนี้</div>
+        </div>
       </div>
-      <?php endforeach; ?>
     </section>
 
-    <a href="create_rubber.php" class="overview-btn btn btn-lg w-100 d-inline-flex align-items-center justify-content-center gap-2">
-      <i data-lucide="list" aria-hidden="true"></i>
-      <span>ดูภาพรวมทุกลาน</span>
-    </a>
+    <section class="lane-summary-section">
+      <div class="lane-summary-head">
+        <div>
+          <div class="lane-summary-title">สรุปผลการวางยางทั้ง 4 ลาน</div>
+          <div class="lane-summary-subtitle">แสดงข้อมูลวันล่าสุดของแต่ละลานเพื่อดูภาพรวมได้เร็วขึ้น</div>
+        </div>
+        <span
+          class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2">
+          <i data-lucide="bar-chart-3" class="me-1" aria-hidden="true"></i> สรุป 4 ลาน
+        </span>
+      </div>
+
+      <div class="lane-summary-grid">
+        <?php foreach ($lane_data as $lan => $data):
+            $c = $lane_colors[$lan];
+        ?>
+        <a href="create_rubber.php?lane=<?php echo e($lan); ?>" class="lane-summary-card d-flex flex-column"
+          style="background:<?php echo e($c['bg']); ?>; border-color:<?php echo e($c['border']); ?>; color:<?php echo e($c['text']); ?>;">
+          <div class="lane-summary-top">
+            <div class="d-flex align-items-center gap-2">
+              <span class="lane-summary-num"
+                style="background:<?php echo e($c['icon_bg']); ?>; color:<?php echo e($c['badge']); ?>;">
+                <?php echo e($lan); ?>
+              </span>
+              <div>
+                <div class="lane-summary-lane">ลาน <?php echo e($lan); ?></div>
+                <div class="lane-summary-date">
+                  <?php echo !empty($data['latest_date']) ? e(format_thai_date_short($data['latest_date'])) : 'ยังไม่มีข้อมูล'; ?>
+                </div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" aria-hidden="true"></i>
+          </div>
+
+          <div class="lane-summary-metric">
+            <div class="lane-summary-chip">
+              <div class="lane-summary-chip-label">รายการ</div>
+              <div class="lane-summary-chip-value"><?php echo number_format($data['count']); ?></div>
+            </div>
+            <div class="lane-summary-chip">
+              <div class="lane-summary-chip-label">กระสอบ</div>
+              <div class="lane-summary-chip-value"><?php echo number_format($data['sacks']); ?></div>
+            </div>
+          </div>
+
+          <div class="lane-summary-action">กดเพื่อเปิดลานนี้</div>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+  </script>
   <script>
   if (window.lucide && lucide.createIcons) {
     lucide.createIcons();
