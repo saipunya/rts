@@ -279,7 +279,7 @@ $lane_colors = [
 
     .header-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       width: 100%;
     }
 
@@ -338,6 +338,10 @@ $lane_colors = [
         <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
           <i data-lucide="layout-dashboard" aria-hidden="true"></i>
           <span>Dashboard</span>
+        </a>
+        <a href="wang_summary.php" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center gap-1">
+          <i data-lucide="clipboard-list" aria-hidden="true"></i>
+          <span>สรุป</span>
         </a>
         <a href="logout.php" class="btn btn-outline-danger rounded-pill d-inline-flex align-items-center gap-1">
           <i data-lucide="log-out" aria-hidden="true"></i>

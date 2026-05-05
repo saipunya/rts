@@ -32,7 +32,7 @@ $groups_js = ['groups' => $groups];
 $initial_records = [];
 $selected_lane = isset($_GET['lane']) ? trim((string)$_GET['lane']) : '';
 if ($selected_lane !== '') {
-  $wstm = $db->prepare("SELECT wang_id, wang_date, wang_mid, wang_group, wang_name, wang_sack, wang_weight, wang_lan, wang_status FROM tbl_wangyang WHERE wang_lan = ? ORDER BY wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT wang_id, wang_date, wang_mid, wang_group, wang_name, wang_sack, wang_lan, wang_status FROM tbl_wangyang WHERE wang_lan = ? ORDER BY wang_savedate DESC LIMIT 500");
   if ($wstm) {
     $wstm->bind_param('s', $selected_lane);
     $wstm->execute();
@@ -45,7 +45,6 @@ if ($selected_lane !== '') {
         'group_name' => $wr['wang_group'],
         'lane' => $wr['wang_lan'],
         'bags' => (int)$wr['wang_sack'],
-        'weight' => (float)$wr['wang_weight'],
         'date' => $wr['wang_date'],
         'status' => $wr['wang_status'] ?? ''
       ];
@@ -53,7 +52,7 @@ if ($selected_lane !== '') {
     $wstm->close();
   }
 } else {
-  $wstm = $db->prepare("SELECT wang_id, wang_date, wang_mid, wang_group, wang_name, wang_sack, wang_weight, wang_lan, wang_status FROM tbl_wangyang ORDER BY wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT wang_id, wang_date, wang_mid, wang_group, wang_name, wang_sack, wang_lan, wang_status FROM tbl_wangyang ORDER BY wang_savedate DESC LIMIT 500");
   if ($wstm) {
     $wstm->execute();
     $wres = $wstm->get_result();
@@ -65,7 +64,6 @@ if ($selected_lane !== '') {
         'group_name' => $wr['wang_group'],
         'lane' => $wr['wang_lan'],
         'bags' => (int)$wr['wang_sack'],
-        'weight' => (float)$wr['wang_weight'],
         'date' => $wr['wang_date'],
         'status' => $wr['wang_status'] ?? ''
       ];
@@ -587,6 +585,9 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
             <a href="wang_main.php" class="btn btn-outline-success rounded-pill">
               <i data-lucide="arrow-left" class="me-1" aria-hidden="true"></i>กลับ
             </a>
+            <a href="wang_summary.php" class="btn btn-outline-success rounded-pill">
+              <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>สรุป
+            </a>
             <button id="btn-add" type="button" class="btn btn-success rounded-pill">
               <i data-lucide="plus" class="me-1" aria-hidden="true"></i>รายการ
             </button>
@@ -626,11 +627,11 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           <div class="surface-card p-3 h-100">
             <div class="d-flex align-items-center gap-3">
               <span class="stat-icon bg-info-subtle text-info">
-                <i data-lucide="scale" aria-hidden="true"></i>
+                <i data-lucide="package" aria-hidden="true"></i>
               </span>
               <div>
-                <div class="small text-info-emphasis">น้ำหนักรวม (กก.)</div>
-                <div id="stat-weight" class="h4 fw-bold mb-0 text-success-emphasis">0</div>
+                <div class="small text-info-emphasis">กระสอบรวม</div>
+                <div id="stat-bags" class="h4 fw-bold mb-0 text-success-emphasis">0</div>
               </div>
             </div>
           </div>
@@ -668,7 +669,6 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
                 <th>กลุ่ม</th>
                 <th>ลาน</th>
                 <th>กระสอบ</th>
-                <th>น้ำหนัก (กก.)</th>
                 <th>วันที่</th>
                 <th class="text-center">จัดการ</th>
               </tr>
@@ -719,10 +719,6 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
               <label for="f-bags" class="form-label fw-semibold text-success">จำนวนกระสอบ</label>
               <input id="f-bags" type="number" step="1" min="1" required class="form-control">
             </div>
-          </div>
-          <div class="mt-3">
-            <label for="f-weight" class="form-label fw-semibold text-success">น้ำหนัก (กก.)</label>
-            <input id="f-weight" type="number" step="0.01" min="0" required class="form-control">
           </div>
           <div id="date-display" class="alert alert-success py-2 mt-3 mb-3">
             วันที่: <span id="current-date-display"></span>
@@ -945,10 +941,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 
   function updateStats() {
     document.getElementById('stat-total').textContent = records.length;
+    const totalBags = records.reduce((s, r) => s + (parseInt(r.bags, 10) || 0), 0);
+    document.getElementById('stat-bags').textContent = totalBags;
     const farmers = new Set(records.map(r => r.farmer_name)).size;
     document.getElementById('stat-farmers').textContent = farmers;
-    const totalWeight = records.reduce((s, r) => s + (parseFloat(r.weight) || 0), 0);
-    document.getElementById('stat-weight').textContent = totalWeight.toFixed(2);
   }
 
   function renderTable() {
@@ -966,8 +962,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         row.children[1].textContent = rec.group_name;
         row.children[2].textContent = rec.lane;
         row.children[3].textContent = rec.bags;
-        row.children[4].textContent = (parseFloat(rec.weight) || 0) + ' กก.';
-        row.children[5].textContent = formatThaiDate(rec.date);
+        row.children[4].textContent = formatThaiDate(rec.date);
         existingRows.delete(rec.__backendId);
       } else {
         const row = document.createElement('tr');
@@ -978,7 +973,6 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           <td data-label="กลุ่ม" class="text-success">${esc(rec.group_name)}</td>
           <td data-label="ลาน"><span class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis">ลาน ${esc(rec.lane)}</span></td>
           <td data-label="กระสอบ">${esc(String(rec.bags))} กระสอบ</td>
-          <td data-label="น้ำหนัก">${esc(String(rec.weight || 0))} กก.</td>
           <td data-label="วันที่" class="text-success">${formatThaiDate(rec.date)}</td>
           <td data-label="จัดการ" class="text-center"><button type="button" class="btn btn-sm btn-outline-danger rounded-pill" onclick="confirmDelete('${rec.__backendId}')"><i data-lucide="trash-2" aria-hidden="true"></i></button></td>
         `;
@@ -1103,7 +1097,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       group_name: group ? group.name : '',
       lane: document.getElementById('f-lane').value,
       bags: parseInt(document.getElementById('f-bags').value),
-      weight: parseFloat(document.getElementById('f-weight').value) || 0,
+      weight: 0,
       date: getTodayDateString()
     });
     btn.disabled = false;

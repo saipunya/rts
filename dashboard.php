@@ -765,11 +765,21 @@ body {
 }
 </style>
 <div class="container my-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
     <div>
       <h1 class="h4 mb-0"><i data-lucide="gauge" class="me-2" aria-hidden="true"></i>Dashboard</h1>
       <div class="small text-muted">สวัสดี <?php echo htmlspecialchars($cu['user_fullname'] ?? $cu['user_username']); ?>
         (<?php echo htmlspecialchars($cu['user_level']); ?>)</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="wang_main.php" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
+        <i data-lucide="package-check" aria-hidden="true"></i>
+        <span>วางยาง</span>
+      </a>
+      <a href="wang_summary.php" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
+        <i data-lucide="clipboard-list" aria-hidden="true"></i>
+        <span>สรุปวางยาง</span>
+      </a>
     </div>
   </div>
 
