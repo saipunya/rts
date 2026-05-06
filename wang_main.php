@@ -47,21 +47,32 @@ function format_thai_date_short(string $date): string {
     return (int)date('j', $ts) . ' ' . $months[(int)date('n', $ts) - 1] . ' ' . ((int)date('Y', $ts) + 543);
 }
 
-$todayDate = date('Y-m-d');
-$todaySummary = [
+$overviewSummary = [
     'entries' => 0,
     'sacks' => 0.0,
     'lanes' => 0,
+    'latest_date' => null,
 ];
-$stm = $db->prepare('SELECT COUNT(*) AS entries, COALESCE(SUM(wang_sack), 0) AS sacks, COUNT(DISTINCT wang_lan) AS lanes FROM tbl_wangyang WHERE wang_date = ?');
+
+$stm = $db->prepare('SELECT MAX(wang_date) AS latest_date FROM tbl_wangyang');
 if ($stm) {
-    $stm->bind_param('s', $todayDate);
     $stm->execute();
     $row = $stm->get_result()->fetch_assoc();
-    $todaySummary['entries'] = (int)($row['entries'] ?? 0);
-    $todaySummary['sacks'] = (float)($row['sacks'] ?? 0);
-    $todaySummary['lanes'] = (int)($row['lanes'] ?? 0);
+    $overviewSummary['latest_date'] = $row['latest_date'] ?? null;
     $stm->close();
+}
+
+if (!empty($overviewSummary['latest_date'])) {
+    $stm = $db->prepare('SELECT COUNT(*) AS entries, COALESCE(SUM(wang_sack), 0) AS sacks, COUNT(DISTINCT wang_lan) AS lanes FROM tbl_wangyang WHERE wang_date = ?');
+    if ($stm) {
+        $stm->bind_param('s', $overviewSummary['latest_date']);
+        $stm->execute();
+        $row = $stm->get_result()->fetch_assoc();
+        $overviewSummary['entries'] = (int)($row['entries'] ?? 0);
+        $overviewSummary['sacks'] = (float)($row['sacks'] ?? 0);
+        $overviewSummary['lanes'] = (int)($row['lanes'] ?? 0);
+        $stm->close();
+    }
 }
 
 $lane_colors = [
@@ -637,34 +648,35 @@ $lane_colors = [
     <section class="today-summary-card">
       <div class="today-summary-head">
         <div>
-          <div class="today-summary-title">สรุปยอดวันนี้ของทั้ง 4 ลาน</div>
+          <div class="today-summary-title">สรุปยอดของวันที่ล่าสุดที่มีข้อมูล</div>
           <div class="today-summary-subtitle">
-            วันที่ <?php echo e(format_thai_date_short($todayDate)); ?> รวมยอดจากรายการที่บันทึกเข้ามาวันนี้ทั้งหมด
+            รวมยอดเฉพาะวันที่ล่าสุดที่มีข้อมูลในระบบ เพื่อให้ตรงกับยอดรวมจริงของวันนั้น
           </div>
         </div>
         <span
           class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2">
-          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i> วันนี้
+          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>
+          <?php echo !empty($overviewSummary['latest_date']) ? e(format_thai_date_short($overviewSummary['latest_date'])) : 'ยังไม่มีข้อมูล'; ?>
         </span>
       </div>
 
       <div class="today-summary-grid">
         <div class="today-summary-main">
-          <div class="today-summary-kicker">กระสอบรวมวันนี้</div>
+          <div class="today-summary-kicker">กระสอบรวมของวันล่าสุด</div>
           <div class="today-summary-value">
-            <?php echo number_format($todaySummary['sacks'], 0); ?><span class="today-summary-unit">กระสอบ</span>
+            <?php echo number_format($overviewSummary['sacks'], 0); ?><span class="today-summary-unit">กระสอบ</span>
           </div>
-          <div class="today-summary-mini-note mt-2">ข้อมูลรวมจากทั้ง 4 ลานในวันเดียวกัน</div>
+          <div class="today-summary-mini-note mt-2">ข้อมูลรวมจากวันที่ล่าสุดที่มีรายการบันทึก</div>
         </div>
         <div class="today-summary-mini">
-          <div class="today-summary-mini-label">รายการวันนี้</div>
-          <div class="today-summary-mini-value"><?php echo number_format($todaySummary['entries']); ?></div>
-          <div class="today-summary-mini-note">จำนวนรายการทั้งหมดที่บันทึกในวันนี้</div>
+          <div class="today-summary-mini-label">รายการของวันล่าสุด</div>
+          <div class="today-summary-mini-value"><?php echo number_format($overviewSummary['entries']); ?></div>
+          <div class="today-summary-mini-note">จำนวนรายการทั้งหมดในวันนั้น</div>
         </div>
         <div class="today-summary-mini">
           <div class="today-summary-mini-label">ลานที่มีข้อมูล</div>
-          <div class="today-summary-mini-value"><?php echo number_format($todaySummary['lanes']); ?></div>
-          <div class="today-summary-mini-note">จากลานที่มีการวางยางในวันนี้</div>
+          <div class="today-summary-mini-value"><?php echo number_format($overviewSummary['lanes']); ?></div>
+          <div class="today-summary-mini-note">นับเฉพาะลานที่มีข้อมูลในวันล่าสุด</div>
         </div>
       </div>
     </section>
