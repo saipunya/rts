@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clear
     if (!csrf_check($_POST['csrf_token'] ?? '')) {
         $flashMsg = 'ไม่สามารถยืนยันคำขอได้ กรุณาลองใหม่อีกครั้ง';
     } else {
-        if (clear_member_portal_log_entries()) {
+        if (clear_member_portal_log_entries($conn)) {
             header('Location: member_usage_summary.php?msg=' . urlencode('ล้างประวัติการใช้งานสมาชิกเรียบร้อยแล้ว'));
             exit;
         }
@@ -159,7 +159,7 @@ body {
         <div>
           <div class="text-uppercase text-success fw-semibold small mb-1">Member Usage</div>
           <h1 class="h3 fw-bold mb-1 text-success-emphasis">สรุปการใช้งานสมาชิก</h1>
-          <div class="text-success">ข้อมูลการเข้าสู่ระบบของหน้า allmember.php จากไฟล์ JSON</div>
+          <div class="text-success">ข้อมูลการเข้าสู่ระบบของหน้า allmember.php จากฐานข้อมูล</div>
         </div>
       </div>
       <div class="d-flex flex-wrap gap-2">
@@ -259,7 +259,7 @@ body {
         <h2 class="h5 fw-bold mb-1 text-success-emphasis">
           <i data-lucide="history" class="me-1" aria-hidden="true"></i>ประวัติการเข้าดูข้อมูลล่าสุด
         </h2>
-        <div class="text-success">อ่านจากไฟล์ JSON ของหน้า allmember.php</div>
+        <div class="text-success">อ่านจากตาราง `tbl_member_portal_log` ของหน้า allmember.php</div>
       </div>
       <div class="d-flex flex-wrap gap-2">
         <span class="usage-pill">
