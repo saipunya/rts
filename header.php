@@ -4,6 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+if (function_exists('touch_online_presence')) {
+    touch_online_presence();
+}
+
 $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
 
 if (!function_exists('nav_active')) {

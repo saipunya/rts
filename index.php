@@ -517,6 +517,8 @@ if ($stmt) {
 	$latest_price_date = null;
 }
 
+$onlinePresenceStats = fetch_online_presence_stats($db);
+
 // added: safe display for latest price date
 $latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
 

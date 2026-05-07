@@ -450,4 +450,159 @@ function thai_date_format(string $date_str): string {
     return sprintf('%d %s %d', $day, $months[$month], $year);
 }
 
+function online_presence_window_seconds(): int {
+    return 300;
+}
+
+function online_presence_prune_seconds(): int {
+    return 3600;
+}
+
+function ensure_online_presence_table(mysqli $db): void {
+    static $initialized = false;
+    if ($initialized) {
+        return;
+    }
+
+    $sql = "
+        CREATE TABLE IF NOT EXISTS tbl_online_presence (
+            session_id VARCHAR(128) NOT NULL,
+            user_id INT UNSIGNED DEFAULT NULL,
+            user_name VARCHAR(255) DEFAULT NULL,
+            visitor_type ENUM('guest', 'user') NOT NULL DEFAULT 'guest',
+            ip_address VARCHAR(45) DEFAULT NULL,
+            user_agent VARCHAR(255) DEFAULT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            last_seen DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (session_id),
+            KEY idx_user_id (user_id),
+            KEY idx_visitor_type (visitor_type),
+            KEY idx_last_seen (last_seen)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ";
+
+    $db->query($sql);
+    $initialized = true;
+}
+
+function prune_online_presence_records(mysqli $db): void {
+    ensure_online_presence_table($db);
+
+    $cutoff = date('Y-m-d H:i:s', time() - online_presence_prune_seconds());
+    $stmt = $db->prepare('DELETE FROM tbl_online_presence WHERE last_seen < ?');
+    if ($stmt) {
+        $stmt->bind_param('s', $cutoff);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+function touch_online_presence(?mysqli $db = null): void {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $sessionId = session_id();
+    if ($sessionId === '') {
+        return;
+    }
+
+    $db = $db ?: db();
+    ensure_online_presence_table($db);
+
+    $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+    $userName = trim((string)($_SESSION['user_fullname'] ?? $_SESSION['user_username'] ?? ''));
+    if ($userName === '') {
+        $userName = null;
+    }
+    $visitorType = $userId ? 'user' : 'guest';
+    $ipAddress = substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45);
+    $userAgent = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255);
+
+    $sql = "
+        INSERT INTO tbl_online_presence
+            (session_id, user_id, user_name, visitor_type, ip_address, user_agent, created_at, last_seen)
+        VALUES
+            (?, ?, ?, ?, ?, ?, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+            user_id = VALUES(user_id),
+            user_name = VALUES(user_name),
+            visitor_type = VALUES(visitor_type),
+            ip_address = VALUES(ip_address),
+            user_agent = VALUES(user_agent),
+            last_seen = NOW()
+    ";
+
+    $stmt = $db->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param('sissss', $sessionId, $userId, $userName, $visitorType, $ipAddress, $userAgent);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    prune_online_presence_records($db);
+}
+
+function clear_online_presence_for_current_session(?mysqli $db = null): void {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $sessionId = session_id();
+    if ($sessionId === '') {
+        return;
+    }
+
+    $db = $db ?: db();
+    ensure_online_presence_table($db);
+
+    $stmt = $db->prepare('DELETE FROM tbl_online_presence WHERE session_id = ?');
+    if ($stmt) {
+        $stmt->bind_param('s', $sessionId);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+function fetch_online_presence_stats(?mysqli $db = null): array {
+    $db = $db ?: db();
+    ensure_online_presence_table($db);
+    prune_online_presence_records($db);
+
+    $cutoff = date('Y-m-d H:i:s', time() - online_presence_window_seconds());
+    $stats = [
+        'online_users' => 0,
+        'online_guests' => 0,
+        'online_total' => 0,
+        'last_seen_at' => null,
+    ];
+
+    $sql = "
+        SELECT
+            COALESCE(COUNT(DISTINCT CASE WHEN visitor_type = 'user' THEN user_id END), 0) AS online_users,
+            COALESCE(COUNT(DISTINCT CASE WHEN visitor_type = 'guest' THEN session_id END), 0) AS online_guests,
+            MAX(last_seen) AS last_seen_at
+        FROM tbl_online_presence
+        WHERE last_seen >= ?
+    ";
+
+    $stmt = $db->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param('s', $cutoff);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res) {
+            $row = $res->fetch_assoc() ?: [];
+            $stats['online_users'] = (int)($row['online_users'] ?? 0);
+            $stats['online_guests'] = (int)($row['online_guests'] ?? 0);
+            $stats['online_total'] = $stats['online_users'] + $stats['online_guests'];
+            $stats['last_seen_at'] = $row['last_seen_at'] ?? null;
+            $res->free();
+        }
+        $stmt->close();
+    }
+
+    return $stats;
+}
+
 ?>

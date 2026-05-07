@@ -1,5 +1,6 @@
 <?php
 require_once 'functions.php';
+clear_online_presence_for_current_session();
 // clear session
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {

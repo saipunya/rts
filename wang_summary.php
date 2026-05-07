@@ -586,7 +586,7 @@ foreach ($summaryRows as $row) {
         </a>
         <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
           <i data-lucide="layout-dashboard" aria-hidden="true"></i>
-          <span>Dashboard</span>
+          <span>แดชบอร์ด</span>
         </a>
       </div>
     </div>
@@ -726,23 +726,23 @@ foreach ($summaryRows as $row) {
                 <td data-label="น้ำหนักคำนวณ" class="text-end fw-semibold text-success-emphasis">
                   <?php echo number_format($row['ws_estimated_weight'], 2); ?> กก.
                 </td>
-                  <td data-label="จัดการ" class="text-center">
-                    <div class="d-inline-flex flex-column flex-sm-row gap-2">
-                      <button form="<?php echo e($formId); ?>" type="submit"
-                        class="btn btn-success btn-sm summary-save-btn d-inline-flex align-items-center gap-1 px-3 shadow-sm">
-                        <i data-lucide="save" aria-hidden="true"></i>
-                        <span>บันทึก</span>
-                      </button>
-                      <button type="button"
-                        class="btn btn-outline-danger btn-sm summary-clear-btn d-inline-flex align-items-center gap-1 px-3"
-                        data-summary-date="<?php echo e($row['summary_date']); ?>"
-                        data-summary-label="<?php echo e(format_thai_date_short($row['summary_date'])); ?>"
-                        onclick="clearSummary(this)">
-                        <i data-lucide="trash-2" aria-hidden="true"></i>
-                        <span>ลบ</span>
-                      </button>
-                    </div>
-                  </td>
+                <td data-label="จัดการ" class="text-center">
+                  <div class="d-inline-flex flex-column flex-sm-row gap-2">
+                    <button form="<?php echo e($formId); ?>" type="submit"
+                      class="btn btn-success btn-sm summary-save-btn d-inline-flex align-items-center gap-1 px-3 shadow-sm">
+                      <i data-lucide="save" aria-hidden="true"></i>
+                      <span>บันทึก</span>
+                    </button>
+                    <button type="button"
+                      class="btn btn-outline-danger btn-sm summary-clear-btn d-inline-flex align-items-center gap-1 px-3"
+                      data-summary-date="<?php echo e($row['summary_date']); ?>"
+                      data-summary-label="<?php echo e(format_thai_date_short($row['summary_date'])); ?>"
+                      onclick="clearSummary(this)">
+                      <i data-lucide="trash-2" aria-hidden="true"></i>
+                      <span>ลบ</span>
+                    </button>
+                  </div>
+                </td>
               </tr>
               <?php endforeach; ?>
             </tbody>

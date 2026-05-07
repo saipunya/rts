@@ -1,365 +1,501 @@
 </div>
 </main>
+<?php
+$footerOnlineStats = [
+    'online_users' => 0,
+    'online_guests' => 0,
+    'online_total' => 0,
+    'last_seen_at' => null,
+];
+if (function_exists('fetch_online_presence_stats')) {
+    $footerOnlineStats = fetch_online_presence_stats(function_exists('db') ? db() : null);
+}
+?>
 <footer class="site-footer">
-    <div class="footer-highlight"></div>
-    <div class="container-md">
-        <div class="footer-top">
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    <i data-lucide="trees" aria-hidden="true"></i>
-                </div>
-                <div class="footer-brand-text">
-                    <h5 class="footer-title">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h5>
-                    <p class="footer-text">ขับเคลื่อนการรวบรวมยางพาราและการดูแลสมาชิกด้วยระบบดิจิทัลที่ทันสมัย เชื่อมโยงข้อมูลการซื้อขาย การชำระเงิน และการบริการครบวงจร</p>
-                </div>
-                <div class="footer-meta">
-                    <span><i data-lucide="grid" aria-hidden="true"></i> ระบบบริหารจัดการครบวงจร</span>
-                    <span><i data-lucide="shield-check" aria-hidden="true"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
-                </div>
-            </div>
-            <div class="footer-column">
-                <h6 class="footer-heading">ติดต่อสหกรณ์</h6>
-                <ul class="footer-contact list-unstyled">
-                    <li><i data-lucide="map-pin" aria-hidden="true"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180</li>
-                    <li><i data-lucide="phone" aria-hidden="true"></i> 044-109752,089-9441753</li>
-                    <li>
-                        <i data-lucide="home" aria-hidden="true"></i> 080-0062515(ร้านค้าสหกรณ์)
-                    </li>
-                    <li><i data-lucide="mail-open" aria-hidden="true"></i> tungluilay@gmail.com</li>
-                    <li><i data-lucide="history" aria-hidden="true"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
-                </ul>
-               
-            </div>
+  <div class="footer-highlight"></div>
+  <div class="container-md">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-brand-text">
+          <h5 class="footer-title">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h5>
+          <p class="footer-text">ขับเคลื่อนการรวบรวมยางพาราและการดูแลสมาชิกด้วยระบบดิจิทัลที่ทันสมัย
+            เชื่อมโยงข้อมูลการซื้อขาย การชำระเงิน และการบริการครบวงจร</p>
         </div>
-        <div class="footer-divider"></div>
-        <div class="footer-bottom">
-            <div class="footer-bottom-text">&copy; <?php echo date('Y'); ?> สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด - ระบบการซื้อขายยางพารา</div>
-            <div class="footer-bottom-text">อัปเดตล่าสุด: <?php echo date('d/m/Y'); ?> | พัฒนาด้วยเทคโนโลยีเว็บสมัยใหม่</div>
+        <div class="footer-meta">
+          <span><i data-lucide="grid" aria-hidden="true"></i> ระบบบริหารจัดการครบวงจร</span>
+          <span><i data-lucide="shield-check" aria-hidden="true"></i> โปร่งใส ตรวจสอบได้ทุกขั้นตอน</span>
+          <span><i data-lucide="activity" aria-hidden="true"></i> ออนไลน์
+            <?php echo number_format((int)($footerOnlineStats['online_total'] ?? 0)); ?> คน</span>
         </div>
+      </div>
+      <div class="footer-column">
+        <h6 class="footer-heading">ติดต่อสหกรณ์</h6>
+        <ul class="footer-contact list-unstyled">
+          <li><i data-lucide="map-pin" aria-hidden="true"></i> หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180</li>
+          <li><i data-lucide="phone" aria-hidden="true"></i> 044-109752,089-9441753</li>
+          <li>
+            <i data-lucide="home" aria-hidden="true"></i> 080-0062515(ร้านค้าสหกรณ์)
+          </li>
+          <li><i data-lucide="mail-open" aria-hidden="true"></i> tungluilay@gmail.com</li>
+          <li><i data-lucide="history" aria-hidden="true"></i> เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)</li>
+        </ul>
+
+      </div>
     </div>
+    <div class="footer-presence">
+      <span class="footer-presence-badge footer-presence-badge-user">
+        <i data-lucide="user-check" aria-hidden="true"></i>
+        <strong><?php echo number_format((int)($footerOnlineStats['online_users'] ?? 0)); ?></strong>
+        <span>ผู้ใช้งานออนไลน์</span>
+      </span>
+      <span class="footer-presence-badge footer-presence-badge-guest">
+        <i data-lucide="users" aria-hidden="true"></i>
+        <strong><?php echo number_format((int)($footerOnlineStats['online_guests'] ?? 0)); ?></strong>
+        <span>คนทั่วไปออนไลน์</span>
+      </span>
+    </div>
+    <div class="footer-divider"></div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-text">&copy; <?php echo date('Y'); ?> สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด -
+        ระบบการซื้อขายยางพารา</div>
+      <div class="footer-bottom-text">อัปเดตล่าสุด: <?php echo date('d/m/Y'); ?> | พัฒนาด้วยเทคโนโลยีเว็บสมัยใหม่</div>
+    </div>
+  </div>
 </footer>
 
 <style>
 .site-footer {
-    background: linear-gradient(180deg, #d4edda 0%, #f6fdf6 100%);
-    border-top: 1px solid #c3e6cb;
-    padding: 3rem 0 2.5rem;
-    margin-top: 3rem;
-    position: relative;
-    overflow: hidden;
-    color: #155724;
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background: linear-gradient(180deg, #d4edda 0%, #f6fdf6 100%);
+  border-top: 1px solid #c3e6cb;
+  padding: 3rem 0 2.5rem;
+  margin-top: 3rem;
+  position: relative;
+  overflow: hidden;
+  color: #155724;
+  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .site-footer .footer-highlight {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at top right, rgba(40, 167, 69, 0.15), transparent 55%),
-        radial-gradient(circle at bottom left, rgba(17, 122, 101, 0.12), transparent 55%);
-    pointer-events: none;
-    z-index: 0;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(40, 167, 69, 0.15), transparent 55%),
+    radial-gradient(circle at bottom left, rgba(17, 122, 101, 0.12), transparent 55%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .site-footer .container {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .footer-top {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.5rem;
-    align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.5rem;
+  align-items: flex-start;
 }
 
 .footer-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .footer-logo {
-    width: 72px;
-    height: 72px;
-    border-radius: 20px;
-    background: rgba(40, 167, 69, 0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #28a745;
-    font-size: 2.25rem;
-    box-shadow: 0 12px 32px rgba(21, 87, 36, 0.18);
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: rgba(40, 167, 69, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #28a745;
+  font-size: 2.25rem;
+  box-shadow: 0 12px 32px rgba(21, 87, 36, 0.18);
 }
 
 .footer-brand-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .footer-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0;
-    color: #0d5322;
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0d5322;
+  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .footer-text {
-    font-size: 0.95rem;
-    margin: 0;
-    line-height: 1.6;
-    color: #19692c;
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.6;
+  color: #19692c;
+  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .footer-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .footer-meta span {
-    display: inline-flex;
-    gap: 0.5rem;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(195, 230, 203, 0.8);
-    border-radius: 999px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.9rem;
-    color: #155724;
-    backdrop-filter: blur(4px);
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(195, 230, 203, 0.8);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.9rem;
+  color: #155724;
+  backdrop-filter: blur(4px);
 }
 
 .footer-meta i {
-    color: #28a745;
-    font-size: 1.2rem;
+  color: #28a745;
+  font-size: 1.2rem;
+}
+
+.footer-presence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  margin-top: 1.75rem;
+}
+
+.footer-presence-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(195, 230, 203, 0.9);
+  background: rgba(255, 255, 255, 0.6);
+  color: #155724;
+  box-shadow: 0 8px 18px rgba(21, 87, 36, 0.06);
+  white-space: nowrap;
+}
+
+.footer-presence-badge i {
+  font-size: 1.05rem;
+  color: #28a745;
+}
+
+.footer-presence-badge strong {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0d5322;
+}
+
+.footer-presence-badge span {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.footer-presence-badge-user {
+  border-color: rgba(40, 167, 69, 0.24);
+}
+
+.footer-presence-badge-guest {
+  border-color: rgba(21, 87, 36, 0.16);
+}
+
+.footer-presence-note {
+  font-size: 0.9rem;
+  color: #19692c;
+  padding-left: 0.2rem;
 }
 
 .footer-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .footer-heading {
-    font-size: 1.1rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #0d5322;
-    margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0d5322;
+  margin: 0;
 }
 
 .footer-links {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
 }
 
 .footer-links a {
-    font-size: 1.2rem;
-    color: #155724;
-    text-decoration: none;
-    display: inline-flex;
-    gap: 0.5rem;
-    align-items: center;
-    transition: color 0.2s ease, transform 0.2s ease;
+  font-size: 1.2rem;
+  color: #155724;
+  text-decoration: none;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .footer-links a:hover,
 .footer-links a:focus {
-    color: #0b5c1f;
-    transform: translateX(4px);
+  color: #0b5c1f;
+  transform: translateX(4px);
 }
 
 .footer-links i {
-    font-size: 1.15rem;
-    color: #28a745;
+  font-size: 1.15rem;
+  color: #28a745;
 }
 
 .footer-contact {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
 }
 
 .footer-contact li {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-    font-size: 0.9rem;
-    line-height: 1.6;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .footer-contact i {
-    font-size: 1.35rem;
-    color: #28a745;
-    margin-top: 0.2rem;
+  font-size: 1.35rem;
+  color: #28a745;
+  margin-top: 0.2rem;
 }
 
 .footer-cta {
-    margin-top: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .footer-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-    padding: 0.65rem 1.4rem;
-    background: #28a745;
-    color: #ffffff;
-    border-radius: 999px;
-    text-decoration: none;
-    font-weight: 600;
-    box-shadow: 0 8px 18px rgba(21, 87, 36, 0.18);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  padding: 0.65rem 1.4rem;
+  background: #28a745;
+  color: #ffffff;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(21, 87, 36, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .footer-button:hover,
 .footer-button:focus {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(21, 87, 36, 0.22);
-    color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(21, 87, 36, 0.22);
+  color: #ffffff;
 }
 
 .footer-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(21, 87, 36, 0.25), transparent);
-    margin: 2.5rem 0 1.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(21, 87, 36, 0.25), transparent);
+  margin: 2.5rem 0 1.75rem;
 }
 
 .footer-bottom {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .footer-bottom-text {
-    font-size: 0.85rem;
-    color: rgba(13, 83, 34, 0.9);
-    margin: 0;
+  font-size: 0.85rem;
+  color: rgba(13, 83, 34, 0.9);
+  margin: 0;
 }
 
 @media (max-width: 1200px) {
-    .footer-top {
-        gap: 2rem;
-    }
+  .footer-top {
+    gap: 2rem;
+  }
 }
 
 @media (max-width: 992px) {
-    .footer-top {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .footer-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-    .footer-bottom {
-        gap: 1.5rem;
-    }
+  .footer-bottom {
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
-    .site-footer {
-        padding: 2.5rem 0 2rem;
-    }
+  .site-footer {
+    padding: 2.5rem 0 2rem;
+  }
 
-    .footer-top {
-        grid-template-columns: 1fr;
-    }
+  .footer-top {
+    grid-template-columns: 1fr;
+  }
 
-    .footer-brand,
-    .footer-column {
-        text-align: center;
-        align-items: center;
-    }
+  .footer-brand,
+  .footer-column {
+    text-align: center;
+    align-items: center;
+  }
 
-    .footer-meta {
-        justify-content: center;
-    }
+  .footer-meta {
+    justify-content: center;
+  }
 
-    .footer-links,
-    .footer-contact {
-        justify-items: center;
-    }
+  .footer-links,
+  .footer-contact {
+    justify-items: center;
+  }
 
-    .footer-links a {
-        justify-content: center;
-    }
+  .footer-links a {
+    justify-content: center;
+  }
 
-    .footer-contact li {
-        justify-content: center;
-        text-align: center;
-    }
+  .footer-contact li {
+    justify-content: center;
+    text-align: center;
+  }
 
-    .footer-contact i {
-        display: none;
-    }
+  .footer-contact i {
+    display: none;
+  }
 
-    .footer-button {
-        width: 100%;
-        justify-content: center;
-    }
+  .footer-button {
+    width: 100%;
+    justify-content: center;
+  }
 
-    .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-    }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 @media (max-width: 576px) {
-    .footer-title {
-        font-size: 1.45rem;
-    }
+  .footer-title {
+    font-size: 1.45rem;
+  }
 
-    .footer-meta span {
-        font-size: 1.05rem;
-        width: 100%;
-        justify-content: center;
-    }
+  .footer-meta span {
+    font-size: 1.05rem;
+    width: 100%;
+    justify-content: center;
+  }
 
-    .footer-bottom-text {
-        font-size: 1.1rem;
-    }
+  .footer-bottom-text {
+    font-size: 1.1rem;
+  }
+
+  .footer-presence {
+    gap: 0.5rem;
+  }
+
+  .footer-presence-note {
+    width: 100%;
+    padding-left: 0;
+  }
 }
 
 @media (hover: none) and (pointer: coarse) {
-    .footer-links a,
-    .footer-button {
-        min-height: 48px;
-    }
+
+  .footer-links a,
+  .footer-button {
+    min-height: 48px;
+  }
 }
 </style>
 
 <!-- Bootstrap JavaScript Libraries -->
-<script
-    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-    crossorigin="anonymous"
-></script>
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-    crossorigin="anonymous"
-></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+  integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+  integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 <!-- AOS Animation Library -->
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    // Initialize AOS
-    AOS.init({
-        duration: 800,
-        once: true,
-        offset: 100
-    });
+// Initialize AOS
+AOS.init({
+  duration: 800,
+  once: true,
+  offset: 100
+});
+</script>
+<script>
+(function() {
+  const endpoint = 'presence.php';
+  const intervalMs = 60000;
+  let timer = null;
+  let inFlight = false;
 
+  function pingPresence() {
+    if (inFlight || !window.fetch) {
+      return;
+    }
+
+    inFlight = true;
+    fetch(endpoint, {
+      method: 'POST',
+      credentials: 'same-origin',
+      cache: 'no-store',
+      keepalive: true,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ping: true
+      })
+    }).catch(function() {
+      // Ignore network hiccups; presence will refresh on the next request.
+    }).then(function() {
+      inFlight = false;
+    });
+  }
+
+  function startPresenceLoop() {
+    pingPresence();
+    if (timer) {
+      return;
+    }
+    timer = window.setInterval(pingPresence, intervalMs);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startPresenceLoop, {
+      once: true
+    });
+  } else {
+    startPresenceLoop();
+  }
+
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+      pingPresence();
+    }
+  });
+
+  window.addEventListener('focus', pingPresence);
+  window.addEventListener('pageshow', pingPresence);
+})();
 </script>
 </body>
+
 </html>
 <?php
 // close stmt and mysqli safely if they exist

@@ -629,7 +629,7 @@ $lane_colors = [
       <div class="header-actions d-flex gap-2 flex-shrink-0">
         <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
           <i data-lucide="layout-dashboard" aria-hidden="true"></i>
-          <span>Dashboard</span>
+          <span>แดชบอร์ด</span>
         </a>
         <a href="wang_summary.php" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center gap-1">
           <i data-lucide="clipboard-list" aria-hidden="true"></i>
