@@ -752,7 +752,6 @@ if ($stmt) {
 $onlinePresenceStats = fetch_online_presence_stats($db);
 $rubberAnnouncement = fetch_rubber_collection_announcement($db, $latest_price_date);
 $rubberLiveSummary = fetch_rubber_round_live_summary($db, $latest_price_date);
-$rubberLiveSummaryPreview = fetch_rubber_round_live_summary($db, '2026-05-25');
 
 // added: safe display for latest price date
 $latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
@@ -1121,85 +1120,6 @@ if (!empty($chartSummaryByDate)) {
 			</div>
 		</div>
 	</div>
-
-	<?php if (empty($rubberLiveSummary['show']) && !empty($rubberLiveSummaryPreview['show'])): ?>
-	<div class="row g-3 mb-4">
-		<div class="col-12">
-			<div class="card live-round-card">
-				<div class="card-body">
-					<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
-						<div>
-							<div class="live-round-badge mb-2" style="background:#fef3c7;color:#b45309;">
-								<i data-lucide="sparkles" aria-hidden="true"></i> ตัวอย่างป้ายการ์ด 3 ใบ
-							</div>
-							<h2 class="h5 mb-1">สรุปข้อมูลรอบวางยางล่าสุด</h2>
-							<div class="small text-muted">
-								ตัวอย่างจากรอบวันที่ <?php echo e($rubberLiveSummaryPreview['weigh_date_text'] ?? '-'); ?>
-							</div>
-						</div>
-						<div class="live-round-time">
-							<i data-lucide="eye" aria-hidden="true"></i>
-							ตัวอย่างสำหรับตรวจรูปแบบ UI
-						</div>
-					</div>
-
-					<div class="live-round-grid">
-						<div class="card live-round-tile bg-success-subtle">
-							<div class="card-body">
-								<div class="d-flex justify-content-between align-items-start gap-3">
-									<div>
-										<div class="live-round-label mb-1">น้ำหนักรวม</div>
-										<div class="live-round-value"><?php echo number_format((float)($rubberLiveSummaryPreview['total_quantity'] ?? 0), 2); ?> kg</div>
-									</div>
-									<div class="live-round-icon" aria-hidden="true">
-										<i data-lucide="scale" class="fs-3"></i>
-									</div>
-								</div>
-								<div class="live-round-foot">
-									<span class="small text-success-emphasis">รวมทุกลานในรอบล่าสุด</span>
-								</div>
-							</div>
-						</div>
-
-						<div class="card live-round-tile bg-warning-subtle">
-							<div class="card-body">
-								<div class="d-flex justify-content-between align-items-start gap-3">
-									<div>
-										<div class="live-round-label mb-1">ยอดเงินหัก</div>
-										<div class="live-round-value"><?php echo number_format((float)($rubberLiveSummaryPreview['total_expend'] ?? 0), 2); ?> ฿</div>
-									</div>
-									<div class="live-round-icon" aria-hidden="true" style="background:#fff4db;color:#b45309;">
-										<i data-lucide="file-text" class="fs-3"></i>
-									</div>
-								</div>
-								<div class="live-round-foot">
-									<span class="small text-warning-emphasis">หักรวมจากทุกรายการในรอบนี้</span>
-								</div>
-							</div>
-						</div>
-
-						<div class="card live-round-tile bg-primary-subtle">
-							<div class="card-body">
-								<div class="d-flex justify-content-between align-items-start gap-3">
-									<div>
-										<div class="live-round-label mb-1">ยอดเงินที่จ่าย</div>
-										<div class="live-round-value"><?php echo number_format((float)($rubberLiveSummaryPreview['total_net'] ?? 0), 2); ?> ฿</div>
-									</div>
-									<div class="live-round-icon" aria-hidden="true" style="background:#e0ecff;color:#1d4ed8;">
-										<i data-lucide="wallet" class="fs-3"></i>
-									</div>
-								</div>
-								<div class="live-round-foot">
-									<span class="small text-primary-emphasis">จ่ายสุทธิหลังหักทั้งหมด</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<?php endif; ?>
 
 	<div class="quick-actions" aria-label="ทางลัดงานหลัก">
 		<a class="quick-action" href="rubbers.php?lan=all">
