@@ -7,7 +7,7 @@ require_once __DIR__ . '/functions.php';
 $debug = isset($_GET['debug']) && $_GET['debug'] !== '0';
 if ($debug) { ini_set('display_errors', '1'); error_reporting(E_ALL); }
 // add: raise limits to reduce render-time 500 errors
-@ini_set('memory_limit', '512M');
+@ini_set('memory_limit', '1024M');
 @set_time_limit(120);
 mb_internal_encoding('UTF-8');
 
@@ -43,6 +43,7 @@ $lanParam  = $_GET['lan'] ?? 'all';
 $search    = trim((string)($_GET['search'] ?? ''));
 $date_from = trim((string)($_GET['date_from'] ?? ''));
 $date_to   = trim((string)($_GET['date_to'] ?? ''));
+$classFilter = trim((string)($_GET['class'] ?? 'all'));
 
 $currentLan = ($lanParam === 'all') ? 'all' : (int)$lanParam;
 if ($currentLan !== 'all' && !in_array($currentLan, [1,2,3,4], true)) $currentLan = 1;
@@ -67,12 +68,15 @@ if ($date_to !== '') {
   $dt = DateTime::createFromFormat('Y-m-d', $date_to);
   if ($dt && $dt->format('Y-m-d') === $date_to) { $conds[] = 'ru_date <= ?'; $types .= 's'; $binds[] = $date_to; }
 }
+if (in_array($classFilter, ['member', 'general'], true)) {
+  $conds[] = 'LOWER(TRIM(ru_class)) = ?';
+  $types .= 's';
+  $binds[] = $classFilter;
+}
 
 $sql = "SELECT * FROM tbl_rubber";
 if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
 $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
-// จำกัด 100 รายการเพื่อลด memory usage
-$sql .= ' LIMIT 100';
 
 $st = null; $res = null;
 if ($conds) {
@@ -128,6 +132,8 @@ $condTxt  = [];
 if ($search !== '')    $condTxt[] = 'คำค้น "' . h($search) . '"';
 if ($date_from !== '') $condTxt[] = 'จาก ' . h($date_from);
 if ($date_to   !== '') $condTxt[] = 'ถึง '  . h($date_to);
+if ($classFilter === 'member') $condTxt[] = 'เฉพาะสมาชิก';
+if ($classFilter === 'general') $condTxt[] = 'เฉพาะเกษตรกรทั่วไป';
 $condStr  = $condTxt ? ('เงื่อนไข: ' . implode(' | ', $condTxt)) : '';
 
 // ใช้ฟอนต์ดีฟอลต์ THSarabunNew โดยไม่สแกนไฟล์ฟอนต์เอง (ลดการใช้หน่วยความจำอย่างมาก)

@@ -310,6 +310,122 @@ function thai_date_format(string $date_str): string {
     return sprintf('%d %s %d', $day, $months[$month], $year);
 }
 
+function fetch_rubber_collection_announcement(?mysqli $db = null, ?string $priceDate = null): array {
+    $db = $db ?: db();
+    $priceDate = $priceDate !== null ? trim($priceDate) : '';
+
+    if ($priceDate === '') {
+        $stmt = $db->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
+        if ($stmt) {
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res && ($row = $res->fetch_assoc())) {
+                $priceDate = trim((string)($row['pr_date'] ?? ''));
+            }
+            if ($res) {
+                $res->free();
+            }
+            $stmt->close();
+        }
+    }
+
+    $tz = new DateTimeZone('Asia/Bangkok');
+    $today = new DateTimeImmutable('today', $tz);
+    $priceDt = $priceDate !== '' ? DateTimeImmutable::createFromFormat('Y-m-d', $priceDate, $tz) : false;
+
+    if (!$priceDt instanceof DateTimeImmutable) {
+        return [
+            'show' => false,
+            'price_date' => null,
+            'lay_start' => null,
+            'lay_end' => null,
+            'weigh_date' => null,
+            'price_date_text' => null,
+            'lay_start_text' => null,
+            'lay_end_text' => null,
+            'weigh_date_text' => null,
+            'today_text' => thai_date_format($today->format('Y-m-d')),
+        ];
+    }
+
+    $layStart = $priceDt->modify('-2 days');
+    $layEnd = $priceDt->modify('-1 day');
+    $show = $today <= $priceDt;
+
+    return [
+        'show' => $show,
+        'price_date' => $priceDt->format('Y-m-d'),
+        'lay_start' => $layStart->format('Y-m-d'),
+        'lay_end' => $layEnd->format('Y-m-d'),
+        'weigh_date' => $priceDt->format('Y-m-d'),
+        'price_date_text' => thai_date_format($priceDt->format('Y-m-d')),
+        'lay_start_text' => thai_date_format($layStart->format('Y-m-d')),
+        'lay_end_text' => thai_date_format($layEnd->format('Y-m-d')),
+        'weigh_date_text' => thai_date_format($priceDt->format('Y-m-d')),
+        'today_text' => thai_date_format($today->format('Y-m-d')),
+    ];
+}
+
+function fetch_rubber_round_live_summary(?mysqli $db = null, ?string $priceDate = null): array {
+    $db = $db ?: db();
+    $announcement = fetch_rubber_collection_announcement($db, $priceDate);
+
+    if (empty($announcement['show'])) {
+        return [
+            'show' => false,
+            'price_date' => $announcement['price_date'] ?? null,
+            'lay_start_text' => $announcement['lay_start_text'] ?? null,
+            'lay_end_text' => $announcement['lay_end_text'] ?? null,
+            'weigh_date_text' => $announcement['weigh_date_text'] ?? null,
+            'total_quantity' => 0.0,
+            'total_expend' => 0.0,
+            'total_net' => 0.0,
+            'updated_at_text' => null,
+        ];
+    }
+
+    $priceDateValue = (string)($announcement['price_date'] ?? '');
+    $summary = [
+        'show' => true,
+        'price_date' => $priceDateValue,
+        'lay_start_text' => $announcement['lay_start_text'] ?? null,
+        'lay_end_text' => $announcement['lay_end_text'] ?? null,
+        'weigh_date_text' => $announcement['weigh_date_text'] ?? null,
+        'total_quantity' => 0.0,
+        'total_expend' => 0.0,
+        'total_net' => 0.0,
+        'updated_at_text' => null,
+    ];
+
+    if ($priceDateValue !== '') {
+        $sql = "SELECT
+            COALESCE(SUM(ru_quantity), 0) AS total_quantity,
+            COALESCE(SUM(ru_expend), 0) AS total_expend,
+            COALESCE(SUM(ru_netvalue), 0) AS total_net
+        FROM tbl_rubber
+        WHERE ru_date = ?";
+        $stmt = $db->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('s', $priceDateValue);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res && ($row = $res->fetch_assoc())) {
+                $summary['total_quantity'] = (float)($row['total_quantity'] ?? 0);
+                $summary['total_expend'] = (float)($row['total_expend'] ?? 0);
+                $summary['total_net'] = (float)($row['total_net'] ?? 0);
+            }
+            if ($res) {
+                $res->free();
+            }
+            $stmt->close();
+        }
+    }
+
+    $summary['updated_at_text'] = thai_date_format(date('Y-m-d')) . ' ' . date('H:i');
+
+    return $summary;
+}
+
 function online_presence_window_seconds(): int {
     return 300;
 }

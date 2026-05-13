@@ -29,7 +29,7 @@ if ($action === 'edit') {
     $data = $res->fetch_assoc();
     $stmt->close();
     if (!$data) {
-        header('Location: users.php?msg=' . urlencode('User not found'));
+        header('Location: users.php?msg=' . urlencode('ไม่พบข้อมูลผู้ใช้'));
         exit;
     }
     $user = $data;
@@ -120,7 +120,7 @@ if ($action === 'edit') {
           <i data-lucide="shield" aria-hidden="true"></i>
         </span>
         <div>
-          <div class="text-uppercase text-success fw-semibold small mb-1">Users</div>
+          <div class="text-uppercase text-success fw-semibold small mb-1">บัญชีผู้ใช้</div>
           <h1 class="h3 fw-bold mb-1 text-success-emphasis"><?php echo $action === 'edit' ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้'; ?></h1>
           <div class="text-success">จัดการบัญชีผู้ใช้งานระบบ</div>
         </div>
@@ -139,17 +139,17 @@ if ($action === 'edit') {
       <div class="row g-3">
         <div class="col-12 col-md-6">
           <label class="form-label" for="username">
-            <i data-lucide="user" class="me-1" aria-hidden="true"></i>Username
+            <i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อผู้ใช้
           </label>
           <div class="input-group">
             <span class="input-group-text field-icon"><i data-lucide="at-sign" aria-hidden="true"></i></span>
-            <input type="text" name="username" id="username" class="form-control" required value="<?php echo htmlspecialchars($user['user_username']); ?>" placeholder="username">
+            <input type="text" name="username" id="username" class="form-control" required value="<?php echo htmlspecialchars($user['user_username']); ?>" placeholder="ชื่อผู้ใช้">
           </div>
         </div>
 
         <div class="col-12 col-md-6">
           <label class="form-label" for="password">
-            <i data-lucide="key-round" class="me-1" aria-hidden="true"></i>Password
+            <i data-lucide="key-round" class="me-1" aria-hidden="true"></i>รหัสผ่าน
           </label>
           <input type="password" name="password" id="password" class="form-control" <?php if ($action === 'create') echo 'required'; ?> placeholder="<?php echo $action === 'edit' ? 'เว้นว่างไว้ถ้าไม่เปลี่ยนรหัสผ่าน' : 'กรอกรหัสผ่าน'; ?>">
           <?php if ($action === 'edit'): ?>
@@ -161,14 +161,14 @@ if ($action === 'edit') {
 
         <div class="col-12 col-md-6">
           <label class="form-label" for="fullname">
-            <i data-lucide="user" class="me-1" aria-hidden="true"></i>Full name
+            <i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อ-สกุล
           </label>
           <input type="text" name="fullname" id="fullname" class="form-control" required value="<?php echo htmlspecialchars($user['user_fullname']); ?>" placeholder="ชื่อ-สกุล">
         </div>
 
         <div class="col-12 col-md-3">
           <label class="form-label" for="level">
-            <i data-lucide="shield" class="me-1" aria-hidden="true"></i>Level
+            <i data-lucide="shield" class="me-1" aria-hidden="true"></i>ระดับ
           </label>
           <select name="level" id="level" class="form-select">
             <option value="admin" <?php if ($user['user_level'] === 'admin') echo 'selected'; ?>>admin</option>
@@ -178,7 +178,7 @@ if ($action === 'edit') {
 
         <div class="col-12 col-md-3">
           <label class="form-label" for="status">
-            <i data-lucide="toggle-right" class="me-1" aria-hidden="true"></i>Status
+            <i data-lucide="toggle-right" class="me-1" aria-hidden="true"></i>สถานะ
           </label>
           <select name="status" id="status" class="form-select">
             <option value="active" <?php if ($user['user_status'] === 'active') echo 'selected'; ?>>active</option>
@@ -192,7 +192,7 @@ if ($action === 'edit') {
           <i data-lucide="x" class="me-1" aria-hidden="true"></i>ยกเลิก
         </a>
         <button type="submit" class="btn btn-success">
-          <i data-lucide="save" class="me-1" aria-hidden="true"></i><?php echo $action === 'edit' ? 'บันทึกการแก้ไข' : 'สร้างผู้ใช้'; ?>
+          <i data-lucide="save" class="me-1" aria-hidden="true"></i><?php echo $action === 'edit' ? 'บันทึกการแก้ไข' : 'บันทึก'; ?>
         </button>
       </div>
     </form>

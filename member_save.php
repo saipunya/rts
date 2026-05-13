@@ -13,8 +13,25 @@ $mem_number = isset($_POST['mem_number']) ? trim($_POST['mem_number']) : '';
 $mem_fullname = isset($_POST['mem_fullname']) ? trim($_POST['mem_fullname']) : '';
 $mem_class = isset($_POST['mem_class']) ? trim($_POST['mem_class']) : '';
 
-if ($mem_group === '' || $mem_number === '' || $mem_fullname === '' || $mem_class === '') {
-    header('Location: members.php?msg=' . urlencode('กรุณากรอกข้อมูลให้ครบ'));
+$fieldLabels = [
+    'mem_group' => 'กลุ่ม',
+    'mem_number' => 'เลขที่สมาชิก',
+    'mem_fullname' => 'ชื่อ-สกุล',
+    'mem_class' => 'ชั้น',
+];
+$missingFields = [];
+if ($mem_group === '') $missingFields[] = $fieldLabels['mem_group'];
+if ($mem_number === '') $missingFields[] = $fieldLabels['mem_number'];
+if ($mem_fullname === '') $missingFields[] = $fieldLabels['mem_fullname'];
+if ($mem_class === '') $missingFields[] = $fieldLabels['mem_class'];
+
+if ($missingFields) {
+    header('Location: members.php?msg=' . urlencode('กรุณากรอกข้อมูลให้ครบ: ' . implode(', ', $missingFields)));
+    exit;
+}
+
+if (!in_array($mem_class, ['member', 'general'], true)) {
+    header('Location: members.php?msg=' . urlencode('ประเภทสมาชิกไม่ถูกต้อง'));
     exit;
 }
 
@@ -43,10 +60,6 @@ if ($action === 'create') {
 } elseif ($action === 'edit') {
     if ($id <= 0) {
         header('Location: members.php?msg=' . urlencode('Invalid member id'));
-        exit;
-    }
-    if(empty($mem_group) || empty($mem_number) || empty($mem_fullname) || empty($mem_class)) {
-        header('Location: members.php?msg=' . urlencode('กรุณากรอกข้อมูลให้ครบ'));
         exit;
     }
     $stmt = $mysqli->prepare('UPDATE tbl_member SET mem_group = ?, mem_number = ?, mem_fullname = ?, mem_class = ?, mem_saveby = ?, mem_savedate = ? WHERE mem_id = ?');

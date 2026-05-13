@@ -162,14 +162,14 @@ body {
           <i data-lucide="users" aria-hidden="true"></i>
         </span>
         <div>
-          <div class="text-uppercase text-success fw-semibold small mb-1">Administration</div>
-          <h1 class="h3 fw-bold mb-1 text-success-emphasis">Users</h1>
+          <div class="text-uppercase text-success fw-semibold small mb-1">ผู้ดูแลระบบ</div>
+          <h1 class="h3 fw-bold mb-1 text-success-emphasis">บัญชีผู้ใช้</h1>
           <div class="text-success">จัดการบัญชีผู้ใช้งานระบบ</div>
         </div>
       </div>
       <div class="d-flex flex-wrap gap-2">
         <a href="user_form.php?action=create" class="btn btn-success">
-          <i data-lucide="user-plus" class="me-1" aria-hidden="true"></i>Create User
+          <i data-lucide="user-plus" class="me-1" aria-hidden="true"></i>เพิ่มผู้ใช้
         </a>
       </div>
     </div>
@@ -192,7 +192,7 @@ body {
         <div class="d-flex align-items-center gap-3">
           <span class="stat-icon"><i data-lucide="shield" aria-hidden="true"></i></span>
           <div>
-            <div class="text-success-emphasis fw-semibold">Admin</div>
+            <div class="text-success-emphasis fw-semibold">แอดมิน</div>
             <div class="h4 mb-0 fw-bold"><?php echo number_format($adminCount); ?></div>
           </div>
         </div>
@@ -203,7 +203,7 @@ body {
         <div class="d-flex align-items-center gap-3">
           <span class="stat-icon"><i data-lucide="badge-check" aria-hidden="true"></i></span>
           <div>
-            <div class="text-success-emphasis fw-semibold">Active</div>
+            <div class="text-success-emphasis fw-semibold">ใช้งานอยู่</div>
             <div class="h4 mb-0 fw-bold"><?php echo number_format($activeCount); ?></div>
           </div>
         </div>
@@ -215,29 +215,29 @@ body {
     <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between align-items-lg-center mb-3">
       <div>
         <h2 class="h5 fw-bold mb-1 text-success-emphasis">ค้นหาผู้ใช้</h2>
-        <div class="text-success">ค้นหาจาก Username หรือชื่อ-สกุล</div>
+        <div class="text-success">ค้นหาจากชื่อผู้ใช้หรือชื่อ-สกุล</div>
       </div>
       <a href="users.php" class="btn btn-outline-success">
-        <i data-lucide="refresh-cw" class="me-1" aria-hidden="true"></i>Clear
+        <i data-lucide="refresh-cw" class="me-1" aria-hidden="true"></i>ล้างตัวกรอง
       </a>
     </div>
 
     <form method="get" class="row g-2 position-relative align-items-end" id="user-search-form">
       <div class="col-12 col-lg">
         <label for="user-search-input" class="form-label">
-          <i data-lucide="search" class="me-1" aria-hidden="true"></i>Search
+          <i data-lucide="search" class="me-1" aria-hidden="true"></i>ค้นหา
         </label>
-        <input type="text" name="q" id="user-search-input" class="form-control" placeholder="Search users (min 2 chars)"
+        <input type="text" name="q" id="user-search-input" class="form-control" placeholder="ค้นหาผู้ใช้ (อย่างน้อย 2 ตัวอักษร)"
           autocomplete="off" value="<?php echo htmlspecialchars($q); ?>">
         <div id="user-suggestions" class="list-group position-absolute shadow-sm"
           style="z-index:1050; width:100%; display:none;"></div>
       </div>
       <div class="col-12 col-lg-auto d-flex gap-2">
         <button type="submit" class="btn btn-primary flex-grow-1 flex-lg-grow-0">
-          <i data-lucide="search" class="me-1" aria-hidden="true"></i>Search
+          <i data-lucide="search" class="me-1" aria-hidden="true"></i>ค้นหา
         </button>
         <a href="users.php" class="btn btn-outline-secondary flex-grow-1 flex-lg-grow-0">
-          <i data-lucide="x" class="me-1" aria-hidden="true"></i>Clear
+          <i data-lucide="x" class="me-1" aria-hidden="true"></i>ล้าง
         </a>
       </div>
     </form>
@@ -265,11 +265,11 @@ body {
         <thead>
           <tr>
             <th><i data-lucide="hash" class="me-1" aria-hidden="true"></i>#</th>
-            <th><i data-lucide="user" class="me-1" aria-hidden="true"></i>Username</th>
-            <th><i data-lucide="user" class="me-1" aria-hidden="true"></i>Fullname</th>
-            <th><i data-lucide="shield" class="me-1" aria-hidden="true"></i>Level</th>
-            <th><i data-lucide="badge-check" class="me-1" aria-hidden="true"></i>Status</th>
-            <th class="text-nowrap"><i data-lucide="settings-2" class="me-1" aria-hidden="true"></i>Actions</th>
+            <th><i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อผู้ใช้</th>
+            <th><i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อ-สกุล</th>
+            <th><i data-lucide="shield" class="me-1" aria-hidden="true"></i>ระดับ</th>
+            <th><i data-lucide="badge-check" class="me-1" aria-hidden="true"></i>สถานะ</th>
+            <th class="text-nowrap"><i data-lucide="settings-2" class="me-1" aria-hidden="true"></i>จัดการ</th>
           </tr>
         </thead>
         <tbody>
@@ -277,8 +277,8 @@ body {
           <?php
               $levelBadge = $u['user_level'] === 'admin' ? 'bg-danger' : 'bg-secondary';
               $statusBadge = $u['user_status'] === 'active' ? 'bg-success' : 'bg-warning text-dark';
-              $levelLabel = $u['user_level'] === 'admin' ? 'admin' : 'user';
-              $statusLabel = $u['user_status'] === 'active' ? 'active' : 'inactive';
+              $levelLabel = $u['user_level'] === 'admin' ? 'แอดมิน' : 'ผู้ใช้';
+              $statusLabel = $u['user_status'] === 'active' ? 'ใช้งานอยู่' : 'ไม่ใช้งาน';
               $isAdmin = $u['user_level'] === 'admin';
             ?>
           <tr>
@@ -292,20 +292,20 @@ body {
               <div class="d-flex gap-2 action-group">
                 <?php if ($isAdmin): ?>
                 <span class="btn btn-sm btn-outline-primary disabled" aria-disabled="true" tabindex="-1">
-                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>Edit
+                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไข
                 </span>
                 <span class="btn btn-sm btn-outline-danger disabled" aria-disabled="true" tabindex="-1">
-                  <i data-lucide="trash-2" class="me-1" aria-hidden="true"></i>Delete
+                  <i data-lucide="trash-2" class="me-1" aria-hidden="true"></i>ลบ
                 </span>
                 <?php else: ?>
                 <a href="user_form.php?action=edit&id=<?php echo (int)$u['user_id']; ?>"
                   class="btn btn-sm btn-outline-primary">
-                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>Edit
+                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไข
                 </a>
-                <form method="post" action="user_delete.php" onsubmit="return confirm('Delete this user?');">
+                <form method="post" action="user_delete.php" onsubmit="return confirm('ลบบัญชีผู้ใช้นี้หรือไม่?');">
                   <input type="hidden" name="id" value="<?php echo (int)$u['user_id']; ?>">
                   <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i data-lucide="trash-2" class="me-1" aria-hidden="true"></i>Delete
+                    <i data-lucide="trash-2" class="me-1" aria-hidden="true"></i>ลบ
                   </button>
                 </form>
                 <?php endif; ?>

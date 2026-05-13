@@ -70,6 +70,58 @@ function fetch_top_rubber_quantity(mysqli $conn, string $class, ?string $roundDa
     return $rows;
 }
 
+function fetch_top_rubber_metric(mysqli $conn, string $class, string $metricKey, ?string $roundDate = null): array {
+    $metricMap = [
+        'quantity' => 'SUM(ru_quantity)',
+        'hoon' => 'SUM(ru_hoon)',
+        'net' => 'SUM(ru_netvalue)',
+        'deduct' => 'SUM(ru_expend)',
+        'count' => 'COUNT(*)',
+    ];
+
+    if (!isset($metricMap[$metricKey])) {
+        return [];
+    }
+
+    $where = ['LOWER(TRIM(ru_class)) = ?'];
+    $types = 's';
+    $params = [strtolower($class)];
+
+    if ($roundDate !== null && $roundDate !== '') {
+        $where[] = 'ru_date = ?';
+        $types .= 's';
+        $params[] = $roundDate;
+    }
+
+    $sql = "SELECT
+            TRIM(ru_group) AS ru_group,
+            TRIM(ru_number) AS ru_number,
+            TRIM(ru_fullname) AS ru_fullname,
+            {$metricMap[$metricKey]} AS metric_value,
+            COUNT(*) AS entry_count
+        FROM tbl_rubber
+        WHERE " . implode(' AND ', $where) . "
+        GROUP BY TRIM(ru_group), TRIM(ru_number), TRIM(ru_fullname)
+        HAVING metric_value > 0
+        ORDER BY metric_value DESC, ru_fullname ASC
+        LIMIT 10";
+
+    $rows = [];
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result) {
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            $result->free();
+        }
+        $stmt->close();
+    }
+
+    return $rows;
+}
+
 function fetch_latest_deduction_summary(mysqli $conn, string $class, ?string $roundDate = null): array {
     $where = ['LOWER(TRIM(ru_class)) = ?'];
     $types = 's';
@@ -376,11 +428,76 @@ function render_top_rubber_table(string $title, string $subtitle, array $rows): 
 <?php
 }
 
+function render_top_metric_table(string $title, string $subtitle, array $rows, string $valueLabel, int $decimals = 2, string $unit = ''): void {
+    static $topMetricTableIndex = 0;
+    $topMetricTableIndex++;
+    $collapseId = 'topMetricTable' . $topMetricTableIndex;
+    ?>
+<div class="col-12 col-lg-6">
+  <div class="card h-100 shadow-sm top-rubber-card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-3 top-rubber-heading">
+        <div>
+          <h5 class="card-title mb-1"><i data-lucide="trophy" class="me-2"
+              aria-hidden="true"></i><?php echo e($title); ?></h5>
+          <p class="card-text small text-muted mb-0"><?php echo e($subtitle); ?></p>
+        </div>
+        <div class="d-flex align-items-center gap-2 top-rubber-actions">
+          <span class="badge text-bg-success">Top 10</span>
+          <button type="button" class="btn btn-outline-success btn-sm top-rubber-toggle" data-bs-toggle="collapse"
+            data-bs-target="#<?php echo e($collapseId); ?>" aria-expanded="false"
+            aria-controls="<?php echo e($collapseId); ?>">แสดงข้อมูล</button>
+        </div>
+      </div>
+
+      <div class="collapse" id="<?php echo e($collapseId); ?>">
+        <?php if (empty($rows)): ?>
+        <div class="text-muted small py-3">ยังไม่มีข้อมูลสำหรับแสดงอันดับ</div>
+        <?php else: ?>
+        <div class="top-rubber-table-wrap">
+          <table class="table table-sm align-middle top-rubber-table mb-0">
+            <thead>
+              <tr>
+                <th class="text-center rank-col">#</th>
+                <th>ชื่อ-สกุล/เลขที่</th>
+                <th class="text-end quantity-col"><?php echo e($valueLabel); ?></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($rows as $idx => $row): ?>
+              <?php $value = (float)($row['metric_value'] ?? 0); ?>
+              <tr>
+                <td class="text-center fw-semibold"><?php echo $idx + 1; ?></td>
+                <td class="top-rubber-name">
+                  <?php echo e($row['ru_fullname'] ?? '-'); ?>/[<?php echo e(($row['ru_number'] ?? '') !== '' ? $row['ru_number'] : '-'); ?>]
+                </td>
+                <td class="text-end fw-semibold">
+                  <?php echo number_format($value, $decimals); ?><?php echo $unit !== '' ? ' ' . e($unit) : ''; ?>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>
+<?php
+}
+
 $latestCollectionDate = get_latest_collection_date($conn);
 $latestMemberTop = fetch_top_rubber_quantity($conn, 'member', $latestCollectionDate);
 $latestGeneralTop = fetch_top_rubber_quantity($conn, 'general', $latestCollectionDate);
 $allMemberTop = fetch_top_rubber_quantity($conn, 'member');
 $allGeneralTop = fetch_top_rubber_quantity($conn, 'general');
+$allMemberHoonTop = fetch_top_rubber_metric($conn, 'member', 'hoon');
+$allGeneralHoonTop = fetch_top_rubber_metric($conn, 'general', 'hoon');
+$allMemberNetTop = fetch_top_rubber_metric($conn, 'member', 'net');
+$allGeneralNetTop = fetch_top_rubber_metric($conn, 'general', 'net');
+$allMemberDeductTop = fetch_top_rubber_metric($conn, 'member', 'deduct');
+$allGeneralDeductTop = fetch_top_rubber_metric($conn, 'general', 'deduct');
 $latestMemberDeduction = fetch_latest_deduction_summary($conn, 'member', $latestCollectionDate);
 $latestGeneralDeduction = fetch_latest_deduction_summary($conn, 'general', $latestCollectionDate);
 $latestMemberCollectionSummary = fetch_latest_collection_group_summary($conn, 'member', $latestCollectionDate);
@@ -431,6 +548,29 @@ body {
 
 .top-rubber-toggle {
   white-space: nowrap;
+}
+
+.top-rubber-tabs {
+  border-bottom: 1px solid #dce8df;
+}
+
+.top-rubber-tabs .nav-link {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #4f6f5d;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+}
+
+.top-rubber-tabs .nav-link:hover {
+  border-color: #c7d6cc;
+  color: #245c38;
+}
+
+.top-rubber-tabs .nav-link.active {
+  background-color: #e8f4eb;
+  border-color: #c7dfcf;
+  color: #245c38;
 }
 
 .top-rubber-table {
@@ -1012,7 +1152,7 @@ body {
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mt-2 top-rubber-section-title">
         <div>
-          <h2 class="h5 mb-1"><i data-lucide="bar-chart-3" class="me-2" aria-hidden="true"></i>อันดับปริมาณยางสูงสุด
+          <h2 class="h5 mb-1"><i data-lucide="bar-chart-3" class="me-2" aria-hidden="true"></i>อันดับปริมาณยางรอบล่าสุด
           </h2>
           <div class="small text-muted">
             <?php if ($latestCollectionDate !== ''): ?>
@@ -1031,9 +1171,80 @@ body {
             : 'รอบการรวบรวมล่าสุด';
         render_top_rubber_table('10 อันดับสมาชิกที่มีปริมาณยางสูงสุด', $latestSubtitle, $latestMemberTop);
         render_top_rubber_table('10 อันดับเกษตรกรที่มีปริมาณยางสูงสุด', $latestSubtitle, $latestGeneralTop);
-        render_top_rubber_table('10 อันดับสมาชิกที่มีปริมาณยางสูงสุด', 'ตั้งแต่มีการรวบรวมมา', $allMemberTop);
-        render_top_rubber_table('10 อันดับเกษตรกรที่มีปริมาณยางสูงสุด', 'ตั้งแต่มีการรวบรวมมา', $allGeneralTop);
         ?>
+    <div class="col-12 mt-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 mb-3">
+            <div>
+              <h2 class="h5 mb-1"><i data-lucide="layers-3" class="me-2" aria-hidden="true"></i>อันดับสะสมทั้งหมด
+              </h2>
+              <div class="small text-muted">จัดอันดับตั้งแต่เริ่มมีการรวบรวมยาง เพื่อดูภาพรวมทั้งระบบโดยไม่ปนกับรอบล่าสุด</div>
+            </div>
+            <span class="badge text-bg-success align-self-start align-self-lg-center">Top 10</span>
+          </div>
+
+          <ul class="nav nav-pills top-rubber-tabs gap-2 mb-3" id="cumulativeTopTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-quantity-btn" data-bs-toggle="tab"
+                data-bs-target="#tab-quantity-pane" type="button" role="tab" aria-controls="tab-quantity-pane"
+                aria-selected="true">ปริมาณยาง</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-hoon-btn" data-bs-toggle="tab" data-bs-target="#tab-hoon-pane"
+                type="button" role="tab" aria-controls="tab-hoon-pane" aria-selected="false">ถือหุ้น</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-net-btn" data-bs-toggle="tab" data-bs-target="#tab-net-pane"
+                type="button" role="tab" aria-controls="tab-net-pane" aria-selected="false">ยอดสุทธิ</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-deduct-btn" data-bs-toggle="tab" data-bs-target="#tab-deduct-pane"
+                type="button" role="tab" aria-controls="tab-deduct-pane" aria-selected="false">ยอดหักรวม</button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="cumulativeTopTabsContent">
+            <div class="tab-pane fade show active" id="tab-quantity-pane" role="tabpanel"
+              aria-labelledby="tab-quantity-btn" tabindex="0">
+              <div class="row g-3">
+                <?php
+                  render_top_metric_table('10 อันดับสมาชิกที่มีปริมาณยางสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allMemberTop, 'ปริมาณรวม', 2, 'กก.');
+                  render_top_metric_table('10 อันดับเกษตรกรทั่วไปที่มีปริมาณยางสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allGeneralTop, 'ปริมาณรวม', 2, 'กก.');
+                ?>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-hoon-pane" role="tabpanel" aria-labelledby="tab-hoon-btn" tabindex="0">
+              <div class="row g-3">
+                <?php
+                  render_top_metric_table('10 อันดับสมาชิกที่ถือหุ้นสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allMemberHoonTop, 'ยอดถือหุ้นรวม', 2, '฿');
+                  render_top_metric_table('10 อันดับเกษตรกรทั่วไปที่ถือหุ้นสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allGeneralHoonTop, 'ยอดถือหุ้นรวม', 2, '฿');
+                ?>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-net-pane" role="tabpanel" aria-labelledby="tab-net-btn" tabindex="0">
+              <div class="row g-3">
+                <?php
+                  render_top_metric_table('10 อันดับสมาชิกที่มียอดสุทธิสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allMemberNetTop, 'ยอดสุทธิรวม', 2, '฿');
+                  render_top_metric_table('10 อันดับเกษตรกรทั่วไปที่มียอดสุทธิสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allGeneralNetTop, 'ยอดสุทธิรวม', 2, '฿');
+                ?>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-deduct-pane" role="tabpanel" aria-labelledby="tab-deduct-btn" tabindex="0">
+              <div class="row g-3">
+                <?php
+                  render_top_metric_table('10 อันดับสมาชิกที่มียอดหักรวมสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allMemberDeductTop, 'ยอดหักรวม', 2, '฿');
+                  render_top_metric_table('10 อันดับเกษตรกรทั่วไปที่มียอดหักรวมสะสมสูงสุด', 'ตั้งแต่เริ่มมีการรวบรวมยาง', $allGeneralDeductTop, 'ยอดหักรวม', 2, '฿');
+                ?>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
