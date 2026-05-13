@@ -167,7 +167,7 @@ $memberOnlyCount = $memberCount - $generalCount;
           <i data-lucide="users" aria-hidden="true"></i>
         </span>
         <div>
-          <div class="text-uppercase text-success fw-semibold small mb-1">Members</div>
+          <div class="text-uppercase text-success fw-semibold small mb-1">สมาชิก</div>
           <h1 class="h3 fw-bold mb-1 text-success-emphasis">สมาชิกสหกรณ์</h1>
           <div class="text-success">จัดการรายชื่อสมาชิกและเกษตรกรทั่วไป</div>
         </div>

@@ -16,9 +16,9 @@ $pr_price = isset($_POST['pr_price']) ? trim($_POST['pr_price']) : '';
 
 // basic validation
 $errors = [];
-if ($pr_year <= 0) $errors[] = 'กรุณากรอกปี';
+if ($pr_year <= 0) $errors[] = 'กรุณากรอกปี พ.ศ.';
 if ($pr_date === '') $errors[] = 'กรุณากรอกวันที่';
-if ($pr_number === '') $errors[] = 'กรุณากรอกรอบ';
+if ($pr_number === '') $errors[] = 'กรุณากรอกรอบประกาศราคา';
 if ($pr_price === '' || !is_numeric(str_replace(',', '', $pr_price))) $errors[] = 'กรุณากรอกราคาเป็นตัวเลข';
 
 if (!empty($errors)) {

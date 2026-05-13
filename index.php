@@ -121,6 +121,61 @@ html, body {
 		font-size: 0.95rem;
 	}
 
+	.quick-actions {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.75rem;
+		margin: 0 0 1.5rem;
+	}
+
+	.quick-action {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+		padding: 1rem 1.1rem;
+		border-radius: 0.9rem;
+		border: 1px solid rgba(47, 110, 67, 0.12);
+		background: #ffffff;
+		color: #204e31;
+		text-decoration: none;
+		box-shadow: 0 10px 24px rgba(16, 24, 40, 0.05);
+		transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+		min-height: 74px;
+	}
+
+	.quick-action:hover,
+	.quick-action:focus {
+		transform: translateY(-2px);
+		box-shadow: 0 16px 30px rgba(16, 24, 40, 0.08);
+		border-color: rgba(47, 110, 67, 0.22);
+		color: #184d2d;
+	}
+
+	.quick-action i {
+		width: 2.4rem;
+		height: 2.4rem;
+		border-radius: 0.75rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: #e8f5eb;
+		color: #2f6e43;
+		flex: 0 0 auto;
+	}
+
+	.quick-action strong {
+		display: block;
+		font-size: 1rem;
+		line-height: 1.2;
+	}
+
+	.quick-action span {
+		display: block;
+		font-size: 0.9rem;
+		color: #6b7e70;
+		line-height: 1.3;
+	}
+
 	.index-toolbar {
 		display: flex;
 		align-items: center;
@@ -219,6 +274,167 @@ html, body {
 
 	.stat-sub .fw-semibold {
 		color: var(--bs-success-text-emphasis);
+	}
+
+	.announcement-card {
+		background: linear-gradient(135deg, #fff7ed 0%, #fffdf5 100%);
+		border: 1px solid rgba(245, 158, 11, 0.25);
+		border-radius: 1rem;
+		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+	}
+
+	.announcement-icon {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 0.9rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: #fef3c7;
+		color: #b45309;
+		flex: 0 0 auto;
+	}
+
+	.announcement-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.45rem 0.75rem;
+		border-radius: 999px;
+		background: #ffffff;
+		border: 1px solid rgba(245, 158, 11, 0.25);
+		color: #7c2d12;
+		font-weight: 600;
+	}
+
+	.announcement-note {
+		color: #7c2d12;
+	}
+
+	.live-round-card {
+		border-radius: 1rem;
+		border: 1px solid rgba(47, 110, 67, 0.14);
+		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+		overflow: hidden;
+	}
+
+	.live-round-card .card-body {
+		padding: 1.1rem 1.15rem;
+	}
+
+	.live-round-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.4rem 0.7rem;
+		border-radius: 999px;
+		background: #eef8f0;
+		color: #2f6e43;
+		font-weight: 600;
+		font-size: 0.92rem;
+	}
+
+	.live-round-time {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		color: #6b7e70;
+		font-size: 0.92rem;
+	}
+
+	.live-round-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.75rem;
+	}
+
+	.live-round-tile {
+		border-radius: 1rem;
+		border: 1px solid rgba(47, 110, 67, 0.12);
+		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.04);
+		overflow: hidden;
+	}
+
+	.live-round-tile .card-body {
+		padding: 1rem 1.05rem;
+	}
+
+	.live-round-icon {
+		width: 3.1rem;
+		height: 3.1rem;
+		border-radius: 0.95rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: #e8f5eb;
+		color: #2f6e43;
+		flex: 0 0 auto;
+	}
+
+	.live-round-value {
+		font-size: 1.9rem;
+		font-weight: 700;
+		line-height: 1.1;
+		color: #183524;
+	}
+
+	.live-round-label {
+		font-size: 0.95rem;
+		color: #617565;
+	}
+
+	.live-round-foot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-top: 0.75rem;
+		padding-top: 0.75rem;
+		border-top: 1px dashed rgba(47, 110, 67, 0.14);
+	}
+
+	@media (max-width: 992px) {
+		.live-round-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.average-card {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.average-card-icon {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 0.9rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 auto;
+		background: #e8f5eb;
+		color: #2f6e43;
+	}
+
+	.average-card-icon.is-accent {
+		background: #eef2ff;
+		color: #4f46e5;
+	}
+
+	.average-card-value {
+		font-size: 2rem;
+		font-weight: 700;
+		line-height: 1.15;
+		margin-bottom: 0.35rem;
+		color: #183524;
+	}
+
+	.average-card-note {
+		font-size: 0.95rem;
+		color: #6f8073;
 	}
 
 	.chart-card {
@@ -329,6 +545,10 @@ html, body {
 			padding: 1.5rem;
 		}
 
+		.quick-actions {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
 		.index-toolbar {
 			flex-direction: column;
 			align-items: stretch !important;
@@ -395,6 +615,14 @@ html, body {
 			font-size: 0.9rem;
 		}
 
+		.average-card {
+			flex-direction: row;
+		}
+
+		.average-card-value {
+			font-size: 1.8rem;
+		}
+
 		.card-table {
 			margin: 0 -0.5rem;
 		}
@@ -430,6 +658,10 @@ html, body {
 	}
 
 	@media (max-width: 576px) {
+		.quick-actions {
+			grid-template-columns: 1fr;
+		}
+
 		.container {
 			padding: 1.25rem 1rem;
 			border-radius: 1rem;
@@ -518,6 +750,9 @@ if ($stmt) {
 }
 
 $onlinePresenceStats = fetch_online_presence_stats($db);
+$rubberAnnouncement = fetch_rubber_collection_announcement($db, $latest_price_date);
+$rubberLiveSummary = fetch_rubber_round_live_summary($db, $latest_price_date);
+$rubberLiveSummaryPreview = fetch_rubber_round_live_summary($db, '2026-05-25');
 
 // added: safe display for latest price date
 $latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_date) : '-';
@@ -572,10 +807,48 @@ if ($rs = $db->query("SELECT COUNT(*) AS cnt FROM tbl_rubber")) {
 	$rs->free();
 }
 
+// Query ค่าเฉลี่ยต่อคนของรอบล่าสุด (วันที่ราคายางล่าสุด)
+$latest_round_total_quantity = 0;
+$latest_round_total_net = 0;
+$latest_round_member_people = 0;
+$latest_round_general_people = 0;
+$latest_round_unique_people = 0;
+if ($latest_price_date) {
+	$latestRoundSql = "SELECT
+		COALESCE(SUM(ru_quantity), 0) AS total_qty,
+		COALESCE(SUM(ru_netvalue), 0) AS total_net,
+		COUNT(DISTINCT CASE WHEN LOWER(TRIM(ru_class)) = 'member' THEN TRIM(ru_number) END) AS member_people,
+		COUNT(DISTINCT CASE WHEN LOWER(TRIM(ru_class)) = 'general' THEN TRIM(ru_fullname) END) AS general_people
+	FROM tbl_rubber
+	WHERE ru_date = ?";
+	$latestRoundStmt = $db->prepare($latestRoundSql);
+	if ($latestRoundStmt) {
+		$latestRoundStmt->bind_param('s', $latest_price_date);
+		$latestRoundStmt->execute();
+		$latestRoundRes = $latestRoundStmt->get_result();
+		if ($latestRoundRes) {
+			$row = $latestRoundRes->fetch_assoc();
+			$latest_round_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
+			$latest_round_total_net = $row['total_net'] ? (float)$row['total_net'] : 0;
+			$latest_round_member_people = (int)($row['member_people'] ?? 0);
+			$latest_round_general_people = (int)($row['general_people'] ?? 0);
+			$latestRoundRes->free();
+		}
+		$latestRoundStmt->close();
+	}
+	$latest_round_unique_people = $latest_round_member_people + $latest_round_general_people;
+}
+
+$latest_average_quantity_per_person = $latest_round_unique_people > 0 ? $latest_round_total_quantity / $latest_round_unique_people : 0;
+$latest_average_net_per_person = $latest_round_unique_people > 0 ? $latest_round_total_net / $latest_round_unique_people : 0;
+
 // Query ปริมาณรวมและยอดเงินรวมสะสมของทุกลานจากฐานข้อมูลโดยตรง
 $all_total_quantity = 0;
 $all_total_value = 0;
-$all_stats = $db->query("SELECT COALESCE(SUM(ru_quantity), 0) AS total_qty, COALESCE(SUM(ru_value), 0) AS total_value FROM tbl_rubber");
+$all_stats = $db->query("SELECT
+	COALESCE(SUM(ru_quantity), 0) AS total_qty,
+	COALESCE(SUM(ru_value), 0) AS total_value
+FROM tbl_rubber");
 if ($all_stats) {
     $row = $all_stats->fetch_assoc();
     $all_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
@@ -735,6 +1008,230 @@ if (!empty($chartSummaryByDate)) {
 		</div>
 	</div>
 
+	<?php if (!empty($rubberAnnouncement['show'])): ?>
+	<div class="row g-3 mb-4">
+		<div class="col-12">
+			<div class="card announcement-card">
+				<div class="card-body p-3 p-md-4">
+					<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+						<div class="d-flex align-items-start gap-3">
+							<div class="announcement-icon" aria-hidden="true">
+								<i data-lucide="megaphone" class="fs-4"></i>
+							</div>
+							<div>
+								<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+									<span class="badge text-bg-warning text-dark">ประกาศอัตโนมัติ</span>
+									<h2 class="h5 mb-0">วันวางยางและวันชั่งยางรอบล่าสุด</h2>
+								</div>
+								<div class="announcement-note mb-2">
+									<?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?> ถึง <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?>
+									สำหรับการวางยาง และชั่งยางวันที่ <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?>
+								</div>
+								<div class="small text-muted">
+									ประกาศนี้จะแสดงจนถึงวันชั่งยางของราคายางล่าสุด และจะหายไปอัตโนมัติหลังวันชั่งยาง
+								</div>
+							</div>
+						</div>
+						<div class="d-flex flex-column gap-2">
+							<span class="announcement-pill"><i data-lucide="calendar-range" aria-hidden="true"></i> วางยาง <?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?></span>
+							<span class="announcement-pill"><i data-lucide="calendar-check" aria-hidden="true"></i> วางยาง <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?></span>
+							<span class="announcement-pill"><i data-lucide="scale" aria-hidden="true"></i> ชั่งยาง <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<div id="liveRoundSection" class="row g-3 mb-4<?php echo empty($rubberLiveSummary['show']) ? ' d-none' : ''; ?>">
+		<div class="col-12">
+			<div class="card live-round-card">
+				<div class="card-body">
+					<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+						<div>
+							<div class="live-round-badge mb-2">
+								<i data-lucide="radio" aria-hidden="true"></i> อัปเดตทุก 5 นาที
+							</div>
+							<h2 class="h5 mb-1">สรุปข้อมูลรอบวางยางล่าสุด</h2>
+							<div class="small text-muted">
+								<?php echo e($rubberLiveSummary['lay_start_text'] ?? '-'); ?> ถึง <?php echo e($rubberLiveSummary['lay_end_text'] ?? '-'); ?>
+								และชั่งยางวันที่ <?php echo e($rubberLiveSummary['weigh_date_text'] ?? '-'); ?>
+							</div>
+						</div>
+						<div class="live-round-time">
+							<i data-lucide="clock-3" aria-hidden="true"></i>
+							อัปเดตล่าสุด <span id="liveRoundUpdatedAt"><?php echo e($rubberLiveSummary['updated_at_text'] ?? '-'); ?></span>
+						</div>
+					</div>
+
+					<div class="live-round-grid">
+						<div class="card live-round-tile bg-success-subtle">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start gap-3">
+									<div>
+										<div class="live-round-label mb-1">น้ำหนักรวม</div>
+										<div class="live-round-value" id="liveRoundQuantity"><?php echo number_format((float)($rubberLiveSummary['total_quantity'] ?? 0), 2); ?> kg</div>
+									</div>
+								<div class="live-round-icon" aria-hidden="true">
+									<i data-lucide="scale" class="fs-3"></i>
+								</div>
+							</div>
+								<div class="live-round-foot">
+									<span class="small text-success-emphasis">รวมทุกลานในรอบล่าสุด</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="card live-round-tile bg-warning-subtle">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start gap-3">
+									<div>
+										<div class="live-round-label mb-1">ยอดเงินหัก</div>
+										<div class="live-round-value" id="liveRoundDeduct"><?php echo number_format((float)($rubberLiveSummary['total_expend'] ?? 0), 2); ?> ฿</div>
+									</div>
+									<div class="live-round-icon" aria-hidden="true" style="background:#fff4db;color:#b45309;">
+										<i data-lucide="file-text" class="fs-3"></i>
+									</div>
+								</div>
+								<div class="live-round-foot">
+									<span class="small text-warning-emphasis">หักรวมจากทุกรายการในรอบนี้</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="card live-round-tile bg-primary-subtle">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start gap-3">
+									<div>
+										<div class="live-round-label mb-1">ยอดเงินที่จ่าย</div>
+										<div class="live-round-value" id="liveRoundNet"><?php echo number_format((float)($rubberLiveSummary['total_net'] ?? 0), 2); ?> ฿</div>
+									</div>
+									<div class="live-round-icon" aria-hidden="true" style="background:#e0ecff;color:#1d4ed8;">
+										<i data-lucide="wallet" class="fs-3"></i>
+									</div>
+								</div>
+								<div class="live-round-foot">
+									<span class="small text-primary-emphasis">จ่ายสุทธิหลังหักทั้งหมด</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<?php if (empty($rubberLiveSummary['show']) && !empty($rubberLiveSummaryPreview['show'])): ?>
+	<div class="row g-3 mb-4">
+		<div class="col-12">
+			<div class="card live-round-card">
+				<div class="card-body">
+					<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+						<div>
+							<div class="live-round-badge mb-2" style="background:#fef3c7;color:#b45309;">
+								<i data-lucide="sparkles" aria-hidden="true"></i> ตัวอย่างป้ายการ์ด 3 ใบ
+							</div>
+							<h2 class="h5 mb-1">สรุปข้อมูลรอบวางยางล่าสุด</h2>
+							<div class="small text-muted">
+								ตัวอย่างจากรอบวันที่ <?php echo e($rubberLiveSummaryPreview['weigh_date_text'] ?? '-'); ?>
+							</div>
+						</div>
+						<div class="live-round-time">
+							<i data-lucide="eye" aria-hidden="true"></i>
+							ตัวอย่างสำหรับตรวจรูปแบบ UI
+						</div>
+					</div>
+
+					<div class="live-round-grid">
+						<div class="card live-round-tile bg-success-subtle">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start gap-3">
+									<div>
+										<div class="live-round-label mb-1">น้ำหนักรวม</div>
+										<div class="live-round-value"><?php echo number_format((float)($rubberLiveSummaryPreview['total_quantity'] ?? 0), 2); ?> kg</div>
+									</div>
+									<div class="live-round-icon" aria-hidden="true">
+										<i data-lucide="scale" class="fs-3"></i>
+									</div>
+								</div>
+								<div class="live-round-foot">
+									<span class="small text-success-emphasis">รวมทุกลานในรอบล่าสุด</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="card live-round-tile bg-warning-subtle">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start gap-3">
+									<div>
+										<div class="live-round-label mb-1">ยอดเงินหัก</div>
+										<div class="live-round-value"><?php echo number_format((float)($rubberLiveSummaryPreview['total_expend'] ?? 0), 2); ?> ฿</div>
+									</div>
+									<div class="live-round-icon" aria-hidden="true" style="background:#fff4db;color:#b45309;">
+										<i data-lucide="file-text" class="fs-3"></i>
+									</div>
+								</div>
+								<div class="live-round-foot">
+									<span class="small text-warning-emphasis">หักรวมจากทุกรายการในรอบนี้</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="card live-round-tile bg-primary-subtle">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start gap-3">
+									<div>
+										<div class="live-round-label mb-1">ยอดเงินที่จ่าย</div>
+										<div class="live-round-value"><?php echo number_format((float)($rubberLiveSummaryPreview['total_net'] ?? 0), 2); ?> ฿</div>
+									</div>
+									<div class="live-round-icon" aria-hidden="true" style="background:#e0ecff;color:#1d4ed8;">
+										<i data-lucide="wallet" class="fs-3"></i>
+									</div>
+								</div>
+								<div class="live-round-foot">
+									<span class="small text-primary-emphasis">จ่ายสุทธิหลังหักทั้งหมด</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<div class="quick-actions" aria-label="ทางลัดงานหลัก">
+		<a class="quick-action" href="rubbers.php?lan=all">
+			<i data-lucide="clipboard-list" aria-hidden="true"></i>
+			<span>
+				<strong>ดูรายการรับซื้อ</strong>
+				ตรวจสอบและค้นหารายการยางได้ทันที
+			</span>
+		</a>
+		<a class="quick-action" href="member_form.php?action=create">
+			<i data-lucide="user-plus" aria-hidden="true"></i>
+			<span>
+				<strong>เพิ่มสมาชิก</strong>
+				บันทึกข้อมูลสมาชิกหรือเกษตรกรใหม่
+			</span>
+		</a>
+		<a class="quick-action" href="price_form.php?action=create">
+			<i data-lucide="dollar-sign" aria-hidden="true"></i>
+			<span>
+				<strong>เพิ่มราคายาง</strong>
+				ประกาศราคาสำหรับรอบล่าสุดอย่างรวดเร็ว
+			</span>
+		</a>
+		<a class="quick-action" href="members.php">
+			<i data-lucide="users" aria-hidden="true"></i>
+			<span>
+				<strong>ค้นหาสมาชิก</strong>
+				เปิดรายชื่อและแก้ไขข้อมูลที่เกี่ยวข้อง
+			</span>
+		</a>
+	</div>
+
 	<div class="index-toolbar">
 			<h2 class="d-flex align-items-center gap-2 mb-0">
 				<i data-lucide="grid" aria-hidden="true"></i>
@@ -841,6 +1338,41 @@ if (!empty($chartSummaryByDate)) {
 				<div class="card-body p-3">
 					<div class="chart-wrap">
 						<canvas id="generalCountChart" aria-label="กราฟจำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ" role="img"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section-title">
+		<i data-lucide="users-round" aria-hidden="true"></i>
+		ค่าเฉลี่ยต่อคนรอบล่าสุด
+	</div>
+	<div class="row g-3 mb-4">
+		<div class="col-12 col-lg-6">
+			<div class="stat-card">
+				<div class="average-card">
+					<div>
+						<div class="stat-label mb-2"><i data-lucide="scale" aria-hidden="true"></i>ยอดปริมาณยางเฉลี่ยต่อคน</div>
+						<div class="average-card-value"><?php echo number_format($latest_average_quantity_per_person,2); ?> kg</div>
+						<div class="average-card-note">รอบวันที่ <?php echo htmlspecialchars($latest_price_date_text); ?> · คำนวณจากปริมาณยางรวม ÷ ผู้ส่งทั้งหมด <?php echo number_format($latest_round_unique_people); ?> คน</div>
+					</div>
+					<div class="average-card-icon" aria-hidden="true">
+						<i data-lucide="scale" class="fs-4"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-6">
+			<div class="stat-card stat-card-accent-5">
+				<div class="average-card">
+					<div>
+						<div class="stat-label mb-2"><i data-lucide="wallet" aria-hidden="true"></i>รายรับเฉลี่ยต่อคน</div>
+						<div class="average-card-value"><?php echo number_format($latest_average_net_per_person,2); ?> ฿</div>
+						<div class="average-card-note">รอบวันที่ <?php echo htmlspecialchars($latest_price_date_text); ?> · คำนวณจากยอดสุทธิรวม (หักยอดหักแล้ว) ÷ ผู้ส่งทั้งหมด <?php echo number_format($latest_round_unique_people); ?> คน</div>
+					</div>
+					<div class="average-card-icon is-accent" aria-hidden="true">
+						<i data-lucide="coins" class="fs-4"></i>
 					</div>
 				</div>
 			</div>
@@ -1076,10 +1608,48 @@ if (!empty($chartSummaryByDate)) {
 			<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
 				<i data-lucide="plus-circle" class="me-2" aria-hidden="true"></i>บันทึกข้อมูล
 			</a>
-	</div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+(function() {
+  const section = document.getElementById('liveRoundSection');
+  if (!section) return;
+
+  const qtyNode = document.getElementById('liveRoundQuantity');
+  const deductNode = document.getElementById('liveRoundDeduct');
+  const netNode = document.getElementById('liveRoundNet');
+  const updatedNode = document.getElementById('liveRoundUpdatedAt');
+  const numberFmt = new Intl.NumberFormat('th-TH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  async function refreshLiveRound() {
+    try {
+      const res = await fetch('rubber_round_live_summary.php', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      if (!data || !data.show) {
+        section.classList.add('d-none');
+        return;
+      }
+
+      section.classList.remove('d-none');
+      if (qtyNode) qtyNode.textContent = numberFmt.format(Number(data.total_quantity || 0)) + ' kg';
+      if (deductNode) deductNode.textContent = numberFmt.format(Number(data.total_expend || 0)) + ' ฿';
+      if (netNode) netNode.textContent = numberFmt.format(Number(data.total_net || 0)) + ' ฿';
+      if (updatedNode && data.updated_at_text) updatedNode.textContent = data.updated_at_text;
+    } catch (error) {
+      // keep the latest known values if refresh fails
+    }
+  }
+
+  refreshLiveRound();
+  window.setInterval(refreshLiveRound, 300000);
+})();
+
 (function() {
   const chartLabels = <?php echo json_encode($chartLabels, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
   const chartQuantities = <?php echo json_encode($chartQuantities, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;

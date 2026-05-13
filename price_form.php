@@ -1,5 +1,4 @@
 <?php
-// filepath: /Users/sumet/Desktop/rts/price_form.php
 require_once 'functions.php';
 require_admin();
 include 'header.php';
@@ -119,7 +118,7 @@ html, body {
                     <i data-lucide="coins" aria-hidden="true"></i>
                 </span>
                 <div>
-                    <div class="text-uppercase text-success fw-semibold small mb-1">Price</div>
+                    <div class="text-uppercase text-success fw-semibold small mb-1">ราคายาง</div>
                     <h1 class="h3 fw-bold mb-1 text-success-emphasis"><?php echo ($action === 'edit') ? 'แก้ไขราคายาง' : 'เพิ่มราคายาง'; ?></h1>
                     <div class="text-success">บันทึกราคายางและรอบการประกาศราคา</div>
                 </div>
@@ -140,7 +139,7 @@ html, body {
                     <label class="form-label" for="pr_year">
                         <i data-lucide="calendar-range" class="me-1" aria-hidden="true"></i>ปี (พ.ศ.)
                     </label>
-                    <input type="number" name="pr_year" id="pr_year" class="form-control" value="<?php echo htmlspecialchars($pr['pr_year']); ?>" required>
+                    <input type="number" name="pr_year" id="pr_year" class="form-control" min="<?php echo date('Y') - 1; ?>" max="<?php echo date('Y') + 5; ?>" value="<?php echo htmlspecialchars($pr['pr_year']); ?>" required>
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label" for="pr_date">
@@ -158,7 +157,7 @@ html, body {
                     <label class="form-label" for="pr_price">
                         <i data-lucide="circle-dollar-sign" class="me-1" aria-hidden="true"></i>ราคา
                     </label>
-                    <input type="text" name="pr_price" id="pr_price" class="form-control" value="<?php echo htmlspecialchars($pr['pr_price']); ?>" required>
+                    <input type="number" name="pr_price" id="pr_price" class="form-control" inputmode="decimal" min="0" step="0.01" value="<?php echo htmlspecialchars($pr['pr_price']); ?>" required>
                 </div>
             </div>
 

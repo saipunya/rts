@@ -28,8 +28,11 @@ if ($lanParam === 'all') {
   if (!in_array($currentLan, [1, 2, 3, 4], true)) $currentLan = 1;
 }
 
-// new: search params for 'all' view
+// new: search params and pagination controls
 $search = trim((string)($_GET['search'] ?? ''));
+$classFilter = trim((string)($_GET['class'] ?? 'all'));
+$page = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 20;
 $date_from = trim((string)($_GET['date_from'] ?? ''));
 $date_to   = trim((string)($_GET['date_to'] ?? ''));
 
@@ -46,9 +49,12 @@ if ($res = $db->query("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_i
   $res->free();
 }
 
-// override any user-provided date range to lock to latest round
-$date_from = $latest_round_date;
-$date_to   = $latest_round_date;
+if ($date_from === '') {
+  $date_from = $latest_round_date;
+}
+if ($date_to === '') {
+  $date_to = $latest_round_date;
+}
 
 // added: member selection & search variables
 $member_id = isset($_GET['member_id']) ? (int)$_GET['member_id'] : 0;
@@ -326,100 +332,134 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $cu = current_user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
 $isAdmin = isset($cu['user_level']) && $cu['user_level'] === 'admin';
 
-// ดึงข้อมูลรายการ (รองรับ all + filters)
+// ดึงข้อมูลรายการและสรุปตามตัวกรอง
 $rows = [];
-if ($currentLan === 'all') {
-  // เฉพาะ admin เห็นทุกลาน, ผู้ใช้ทั่วไปเห็นเฉพาะที่ตัวเองบันทึก (รองรับค้นหา/ช่วงวันที่)
-  $conds = [];
-  $binds = [];
-  $types = '';
+$conds = [];
+$binds = [];
+$types = '';
 
-  if (!$isAdmin) {
-    $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
-    $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
-    $conds[] = '(ru_saveby = ? OR ru_saveby = ?)';
-    $types .= 'ss';
-    array_push($binds, $svFull, $svUser);
-  }
-
-  if ($search !== '') {
-    $like = '%' . $search . '%';
-    $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
-    $types .= 'ssss';
-    array_push($binds, $like, $like, $like, $like);
-  }
-  if ($date_from !== '') {
-    $df = DateTime::createFromFormat('Y-m-d', $date_from);
-    if ($df && $df->format('Y-m-d') === $date_from) {
-      $conds[] = 'ru_date >= ?';
-      $types .= 's';
-      $binds[] = $date_from;
-    }
-  }
-  if ($date_to !== '') {
-    $dt = DateTime::createFromFormat('Y-m-d', $date_to);
-    if ($dt && $dt->format('Y-m-d') === $date_to) {
-      $conds[] = 'ru_date <= ?';
-      $types .= 's';
-      $binds[] = $date_to;
-    }
-  }
-  $sql = "SELECT * FROM tbl_rubber";
-  if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
-  $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
-
-  if ($conds) {
-    $st = $db->prepare($sql);
-    if ($types !== '') $st->bind_param($types, ...$binds);
-    $st->execute();
-    $res = $st->get_result();
-  } else {
-    // ไม่มีเงื่อนไข แสดงทั้งหมด (เฉพาะ admin เท่านั้นถึงจะมาถึงส่วนนี้)
-    $res = $db->query($sql);
-  }
-
-  if ($res) {
-    while ($r = $res->fetch_assoc()) $rows[] = $r;
-    $res->free();
-  }
-  if (!empty($st)) $st->close();
-
-  // new: aggregate summary
-  $sumQty = 0.0; $sumValue = 0.0; $sumExpend = 0.0; $sumNet = 0.0;
-  foreach ($rows as $ag) {
-    $sumQty    += (float)$ag['ru_quantity'];
-    $sumValue  += (float)$ag['ru_value'];
-    $sumExpend += (float)$ag['ru_expend'];
-    $sumNet    += (float)$ag['ru_netvalue'];
-  }
-} else {
-  // ผู้ใช้ปกติ filter ด้วย ru_saveby (รองรับทั้ง fullname และ username)
-  if (!$isAdmin) {
-    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_date = ? AND (ru_saveby = ? OR ru_saveby = ?) ORDER BY ru_date DESC, ru_id DESC");
-    $lanStr = (string)$currentLan;
-    $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
-    $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
-    $stl->bind_param('ssss', $lanStr, $latest_round_date, $svFull, $svUser);
-  } else {
-    $stl = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_lan = ? AND ru_date = ? ORDER BY ru_date DESC, ru_id DESC");
-    $lanStr = (string)$currentLan;
-    $stl->bind_param('ss', $lanStr, $latest_round_date);
-  }
-  $stl->execute();
-  $res = $stl->get_result();
-  if ($res) {
-    while ($r = $res->fetch_assoc()) $rows[] = $r;
-    $res->free();
-  }
-  $stl->close();
+if ($currentLan !== 'all') {
+  $conds[] = 'ru_lan = ?';
+  $types .= 's';
+  $binds[] = (string)$currentLan;
 }
 
-// new: build export query string for PDF button
+if (!$isAdmin) {
+  $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
+  $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
+  $conds[] = '(ru_saveby = ? OR ru_saveby = ?)';
+  $types .= 'ss';
+  array_push($binds, $svFull, $svUser);
+}
+
+if ($search !== '') {
+  $like = '%' . $search . '%';
+  $conds[] = '(ru_group LIKE ? OR ru_number LIKE ? OR ru_fullname LIKE ? OR ru_class LIKE ?)';
+  $types .= 'ssss';
+  array_push($binds, $like, $like, $like, $like);
+}
+
+$dateFromValid = DateTime::createFromFormat('Y-m-d', $date_from);
+if ($dateFromValid && $dateFromValid->format('Y-m-d') === $date_from) {
+  $conds[] = 'ru_date >= ?';
+  $types .= 's';
+  $binds[] = $date_from;
+}
+
+$dateToValid = DateTime::createFromFormat('Y-m-d', $date_to);
+if ($dateToValid && $dateToValid->format('Y-m-d') === $date_to) {
+  $conds[] = 'ru_date <= ?';
+  $types .= 's';
+  $binds[] = $date_to;
+}
+
+if (in_array($classFilter, ['member', 'general'], true)) {
+  $conds[] = 'LOWER(TRIM(ru_class)) = ?';
+  $types .= 's';
+  $binds[] = $classFilter;
+}
+
+$whereSql = $conds ? ' WHERE ' . implode(' AND ', $conds) : '';
+
+$countSql = "SELECT COUNT(*) AS total_count FROM tbl_rubber" . $whereSql;
+$totalCount = 0;
+$countStmt = $db->prepare($countSql);
+if ($countStmt) {
+  if ($types !== '') {
+    $countStmt->bind_param($types, ...$binds);
+  }
+  $countStmt->execute();
+  $countRes = $countStmt->get_result();
+  if ($countRes && ($countRow = $countRes->fetch_assoc())) {
+    $totalCount = (int)($countRow['total_count'] ?? 0);
+  }
+  if ($countRes) {
+    $countRes->free();
+  }
+  $countStmt->close();
+}
+
+$summary = [
+  'sumQty' => 0.0,
+  'sumValue' => 0.0,
+  'sumExpend' => 0.0,
+  'sumNet' => 0.0,
+];
+$summarySql = "SELECT
+    COALESCE(SUM(ru_quantity), 0) AS sumQty,
+    COALESCE(SUM(ru_value), 0) AS sumValue,
+    COALESCE(SUM(ru_expend), 0) AS sumExpend,
+    COALESCE(SUM(ru_netvalue), 0) AS sumNet
+  FROM tbl_rubber" . $whereSql;
+$summaryStmt = $db->prepare($summarySql);
+if ($summaryStmt) {
+  if ($types !== '') {
+    $summaryStmt->bind_param($types, ...$binds);
+  }
+  $summaryStmt->execute();
+  $summaryRes = $summaryStmt->get_result();
+  if ($summaryRes && ($summaryRow = $summaryRes->fetch_assoc())) {
+    $summary['sumQty'] = (float)($summaryRow['sumQty'] ?? 0);
+    $summary['sumValue'] = (float)($summaryRow['sumValue'] ?? 0);
+    $summary['sumExpend'] = (float)($summaryRow['sumExpend'] ?? 0);
+    $summary['sumNet'] = (float)($summaryRow['sumNet'] ?? 0);
+  }
+  if ($summaryRes) {
+    $summaryRes->free();
+  }
+  $summaryStmt->close();
+}
+
+$totalPages = max(1, (int)ceil(max(1, $totalCount) / $perPage));
+if ($page > $totalPages) {
+  $page = $totalPages;
+}
+$offset = ($page - 1) * $perPage;
+
+$listSql = "SELECT * FROM tbl_rubber" . $whereSql . " ORDER BY ru_date DESC, ru_id DESC LIMIT " . (int)$perPage . " OFFSET " . (int)$offset;
+$listStmt = $db->prepare($listSql);
+if ($listStmt) {
+  if ($types !== '') {
+    $listStmt->bind_param($types, ...$binds);
+  }
+  $listStmt->execute();
+  $listRes = $listStmt->get_result();
+  if ($listRes) {
+    while ($r = $listRes->fetch_assoc()) {
+      $rows[] = $r;
+    }
+    $listRes->free();
+  }
+  $listStmt->close();
+}
+
+// new: build export query string for Excel/PDF buttons
 $exportBaseParams = [
   'lan' => ($currentLan === 'all' ? 'all' : $currentLan),
   'search' => $search,
   'date_from' => $date_from,
   'date_to' => $date_to,
+  'class' => $classFilter,
 ];
 $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !== ''));
 ?>
@@ -1170,7 +1210,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
             <span class="hero-chip"><i data-lucide="calendar"
                 aria-hidden="true"></i><?php echo e(thai_date_format($latest_round_date)); ?></span>
             <span class="hero-chip"><i data-lucide="check-square"
-                aria-hidden="true"></i><?php echo number_format(count($rows)); ?> รายการ</span>
+                aria-hidden="true"></i><?php echo number_format($totalCount); ?> รายการ</span>
           </div>
         </div>
       </div>
@@ -1324,7 +1364,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_quantity">ปริมาณ</label>
                 <div class="field-control">
-                  <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" class="form-control text-end"
+                  <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
@@ -1339,7 +1379,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_hoon">หุ้น</label>
                 <div class="field-control">
-                  <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" class="form-control text-end"
+                  <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_hoon']); ?>">
                 </div>
               </div>
@@ -1348,7 +1388,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_loan">เงินกู้</label>
                 <div class="field-control">
-                  <input id="ru_loan" name="ru_loan" required inputmode="decimal" class="form-control text-end"
+                  <input id="ru_loan" name="ru_loan" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_loan']); ?>">
                 </div>
               </div>
@@ -1357,7 +1397,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_shortdebt">หนี้สั้น</label>
                 <div class="field-control">
-                  <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal"
+                  <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal" step="0.01" min="0"
                     class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
                 </div>
               </div>
@@ -1366,7 +1406,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_deposit">เงินฝาก</label>
                 <div class="field-control">
-                  <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" class="form-control text-end"
+                  <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_deposit']); ?>">
                 </div>
               </div>
@@ -1375,7 +1415,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_tradeloan">กู้ซื้อขาย</label>
                 <div class="field-control">
-                  <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal"
+                  <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal" step="0.01" min="0"
                     class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
                 </div>
               </div>
@@ -1384,7 +1424,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_insurance">ประกันภัย</label>
                 <div class="field-control">
-                  <input id="ru_insurance" name="ru_insurance" required inputmode="decimal"
+                  <input id="ru_insurance" name="ru_insurance" required inputmode="decimal" step="0.01" min="0"
                     class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
                 </div>
               </div>
@@ -1507,66 +1547,78 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       </div>
     </form>
     <?php else: ?>
-    <!-- improved search layout -->
     <div class="card mb-4 form-wrap surface-card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="small fw-semibold">ค้นหาข้อมูลทุกลาน</span>
-        <span class="small text-muted">แสดงผล <?php echo count($rows); ?> รายการ</span>
+      <div class="card-header d-flex justify-content-between align-items-center gap-2 flex-wrap">
+        <span class="small fw-semibold">ค้นหาและกรองข้อมูลทุกลาน</span>
+        <span class="small text-muted">ผลลัพธ์ทั้งหมด <?php echo number_format($totalCount); ?> รายการ</span>
       </div>
       <div class="card-body">
-        <form method="get" class="row gy-3 gx-3">
+        <form method="get" class="row gy-3 gx-3 align-items-end">
           <input type="hidden" name="lan" value="all">
-          <div class="col-md-8">
-            <div class="search-inline">
-              <label class="form-label" for="rubberSearchInput">คำค้น (กลุ่ม / เลขที่ / ชื่อ / ชั้น)</label>
-              <div class="input-group">
-                <span class="input-group-text">ค้นหา</span>
-                <input type="text" id="rubberSearchInput" name="search" class="form-control"
-                  value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
-                <?php if ($search !== ''): ?>
-                <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้าง">
-                  <i data-lucide="x-circle" class="me-1" aria-hidden="true"></i>ล้าง
-                </a>
-                <?php endif; ?>
-              </div>
+          <div class="col-12 col-lg-5">
+            <label class="form-label" for="rubberSearchInput">คำค้น</label>
+            <div class="input-group">
+              <span class="input-group-text">ค้นหา</span>
+              <input type="text" id="rubberSearchInput" name="search" class="form-control"
+                value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
+              <?php if ($search !== '' || $classFilter !== 'all' || $date_from !== $latest_round_date || $date_to !== $latest_round_date): ?>
+              <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้างตัวกรอง">
+                <i data-lucide="x-circle" class="me-1" aria-hidden="true"></i>ล้าง
+              </a>
+              <?php endif; ?>
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="form-control d-flex align-items-center" style="height: 38px;">
-              <span class="badge bg-secondary"><?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?></span>
-            </div>
+          <div class="col-6 col-lg-2">
+            <label class="form-label" for="date_from">วันที่เริ่ม</label>
+            <input type="date" id="date_from" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
           </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">
+          <div class="col-6 col-lg-2">
+            <label class="form-label" for="date_to">วันที่สิ้นสุด</label>
+            <input type="date" id="date_to" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
+          </div>
+          <div class="col-12 col-lg-2">
+            <label class="form-label" for="classFilter">ประเภท</label>
+            <select name="class" id="classFilter" class="form-select">
+              <option value="all" <?php echo $classFilter === 'all' ? 'selected' : ''; ?>>ทั้งหมด</option>
+              <option value="member" <?php echo $classFilter === 'member' ? 'selected' : ''; ?>>สมาชิก</option>
+              <option value="general" <?php echo $classFilter === 'general' ? 'selected' : ''; ?>>เกษตรกรทั่วไป</option>
+            </select>
+          </div>
+          <div class="col-12 col-lg-1 d-grid">
+            <button type="submit" class="btn btn-primary">
               <i data-lucide="check" class="me-1" aria-hidden="true"></i>ตกลง
             </button>
           </div>
         </form>
 
-        <!-- summary badges -->
         <div class="mt-3 summary-grid">
           <div class="summary-card">
             <span class="summary-title">ปริมาณรวม</span>
-            <span class="summary-value"><?php echo number_format($sumQty,2); ?> กก.</span>
+            <span class="summary-value"><?php echo number_format($summary['sumQty'], 2); ?> กก.</span>
           </div>
           <div class="summary-card">
             <span class="summary-title">มูลค่ารวม</span>
-            <span class="summary-value"><?php echo number_format($sumValue,2); ?> ฿</span>
+            <span class="summary-value"><?php echo number_format($summary['sumValue'], 2); ?> ฿</span>
           </div>
           <div class="summary-card">
             <span class="summary-title">ยอดหักรวม</span>
-            <span class="summary-value"><?php echo number_format($sumExpend,2); ?> ฿</span>
+            <span class="summary-value"><?php echo number_format($summary['sumExpend'], 2); ?> ฿</span>
           </div>
           <div class="summary-card">
             <span class="summary-title">ยอดสุทธิ</span>
-            <span class="summary-value"><?php echo number_format($sumNet,2); ?> ฿</span>
+            <span class="summary-value"><?php echo number_format($summary['sumNet'], 2); ?> ฿</span>
           </div>
         </div>
         <div class="mt-2 small text-muted">
           เงื่อนไข:
-          <?php echo $search ? 'คำค้น="'.e($search).'" ' : 'ทั้งหมด '; ?>
-          <span class="ms-1">รอบล่าสุด <?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?>
-            (ล็อกตามวันที่ราคายางล่าสุด)</span>
+          <?php echo $search ? 'คำค้น="' . e($search) . '" ' : 'ทั้งหมด '; ?>
+          <span class="ms-1">
+            <?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?>
+            ถึง <?php echo $date_to ? e(thai_date_format($date_to)) : '-'; ?>
+          </span>
+          <span class="ms-1">
+            <?php echo $classFilter === 'member' ? 'เฉพาะสมาชิก' : ($classFilter === 'general' ? 'เฉพาะเกษตรกรทั่วไป' : 'ทุกประเภท'); ?>
+          </span>
         </div>
       </div>
     </div>
@@ -1576,7 +1628,12 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <div class="surface-card data-card">
       <div class="table-toolbar">
         <div class="text-center d-flex justify-content-center align-items-center gap-3 mt-2">
-          <div style="font-size: 16px;">ผลลัพธ์ <?php echo number_format(count($rows)); ?> รายการ</div>
+          <div style="font-size: 16px;">
+            ผลลัพธ์ <?php echo number_format($totalCount); ?> รายการ
+            <?php if ($totalPages > 1): ?>
+            <span class="text-muted">| หน้า <?php echo number_format($page); ?>/<?php echo number_format($totalPages); ?></span>
+            <?php endif; ?>
+          </div>
           <div style="font-size: 16px;">
             <?php echo ($currentLan === 'all') ? 'แสดงข้อมูลทุกลาน' : 'แสดงข้อมูลลาน '.(int)$currentLan; ?></div>
         </div>
@@ -1675,6 +1732,47 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           </table>
         </div>
       </div>
+      <?php if ($totalPages > 1): ?>
+      <?php
+        $fromItem = $totalCount > 0 ? (($page - 1) * $perPage + 1) : 0;
+        $toItem = min($page * $perPage, $totalCount);
+        $pageWindowStart = max(1, $page - 2);
+        $pageWindowEnd = min($totalPages, $page + 2);
+      ?>
+      <div class="px-3 pb-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+        <div class="small text-muted">
+          แสดงรายการ <?php echo number_format($fromItem); ?>-<?php echo number_format($toItem); ?>
+          จากทั้งหมด <?php echo number_format($totalCount); ?> รายการ
+        </div>
+        <nav aria-label="Pagination">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+              <a class="page-link" href="<?php echo $page > 1 ? 'rubbers.php?' . http_build_query(array_merge($exportBaseParams, ['page' => $page - 1])) : '#'; ?>">ก่อนหน้า</a>
+            </li>
+            <?php if ($pageWindowStart > 1): ?>
+            <li class="page-item"><a class="page-link" href="rubbers.php?<?php echo http_build_query(array_merge($exportBaseParams, ['page' => 1])); ?>">1</a></li>
+            <?php if ($pageWindowStart > 2): ?>
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            <?php endif; ?>
+            <?php endif; ?>
+            <?php for ($p = $pageWindowStart; $p <= $pageWindowEnd; $p++): ?>
+            <li class="page-item <?php echo $p === $page ? 'active' : ''; ?>">
+              <a class="page-link" href="rubbers.php?<?php echo http_build_query(array_merge($exportBaseParams, ['page' => $p])); ?>"><?php echo number_format($p); ?></a>
+            </li>
+            <?php endfor; ?>
+            <?php if ($pageWindowEnd < $totalPages): ?>
+            <?php if ($pageWindowEnd < $totalPages - 1): ?>
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            <?php endif; ?>
+            <li class="page-item"><a class="page-link" href="rubbers.php?<?php echo http_build_query(array_merge($exportBaseParams, ['page' => $totalPages])); ?>"><?php echo number_format($totalPages); ?></a></li>
+            <?php endif; ?>
+            <li class="page-item <?php echo $page >= $totalPages ? 'disabled' : ''; ?>">
+              <a class="page-link" href="<?php echo $page < $totalPages ? 'rubbers.php?' . http_build_query(array_merge($exportBaseParams, ['page' => $page + 1])) : '#'; ?>">ถัดไป</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <?php endif; ?>
     </div>
 
 

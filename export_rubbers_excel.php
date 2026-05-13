@@ -11,6 +11,7 @@ $lanParam  = $_GET['lan'] ?? '1';
 $search    = trim((string)($_GET['search'] ?? ''));
 $date_from = trim((string)($_GET['date_from'] ?? ''));
 $date_to   = trim((string)($_GET['date_to'] ?? ''));
+$classFilter = trim((string)($_GET['class'] ?? 'all'));
 
 if ($lanParam === 'all') {
 	$currentLan = 'all';
@@ -53,6 +54,12 @@ if ($date_to !== '') {
 		$types  .= 's';
 		$binds[] = $date_to;
 	}
+}
+
+if (in_array($classFilter, ['member', 'general'], true)) {
+	$conds[] = 'LOWER(TRIM(ru_class)) = ?';
+	$types .= 's';
+	$binds[] = $classFilter;
 }
 
 $sql = "SELECT
