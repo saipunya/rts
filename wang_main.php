@@ -635,6 +635,12 @@ $lane_colors = [
           <i data-lucide="clipboard-list" aria-hidden="true"></i>
           <span>สรุป</span>
         </a>
+        <?php if (function_exists('is_admin') && is_admin()): ?>
+        <a href="export_wang.php" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-1">
+          <i data-lucide="file-down" aria-hidden="true"></i>
+          <span>ส่งออก</span>
+        </a>
+        <?php endif; ?>
         <a href="logout.php" class="btn btn-outline-danger rounded-pill d-inline-flex align-items-center gap-1">
           <i data-lucide="log-out" aria-hidden="true"></i>
           <span>ออกจากระบบ</span>

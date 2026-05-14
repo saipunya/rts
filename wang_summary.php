@@ -138,8 +138,7 @@ foreach ($summaryRows as $row) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>สรุปการวางยางรายวัน</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4zR4p8hTVU4hZ5pG1BSjYyV27lyZzGEjjqF2U6M" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <style>
@@ -558,54 +557,304 @@ foreach ($summaryRows as $row) {
     }
   }
 
-  @media (min-width: 576px) and (max-width: 991.98px) {
-    section.row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  </style>
+	  @media (min-width: 576px) and (max-width: 991.98px) {
+	    section.row {
+	      grid-template-columns: repeat(2, minmax(0, 1fr));
+	    }
+	  }
+
+	  body {
+	    background: linear-gradient(180deg, #f4faf6 0%, #f8faf9 42%, #ffffff 100%);
+	    color: #173d26;
+	  }
+
+	  .summary-shell {
+	    max-width: 1140px;
+	  }
+
+	  .card,
+	  .summary-card,
+	  .metric-card,
+	  .surface-card {
+	    border-color: rgba(47, 110, 67, 0.12);
+	    border-radius: .9rem;
+	  }
+
+	  .page-actions {
+	    display: flex;
+	    align-items: center;
+	    flex-wrap: wrap;
+	    gap: .5rem;
+	  }
+
+	  .dashboard-hero {
+	    border-color: #c7dfcf !important;
+	    background: linear-gradient(135deg, #ffffff 0%, #f3fbf5 100%);
+	  }
+
+	  .icon-box {
+	    width: 2.7rem;
+	    height: 2.7rem;
+	    border-radius: .85rem;
+	    background: #e8f4eb;
+	    color: #2f6e43;
+	    display: inline-flex;
+	    align-items: center;
+	    justify-content: center;
+	    flex: 0 0 auto;
+	  }
+
+	  .dashboard-summary-grid {
+	    display: grid;
+	    grid-template-columns: repeat(4, minmax(0, 1fr));
+	    gap: .75rem;
+	  }
+
+	  .dashboard-summary-item {
+	    display: flex;
+	    align-items: flex-start;
+	    justify-content: space-between;
+	    gap: .75rem;
+	    min-height: 92px;
+	    padding: 1rem;
+	    border: 1px solid #d7f3de;
+	    border-radius: 1rem;
+	    background: #f8fdf8;
+	    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.04);
+	  }
+
+	  .dashboard-summary-label {
+	    color: #15803d;
+	    font-size: .85rem;
+	    margin-bottom: .2rem;
+	  }
+
+	  .dashboard-summary-value {
+	    color: #14532d;
+	    font-size: 1.45rem;
+	    font-weight: 700;
+	    line-height: 1.2;
+	  }
+
+	  .dashboard-summary-icon {
+	    width: 2.35rem;
+	    height: 2.35rem;
+	    border-radius: .8rem;
+	    background: #e8f4eb;
+	    color: #2f6e43;
+	    display: inline-flex;
+	    align-items: center;
+	    justify-content: center;
+	    flex: 0 0 auto;
+	  }
+
+	  .surface-card {
+	    border: 1px solid rgba(47, 110, 67, 0.12);
+	    background: #fff;
+	    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.05);
+	  }
+
+	  .summary-table-wrap {
+	    border: 1px solid #edf5ef;
+	    border-radius: .85rem;
+	    background: #fff;
+	  }
+
+	  .summary-table {
+	    min-width: 860px;
+	  }
+
+	  .summary-table thead th {
+	    background: #f0fdf4;
+	    color: #245c38;
+	    font-size: .86rem;
+	    font-weight: 700;
+	    letter-spacing: 0;
+	    text-transform: none;
+	  }
+
+	  .summary-table td,
+	  .summary-table th {
+	    border-color: #e7efea;
+	  }
+
+	  .summary-input {
+	    width: 9rem;
+	  }
+
+	  .form-control {
+	    min-height: 44px;
+	    border-color: #d7eade;
+	  }
+
+	  .form-control:focus {
+	    border-color: #68ae7a;
+	    box-shadow: 0 0 0 .2rem rgba(25, 135, 84, .12);
+	  }
+
+	  .btn,
+	  .btn-sm {
+	    min-height: 40px;
+	    font-weight: 600;
+	  }
+
+	  .btn-success {
+	    background: #198754;
+	    border-color: #198754;
+	    box-shadow: none;
+	  }
+
+	  @media (max-width: 992px) {
+	    .container.my-4 {
+	      padding-left: 1rem;
+	      padding-right: 1rem;
+	    }
+
+	    .dashboard-summary-grid {
+	      grid-template-columns: repeat(2, minmax(0, 1fr));
+	    }
+	  }
+
+	  @media (max-width: 768px) {
+	    .page-heading {
+	      flex-direction: column;
+	      align-items: stretch !important;
+	    }
+
+	    .page-actions {
+	      flex-direction: column;
+	      align-items: stretch;
+	    }
+
+	    .page-actions .btn {
+	      width: 100%;
+	      justify-content: center;
+	    }
+
+	    .card-body {
+	      padding: 1rem;
+	    }
+
+	    .summary-table-wrap {
+	      overflow: visible;
+	      border: 0;
+	      background: transparent;
+	    }
+
+	    .summary-table {
+	      min-width: 0;
+	    }
+
+	    .summary-table thead {
+	      display: none;
+	    }
+
+	    .summary-table,
+	    .summary-table tbody,
+	    .summary-table tr,
+	    .summary-table td {
+	      display: block;
+	      width: 100%;
+	    }
+
+	    .summary-table tr {
+	      padding: .85rem;
+	      margin-bottom: .75rem;
+	      border: 1px solid #d7f3de;
+	      border-radius: .9rem;
+	      background: #fbfefc;
+	    }
+
+	    .summary-table td {
+	      display: flex;
+	      align-items: center;
+	      justify-content: space-between;
+	      gap: 1rem;
+	      padding: .45rem 0;
+	      border: 0;
+	      text-align: right !important;
+	    }
+
+	    .summary-table td::before {
+	      content: attr(data-label);
+	      color: #2f6e43;
+	      font-weight: 600;
+	      text-align: left;
+	    }
+
+	    .summary-table td:first-child {
+	      padding-top: 0;
+	    }
+
+	    .summary-table td:last-child {
+	      padding-bottom: 0;
+	    }
+
+	    .summary-table td[data-label="จัดการ"] {
+	      align-items: stretch;
+	      flex-direction: column;
+	    }
+
+	    .summary-table td[data-label="จัดการ"]::before {
+	      width: 100%;
+	    }
+	  }
+
+	  @media (max-width: 576px) {
+	    .dashboard-summary-grid {
+	      grid-template-columns: 1fr;
+	    }
+
+	    .summary-input {
+	      width: 100%;
+	    }
+	  }
+	  </style>
 </head>
 
-<body>
-  <header class="app-header py-3">
-    <div
-      class="container main-shell d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
-      <div class="d-flex align-items-center gap-3">
-        <span class="brand-mark">
-          <i data-lucide="clipboard-list" aria-hidden="true"></i>
-        </span>
-        <div>
-          <div class="brand-title">สรุปการวางยางรายวัน</div>
-          <div class="brand-subtitle">คำนวณน้ำหนักประมาณจากจำนวนถุงต่อวัน</div>
-        </div>
-      </div>
-      <div class="header-actions d-flex flex-wrap gap-2 flex-shrink-0">
-        <a href="wang_main.php" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
-          <i data-lucide="arrow-left" aria-hidden="true"></i>
-          <span>วางยาง</span>
-        </a>
-        <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
-          <i data-lucide="layout-dashboard" aria-hidden="true"></i>
-          <span>แดชบอร์ด</span>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <main class="container main-shell py-4 py-md-5">
-    <section class="hero-card p-3 p-sm-4 mb-4">
-      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-        <div>
-          <h1 class="h3 fw-bold mb-2">สรุปการวางยาง</h1>
-          <p class="mb-0 text-success-emphasis">สรุปรายวันให้เห็นครบทั้งคนที่เข้าร่วม กระสอบที่ได้
-            และน้ำหนักประมาณจากค่าน้ำหนักต่อถุง</p>
-        </div>
-        <span
-          class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2 align-self-start align-self-md-center">
-          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>สรุป 2 วันล่าสุด
-        </span>
-      </div>
-    </section>
+	<body>
+	  <main class="container summary-shell my-4">
+	    <div
+	      class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3 page-heading">
+	      <div>
+	        <h1 class="h4 mb-0"><i data-lucide="clipboard-list" class="me-2" aria-hidden="true"></i>สรุปการวางยางรายวัน</h1>
+	        <div class="small text-muted">คำนวณน้ำหนักประมาณจากจำนวนถุงต่อวัน</div>
+	      </div>
+	      <div class="page-actions">
+	        <a href="dashboard.php" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+	          <i data-lucide="gauge" aria-hidden="true"></i><span>Dashboard</span>
+	        </a>
+	        <a href="wang_main.php" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
+	          <i data-lucide="package-check" aria-hidden="true"></i><span>วางยาง</span>
+	        </a>
+	        <?php if (function_exists('is_admin') && is_admin()): ?>
+	        <a href="export_wang.php" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
+	          <i data-lucide="file-down" aria-hidden="true"></i><span>ส่งออก</span>
+	        </a>
+	        <?php endif; ?>
+	      </div>
+	    </div>
+	
+	    <div class="row g-3 mb-3">
+	      <div class="col-12">
+	        <div class="card shadow-sm dashboard-hero">
+	          <div class="card-body">
+	            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+	              <div class="d-flex align-items-start gap-3">
+	                <span class="icon-box"><i data-lucide="calculator" aria-hidden="true"></i></span>
+	                <div>
+	                  <h2 class="h5 mb-1">สรุปการวางยาง</h2>
+	                  <div class="text-muted">ดูภาพรวมรายวัน กรอกน้ำหนักประมาณต่อถุง และคำนวณน้ำหนักรวมจากข้อมูลวางยางจริง</div>
+	                </div>
+	              </div>
+	              <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle align-self-start align-self-lg-center">
+	                <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>สรุป 2 วันล่าสุด
+	              </span>
+	            </div>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
 
     <?php if ($message !== ''): ?>
     <div class="alert alert-success d-flex align-items-center gap-2">
@@ -620,55 +869,38 @@ foreach ($summaryRows as $row) {
     </div>
     <?php endif; ?>
 
-    <section class="row g-3 mb-4">
-      <div class="col-12 col-md-3">
-        <div class="metric-card" style="background:#dcfce7;border-color:#16a34a;">
-          <div class="d-flex align-items-center gap-3">
-            <span class="stat-icon bg-success-subtle text-success"><i data-lucide="calendar"
-                aria-hidden="true"></i></span>
-            <div>
-              <div class="metric-label">จำนวนวันที่มีข้อมูล</div>
-              <div class="metric-value"><?php echo number_format(count($summaryRows)); ?></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="metric-card" style="background:#dbeafe;border-color:#2563eb;">
-          <div class="d-flex align-items-center gap-3">
-            <span class="stat-icon bg-primary-subtle text-primary"><i data-lucide="users" aria-hidden="true"></i></span>
-            <div>
-              <div class="metric-label">สมาชิกเข้าร่วมรวม</div>
-              <div class="metric-value"><?php echo number_format($summaryTotals['member_count']); ?></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="metric-card" style="background:#cffafe;border-color:#0ea5e9;">
-          <div class="d-flex align-items-center gap-3">
-            <span class="stat-icon bg-info-subtle text-info"><i data-lucide="package" aria-hidden="true"></i></span>
-            <div>
-              <div class="metric-label">กระสอบรวม</div>
-              <div class="metric-value"><?php echo number_format($summaryTotals['total_bags']); ?></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="metric-card" style="background:#fef3c7;border-color:#f59e0b;">
-          <div class="d-flex align-items-center gap-3">
-            <span class="stat-icon bg-warning-subtle text-warning"><i data-lucide="scale" aria-hidden="true"></i></span>
-            <div>
-              <div class="metric-label">น้ำหนักประมาณรวม</div>
-              <div class="metric-value"><?php echo number_format($summaryTotals['estimated_weight'], 2); ?></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+	    <section class="dashboard-summary-grid mb-3">
+	      <div class="dashboard-summary-item">
+	        <div>
+	          <div class="dashboard-summary-label">จำนวนวันที่มีข้อมูล</div>
+	          <div class="dashboard-summary-value"><?php echo number_format(count($summaryRows)); ?></div>
+	        </div>
+	        <span class="dashboard-summary-icon"><i data-lucide="calendar" aria-hidden="true"></i></span>
+	      </div>
+	      <div class="dashboard-summary-item">
+	        <div>
+	          <div class="dashboard-summary-label">สมาชิกเข้าร่วมรวม</div>
+	          <div class="dashboard-summary-value"><?php echo number_format($summaryTotals['member_count']); ?></div>
+	        </div>
+	        <span class="dashboard-summary-icon"><i data-lucide="users" aria-hidden="true"></i></span>
+	      </div>
+	      <div class="dashboard-summary-item">
+	        <div>
+	          <div class="dashboard-summary-label">กระสอบรวม</div>
+	          <div class="dashboard-summary-value"><?php echo number_format($summaryTotals['total_bags']); ?></div>
+	        </div>
+	        <span class="dashboard-summary-icon"><i data-lucide="package" aria-hidden="true"></i></span>
+	      </div>
+	      <div class="dashboard-summary-item">
+	        <div>
+	          <div class="dashboard-summary-label">น้ำหนักประมาณรวม</div>
+	          <div class="dashboard-summary-value"><?php echo number_format($summaryTotals['estimated_weight'], 2); ?></div>
+	        </div>
+	        <span class="dashboard-summary-icon"><i data-lucide="scale" aria-hidden="true"></i></span>
+	      </div>
+	    </section>
 
-    <section class="surface-card overflow-hidden">
+	    <section class="surface-card overflow-hidden mb-4">
       <div
         class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 p-3 border-bottom border-success-subtle">
         <div>
@@ -698,7 +930,7 @@ foreach ($summaryRows as $row) {
             <tbody>
               <?php if (empty($rows)): ?>
               <tr>
-                <td colspan="8" class="text-center text-success py-5">ยังไม่มีข้อมูลวางยาง</td>
+	                <td colspan="7" data-label="สถานะ" class="text-center text-success py-5">ยังไม่มีข้อมูลวางยาง</td>
               </tr>
               <?php endif; ?>
               <?php foreach ($rows as $index => $row): ?>
@@ -718,10 +950,11 @@ foreach ($summaryRows as $row) {
                 <td data-label="กระสอบ/ถุง" class="text-end"><?php echo number_format($row['total_bags']); ?></td>
                 <td data-label="น้ำหนักต่อถุง">
                   <div class="input-group input-group-sm summary-input shadow-sm">
-                    <input form="<?php echo e($formId); ?>" type="number" name="weight_per_bag"
-                      class="form-control text-end fw-semibold border-end-0" min="0" step="0.01"
-                      value="<?php echo e(number_format($row['ws_weight_per_bag'], 2, '.', '')); ?>" placeholder="0.00">
-                  </div>
+	                    <input form="<?php echo e($formId); ?>" type="number" name="weight_per_bag"
+	                      class="form-control text-end fw-semibold border-end-0" min="0" step="0.01"
+	                      value="<?php echo e(number_format($row['ws_weight_per_bag'], 2, '.', '')); ?>" placeholder="0.00">
+	                    <span class="input-group-text">กก.</span>
+	                  </div>
                 </td>
                 <td data-label="น้ำหนักคำนวณ" class="text-end fw-semibold text-success-emphasis">
                   <?php echo number_format($row['ws_estimated_weight'], 2); ?> กก.
