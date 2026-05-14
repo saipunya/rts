@@ -153,13 +153,33 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     padding-bottom: .5rem;
   }
 
-  .mb-0 { margin-bottom: 0; }
-  .mb-1 { margin-bottom: .25rem; }
-  .mb-2 { margin-bottom: .5rem; }
-  .mb-3 { margin-bottom: 1rem; }
-  .mb-4 { margin-bottom: 1.5rem; }
-  .mt-3 { margin-top: 1rem; }
-  .me-1 { margin-right: .25rem; }
+  .mb-0 {
+    margin-bottom: 0;
+  }
+
+  .mb-1 {
+    margin-bottom: .25rem;
+  }
+
+  .mb-2 {
+    margin-bottom: .5rem;
+  }
+
+  .mb-3 {
+    margin-bottom: 1rem;
+  }
+
+  .mb-4 {
+    margin-bottom: 1.5rem;
+  }
+
+  .mt-3 {
+    margin-top: 1rem;
+  }
+
+  .me-1 {
+    margin-right: .25rem;
+  }
 
   .d-flex {
     display: flex;
@@ -185,8 +205,13 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     justify-content: center;
   }
 
-  .gap-2 { gap: .5rem; }
-  .gap-3 { gap: 1rem; }
+  .gap-2 {
+    gap: .5rem;
+  }
+
+  .gap-3 {
+    gap: 1rem;
+  }
 
   .flex-wrap {
     flex-wrap: wrap;
@@ -211,7 +236,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     margin-right: -.5rem;
   }
 
-  .row > * {
+  .row>* {
     width: 100%;
     padding-left: .5rem;
     padding-right: .5rem;
@@ -239,32 +264,105 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     line-height: 1.25;
   }
 
-  .h3 { font-size: clamp(1.55rem, 3vw, 2rem); }
-  .h4 { font-size: 1.4rem; }
-  .h5 { font-size: 1.15rem; }
+  .h3 {
+    font-size: clamp(1.55rem, 3vw, 2rem);
+  }
 
-  .fw-bold { font-weight: 700; }
-  .fw-semibold { font-weight: 600; }
-  .small { font-size: .9rem; }
-  .text-center { text-align: center; }
-  .text-muted { color: #64748b; }
-  .text-success { color: #15803d; }
-  .text-success-emphasis { color: #14532d; }
-  .text-info { color: #0891b2; }
-  .text-info-emphasis { color: #0e7490; }
-  .text-primary { color: #2563eb; }
-  .text-danger { color: #dc2626; }
-  .bg-success-subtle { background: #dcfce7; }
-  .bg-info-subtle { background: #cffafe; }
-  .bg-primary-subtle { background: #dbeafe; }
-  .bg-danger-subtle { background: #fee2e2; }
-  .bg-light { background: #f8fafc; }
-  .border { border: 1px solid currentColor; }
-  .border-bottom { border-bottom: 1px solid #d1fae5; }
-  .border-success-subtle { border-color: #bbf7d0 !important; }
-  .overflow-hidden { overflow: hidden; }
-  .w-100 { width: 100%; }
-  .h-100 { height: 100%; }
+  .h4 {
+    font-size: 1.4rem;
+  }
+
+  .h5 {
+    font-size: 1.15rem;
+  }
+
+  .fw-bold {
+    font-weight: 700;
+  }
+
+  .fw-semibold {
+    font-weight: 600;
+  }
+
+  .small {
+    font-size: .9rem;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-muted {
+    color: #64748b;
+  }
+
+  .text-success {
+    color: #15803d;
+  }
+
+  .text-success-emphasis {
+    color: #14532d;
+  }
+
+  .text-info {
+    color: #0891b2;
+  }
+
+  .text-info-emphasis {
+    color: #0e7490;
+  }
+
+  .text-primary {
+    color: #2563eb;
+  }
+
+  .text-danger {
+    color: #dc2626;
+  }
+
+  .bg-success-subtle {
+    background: #dcfce7;
+  }
+
+  .bg-info-subtle {
+    background: #cffafe;
+  }
+
+  .bg-primary-subtle {
+    background: #dbeafe;
+  }
+
+  .bg-danger-subtle {
+    background: #fee2e2;
+  }
+
+  .bg-light {
+    background: #f8fafc;
+  }
+
+  .border {
+    border: 1px solid currentColor;
+  }
+
+  .border-bottom {
+    border-bottom: 1px solid #d1fae5;
+  }
+
+  .border-success-subtle {
+    border-color: #bbf7d0 !important;
+  }
+
+  .overflow-hidden {
+    overflow: hidden;
+  }
+
+  .w-100 {
+    width: 100%;
+  }
+
+  .h-100 {
+    height: 100%;
+  }
 
   .app-header {
     position: sticky;
@@ -459,6 +557,41 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     background: #f0fdf4;
   }
 
+  .search-panel {
+    border: 1px solid #bbf7d0;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, .9);
+    box-shadow: 0 12px 30px rgba(20, 83, 45, .06);
+  }
+
+  .search-summary {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 1rem;
+    border: 1px solid #bbf7d0;
+    background: #f8fffb;
+  }
+
+  .search-summary .summary-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #14532d;
+  }
+
+  .record-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .4rem;
+    flex-wrap: wrap;
+  }
+
+  .record-actions .btn {
+    min-width: 42px;
+  }
+
   table.single-lane th:nth-child(2),
   table.single-lane th:nth-child(3),
   table.single-lane td:nth-child(2),
@@ -499,11 +632,29 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @media (max-width: 640px) {
+    .container.app-shell {
+      width: min(100% - 1rem, 1160px);
+    }
+
+    .hero-panel,
+    .surface-card,
+    .search-panel,
+    .modal-panel {
+      border-radius: 1rem;
+    }
+
     .header-actions {
       display: grid !important;
       grid-template-columns: 1fr 1fr;
@@ -513,6 +664,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     .header-actions .btn {
       justify-content: center;
       min-height: 44px;
+    }
+
+    .search-summary {
+      min-height: auto;
     }
 
     #data-table-wrap thead {
@@ -544,18 +699,58 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       font-weight: 700;
       flex: 0 0 auto;
     }
+
+    #data-table td[data-label="จัดการ"] {
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .record-actions {
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .record-actions .btn {
+      flex: 1 1 calc(50% - .2rem);
+    }
+
+    .form-row-mobile {
+      gap: .75rem;
+    }
+
+    .modal-panel {
+      width: calc(100% - .75rem);
+      max-height: 92vh;
+    }
   }
 
   @media (min-width: 576px) {
-    .flex-sm-row { flex-direction: row; }
-    .align-items-sm-center { align-items: center; }
-    .d-sm-none { display: none !important; }
-    .p-sm-4 { padding: 1.5rem; }
+    .flex-sm-row {
+      flex-direction: row;
+    }
+
+    .align-items-sm-center {
+      align-items: center;
+    }
+
+    .d-sm-none {
+      display: none !important;
+    }
+
+    .p-sm-4 {
+      padding: 1.5rem;
+    }
   }
 
   @media (min-width: 768px) {
-    .flex-md-row { flex-direction: row; }
-    .align-items-md-center { align-items: center; }
+    .flex-md-row {
+      flex-direction: row;
+    }
+
+    .align-items-md-center {
+      align-items: center;
+    }
+
     .col-md-4 {
       flex: 0 0 auto;
       width: 33.333333%;
@@ -617,7 +812,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
                 <i data-lucide="archive" aria-hidden="true"></i>
               </span>
               <div>
-                <div class="small text-success">รายการทั้งหมด</div>
+                <div class="small text-success">รายการที่แสดง</div>
                 <div id="stat-total" class="h4 fw-bold mb-0 text-success-emphasis">0</div>
               </div>
             </div>
@@ -652,17 +847,31 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       </section>
 
       <section class="surface-card overflow-hidden mb-4">
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 p-3 border-bottom border-success-subtle">
-          <div>
+        <div
+          class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 p-3 border-bottom border-success-subtle">
+          <div class="min-w-0">
             <h2 class="h5 fw-bold mb-1 text-success-emphasis">ข้อมูลวางยาง</h2>
             <div class="small text-muted">แสดงรายการล่าสุดสูงสุด 500 รายการ</div>
           </div>
-          <button id="btn-add-top" type="button" class="btn btn-outline-success rounded-pill d-inline-flex d-sm-none">
-            <i data-lucide="plus" class="me-1" aria-hidden="true"></i>เพิ่มรายการ
-          </button>
+          <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end gap-2 w-100 w-sm-auto">
+            <div class="flex-fill search-summary p-3">
+              <div class="input-group">
+                <span class="input-group-text">ค้นหา</span>
+                <input id="record-search-input" type="text" class="form-control"
+                  placeholder="ชื่อเกษตรกร, กลุ่ม, กระสอบ, วันที่">
+              </div>
+            </div>
+            <button id="btn-clear-search" type="button" class="btn btn-outline-secondary rounded-pill flex-shrink-0">
+              <i data-lucide="x" class="me-1" aria-hidden="true"></i>ล้างคำค้น
+            </button>
+            <button id="btn-add-top" type="button" class="btn btn-outline-success rounded-pill d-inline-flex d-sm-none">
+              <i data-lucide="plus" class="me-1" aria-hidden="true"></i>เพิ่มรายการ
+            </button>
+          </div>
         </div>
         <div class="table-responsive" id="data-table-wrap">
-          <table class="table table-hover align-middle mb-0 <?php echo ($selected_lane !== '' ? 'single-lane' : ''); ?>">
+          <table
+            class="table table-hover align-middle mb-0 <?php echo ($selected_lane !== '' ? 'single-lane' : ''); ?>">
             <thead class="table-success">
               <tr>
                 <th>ชื่อเกษตรกร</th>
@@ -686,12 +895,15 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     <div id="modal" class="app-modal hidden">
       <div class="modal-panel fade-in">
         <div class="d-flex align-items-center justify-content-between p-4 border-bottom border-success-subtle">
-          <h2 class="h5 fw-bold text-success-emphasis mb-0">เพิ่มรายการรวบรวมยาง</h2>
-          <button id="btn-close-modal" type="button" class="btn btn-sm btn-outline-secondary rounded-circle" aria-label="ปิด">
+          <h2 id="form-modal-title" class="h5 fw-bold text-success-emphasis mb-0">เพิ่มรายการรวบรวมยาง</h2>
+          <button id="btn-close-modal" type="button" class="btn btn-sm btn-outline-secondary rounded-circle"
+            aria-label="ปิด">
             <i data-lucide="x" aria-hidden="true"></i>
           </button>
         </div>
         <form id="form-add" class="p-4">
+          <input type="hidden" id="f-backend-id" value="">
+          <input type="hidden" id="f-date" value="">
           <div class="mb-3">
             <label for="f-group" class="form-label fw-semibold text-success">กลุ่ม</label>
             <select id="f-group" required class="form-select">
@@ -721,7 +933,9 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
             </div>
           </div>
           <div id="date-display" class="alert alert-success py-2 mt-3 mb-3">
-            วันที่: <span id="current-date-display"></span>
+            <div class="fw-semibold mb-1">วันที่</div>
+            <span id="current-date-display"></span>
+            <div id="record-summary" class="small text-success mt-1"></div>
           </div>
           <button type="submit" id="btn-submit" class="btn btn-success w-100 rounded-pill">บันทึก</button>
         </form>
@@ -749,6 +963,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   // State (initialized from server data)
   let records = <?php echo $initial_records_js ?? '[]'; ?>;
   const defaultLane = '<?php echo htmlspecialchars($selected_lane_js, ENT_QUOTES); ?>';
+  let searchTerm = '';
+  let editingTarget = null;
+  let formMode = 'create';
+  let deleteTarget = null;
 
   // show current lane badge
   (function() {
@@ -762,7 +980,6 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       badge.style.display = 'inline-block';
     }
   })();
-  let deleteTarget = null;
 
   const defaultConfig = {
     app_title: 'ระบบรวบรวมยางพารา',
@@ -880,7 +1097,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     console.warn('dataSdk not available — using local state only');
   }
 
-  async function createRecord(payload) {
+  async function upsertRecord(payload) {
     try {
       const res = await fetch('save_wang.php', {
         method: 'POST',
@@ -891,11 +1108,22 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       });
       const j = await res.json().catch(() => null);
       if (res.ok && j && j.isOk) {
-        const id = 'db-' + j.id;
+        const backendId = 'db-' + j.id;
         const rec = Object.assign({
-          __backendId: id
+          __backendId: backendId
         }, payload);
-        records.push(rec);
+        delete rec.backend_id;
+
+        const idx = records.findIndex(r => r.__backendId === backendId);
+        const updateIdx = idx >= 0 ? idx : records.findIndex(r => String(r.__backendId || '') === String(payload
+          .backend_id || ''));
+        if (payload.backend_id && updateIdx >= 0) {
+          records[updateIdx] = rec;
+        } else if (idx >= 0) {
+          records[idx] = rec;
+        } else {
+          records.push(rec);
+        }
         dataHandler.onDataChanged(records);
         return {
           isOk: true,
@@ -904,8 +1132,13 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       }
       throw new Error((j && j.message) ? j.message : 'Save failed');
     } catch (e) {
-      if (window.dataSdk && typeof window.dataSdk.create === 'function') {
-        return await window.dataSdk.create(payload);
+      if (window.dataSdk) {
+        if (payload.backend_id && typeof window.dataSdk.update === 'function') {
+          return await window.dataSdk.update(payload.backend_id, payload);
+        }
+        if (!payload.backend_id && typeof window.dataSdk.create === 'function') {
+          return await window.dataSdk.create(payload);
+        }
       }
       throw e;
     }
@@ -941,22 +1174,32 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   }
 
   function updateStats() {
-    document.getElementById('stat-total').textContent = records.length;
-    const totalBags = records.reduce((s, r) => s + (parseInt(r.bags, 10) || 0), 0);
+    const visible = getVisibleRecords();
+    document.getElementById('stat-total').textContent = visible.length;
+    const totalBags = visible.reduce((s, r) => s + (parseInt(r.bags, 10) || 0), 0);
     document.getElementById('stat-bags').textContent = totalBags;
-    const farmers = new Set(records.map(r => r.farmer_name)).size;
+    const farmers = new Set(visible.map(r => r.farmer_name)).size;
     document.getElementById('stat-farmers').textContent = farmers;
+    const summary = document.getElementById('search-summary');
+    if (summary) {
+      summary.textContent = `${visible.length} / ${records.length} รายการ`;
+    }
   }
 
   function renderTable() {
     const tbody = document.getElementById('data-table');
     const empty = document.getElementById('empty-state');
-    empty.style.display = records.length === 0 ? 'block' : 'none';
+    const visible = getVisibleRecords();
+    empty.style.display = visible.length === 0 ? 'block' : 'none';
+    if (empty.querySelector('p')) {
+      empty.querySelector('p').textContent = records.length === 0 ?
+        'ยังไม่มีรายการ กดปุ่ม "เพิ่มรายการ" เพื่อเริ่มต้น' :
+        'ไม่พบรายการที่ตรงกับคำค้น';
+    }
 
     const existingRows = new Map([...tbody.children].map(el => [el.dataset.id, el]));
-    const ids = new Set(records.map(r => r.__backendId));
 
-    records.forEach(rec => {
+    visible.forEach(rec => {
       if (existingRows.has(rec.__backendId)) {
         const row = existingRows.get(rec.__backendId);
         row.children[0].textContent = rec.farmer_name;
@@ -964,6 +1207,19 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         row.children[2].textContent = rec.lane;
         row.children[3].textContent = rec.bags;
         row.children[4].textContent = formatThaiDate(rec.date);
+        const actions = row.querySelector('.record-actions');
+        if (actions) {
+          actions.innerHTML = `
+            <button type="button" class="btn btn-sm btn-outline-success rounded-pill" title="แก้ไข"
+              aria-label="แก้ไข" onclick="openEditModal('${rec.__backendId}')">
+              <i data-lucide="pencil" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" title="ลบ"
+              aria-label="ลบ" onclick="confirmDelete('${rec.__backendId}')">
+              <i data-lucide="trash-2" aria-hidden="true"></i>
+            </button>
+          `;
+        }
         existingRows.delete(rec.__backendId);
       } else {
         const row = document.createElement('tr');
@@ -975,7 +1231,18 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           <td data-label="ลาน"><span class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis">ลาน ${esc(rec.lane)}</span></td>
           <td data-label="กระสอบ">${esc(String(rec.bags))} กระสอบ</td>
           <td data-label="วันที่" class="text-success">${formatThaiDate(rec.date)}</td>
-          <td data-label="จัดการ" class="text-center"><button type="button" class="btn btn-sm btn-outline-danger rounded-pill" onclick="confirmDelete('${rec.__backendId}')"><i data-lucide="trash-2" aria-hidden="true"></i></button></td>
+          <td data-label="จัดการ" class="text-center">
+            <div class="record-actions">
+              <button type="button" class="btn btn-sm btn-outline-success rounded-pill" title="แก้ไข"
+                aria-label="แก้ไข" onclick="openEditModal('${rec.__backendId}')">
+                <i data-lucide="pencil" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" title="ลบ"
+                aria-label="ลบ" onclick="confirmDelete('${rec.__backendId}')">
+                <i data-lucide="trash-2" aria-hidden="true"></i>
+              </button>
+            </div>
+          </td>
         `;
         tbody.appendChild(row);
         if (window.lucide && lucide.createIcons) lucide.createIcons();
@@ -983,6 +1250,32 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     });
 
     existingRows.forEach(el => el.remove());
+    if (window.lucide && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  function normalizeText(value) {
+    return String(value ?? '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function getVisibleRecords() {
+    const q = normalizeText(searchTerm);
+    if (!q) return records;
+    return records.filter(rec => {
+      const haystack = [
+        rec.farmer_name,
+        rec.group_name,
+        `ลาน ${rec.lane}`,
+        rec.lane,
+        rec.bags,
+        rec.date,
+        formatThaiDate(rec.date)
+      ].map(normalizeText);
+      return haystack.some(v => v.includes(q));
+    });
   }
 
   function esc(s) {
@@ -1009,38 +1302,132 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 
   // Modal
   const modal = document.getElementById('modal');
-  function openAddModal() {
-    document.getElementById('current-date-display').textContent = formatThaiDate(getTodayDateString());
-    // set default lane if provided from main page
-    const laneEl = document.getElementById('f-lane');
-    // if defaultLane provided, lock the lane select to prevent changes
-    if (defaultLane) {
-      if (laneEl) {
-        laneEl.value = defaultLane;
-        laneEl.disabled = true;
-        laneEl.classList.add('bg-light');
-        // ensure hidden input exists for graceful form submission if needed
-        let hid = document.getElementById('f-lane-hidden');
-        if (!hid) {
-          hid = document.createElement('input');
-          hid.type = 'hidden';
-          hid.id = 'f-lane-hidden';
-          hid.name = 'f-lane-hidden';
-          document.getElementById('form-add').appendChild(hid);
-        }
-        hid.value = defaultLane;
-      }
+  const form = document.getElementById('form-add');
+  const formTitle = document.getElementById('form-modal-title');
+  const submitBtn = document.getElementById('btn-submit');
+  const backendIdInput = document.getElementById('f-backend-id');
+  const dateInput = document.getElementById('f-date');
+  const currentDateDisplay = document.getElementById('current-date-display');
+  const recordSummary = document.getElementById('record-summary');
+  const bagsInput = document.getElementById('f-bags');
+  const groupSelect = document.getElementById('f-group');
+  const farmerSelect = document.getElementById('f-name');
+  const laneSelect = document.getElementById('f-lane');
+  const searchInput = document.getElementById('record-search-input');
+  const clearSearchBtn = document.getElementById('btn-clear-search');
+
+  function setLaneState(locked, value) {
+    if (!laneSelect) return;
+    if (locked) {
+      laneSelect.disabled = true;
+      laneSelect.value = value || defaultLane || '';
+      laneSelect.classList.add('bg-light');
     } else {
-      if (laneEl) {
-        laneEl.disabled = false;
-        laneEl.classList.remove('bg-light');
+      laneSelect.disabled = false;
+      laneSelect.classList.remove('bg-light');
+      if (!laneSelect.value) {
+        laneSelect.value = '';
       }
-      const hid = document.getElementById('f-lane-hidden');
-      if (hid) hid.remove();
+    }
+  }
+
+  function populateFarmersForGroup(groupName, memberId, farmerName) {
+    farmerSelect.innerHTML = '<option value="">เลือกเกษตรกร</option>';
+    const group = referenceData.groups.find(g => g.id === groupName);
+    if (!group) {
+      farmerSelect.disabled = true;
+      return;
+    }
+    group.members.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = String(m.id);
+      opt.textContent = m.name;
+      farmerSelect.appendChild(opt);
+    });
+    if (memberId) {
+      farmerSelect.value = String(memberId);
+    } else if (farmerName) {
+      const found = [...farmerSelect.options].find(opt => opt.textContent === farmerName);
+      if (found) {
+        farmerSelect.value = found.value;
+      } else {
+        const opt = document.createElement('option');
+        opt.value = farmerName;
+        opt.textContent = farmerName;
+        farmerSelect.appendChild(opt);
+        farmerSelect.value = farmerName;
+      }
+    }
+    farmerSelect.disabled = false;
+  }
+
+  function resetFormFields() {
+    form.reset();
+    backendIdInput.value = '';
+    dateInput.value = '';
+    currentDateDisplay.textContent = '';
+    recordSummary.textContent = '';
+    groupSelect.value = '';
+    farmerSelect.innerHTML = '<option value="">เลือกกลุ่มก่อน</option>';
+    farmerSelect.disabled = true;
+    setLaneState(Boolean(defaultLane), defaultLane || '');
+  }
+
+  function setFormMode(mode, record = null) {
+    formMode = mode;
+    editingTarget = record;
+    formTitle.textContent = mode === 'edit' ? 'แก้ไขจำนวนกระสอบ' : 'เพิ่มรายการรวบรวมยาง';
+    submitBtn.textContent = mode === 'edit' ? 'บันทึกการแก้ไข' : 'บันทึก';
+    const dateValue = record ? record.date : getTodayDateString();
+    dateInput.value = dateValue;
+    currentDateDisplay.textContent = formatThaiDate(dateValue);
+    recordSummary.textContent = record ?
+      `${record.farmer_name} · กลุ่ม ${record.group_name} · ลาน ${record.lane}` :
+      'กรอกข้อมูลเพื่อบันทึกรายการใหม่';
+  }
+
+  function openModal(mode, record = null) {
+    resetFormFields();
+    setFormMode(mode, record);
+    if (record) {
+      backendIdInput.value = record.__backendId || '';
+      groupSelect.value = record.group_name || '';
+      groupSelect.dispatchEvent(new Event('change'));
+      populateFarmersForGroup(record.group_name || '', record.member_id || null, record.farmer_name || '');
+      bagsInput.value = record.bags || '';
+      laneSelect.value = record.lane || '';
+      setLaneState(Boolean(defaultLane), defaultLane || record.lane || '');
+    } else {
+      backendIdInput.value = '';
+      const fallbackLane = defaultLane || '';
+      if (fallbackLane) {
+        laneSelect.value = fallbackLane;
+      }
+      setLaneState(Boolean(defaultLane), fallbackLane);
     }
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+    window.setTimeout(() => {
+      if (record && bagsInput) {
+        bagsInput.focus();
+        bagsInput.select?.();
+      } else if (groupSelect) {
+        groupSelect.focus();
+      }
+    }, 0);
   }
+
+  function openAddModal() {
+    openModal('create');
+  }
+
+  function openEditModal(id) {
+    const record = records.find(r => r.__backendId === id);
+    if (!record) return;
+    openModal('edit', record);
+  }
+
+  window.openEditModal = openEditModal;
   document.getElementById('btn-add').onclick = openAddModal;
   const btnAddTop = document.getElementById('btn-add-top');
   if (btnAddTop) btnAddTop.onclick = openAddModal;
@@ -1050,7 +1437,6 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   };
 
   // Populate group dropdown
-  const groupSelect = document.getElementById('f-group');
   referenceData.groups.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.id;
@@ -1059,7 +1445,6 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   });
 
   // Group selection changes farmer dropdown
-  const farmerSelect = document.getElementById('f-name');
   groupSelect.addEventListener('change', () => {
     farmerSelect.innerHTML = '<option value="">เลือกเกษตรกร</option>';
     if (!groupSelect.value) {
@@ -1070,7 +1455,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     if (group) {
       group.members.forEach(m => {
         const opt = document.createElement('option');
-        opt.value = m.id;
+        opt.value = String(m.id);
         opt.textContent = m.name;
         farmerSelect.appendChild(opt);
       });
@@ -1078,35 +1463,57 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     }
   });
 
-  document.getElementById('form-add').onsubmit = async (e) => {
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      searchTerm = searchInput.value;
+      renderTable();
+      updateStats();
+    });
+  }
+
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      searchTerm = '';
+      renderTable();
+      updateStats();
+    });
+  }
+
+  form.onsubmit = async (e) => {
     e.preventDefault();
-    if (records.length >= 999) {
-      document.getElementById('btn-submit').textContent = 'ถึงขีดจำกัดแล้ว (999)';
+    if (records.length >= 999 && !backendIdInput.value) {
+      submitBtn.textContent = 'ถึงขีดจำกัดแล้ว (999)';
       return;
     }
-    const btn = document.getElementById('btn-submit');
+    const btn = submitBtn;
     btn.disabled = true;
     btn.textContent = 'กำลังบันทึก...';
-    const groupId = document.getElementById('f-group').value;
+    const groupId = groupSelect.value;
     const group = referenceData.groups.find(g => g.id === groupId);
-    const selectedMemberId = parseInt(document.getElementById('f-name').value) || null;
-    const selectedMemberName = farmerSelect.options[farmerSelect.selectedIndex] ? farmerSelect.options[farmerSelect
-      .selectedIndex].text : '';
+    const selectedMemberId = parseInt(farmerSelect.value, 10) || null;
+    const selectedMemberName = farmerSelect.options[farmerSelect.selectedIndex] ?
+      farmerSelect.options[farmerSelect.selectedIndex].text :
+      '';
     try {
-      const result = await createRecord({
+      const payload = {
         member_id: selectedMemberId,
         farmer_name: selectedMemberName,
         group_name: group ? group.name : '',
-        lane: document.getElementById('f-lane').value,
-        bags: parseInt(document.getElementById('f-bags').value),
+        lane: laneSelect.value,
+        bags: parseInt(bagsInput.value, 10),
         weight: 0,
-        date: getTodayDateString()
-      });
+        date: dateInput.value || getTodayDateString()
+      };
+      if (backendIdInput.value) {
+        payload.backend_id = backendIdInput.value;
+      }
+      const result = await upsertRecord(payload);
       if (result.isOk) {
-        e.target.reset();
-        groupSelect.value = '';
-        farmerSelect.value = '';
-        farmerSelect.disabled = true;
+        resetFormFields();
         modal.classList.add('hidden');
         modal.classList.remove('flex');
       } else {
@@ -1116,7 +1523,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       alert((err && err.message) ? err.message : 'บันทึกไม่สำเร็จ');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'บันทึก';
+      btn.textContent = formMode === 'edit' ? 'บันทึกการแก้ไข' : 'บันทึก';
     }
   };
 
@@ -1150,11 +1557,12 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     updateStats();
     if (window.lucide && lucide.createIcons) lucide.createIcons();
   } catch (e) {
-    /* ignore if functions not ready */ }
+    /* ignore if functions not ready */
+  }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+  </script>
 </body>
 
 </html>
