@@ -84,66 +84,56 @@ $lane_colors = [
 ?>
 <!doctype html>
 <html lang="th">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>บันทึกวางยาง - เลือกลาน</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4zR4p8hTVU4hZ5pG1BSjYyV27lyZzGEjjqF2U6M" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <style>
+  *,*::before,*::after{box-sizing:border-box}
   body {
     margin: 0;
     min-height: 100vh;
     font-family: 'Sarabun', system-ui, -apple-system, "Segoe UI", sans-serif;
     background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #eff6ff 100%);
     color: #14532d;
+    -webkit-tap-highlight-color: transparent;
   }
+  a{color:inherit;text-decoration:none}
 
-  a {
-    color: inherit;
+  .container {
+    width: 100%;
+    padding-right: .75rem;
+    padding-left: .75rem;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .app-header {
     position: sticky;
     top: 0;
     z-index: 1020;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255,255,255,.9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #bbf7d0;
   }
-
-  .container.main-shell {
-    width: min(100% - 2rem, 960px);
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .app-header.py-3 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .app-header .main-shell {
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: .5rem;
+    padding: .5rem 0;
   }
-
-  .app-header .main-shell>.d-flex,
-  .header-actions {
+  .brand {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: .6rem;
   }
-
-  .brand-mark {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: .9rem;
+  .brand-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: .65rem;
     background: #16a34a;
     color: #fff;
     display: inline-flex;
@@ -151,602 +141,256 @@ $lane_colors = [
     justify-content: center;
     flex: 0 0 auto;
   }
-
+  .brand-icon i{width:1.2rem;height:1.2rem}
   .brand-title {
-    color: #14532d;
-    font-size: 1.08rem;
+    font-size: .95rem;
     font-weight: 700;
     line-height: 1.2;
+    color: #14532d;
   }
-
   .brand-subtitle {
+    display: none;
+    font-size: .78rem;
     color: #15803d;
-    font-size: .82rem;
   }
-
-  .main-shell {
-    max-width: 960px;
-  }
-
-  main.main-shell {
-    padding-top: 1.5rem;
-    padding-bottom: 3rem;
-  }
-
-  .hero-card {
-    border: 1px solid #bbf7d0;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.78);
-    box-shadow: 0 18px 45px rgba(20, 83, 45, 0.08);
-    padding: 1.35rem;
-    margin-bottom: 1.35rem;
-  }
-
-  .hero-card>.d-flex {
+  .header-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: .25rem;
   }
-
-  .hero-card h1,
-  .h3 {
-    margin: 0 0 .5rem;
-    font-size: clamp(1.65rem, 4vw, 2.25rem);
-    line-height: 1.15;
-    color: #0f3d23;
-  }
-
-  .hero-card p {
-    margin: 0;
-    color: #2f6e43;
-    font-size: 1rem;
-  }
-
-  .badge {
+  .header-actions .btn {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    border-radius: 999px;
-    font-weight: 700;
+    justify-content: center;
+    gap: .3rem;
+    min-height: 2.25rem;
+    padding: .35rem .5rem;
+    border-radius: .65rem;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    font-size: .78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s;
     white-space: nowrap;
   }
+  .header-actions .btn:active{background:#f1f5f9}
+  .header-actions .btn span{display:none}
+  .header-actions .btn-danger{border-color:#fca5a5;color:#dc2626}
 
-  .text-bg-success-subtle {
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .border-success-subtle {
+  .date-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    font-size: .82rem;
+    color: #2f6e43;
+    padding: .4rem .75rem;
+    margin-bottom: .75rem;
+    background: rgba(255,255,255,.7);
+    border-radius: 999px;
     border: 1px solid #bbf7d0;
   }
+  .date-badge i{width:.95rem;height:.95rem}
 
-  section.row {
+  .summary-strip {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.25rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    margin-bottom: 1rem;
+  }
+  .summary-item {
+    padding: .5rem .4rem;
+    border-radius: .75rem;
+    background: rgba(255,255,255,.85);
+    border: 1px solid #d1fae5;
+    text-align: center;
+    min-height: 3.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .summary-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #0f3d23;
+    line-height: 1.1;
+  }
+  .summary-label {
+    font-size: .65rem;
+    color: #64748b;
+    font-weight: 600;
   }
 
+  .lanes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem;
+  }
   .lane-card {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 11rem;
-    border-width: 2px;
-    border-style: solid;
+    gap: .3rem;
+    min-height: 9.5rem;
     border-radius: 1.25rem;
-    text-decoration: none;
-    transition: transform .16s ease, box-shadow .16s ease;
-    padding: 1.35rem .85rem;
-    box-shadow: 0 10px 26px rgba(15, 23, 42, .07);
+    border: 2.5px solid;
+    padding: 1rem .6rem;
+    transition: transform .12s ease, box-shadow .12s ease;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
   }
-
-  .lane-card:hover,
-  .lane-card:focus {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 32px rgba(15, 23, 42, .12);
-  }
-
+  .lane-card:active{transform:scale(.96)}
   .lane-badge {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3rem;
+    height: 3rem;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.65rem;
-    font-weight: 700;
+    font-size: 1.4rem;
+    font-weight: 800;
+    flex: 0 0 auto;
   }
-
   .lane-label {
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
-
-  .lane-stat {
-    font-size: .86rem;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: .35rem;
-    min-height: 44px;
-    padding: .55rem 1rem;
-    border-radius: 999px;
-    border: 1px solid transparent;
-    text-decoration: none;
+    font-size: 1rem;
     font-weight: 700;
     line-height: 1.2;
   }
-
-  .btn-outline-secondary {
-    background: #fff;
-    border-color: #cbd5e1;
-    color: #334155;
-  }
-
-  .btn-outline-secondary:hover {
-    background: #f8fafc;
-  }
-
-  .btn-outline-danger {
-    background: #fff;
-    border-color: #fca5a5;
-    color: #dc2626;
-  }
-
-  .btn-outline-danger:hover {
-    background: #fef2f2;
-  }
-
-  .overview-btn {
-    border-radius: 1rem;
-    border: 2px solid #6ee7b7;
-    color: #047857;
-    background: #fff;
-    font-weight: 700;
-    width: 100%;
-  }
-
-  .overview-btn:hover {
-    border-color: #10b981;
-    color: #065f46;
-    background: #f0fdf4;
-  }
-
-  .today-summary-card {
-    margin-top: 1.5rem;
-    padding: 1.15rem;
-    border: 1px solid #86efac;
-    border-radius: 1.25rem;
-    background: linear-gradient(135deg, rgba(255, 255, 255, .9), rgba(240, 253, 244, .95));
-    box-shadow: 0 14px 34px rgba(20, 83, 45, .07);
-  }
-
-  .today-summary-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    margin-bottom: 1rem;
-  }
-
-  .today-summary-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0f3d23;
-  }
-
-  .today-summary-subtitle {
-    font-size: .88rem;
-    color: #2f6e43;
-  }
-
-  .today-summary-grid {
-    display: grid;
-    grid-template-columns: 1.4fr .8fr .8fr;
-    gap: .85rem;
-  }
-
-  .today-summary-main,
-  .today-summary-mini {
-    border-radius: 1rem;
-    border: 1px solid #d1fae5;
-    background: #fff;
-    padding: 1rem;
-  }
-
-  .today-summary-main {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 8.75rem;
-  }
-
-  .today-summary-kicker {
-    font-size: .8rem;
-    font-weight: 700;
-    color: #166534;
-    margin-bottom: .25rem;
-  }
-
-  .today-summary-value {
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1;
-    font-weight: 700;
-    color: #0f3d23;
-  }
-
-  .today-summary-unit {
-    font-size: 1rem;
-    color: #166534;
-    margin-left: .35rem;
-  }
-
-  .today-summary-mini {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: .35rem;
-    min-height: 8.75rem;
-  }
-
-  .today-summary-mini-label {
+  .lane-stat {
     font-size: .75rem;
-    font-weight: 700;
-    color: #14532d;
-    text-transform: uppercase;
-    letter-spacing: .02em;
-  }
-
-  .today-summary-mini-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #0f3d23;
-  }
-
-  .today-summary-mini-note {
-    font-size: .82rem;
-    color: #64748b;
-  }
-
-  .lane-summary-section {
-    margin-top: 1.5rem;
-    padding: 1.1rem;
-    border: 1px solid #bbf7d0;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, .72);
-    box-shadow: 0 14px 34px rgba(20, 83, 45, .06);
-  }
-
-  .lane-summary-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    margin-bottom: 1rem;
-  }
-
-  .lane-summary-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0f3d23;
-  }
-
-  .lane-summary-subtitle {
-    font-size: .88rem;
-    color: #2f6e43;
-  }
-
-  .lane-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: .9rem;
-  }
-
-  .lane-summary-card {
-    min-height: 10.5rem;
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 1.15rem;
-    padding: 1rem;
-    background: #fff;
-    transition: transform .16s ease, box-shadow .16s ease;
-    text-decoration: none;
-  }
-
-  .lane-summary-card:hover,
-  .lane-summary-card:focus {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 32px rgba(15, 23, 42, .12);
-  }
-
-  .lane-summary-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: .75rem;
-    margin-bottom: .85rem;
-  }
-
-  .lane-summary-num {
-    width: 2.35rem;
-    height: 2.35rem;
-    border-radius: .85rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.05rem;
-  }
-
-  .lane-summary-lane {
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .lane-summary-date {
-    font-size: .78rem;
-    color: #64748b;
-  }
-
-  .lane-summary-metric {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .65rem;
-    margin-bottom: .85rem;
-  }
-
-  .lane-summary-chip {
-    padding: .55rem .65rem;
-    border-radius: .85rem;
-    background: #f8fdf8;
-    border: 1px solid #e3f4e7;
-  }
-
-  .lane-summary-chip-label {
-    font-size: .7rem;
-    color: #14532d;
-    margin-bottom: .15rem;
-  }
-
-  .lane-summary-chip-value {
-    font-size: .98rem;
-    font-weight: 700;
-    color: #0f3d23;
-  }
-
-  .lane-summary-action {
-    margin-top: auto;
+    opacity: .8;
     text-align: center;
-    font-size: .82rem;
-    font-weight: 700;
-    color: #166534;
+    line-height: 1.3;
   }
 
-  @media (max-width: 575.98px) {
-    .app-header .main-shell {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .app-header .main-shell>.d-flex {
-      justify-content: flex-start;
-    }
-
-    .brand-title {
-      font-size: 1rem;
-    }
-
-    .header-actions {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      width: 100%;
-    }
-
-    .header-actions .btn {
-      justify-content: center;
-      min-height: 44px;
-    }
-
-    .hero-card {
-      border-radius: 1rem;
-    }
-
-    .hero-card>.d-flex {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    section.row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: .75rem;
-    }
-
-    .lane-card {
-      min-height: 9.5rem;
-      border-radius: 1rem;
-    }
-
-    .lane-badge {
-      width: 3rem;
-      height: 3rem;
-      font-size: 1.4rem;
-    }
-
-    .lane-summary-section {
-      padding: .9rem;
-      border-radius: 1rem;
-    }
-
-    .lane-summary-head {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .lane-summary-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .today-summary-grid {
-      grid-template-columns: 1fr;
-    }
+  @media (hover:hover) {
+    .lane-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
   }
 
-  @media (min-width: 576px) and (max-width: 991.98px) {
-    section.row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  @media (min-width: 576px) {
+    .container{max-width:540px;padding-right:1rem;padding-left:1rem}
+    .header-inner{padding:.65rem 0}
+    .brand-icon{width:2.5rem;height:2.5rem}
+    .brand-icon i{width:1.35rem;height:1.35rem}
+    .brand-title{font-size:1.05rem}
+    .brand-subtitle{display:block}
+    .header-actions .btn span{display:inline}
+    .header-actions .btn{padding:.4rem .7rem}
+    .lanes-grid{gap:1rem}
+    .lane-card{min-height:11rem;border-radius:1.35rem}
+    .lane-badge{width:3.5rem;height:3.5rem;font-size:1.65rem}
+    .lane-label{font-size:1.1rem}
+    .lane-stat{font-size:.82rem}
+    .summary-item{min-height:3.5rem}
+    .summary-value{font-size:1.3rem}
+    .summary-label{font-size:.68rem}
+  }
 
-    .lane-summary-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .today-summary-grid {
-      grid-template-columns: 1fr 1fr;
-    }
+  @media (min-width: 768px) {
+    .container{max-width:960px}
+    .lanes-grid{grid-template-columns:repeat(4,1fr)}
+    .lane-card{min-height:12rem;border-radius:1.5rem;gap:.4rem}
+    .lane-badge{width:4rem;height:4rem;font-size:1.85rem}
+    .lane-label{font-size:1.25rem}
+    .lane-stat{font-size:.88rem}
+    .summary-strip{margin-bottom:1.25rem}
+    .summary-value{font-size:1.5rem}
+    .date-badge{margin-bottom:1rem}
   }
   </style>
 </head>
-
 <body>
-  <header class="app-header py-3">
-    <div
-      class="container main-shell d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
-      <div class="d-flex align-items-center gap-3">
-        <span class="brand-mark">
-          <i data-lucide="package-check" aria-hidden="true"></i>
-        </span>
-        <div>
-          <div class="brand-title">บันทึกวางยาง</div>
-          <div class="brand-subtitle">เลือกลานเพื่อบันทึกข้อมูล</div>
+  <header class="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="wang_main.php" class="brand">
+          <span class="brand-icon"><i data-lucide="package-check" aria-hidden="true"></i></span>
+          <div>
+            <div class="brand-title">บันทึกวางยาง</div>
+            <div class="brand-subtitle">เลือกลาน</div>
+          </div>
+        </a>
+        <div class="header-actions">
+          <a href="dashboard.php" class="btn">
+            <i data-lucide="layout-dashboard" aria-hidden="true"></i>
+            <span>แดชบอร์ด</span>
+          </a>
+          <a href="wang_summary.php" class="btn">
+            <i data-lucide="clipboard-list" aria-hidden="true"></i>
+            <span>สรุป</span>
+          </a>
+          <?php if (function_exists('is_admin') && is_admin()): ?>
+          <a href="export_wang.php" class="btn" style="border-color:#86efac;color:#16a34a">
+            <i data-lucide="file-down" aria-hidden="true"></i>
+            <span>ส่งออก</span>
+          </a>
+          <?php endif; ?>
+          <a href="logout.php" class="btn btn-danger">
+            <i data-lucide="log-out" aria-hidden="true"></i>
+            <span>ออกจากระบบ</span>
+          </a>
         </div>
-      </div>
-      <div class="header-actions d-flex gap-2 flex-shrink-0">
-        <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
-          <i data-lucide="layout-dashboard" aria-hidden="true"></i>
-          <span>แดชบอร์ด</span>
-        </a>
-        <a href="wang_summary.php" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center gap-1">
-          <i data-lucide="clipboard-list" aria-hidden="true"></i>
-          <span>สรุป</span>
-        </a>
-        <?php if (function_exists('is_admin') && is_admin()): ?>
-        <a href="export_wang.php" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-1">
-          <i data-lucide="file-down" aria-hidden="true"></i>
-          <span>ส่งออก</span>
-        </a>
-        <?php endif; ?>
-        <a href="logout.php" class="btn btn-outline-danger rounded-pill d-inline-flex align-items-center gap-1">
-          <i data-lucide="log-out" aria-hidden="true"></i>
-          <span>ออกจากระบบ</span>
-        </a>
       </div>
     </div>
   </header>
 
-  <main class="container main-shell py-4 py-md-5">
+  <main class="container" style="padding-top:1rem;padding-bottom:2rem">
+    <div class="date-badge">
+      <i data-lucide="calendar-days" aria-hidden="true"></i>
+      <?php if (!empty($overviewSummary['latest_date'])): ?>
+        วันที่ล่าสุด: <?php echo e(format_thai_date_short($overviewSummary['latest_date'])); ?>
+      <?php else: ?>
+        ยังไม่มีข้อมูล
+      <?php endif; ?>
+    </div>
 
-    <section class="today-summary-card">
-      <div class="today-summary-head">
-        <div>
-          <div class="today-summary-title">สรุปยอดของวันที่ล่าสุดที่มีข้อมูล</div>
-          <div class="today-summary-subtitle">
-            รวมยอดเฉพาะวันที่ล่าสุดที่มีข้อมูลในระบบ เพื่อให้ตรงกับยอดรวมจริงของวันนั้น
-          </div>
-        </div>
-        <span
-          class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2">
-          <i data-lucide="calendar-days" class="me-1" aria-hidden="true"></i>
-          <?php echo !empty($overviewSummary['latest_date']) ? e(format_thai_date_short($overviewSummary['latest_date'])) : 'ยังไม่มีข้อมูล'; ?>
+    <div class="summary-strip">
+      <div class="summary-item">
+        <div class="summary-value"><?php echo number_format($overviewSummary['sacks'], 0); ?></div>
+        <div class="summary-label">กระสอบรวม</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value"><?php echo number_format($overviewSummary['entries']); ?></div>
+        <div class="summary-label">รายการ</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value"><?php echo number_format($overviewSummary['lanes']); ?></div>
+        <div class="summary-label">ลานที่มีข้อมูล</div>
+      </div>
+    </div>
+
+    <div class="lanes-grid">
+      <?php foreach ($lane_data as $lan => $data):
+        $c = $lane_colors[$lan];
+      ?>
+      <a href="create_rubber.php?lane=<?php echo e($lan); ?>" class="lane-card"
+        style="background:<?php echo e($c['bg']); ?>;border-color:<?php echo e($c['border']); ?>;color:<?php echo e($c['text']); ?>;">
+        <span class="lane-badge" style="background:<?php echo e($c['icon_bg']); ?>;color:<?php echo e($c['badge']); ?>;">
+          <?php echo e($lan); ?>
         </span>
-      </div>
-
-      <div class="today-summary-grid">
-        <div class="today-summary-main">
-          <div class="today-summary-kicker">กระสอบรวมของวันล่าสุด</div>
-          <div class="today-summary-value">
-            <?php echo number_format($overviewSummary['sacks'], 0); ?><span class="today-summary-unit">กระสอบ</span>
-          </div>
-          <div class="today-summary-mini-note mt-2">ข้อมูลรวมจากวันที่ล่าสุดที่มีรายการบันทึก</div>
-        </div>
-        <div class="today-summary-mini">
-          <div class="today-summary-mini-label">รายการของวันล่าสุด</div>
-          <div class="today-summary-mini-value"><?php echo number_format($overviewSummary['entries']); ?></div>
-          <div class="today-summary-mini-note">จำนวนรายการทั้งหมดในวันนั้น</div>
-        </div>
-        <div class="today-summary-mini">
-          <div class="today-summary-mini-label">ลานที่มีข้อมูล</div>
-          <div class="today-summary-mini-value"><?php echo number_format($overviewSummary['lanes']); ?></div>
-          <div class="today-summary-mini-note">นับเฉพาะลานที่มีข้อมูลในวันล่าสุด</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="lane-summary-section">
-      <div class="lane-summary-head">
-        <div>
-          <div class="lane-summary-title">สรุปผลการวางยางทั้ง 4 ลาน</div>
-          <div class="lane-summary-subtitle">แสดงข้อมูลวันล่าสุดของแต่ละลานเพื่อดูภาพรวมได้เร็วขึ้น</div>
-        </div>
-        <span
-          class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill px-3 py-2">
-          <i data-lucide="bar-chart-3" class="me-1" aria-hidden="true"></i> สรุป 4 ลาน
+        <span class="lane-label">ลาน <?php echo e($lan); ?></span>
+        <span class="lane-stat">
+          <?php if (!empty($data['latest_date'])): ?>
+            <?php echo number_format($data['sacks']); ?> กระสอบ · <?php echo number_format($data['count']); ?> รายการ
+          <?php else: ?>
+            ยังไม่มีข้อมูล
+          <?php endif; ?>
         </span>
-      </div>
-
-      <div class="lane-summary-grid">
-        <?php foreach ($lane_data as $lan => $data):
-            $c = $lane_colors[$lan];
-        ?>
-        <a href="create_rubber.php?lane=<?php echo e($lan); ?>" class="lane-summary-card d-flex flex-column"
-          style="background:<?php echo e($c['bg']); ?>; border-color:<?php echo e($c['border']); ?>; color:<?php echo e($c['text']); ?>;">
-          <div class="lane-summary-top">
-            <div class="d-flex align-items-center gap-2">
-              <span class="lane-summary-num"
-                style="background:<?php echo e($c['icon_bg']); ?>; color:<?php echo e($c['badge']); ?>;">
-                <?php echo e($lan); ?>
-              </span>
-              <div>
-                <div class="lane-summary-lane">ลาน <?php echo e($lan); ?></div>
-                <div class="lane-summary-date">
-                  <?php echo !empty($data['latest_date']) ? e(format_thai_date_short($data['latest_date'])) : 'ยังไม่มีข้อมูล'; ?>
-                </div>
-              </div>
-            </div>
-            <i data-lucide="chevron-right" aria-hidden="true"></i>
-          </div>
-
-          <div class="lane-summary-metric">
-            <div class="lane-summary-chip">
-              <div class="lane-summary-chip-label">รายการ</div>
-              <div class="lane-summary-chip-value"><?php echo number_format($data['count']); ?></div>
-            </div>
-            <div class="lane-summary-chip">
-              <div class="lane-summary-chip-label">กระสอบ</div>
-              <div class="lane-summary-chip-value"><?php echo number_format($data['sacks']); ?></div>
-            </div>
-          </div>
-
-          <div class="lane-summary-action">กดเพื่อเปิดลานนี้</div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-    </section>
+      </a>
+      <?php endforeach; ?>
+    </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-  </script>
   <script>
   if (window.lucide && lucide.createIcons) {
     lucide.createIcons();
   }
   </script>
 </body>
-
 </html>
