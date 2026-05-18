@@ -144,6 +144,7 @@ $sql = "
         w.wang_sack,
         w.wang_weight,
         w.wang_lan,
+        COALESCE(w.wang_note, '') AS wang_note,
         w.wang_status,
         w.wang_saveby,
         w.wang_savedate,
@@ -423,13 +424,14 @@ echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
     </Style>';
     echo '</Styles>';
   echo '<Worksheet ss:Name="วางยาง">
-    <Table ss:ExpandedColumnCount="8" ss:ExpandedRowCount="' . (4 + count($rows) + 1) . '">';
+    <Table ss:ExpandedColumnCount="9" ss:ExpandedRowCount="' . (4 + count($rows) + 1) . '">';
       echo '<Column ss:AutoFitWidth="1" ss:Width="80"/>
       <Column ss:AutoFitWidth="1" ss:Width="50"/>
       <Column ss:AutoFitWidth="1" ss:Width="80"/>
       <Column ss:AutoFitWidth="1" ss:Width="160"/>
       <Column ss:AutoFitWidth="1" ss:Width="120"/>
       <Column ss:AutoFitWidth="1" ss:Width="60"/>
+      <Column ss:AutoFitWidth="1" ss:Width="180"/>
       <Column ss:AutoFitWidth="1" ss:Width="120"/>
       <Column ss:AutoFitWidth="1" ss:Width="140"/>' . "\n";
       echo xml_row([xml_cell('String', $title, 'sTitle')]);
@@ -444,6 +446,7 @@ echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
       xml_cell('String', 'ชื่อสมาชิก', 'sHeader'),
       xml_cell('String', 'กลุ่ม', 'sHeader'),
       xml_cell('String', 'กระสอบ', 'sHeader'),
+      xml_cell('String', 'หมายเหตุ', 'sHeader'),
       xml_cell('String', 'บันทึกโดย', 'sHeader'),
       xml_cell('String', 'วันที่บันทึก', 'sHeader'),
       ]);
@@ -459,6 +462,7 @@ echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
       xml_cell('String', (string)$row['member_name'], 'sText'),
       xml_cell('String', (string)$row['member_group'], 'sText'),
       xml_cell('Number', number_format((float)$row['wang_sack'], 2, '.', ''), 'sNum'),
+      xml_cell('String', (string)($row['wang_note'] ?? ''), 'sText'),
       xml_cell('String', (string)($row['wang_saveby'] ?: '-'), 'sText'),
       xml_cell('String', !empty($row['wang_savedate']) ? thai_date_format(substr((string)$row['wang_savedate'], 0, 10))
       . ' ' . substr((string)$row['wang_savedate'], 11, 5) : '-', 'sText'),
@@ -471,6 +475,7 @@ echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
       xml_cell('String', '', 'sTotalText'),
       xml_cell('String', '', 'sTotalText'),
       xml_cell('Number', number_format($summary['bags'], 0, '.', ''), 'sTotalNum'),
+      xml_cell('String', '', 'sTotalText'),
       xml_cell('String', '', 'sTotalText'),
       xml_cell('String', '', 'sTotalText'),
       ]);
