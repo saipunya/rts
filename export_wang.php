@@ -293,7 +293,7 @@ if ($format === 'pdf' || $format === 'excel') {
                 $html .= '<td class="nowrap">' . e((string)($row['mem_number'] ?: '-')) . '</td>';
                 $html .= '<td>' . e((string)$row['member_name']) . '</td>';
                 $html .= '<td>' . e((string)$row['member_group']) . '</td>';
-                $html .= '<td class="num">' . number_format((float)$row['wang_sack']) . '</td>';
+                $html .= '<td class="num">' . number_format((float)$row['wang_sack'], 2) . '</td>';
                 $html .= '</tr>';
             }
             $html .= '<tr class="total-row">';
@@ -458,7 +458,7 @@ echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
       xml_cell('String', (string)($row['mem_number'] ?: '-'), 'sCenter'),
       xml_cell('String', (string)$row['member_name'], 'sText'),
       xml_cell('String', (string)$row['member_group'], 'sText'),
-      xml_cell('Number', number_format((float)$row['wang_sack'], 0, '.', ''), 'sNum'),
+      xml_cell('Number', number_format((float)$row['wang_sack'], 2, '.', ''), 'sNum'),
       xml_cell('String', (string)($row['wang_saveby'] ?: '-'), 'sText'),
       xml_cell('String', !empty($row['wang_savedate']) ? thai_date_format(substr((string)$row['wang_savedate'], 0, 10))
       . ' ' . substr((string)$row['wang_savedate'], 11, 5) : '-', 'sText'),

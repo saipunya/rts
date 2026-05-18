@@ -887,7 +887,7 @@ foreach ($summaryRows as $row) {
 	      <div class="dashboard-summary-item">
 	        <div>
 	          <div class="dashboard-summary-label">กระสอบรวม</div>
-	          <div class="dashboard-summary-value"><?php echo number_format($summaryTotals['total_bags']); ?></div>
+	          <div class="dashboard-summary-value"><?php echo number_format($summaryTotals['total_bags'], 2); ?></div>
 	        </div>
 	        <span class="dashboard-summary-icon"><i data-lucide="package" aria-hidden="true"></i></span>
 	      </div>
@@ -947,7 +947,7 @@ foreach ($summaryRows as $row) {
                 <td data-label="สมาชิกเข้าร่วม" class="text-end"><?php echo number_format($row['member_count']); ?> ราย
                 </td>
                 <td data-label="จำนวนรายการ" class="text-end"><?php echo number_format($row['entry_count']); ?></td>
-                <td data-label="กระสอบ/ถุง" class="text-end"><?php echo number_format($row['total_bags']); ?></td>
+                <td data-label="กระสอบ/ถุง" class="text-end"><?php echo number_format($row['total_bags'], 2); ?></td>
                 <td data-label="น้ำหนักต่อถุง">
                   <div class="input-group input-group-sm summary-input shadow-sm">
 	                    <input form="<?php echo e($formId); ?>" type="number" name="weight_per_bag"

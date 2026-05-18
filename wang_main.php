@@ -352,7 +352,7 @@ $lane_colors = [
 
     <div class="summary-strip">
       <div class="summary-item">
-        <div class="summary-value"><?php echo number_format($overviewSummary['sacks'], 0); ?></div>
+        <div class="summary-value"><?php echo number_format($overviewSummary['sacks'], 2); ?></div>
         <div class="summary-label">กระสอบรวม</div>
       </div>
       <div class="summary-item">
@@ -377,7 +377,7 @@ $lane_colors = [
         <span class="lane-label">ลาน <?php echo e($lan); ?></span>
         <span class="lane-stat">
           <?php if (!empty($data['latest_date'])): ?>
-            <?php echo number_format($data['sacks']); ?> กระสอบ · <?php echo number_format($data['count']); ?> รายการ
+            <?php echo number_format($data['sacks'], 2); ?> กระสอบ · <?php echo number_format($data['count']); ?> รายการ
           <?php else: ?>
             ยังไม่มีข้อมูล
           <?php endif; ?>
