@@ -158,7 +158,11 @@ $sql = "
 if ($conds) {
     $sql .= ' WHERE ' . implode(' AND ', $conds);
 }
-$sql .= ' ORDER BY w.wang_lan ASC, member_name ASC, w.wang_savedate ASC, w.wang_id ASC';
+ if ($format === 'excel' || $format === 'pdf') {
+   $sql .= ' ORDER BY w.wang_id ASC';
+ } else {
+   $sql .= ' ORDER BY w.wang_lan ASC, member_name ASC, w.wang_savedate ASC, w.wang_id ASC';
+ }
 
 $rows = [];
 if ($conds) {
