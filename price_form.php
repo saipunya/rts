@@ -32,6 +32,12 @@ if ($action === 'edit' && $id > 0) {
     }
 }
 
+$currentThaiYear = (int)date('Y') + 543;
+$priceDateTs = strtotime((string)($pr['pr_date'] ?? ''));
+if ($priceDateTs !== false) {
+    $pr['pr_year'] = (int)date('Y', $priceDateTs) + 543;
+}
+
 ?>
 <!-- Removed Google Fonts, now using local Sarabun -->
 <style>
@@ -139,7 +145,7 @@ html, body {
                     <label class="form-label" for="pr_year">
                         <i data-lucide="calendar-range" class="me-1" aria-hidden="true"></i>ปี (พ.ศ.)
                     </label>
-                    <input type="number" name="pr_year" id="pr_year" class="form-control" min="<?php echo date('Y') - 1; ?>" max="<?php echo date('Y') + 5; ?>" value="<?php echo htmlspecialchars($pr['pr_year']); ?>" required>
+                    <input type="number" name="pr_year" id="pr_year" class="form-control" min="<?php echo $currentThaiYear - 1; ?>" max="<?php echo $currentThaiYear + 5; ?>" value="<?php echo htmlspecialchars((string)$pr['pr_year']); ?>" required>
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label" for="pr_date">
@@ -172,5 +178,23 @@ html, body {
         </form>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('pr_date');
+    const yearInput = document.getElementById('pr_year');
+    if (!dateInput || !yearInput) return;
+
+    function syncThaiYear() {
+        const match = /^(\d{4})-\d{2}-\d{2}$/.exec(dateInput.value || '');
+        if (match) {
+            yearInput.value = String(Number(match[1]) + 543);
+        }
+    }
+
+    dateInput.addEventListener('change', syncThaiYear);
+    syncThaiYear();
+});
+</script>
 
 <?php include 'footer.php'; ?>

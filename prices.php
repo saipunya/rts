@@ -25,6 +25,15 @@ $priceChartValues = array_values(array_map(static function ($row) {
 $latestPrice = !empty($prices) ? (float)($prices[0]['pr_price'] ?? 0) : 0;
 $latestPriceDate = !empty($prices) ? thai_date_format((string)($prices[0]['pr_date'] ?? '')) : '-';
 $rubberAnnouncement = fetch_rubber_collection_announcement($db, !empty($prices) ? (string)($prices[0]['pr_date'] ?? '') : null);
+
+function price_thai_year(array $price): int {
+    $date = (string)($price['pr_date'] ?? '');
+    $timestamp = strtotime($date);
+    if ($timestamp !== false) {
+        return (int)date('Y', $timestamp) + 543;
+    }
+    return (int)($price['pr_year'] ?? 0);
+}
 ?>
 <style>
 html,
@@ -253,7 +262,7 @@ body {
               <?php foreach ($prices as $p): ?>
               <tr>
                 <td><?php echo (int)$p['pr_id']; ?></td>
-                <td><?php echo (int)$p['pr_year']; ?></td>
+                <td><?php echo price_thai_year($p); ?></td>
                 <td>
                   <i data-lucide="calendar" class="me-1 text-secondary" aria-hidden="true"></i>
                   <?php echo thai_date_format($p['pr_date']); ?>
@@ -301,7 +310,7 @@ body {
                 <div>
                   <div class="text-secondary small">#<?php echo (int)$p['pr_id']; ?></div>
                   <h5 class="mb-1 fs-6 fw-bold text-dark">
-                    ปี <?php echo (int)$p['pr_year']; ?>
+                    ปี <?php echo price_thai_year($p); ?>
                   </h5>
                   <div class="text-secondary small">
                     <i data-lucide="calendar" class="me-1"

@@ -13,11 +13,15 @@ $pr_year = isset($_POST['pr_year']) ? (int)$_POST['pr_year'] : 0;
 $pr_date = isset($_POST['pr_date']) ? trim($_POST['pr_date']) : '';
 $pr_number = isset($_POST['pr_number']) ? trim($_POST['pr_number']) : '';
 $pr_price = isset($_POST['pr_price']) ? trim($_POST['pr_price']) : '';
+$dateObj = DateTimeImmutable::createFromFormat('!Y-m-d', $pr_date);
+if ($dateObj instanceof DateTimeImmutable && $dateObj->format('Y-m-d') === $pr_date) {
+    $pr_year = (int)$dateObj->format('Y') + 543;
+}
 
 // basic validation
 $errors = [];
 if ($pr_year <= 0) $errors[] = 'กรุณากรอกปี พ.ศ.';
-if ($pr_date === '') $errors[] = 'กรุณากรอกวันที่';
+if (!$dateObj instanceof DateTimeImmutable || $dateObj->format('Y-m-d') !== $pr_date) $errors[] = 'กรุณากรอกวันที่';
 if ($pr_number === '') $errors[] = 'กรุณากรอกรอบประกาศราคา';
 if ($pr_price === '' || !is_numeric(str_replace(',', '', $pr_price))) $errors[] = 'กรุณากรอกราคาเป็นตัวเลข';
 
