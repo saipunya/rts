@@ -490,8 +490,8 @@ function render_top_metric_table(string $title, string $subtitle, array $rows, s
 $latestCollectionDate = get_latest_collection_date($conn);
 $latestMemberTop = fetch_top_rubber_quantity($conn, 'member', $latestCollectionDate);
 $latestGeneralTop = fetch_top_rubber_quantity($conn, 'general', $latestCollectionDate);
-$allMemberTop = fetch_top_rubber_quantity($conn, 'member');
-$allGeneralTop = fetch_top_rubber_quantity($conn, 'general');
+$allMemberTop = fetch_top_rubber_metric($conn, 'member', 'quantity');
+$allGeneralTop = fetch_top_rubber_metric($conn, 'general', 'quantity');
 $allMemberHoonTop = fetch_top_rubber_metric($conn, 'member', 'hoon');
 $allGeneralHoonTop = fetch_top_rubber_metric($conn, 'general', 'hoon');
 $allMemberNetTop = fetch_top_rubber_metric($conn, 'member', 'net');
