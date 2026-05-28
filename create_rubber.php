@@ -57,13 +57,14 @@ function ensure_wangyang_form_columns(mysqli $db): void {
   $db->query("ALTER TABLE tbl_wangyang MODIFY COLUMN wang_sack DECIMAL(18,2) NOT NULL DEFAULT 0.00");
 }
 
-// load existing wang records to display in the table (optionally filter by lane)
+// Load only today's wang records to prevent mixing entries from previous dates.
 $initial_records = [];
 $selected_lane = isset($_GET['lane']) ? trim((string)$_GET['lane']) : '';
+$current_wang_date = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
 if ($selected_lane !== '') {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id WHERE w.wang_lan = ? ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id WHERE w.wang_lan = ? AND w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
-    $wstm->bind_param('s', $selected_lane);
+    $wstm->bind_param('ss', $selected_lane, $current_wang_date);
     $wstm->execute();
     $wres = $wstm->get_result();
     while ($wr = $wres->fetch_assoc()) {
@@ -84,8 +85,9 @@ if ($selected_lane !== '') {
     $wstm->close();
   }
 } else {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id WHERE w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
+    $wstm->bind_param('s', $current_wang_date);
     $wstm->execute();
     $wres = $wstm->get_result();
     while ($wr = $wres->fetch_assoc()) {
@@ -1369,6 +1371,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 
   function updateStats() {
     const visible = getVisibleRecords();
+    const todaysRecords = getTodaysRecords();
     document.getElementById('stat-total').textContent = visible.length;
     const totalBags = visible.reduce((s, r) => s + (parseFloat(r.bags) || 0), 0);
     document.getElementById('stat-bags').textContent = formatNumber(totalBags);
@@ -1376,7 +1379,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     document.getElementById('stat-farmers').textContent = farmers;
     const summary = document.getElementById('search-summary');
     if (summary) {
-      summary.textContent = visible.length < records.length ? `${visible.length}/${records.length}` : '';
+      summary.textContent = visible.length < todaysRecords.length ? `${visible.length}/${todaysRecords.length}` : '';
     }
   }
 
@@ -1384,9 +1387,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     const tbody = document.getElementById('data-table');
     const empty = document.getElementById('empty-state');
     const visible = getVisibleRecords();
+    const todaysRecords = getTodaysRecords();
     empty.style.display = visible.length === 0 ? 'block' : 'none';
     if (empty.querySelector('p')) {
-      empty.querySelector('p').textContent = records.length === 0 ?
+      empty.querySelector('p').textContent = todaysRecords.length === 0 ?
         'ยังไม่มีรายการ กดปุ่ม "เพิ่มรายการ" เพื่อเริ่มต้น' :
         'ไม่พบรายการที่ตรงกับคำค้น';
     }
@@ -1453,10 +1457,16 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       .trim();
   }
 
+  function getTodaysRecords() {
+    const today = getTodayDateString();
+    return records.filter(rec => String(rec.date || '') === today);
+  }
+
   function getVisibleRecords() {
+    const todaysRecords = getTodaysRecords();
     const q = normalizeText(searchTerm);
-    if (!q) return records;
-    return records.filter(rec => {
+    if (!q) return todaysRecords;
+    return todaysRecords.filter(rec => {
       const haystack = [
         rec.farmer_name,
         rec.group_name,
@@ -1515,7 +1525,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 
   function getTodayDateString() {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   // Modal

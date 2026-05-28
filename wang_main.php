@@ -2,38 +2,25 @@
 require_once 'functions.php';
 require_login();
 
-// load latest-day counts and bags per lane
+// Load today's counts and bags per lane.
 $db = db();
+$currentWangDate = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
 $lane_data = [];
 for ($i = 1; $i <= 4; $i++) {
     $lan = (string)$i;
-    $latestDate = null;
-    $stm = $db->prepare('SELECT MAX(wang_date) AS latest_date FROM tbl_wangyang WHERE wang_lan = ?');
+    $stm = $db->prepare('SELECT COUNT(*) AS c, COALESCE(SUM(wang_sack),0) AS sacks FROM tbl_wangyang WHERE wang_lan = ? AND wang_date = ?');
     if ($stm) {
-        $stm->bind_param('s', $lan);
+        $stm->bind_param('ss', $lan, $currentWangDate);
         $stm->execute();
         $row = $stm->get_result()->fetch_assoc();
-        $latestDate = $row['latest_date'] ?? null;
+        $lane_data[$lan] = [
+            'count' => (int)($row['c'] ?? 0),
+            'sacks' => (float)($row['sacks'] ?? 0),
+            'date' => $currentWangDate,
+        ];
         $stm->close();
-    }
-
-    if ($latestDate) {
-        $stm = $db->prepare('SELECT COUNT(*) AS c, COALESCE(SUM(wang_sack),0) AS sacks FROM tbl_wangyang WHERE wang_lan = ? AND wang_date = ?');
-        if ($stm) {
-            $stm->bind_param('ss', $lan, $latestDate);
-            $stm->execute();
-            $row = $stm->get_result()->fetch_assoc();
-            $lane_data[$lan] = [
-                'count' => (int)($row['c'] ?? 0),
-                'sacks' => (float)($row['sacks'] ?? 0),
-                'latest_date' => $latestDate,
-            ];
-            $stm->close();
-        } else {
-            $lane_data[$lan] = ['count' => 0, 'sacks' => 0, 'latest_date' => $latestDate];
-        }
     } else {
-        $lane_data[$lan] = ['count' => 0, 'sacks' => 0, 'latest_date' => null];
+        $lane_data[$lan] = ['count' => 0, 'sacks' => 0, 'date' => $currentWangDate];
     }
 }
 $cu = current_user();
@@ -51,28 +38,18 @@ $overviewSummary = [
     'entries' => 0,
     'sacks' => 0.0,
     'lanes' => 0,
-    'latest_date' => null,
+    'current_date' => $currentWangDate,
 ];
 
-$stm = $db->prepare('SELECT MAX(wang_date) AS latest_date FROM tbl_wangyang');
+$stm = $db->prepare('SELECT COUNT(*) AS entries, COALESCE(SUM(wang_sack), 0) AS sacks, COUNT(DISTINCT wang_lan) AS lanes FROM tbl_wangyang WHERE wang_date = ?');
 if ($stm) {
+    $stm->bind_param('s', $currentWangDate);
     $stm->execute();
     $row = $stm->get_result()->fetch_assoc();
-    $overviewSummary['latest_date'] = $row['latest_date'] ?? null;
+    $overviewSummary['entries'] = (int)($row['entries'] ?? 0);
+    $overviewSummary['sacks'] = (float)($row['sacks'] ?? 0);
+    $overviewSummary['lanes'] = (int)($row['lanes'] ?? 0);
     $stm->close();
-}
-
-if (!empty($overviewSummary['latest_date'])) {
-    $stm = $db->prepare('SELECT COUNT(*) AS entries, COALESCE(SUM(wang_sack), 0) AS sacks, COUNT(DISTINCT wang_lan) AS lanes FROM tbl_wangyang WHERE wang_date = ?');
-    if ($stm) {
-        $stm->bind_param('s', $overviewSummary['latest_date']);
-        $stm->execute();
-        $row = $stm->get_result()->fetch_assoc();
-        $overviewSummary['entries'] = (int)($row['entries'] ?? 0);
-        $overviewSummary['sacks'] = (float)($row['sacks'] ?? 0);
-        $overviewSummary['lanes'] = (int)($row['lanes'] ?? 0);
-        $stm->close();
-    }
 }
 
 $lane_colors = [
@@ -325,6 +302,10 @@ $lane_colors = [
             <i data-lucide="clipboard-list" aria-hidden="true"></i>
             <span>สรุป</span>
           </a>
+          <a href="manage_wang.php" class="btn" style="border-color:#86efac;color:#16a34a">
+            <i data-lucide="database" aria-hidden="true"></i>
+            <span>จัดการ</span>
+          </a>
           <?php if (function_exists('is_admin') && is_admin()): ?>
           <a href="export_wang.php" class="btn" style="border-color:#86efac;color:#16a34a">
             <i data-lucide="file-down" aria-hidden="true"></i>
@@ -343,11 +324,7 @@ $lane_colors = [
   <main class="container" style="padding-top:1rem;padding-bottom:2rem">
     <div class="date-badge">
       <i data-lucide="calendar-days" aria-hidden="true"></i>
-      <?php if (!empty($overviewSummary['latest_date'])): ?>
-        วันที่ล่าสุด: <?php echo e(format_thai_date_short($overviewSummary['latest_date'])); ?>
-      <?php else: ?>
-        ยังไม่มีข้อมูล
-      <?php endif; ?>
+      วันที่ปัจจุบัน: <?php echo e(format_thai_date_short($overviewSummary['current_date'])); ?>
     </div>
 
     <div class="summary-strip">
@@ -376,10 +353,10 @@ $lane_colors = [
         </span>
         <span class="lane-label">ลาน <?php echo e($lan); ?></span>
         <span class="lane-stat">
-          <?php if (!empty($data['latest_date'])): ?>
+          <?php if ((int)$data['count'] > 0): ?>
             <?php echo number_format($data['sacks'], 2); ?> กระสอบ · <?php echo number_format($data['count']); ?> รายการ
           <?php else: ?>
-            ยังไม่มีข้อมูล
+            วันนี้ยังไม่มีข้อมูล
           <?php endif; ?>
         </span>
       </a>

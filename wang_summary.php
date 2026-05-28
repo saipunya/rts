@@ -124,6 +124,10 @@ if ($result = $db->query($sql)) {
 }
 
 $summaryRows = array_slice($rows, 0, 2);
+$summaryDateText = implode(', ', array_map(
+    static fn(array $row): string => format_thai_date_short((string)($row['summary_date'] ?? '')),
+    $summaryRows
+));
 foreach ($summaryRows as $row) {
     $summaryTotals['member_count'] += $row['member_count'];
     $summaryTotals['entry_count'] += $row['entry_count'];
@@ -636,6 +640,14 @@ foreach ($summaryRows as $row) {
 	    line-height: 1.2;
 	  }
 
+	  .dashboard-summary-dates {
+	    display: block;
+	    margin-top: .15rem;
+	    font-size: .78rem;
+	    font-weight: 600;
+	    color: #15803d;
+	  }
+
 	  .dashboard-summary-icon {
 	    width: 2.35rem;
 	    height: 2.35rem;
@@ -873,7 +885,12 @@ foreach ($summaryRows as $row) {
 	      <div class="dashboard-summary-item">
 	        <div>
 	          <div class="dashboard-summary-label">จำนวนวันที่มีข้อมูล</div>
-	          <div class="dashboard-summary-value"><?php echo number_format(count($summaryRows)); ?></div>
+	          <div class="dashboard-summary-value">
+	            <?php echo number_format(count($summaryRows)); ?>
+	            <?php if ($summaryDateText !== ''): ?>
+	              <span class="dashboard-summary-dates">(<?php echo e($summaryDateText); ?>)</span>
+	            <?php endif; ?>
+	          </div>
 	        </div>
 	        <span class="dashboard-summary-icon"><i data-lucide="calendar" aria-hidden="true"></i></span>
 	      </div>
