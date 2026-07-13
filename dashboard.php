@@ -1098,6 +1098,22 @@ body {
         </div>
       </div>
     </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-success shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title text-success"><i data-lucide="database" class="me-2" aria-hidden="true"></i>Admin —
+            Rubber Data Management</h5>
+          <p class="card-text small text-muted">ค้นหา แก้ไข และลบข้อมูลยางจากตาราง tbl_rubber (เฉพาะผู้ดูแลระบบ)</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="admin_rubbers.php" class="btn btn-success btn-sm"><i data-lucide="search" class="me-1"
+                aria-hidden="true"></i>ค้นหาข้อมูลยาง</a>
+            <a href="rubbers.php?lan=all" class="btn btn-outline-success btn-sm"><i data-lucide="list" class="me-1"
+                aria-hidden="true"></i>รายการรวบรวมยาง</a>
+          </div>
+        </div>
+      </div>
+    </div>
     <?php endif; ?>
 
     <div class="col-12">
