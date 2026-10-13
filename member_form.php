@@ -10,6 +10,8 @@ $member = [
     'mem_number' => '',
     'mem_fullname' => '',
     'mem_class' => '',
+    'mem_personcode' => '',
+    'mem_birthtext' => '',
     'mem_saveby' => $cu['user_fullname'] ?? $cu['user_username'] ?? 'system',
     'mem_savedate' => date('Y-m-d'),
 ];
@@ -20,7 +22,7 @@ if ($action === 'edit') {
         header('Location: members.php?msg=' . urlencode('Invalid member id'));
         exit;
     }
-    $stmt = $mysqli->prepare('SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class, mem_saveby, mem_savedate FROM tbl_member WHERE mem_id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class, mem_personcode, mem_birthtext, mem_saveby, mem_savedate FROM tbl_member WHERE mem_id = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
@@ -119,7 +121,7 @@ include 'header.php';
 
       <div class="row g-3">
         <div class="col-12">
-          <label for="mem_id" class="form-label">รหัสสมาชิก (ระบบสร้างอัตโนมัติ)</label>
+          <label for="mem_id" class="form-label">รหัสรายการ (mem_id — ระบบสร้างอัตโนมัติ)</label>
           <input type="text" id="mem_id" class="form-control" readonly
             value="<?php echo $member['mem_id'] ? (int)$member['mem_id'] : 'สร้างเมื่อบันทึกข้อมูล'; ?>">
         </div>
@@ -156,6 +158,19 @@ include 'header.php';
           </label>
           <input type="text" name="mem_fullname" id="mem_fullname" class="form-control" maxlength="255" required
             value="<?php echo htmlspecialchars($member['mem_fullname']); ?>" placeholder="ชื่อ-สกุลสมาชิก">
+        </div>
+        <div class="col-12 col-md-6">
+          <label for="mem_personcode" class="form-label">รหัสบุคคล</label>
+          <input type="text" name="mem_personcode" id="mem_personcode" class="form-control"
+            inputmode="numeric" minlength="4" maxlength="4" pattern="[0-9]{4}" required
+            value="<?php echo e($member['mem_personcode']); ?>" placeholder="เช่น 0123">
+          <div class="form-text">กรอกตัวเลข 4 หลัก สำหรับเข้าสู่ระบบสมาชิก</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label for="mem_birthtext" class="form-label">ข้อมูลวันเกิด</label>
+          <input type="text" name="mem_birthtext" id="mem_birthtext" class="form-control" maxlength="8"
+            value="<?php echo e($member['mem_birthtext']); ?>" placeholder="ข้อมูลวันเกิดตามทะเบียนสมาชิก">
+          <div class="form-text">ไม่บังคับกรอก รับได้ไม่เกิน 8 ตัวอักษร</div>
         </div>
         <div class="col-12 col-md-6">
           <label for="mem_saveby" class="form-label">ผู้บันทึก</label>
