@@ -1,15 +1,17 @@
 <?php
 require_once 'functions.php';
 require_login();
-include 'header.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'create';
+$cu = current_user();
 $member = [
     'mem_id' => 0,
     'mem_group' => '',
     'mem_number' => '',
     'mem_fullname' => '',
-    'mem_class' => ''
+    'mem_class' => '',
+    'mem_saveby' => $cu['user_fullname'] ?? $cu['user_username'] ?? 'system',
+    'mem_savedate' => date('Y-m-d'),
 ];
 
 if ($action === 'edit') {
@@ -18,7 +20,7 @@ if ($action === 'edit') {
         header('Location: members.php?msg=' . urlencode('Invalid member id'));
         exit;
     }
-    $stmt = $mysqli->prepare('SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class FROM tbl_member WHERE mem_id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT mem_id, mem_group, mem_number, mem_fullname, mem_class, mem_saveby, mem_savedate FROM tbl_member WHERE mem_id = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $mysqli->error);
     }
@@ -33,6 +35,7 @@ if ($action === 'edit') {
     }
     $member = $data;
 }
+include 'header.php';
 ?>
 <style>
 .member-form-shell {
@@ -115,12 +118,17 @@ if ($action === 'edit') {
       <input type="hidden" name="id" value="<?php echo (int)$member['mem_id']; ?>">
 
       <div class="row g-3">
+        <div class="col-12">
+          <label for="mem_id" class="form-label">รหัสสมาชิก (ระบบสร้างอัตโนมัติ)</label>
+          <input type="text" id="mem_id" class="form-control" readonly
+            value="<?php echo $member['mem_id'] ? (int)$member['mem_id'] : 'สร้างเมื่อบันทึกข้อมูล'; ?>">
+        </div>
         <div class="col-12 col-md-6">
           <label for="mem_class" class="form-label">
             <i data-lucide="layers-3" class="me-1" aria-hidden="true"></i>ชั้น
           </label>
           <select class="form-select" name="mem_class" id="mem_class" required>
-            <option value="" selected>++โปรดเลือก++</option>
+            <option value="" <?php echo $member['mem_class'] === '' ? 'selected' : ''; ?>>++โปรดเลือก++</option>
             <option value="member" <?php echo $member['mem_class'] === 'member' ? 'selected' : ''; ?>>สมาชิก</option>
             <option value="general" <?php echo $member['mem_class'] === 'general' ? 'selected' : ''; ?>>เกษตรกรทั่วไป</option>
           </select>
@@ -130,7 +138,7 @@ if ($action === 'edit') {
           <label class="form-label" for="mem_group">
             <i data-lucide="folder-open" class="me-1" aria-hidden="true"></i>กลุ่ม
           </label>
-          <input type="text" name="mem_group" id="mem_group" class="form-control" required
+          <input type="text" name="mem_group" id="mem_group" class="form-control" maxlength="255" required
             value="<?php echo htmlspecialchars($member['mem_group']); ?>" placeholder="เช่น 1, 2, 3, 9">
         </div>
 
@@ -138,7 +146,7 @@ if ($action === 'edit') {
           <label class="form-label" for="mem_number">
             <i data-lucide="hash" class="me-1" aria-hidden="true"></i>เลขที่สมาชิก
           </label>
-          <input type="text" name="mem_number" id="mem_number" class="form-control" required
+          <input type="text" name="mem_number" id="mem_number" class="form-control" maxlength="255" required
             value="<?php echo htmlspecialchars($member['mem_number']); ?>" placeholder="เลขที่สมาชิก">
         </div>
 
@@ -146,8 +154,21 @@ if ($action === 'edit') {
           <label class="form-label" for="mem_fullname">
             <i data-lucide="user" class="me-1" aria-hidden="true"></i>ชื่อ-สกุล
           </label>
-          <input type="text" name="mem_fullname" id="mem_fullname" class="form-control" required
+          <input type="text" name="mem_fullname" id="mem_fullname" class="form-control" maxlength="255" required
             value="<?php echo htmlspecialchars($member['mem_fullname']); ?>" placeholder="ชื่อ-สกุลสมาชิก">
+        </div>
+        <div class="col-12 col-md-6">
+          <label for="mem_saveby" class="form-label">ผู้บันทึก</label>
+          <input type="text" id="mem_saveby" class="form-control" readonly
+            value="<?php echo e($member['mem_saveby']); ?>">
+        </div>
+        <div class="col-12 col-md-6">
+          <label for="mem_savedate" class="form-label">วันที่บันทึก</label>
+          <input type="date" id="mem_savedate" class="form-control" readonly
+            value="<?php echo e($member['mem_savedate']); ?>">
+        </div>
+        <div class="col-12">
+          <div class="form-text">ระบบกำหนดผู้บันทึกและวันที่บันทึกอัตโนมัติทุกครั้งที่บันทึกข้อมูล<?php echo $action === 'edit' ? ' โดยปรับเป็นผู้ใช้งานปัจจุบันและวันที่ปัจจุบัน' : ''; ?></div>
         </div>
       </div>
 
