@@ -4,6 +4,7 @@ require_login();
 
 $db = db();
 ensure_wangyang_form_columns($db);
+ensure_weighing_schema($db);
 
 function ensure_wangyang_form_columns(mysqli $db): void {
   $db->query("
@@ -62,7 +63,7 @@ $initial_records = [];
 $selected_lane = isset($_GET['lane']) ? trim((string)$_GET['lane']) : '';
 $current_wang_date = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
 if ($selected_lane !== '') {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id WHERE w.wang_lan = ? AND w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_lan = ? AND w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
     $wstm->bind_param('ss', $selected_lane, $current_wang_date);
     $wstm->execute();
@@ -79,13 +80,15 @@ if ($selected_lane !== '') {
         'bags' => (float)$wr['wang_sack'],
         'note' => $wr['wang_note'] ?? '',
         'date' => $wr['wang_date'],
+        'edit_locked' => !empty($wr['weighing_id']),
+        'lock_reason' => wang_record_lock_label($wr),
         'status' => $wr['wang_status'] ?? ''
       ];
     }
     $wstm->close();
   }
 } else {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id WHERE w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
     $wstm->bind_param('s', $current_wang_date);
     $wstm->execute();
@@ -102,6 +105,8 @@ if ($selected_lane !== '') {
         'bags' => (float)$wr['wang_sack'],
         'note' => $wr['wang_note'] ?? '',
         'date' => $wr['wang_date'],
+        'edit_locked' => !empty($wr['weighing_id']),
+        'lock_reason' => wang_record_lock_label($wr),
         'status' => $wr['wang_status'] ?? ''
       ];
     }
@@ -1326,8 +1331,11 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           data: rec
         };
       }
-      throw new Error((j && j.message) ? j.message : 'Save failed');
+      const rejection = new Error((j && j.message) ? j.message : 'Save failed');
+      rejection.serverRejected = !res.ok;
+      throw rejection;
     } catch (e) {
+      if (e.serverRejected) throw e;
       if (window.dataSdk) {
         if (payload.backend_id && typeof window.dataSdk.update === 'function') {
           return await window.dataSdk.update(payload.backend_id, payload);
@@ -1360,8 +1368,11 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           isOk: true
         };
       }
-      throw new Error((j && j.message) ? j.message : 'Delete failed');
+      const rejection = new Error((j && j.message) ? j.message : 'Delete failed');
+      rejection.serverRejected = !res.ok;
+      throw rejection;
     } catch (e) {
+      if (e.serverRejected) throw e;
       if (window.dataSdk && typeof window.dataSdk.delete === 'function') {
         return await window.dataSdk.delete(target);
       }
@@ -1381,6 +1392,12 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     if (summary) {
       summary.textContent = visible.length < todaysRecords.length ? `${visible.length}/${todaysRecords.length}` : '';
     }
+  }
+
+  function recordActions(rec) {
+    if (rec.edit_locked) return `<span class="badge text-bg-secondary" title="ติดต่อ admin เพื่อดำเนินการแก้ไข">${esc(rec.lock_reason || 'ล็อกข้อมูลวางยางแล้ว')}</span>`;
+    return `<button type="button" class="btn btn-outline-success rounded-pill" title="แก้ไข" aria-label="แก้ไข" onclick="openEditModal('${rec.__backendId}')"><i data-lucide="pencil" aria-hidden="true"></i></button>
+      <button type="button" class="btn btn-outline-danger rounded-pill" title="ลบ" aria-label="ลบ" onclick="confirmDelete('${rec.__backendId}')"><i data-lucide="trash-2" aria-hidden="true"></i></button>`;
   }
 
   function renderTable() {
@@ -1406,16 +1423,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         row.children[3].textContent = formatNumber(rec.bags);
         const actions = row.querySelector('.record-actions');
         if (actions) {
-          actions.innerHTML = `
-          <button type="button" class="btn btn-outline-success rounded-pill" title="แก้ไข"
-            aria-label="แก้ไข" onclick="openEditModal('${rec.__backendId}')">
-            <i data-lucide="pencil" aria-hidden="true"></i>
-          </button>
-          <button type="button" class="btn btn-outline-danger rounded-pill" title="ลบ"
-            aria-label="ลบ" onclick="confirmDelete('${rec.__backendId}')">
-            <i data-lucide="trash-2" aria-hidden="true"></i>
-          </button>
-        `;
+          actions.innerHTML = recordActions(rec);
         }
         existingRows.delete(rec.__backendId);
       } else {
@@ -1428,16 +1436,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         <td data-label="ลาน"><span class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis">ลาน ${esc(rec.lane)}</span></td>
         <td data-label="กระสอบ">${esc(formatNumber(rec.bags))}</td>
         <td data-label="จัดการ" class="text-center">
-          <div class="record-actions">
-            <button type="button" class="btn btn-outline-success rounded-pill" title="แก้ไข"
-              aria-label="แก้ไข" onclick="openEditModal('${rec.__backendId}')">
-              <i data-lucide="pencil" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="btn btn-outline-danger rounded-pill" title="ลบ"
-              aria-label="ลบ" onclick="confirmDelete('${rec.__backendId}')">
-              <i data-lucide="trash-2" aria-hidden="true"></i>
-            </button>
-          </div>
+          <div class="record-actions">${recordActions(rec)}</div>
         </td>
       `;
         tbody.appendChild(row);
@@ -1730,6 +1729,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   function openEditModal(id) {
     const record = records.find(r => r.__backendId === id);
     if (!record) return;
+    if (record.edit_locked) { alert(record.lock_reason); return; }
     openModal('edit', record);
   }
 
@@ -1844,6 +1844,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   const delModal = document.getElementById('delete-confirm');
   window.confirmDelete = (id) => {
     deleteTarget = records.find(r => r.__backendId === id);
+    if (!deleteTarget) return;
+    if (deleteTarget.edit_locked) { alert(deleteTarget.lock_reason); deleteTarget = null; return; }
     delModal.classList.remove('hidden');
     delModal.classList.add('flex');
   };
@@ -1856,12 +1858,17 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     const btn = document.getElementById('btn-confirm-del');
     btn.disabled = true;
     btn.textContent = 'กำลังลบ...';
-    await deleteRecord(deleteTarget);
-    btn.disabled = false;
-    btn.textContent = 'ลบ';
-    delModal.classList.add('hidden');
-    delModal.classList.remove('flex');
-    deleteTarget = null;
+    try {
+      await deleteRecord(deleteTarget);
+      delModal.classList.add('hidden');
+      delModal.classList.remove('flex');
+      deleteTarget = null;
+    } catch (error) {
+      alert(error.message || 'ลบรายการไม่สำเร็จ');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'ลบ';
+    }
   };
 
   // Render initial server-provided records

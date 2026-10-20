@@ -3,6 +3,7 @@ require_once 'functions.php';
 require_login();
 
 $db = db();
+ensure_weighing_schema($db);
 $message = isset($_GET['msg']) ? trim((string)$_GET['msg']) : '';
 $error = '';
 $canManageWang = function_exists('is_admin') && is_admin();
@@ -112,10 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'คำขอไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
     } elseif ($action === 'delete') {
         $wangId = (int)($_POST['wang_id'] ?? 0);
-        if ($wangId <= 0) {
+        if (wang_has_weighing($db, $wangId)) {
+            $error = wang_record_lock_reason($db, $wangId);
+        } elseif ($wangId <= 0) {
             $error = 'ไม่พบ ID ที่ต้องการลบ';
         } else {
-            $stmt = $db->prepare('DELETE FROM tbl_wangyang WHERE wang_id = ? LIMIT 1');
+            $stmt = $db->prepare('DELETE FROM tbl_wangyang WHERE wang_id = ? AND NOT EXISTS (SELECT 1 FROM tbl_wang_weighing x WHERE x.wang_id = tbl_wangyang.wang_id) LIMIT 1');
             if ($stmt) {
                 $stmt->bind_param('i', $wangId);
                 if ($stmt->execute()) {
@@ -141,7 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sack = filter_var($_POST['wang_sack'] ?? null, FILTER_VALIDATE_FLOAT);
         $note = trim((string)($_POST['wang_note'] ?? ''));
 
-        if ($wangId <= 0) {
+        if (wang_has_weighing($db, $wangId)) {
+            $error = wang_record_lock_reason($db, $wangId);
+        } elseif ($wangId <= 0) {
             $error = 'ไม่พบ ID ที่ต้องการแก้ไข';
         } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             $error = 'วันที่ไม่ถูกต้อง';
@@ -180,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     wang_note = ?,
                     wang_saveby = ?,
                     wang_savedate = ?
-                WHERE wang_id = ?
+                WHERE wang_id = ? AND NOT EXISTS (SELECT 1 FROM tbl_wang_weighing x WHERE x.wang_id = tbl_wangyang.wang_id)
                 LIMIT 1
             ");
             if ($stmt) {
@@ -232,6 +237,7 @@ if ($page > $totalPages) {
 $rows = [];
 $sql = "
     SELECT
+        x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at,
         w.wang_id,
         w.wang_date,
         w.wang_mid,
@@ -246,6 +252,8 @@ $sql = "
         w.wang_savedate
     FROM tbl_wangyang w
     LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id
+    LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id
+    LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id
     $where
     ORDER BY w.wang_id DESC
     LIMIT ? OFFSET ?
@@ -372,6 +380,7 @@ if ($q !== '') {
           <a href="wang_main.php" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
             <i data-lucide="package-check" aria-hidden="true"></i><span>วางยาง</span>
           </a>
+          <a href="weigh_wang.php" class="btn btn-success btn-sm">ชั่งน้ำหนัก</a>
           <a href="wang_summary.php" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
             <i data-lucide="clipboard-list" aria-hidden="true"></i><span>สรุป</span>
           </a>
@@ -477,7 +486,7 @@ if ($q !== '') {
                 <td><?php echo e($row['wang_saveby'] !== '' ? $row['wang_saveby'] : '-'); ?></td>
                 <td class="text-nowrap"><?php echo e($row['wang_savedate'] ? thai_date_format((string)$row['wang_savedate']) : '-'); ?></td>
                 <td class="text-center action-cell">
-                  <?php if ($canManageWang): ?>
+                  <?php if (wang_record_lock_label($row) !== ''): ?><span class="badge text-bg-secondary"><?php echo e(wang_record_lock_label($row)); ?></span><?php elseif ($canManageWang): ?>
                   <div class="d-inline-flex gap-2">
                     <button type="button" class="btn btn-sm btn-outline-primary" data-edit='<?php echo e(json_encode($payload, JSON_UNESCAPED_UNICODE)); ?>'>
                       <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไข

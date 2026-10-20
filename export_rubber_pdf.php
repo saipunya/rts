@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/functions.php';
+require_login();
 
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoload)) {
@@ -35,7 +36,9 @@ if ($ru_id <= 0) {
 }
 
 $db = db();
-$st = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_id = ? LIMIT 1");
+ensure_weighing_schema($db);
+$db->begin_transaction();
+$st = $db->prepare("SELECT * FROM tbl_rubber WHERE ru_id = ? LIMIT 1 FOR UPDATE");
 $st->bind_param('i', $ru_id);
 $st->execute();
 $res = $st->get_result();
@@ -43,9 +46,18 @@ $row = $res ? $res->fetch_assoc() : null;
 $st->close();
 
 if (!$row) {
+  $db->rollback();
   header('Content-Type: text/plain; charset=UTF-8');
   http_response_code(404);
   echo 'ไม่พบข้อมูล';
+  exit;
+}
+
+if (!rubber_receipt_ready($db, $ru_id)) {
+  $db->rollback();
+  header('Content-Type: text/plain; charset=UTF-8');
+  http_response_code(403);
+  echo 'กรุณาบันทึกยอดหักก่อนพิมพ์ใบเสร็จ หากไม่มีรายการหัก ให้กรอก 0 ช่องใดช่องหนึ่งแล้วบันทึก';
   exit;
 }
 
@@ -261,10 +273,14 @@ $dompdf->setPaper([0, 0, $paperWidth, $paperHeight]);
   $font = $fontMetrics->getFont($defaultFamily ?: 'THSarabunNew', 'normal');
   // $canvas->page_text($w - 100, $h - 24, "หน้า {PAGE_NUM}/{PAGE_COUNT}", $font, 10, [0,0,0]);
 
+  record_rubber_receipt_issue($db, $row, (string)(current_user()['user_fullname'] ?: current_user()['user_username']));
+  $db->commit();
+
   $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';
   $dompdf->stream($filename, ['Attachment' => false]);
   exit;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
+  $db->rollback();
   // Output a readable error for debugging 500
   header('Content-Type: text/plain; charset=UTF-8');
   http_response_code(500);

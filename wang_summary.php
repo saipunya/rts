@@ -3,6 +3,7 @@ require_once 'functions.php';
 require_login();
 
 $db = db();
+ensure_wang_collection_table($db);
 $cu = current_user();
 $message = '';
 $error = '';

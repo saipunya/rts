@@ -5,6 +5,7 @@ require_login();
 header('Content-Type: application/json; charset=utf-8');
 
 $db = db();
+ensure_weighing_schema($db);
 
 function ensure_wangyang_table(mysqli $db): void {
     $db->query("
@@ -61,7 +62,9 @@ if ($wangId <= 0) {
 
 ensure_wangyang_table($db);
 
-$stmt = $db->prepare('DELETE FROM tbl_wangyang WHERE wang_id = ? LIMIT 1');
+if (wang_has_weighing($db, $wangId)) respond(false, ['message' => wang_record_lock_reason($db, $wangId)], 409);
+
+$stmt = $db->prepare('DELETE FROM tbl_wangyang WHERE wang_id = ? AND NOT EXISTS (SELECT 1 FROM tbl_wang_weighing x WHERE x.wang_id = tbl_wangyang.wang_id) LIMIT 1');
 if (!$stmt) {
     respond(false, ['message' => 'Prepare failed: ' . $db->error], 500);
 }

@@ -4,7 +4,10 @@ require_login();
 
 // Load today's counts and bags per lane.
 $db = db();
+ensure_weighing_schema($db);
+ensure_wang_collection_table($db);
 $currentWangDate = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
+$workflowCounts = collection_workflow_counts($db, $currentWangDate);
 $lane_data = [];
 for ($i = 1; $i <= 4; $i++) {
     $lan = (string)$i;
@@ -298,6 +301,7 @@ $lane_colors = [
             <i data-lucide="layout-dashboard" aria-hidden="true"></i>
             <span>แดชบอร์ด</span>
           </a>
+          <a href="weigh_wang.php" class="btn btn-success btn-sm">ชั่งน้ำหนัก</a>
           <a href="wang_summary.php" class="btn">
             <i data-lucide="clipboard-list" aria-hidden="true"></i>
             <span>สรุป</span>
@@ -322,6 +326,12 @@ $lane_colors = [
   </header>
 
   <main class="container" style="padding-top:1rem;padding-bottom:2rem">
+    <section class="summary-strip" style="display:flex;flex-wrap:wrap;gap:1rem;padding:1rem" aria-label="สถานะงานวันนี้">
+      <?php foreach (['pending_weighing'=>['รอชั่งน้ำหนัก','pending'], 'pending_deductions'=>['ชั่งแล้ว รอยอดหัก','deductions'], 'completed'=>['บันทึกยอดหักแล้ว','completed']] as $key=>$item): ?>
+        <a href="weigh_wang.php?<?php echo e(http_build_query(['date'=>$currentWangDate,'status'=>$item[1]])); ?>" class="btn btn-outline-success"><?php echo e($item[0]); ?> <strong><?php echo $workflowCounts[$key]; ?></strong> รายการ</a>
+      <?php endforeach; ?>
+    </section>
+
     <div class="date-badge">
       <i data-lucide="calendar-days" aria-hidden="true"></i>
       วันที่ปัจจุบัน: <?php echo e(format_thai_date_short($overviewSummary['current_date'])); ?>

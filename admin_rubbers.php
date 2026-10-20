@@ -4,6 +4,7 @@ require_admin();
 include 'header.php';
 
 $db = db();
+ensure_weighing_schema($db);
 $msg = isset($_GET['msg']) ? trim((string)$_GET['msg']) : '';
 $errors = [];
 $csrf = csrf_token();
@@ -65,6 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 admin_rubber_redirect(['msg' => 'ไม่พบรายการที่ต้องการลบ']);
             }
 
+            if (rubber_receipt_issued($db, $id) || weighing_for_rubber($db, $id)) {
+                admin_rubber_redirect(['msg'=>'รายการนี้เชื่อมกับผลชั่งหรือใบเสร็จ ให้ดำเนินการแก้ไขข้อมูลแทนการลบ']);
+            }
             $stmt = $db->prepare('DELETE FROM tbl_rubber WHERE ru_id = ? LIMIT 1');
             if (!$stmt) {
                 die('Prepare failed: ' . $db->error);
@@ -125,6 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data['ru_class'] = $class;
 
             if (!$errors) {
+                $db->begin_transaction();
+                try {
+                lock_rubber_for_edit($db, $id, is_admin());
                 $stmt = $db->prepare("UPDATE tbl_rubber SET
                     ru_date = ?, ru_lan = ?, ru_group = ?, ru_number = ?, ru_fullname = ?, ru_class = ?,
                     ru_quantity = ?, ru_value = ?, ru_hoon = ?, ru_loan = ?, ru_shortdebt = ?, ru_deposit = ?,
@@ -157,6 +164,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $ok = $stmt->execute();
                 $stmt->close();
+                record_receipt_admin_edit($db, $id, (string)($currentUser['user_fullname'] ?: $currentUser['user_username']));
+                $db->commit();
+                } catch (Throwable $error) { $db->rollback(); throw $error; }
                 admin_rubber_redirect(['msg' => $ok ? 'บันทึกการแก้ไขข้อมูลยางเรียบร้อยแล้ว' : 'บันทึกข้อมูลไม่สำเร็จ']);
             }
         }

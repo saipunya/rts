@@ -5,6 +5,7 @@ require_login();
 header('Content-Type: application/json; charset=utf-8');
 
 $db = db();
+ensure_weighing_schema($db);
 
 function ensure_wangyang_table(mysqli $db): void {
     $db->query("
@@ -139,6 +140,11 @@ $saveBy = (string)(current_user()['user_fullname'] ?? current_user()['user_usern
 $savedAt = date('Y-m-d H:i:s');
 $status = 'active';
 
+if ($wangId > 0 && wang_has_weighing($db, $wangId)) {
+    respond(false, ['message' => wang_record_lock_reason($db, $wangId)], 409);
+}
+$weight = 0.0; // Weight is recorded exclusively by the weighing workflow.
+
 if ($wangId > 0) {
     $stmt = $db->prepare("
         UPDATE tbl_wangyang
@@ -154,7 +160,7 @@ if ($wangId > 0) {
             wang_note = ?,
             wang_saveby = ?,
             wang_savedate = ?
-        WHERE wang_id = ?
+        WHERE wang_id = ? AND NOT EXISTS (SELECT 1 FROM tbl_wang_weighing x WHERE x.wang_id = tbl_wangyang.wang_id)
         LIMIT 1
     ");
 
@@ -185,7 +191,9 @@ if ($wangId > 0) {
         respond(false, ['message' => 'Update failed: ' . $err], 500);
     }
 
+    $affected = $stmt->affected_rows;
     $stmt->close();
+    if ($affected === 0 && wang_has_weighing($db, $wangId)) respond(false, ['message' => 'รายการนี้ชั่งแล้ว'], 409);
     respond(true, ['id' => $wangId, 'updated' => true]);
 }
 

@@ -207,15 +207,15 @@ function fetch_latest_collection_group_summary(mysqli $conn, string $class, ?str
     $isMember = strtolower($class) === 'member';
 
     if ($isMember) {
-        $sql = "SELECT
+        $sql = "SELECT * FROM (SELECT
                 TRIM(ru_group) AS ru_group,
                 COUNT(DISTINCT TRIM(ru_number)) AS person_count,
                 SUM(ru_quantity) AS total_quantity,
                 COUNT(*) AS entry_count
             FROM tbl_rubber
             WHERE " . implode(' AND ', $where) . "
-            GROUP BY TRIM(ru_group)
-            ORDER BY CAST(TRIM(ru_group) AS UNSIGNED), TRIM(ru_group)";
+            GROUP BY TRIM(ru_group)) AS group_summary
+            ORDER BY CAST(group_summary.ru_group AS UNSIGNED), group_summary.ru_group";
     } else {
         $sql = "SELECT
                 COUNT(DISTINCT TRIM(ru_number)) AS person_count,

@@ -1,7 +1,6 @@
 <?php
 ob_start();
 require_once __DIR__ . '/functions.php';
-require_once __DIR__ . '/header.php';
 
 // ตรวจสอบการล็อกอิน - ถ้ายังไม่ล็อกอินให้ redirect ไปหน้า login
 if (!is_logged_in()) {
@@ -10,6 +9,7 @@ if (!is_logged_in()) {
 }
 
 $db = db();
+ensure_weighing_schema($db);
 $errors = [];
 $msg = $_GET['msg'] ?? '';
 $csrf = csrf_token();
@@ -20,7 +20,7 @@ $today = date('Y-m-d');
 $hasDompdf = file_exists(__DIR__ . '/vendor/autoload.php');
 
 // new: support lan=all
-$lanParam = $_GET['lan'] ?? ($_POST['lan'] ?? '1');
+$lanParam = $_GET['lan'] ?? ($_POST['lan'] ?? 'all');
 if ($lanParam === 'all') {
   $currentLan = 'all';
 } else {
@@ -30,6 +30,8 @@ if ($lanParam === 'all') {
 
 // new: search params and pagination controls
 $search = trim((string)($_GET['search'] ?? ''));
+$workflowStatus = (string)($_GET['status'] ?? 'pending');
+if (!in_array($workflowStatus, ['all','pending','completed','legacy'], true)) $workflowStatus = 'pending';
 $classFilter = trim((string)($_GET['class'] ?? 'all'));
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 20;
@@ -49,12 +51,7 @@ if ($res = $db->query("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_i
   $res->free();
 }
 
-if ($date_from === '') {
-  $date_from = $latest_round_date;
-}
-if ($date_to === '') {
-  $date_to = $latest_round_date;
-}
+// Empty date filters include outstanding work across all price rounds.
 
 // added: member selection & search variables
 $member_id = isset($_GET['member_id']) ? (int)$_GET['member_id'] : 0;
@@ -167,15 +164,31 @@ if (($_GET['action'] ?? '') === 'edit') {
   }
 }
 
+$linkedWeighing = !empty($form['ru_id']) ? weighing_for_rubber($db, (int)$form['ru_id']) : null;
+$receiptInfo = !empty($form['ru_id']) ? rubber_receipt_issued($db, (int)$form['ru_id']) : null;
+$receiptEditLocked = $receiptInfo !== null && !is_admin();
+if ($linkedWeighing && $linkedWeighing['deductions_saved_at'] === null) {
+  foreach (rubber_deduction_fields() as $field) $form[$field] = '';
+}
+
 // จัดการ POST: create/update/delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!csrf_check($_POST['csrf_token'] ?? '')) {
     $errors[] = 'โทเค็นไม่ถูกต้อง';
   } else {
     $action = $_POST['action'] ?? '';
+    $mutationId = (int)($_POST['ru_id'] ?? 0);
+    if ($action === 'delete' && rubber_receipt_issued($db, $mutationId)) { http_response_code(409); exit('รายการที่ออกใบเสร็จแล้วไม่สามารถลบได้ ให้ admin ดำเนินการแก้ไข'); }
+    if (in_array($action, ['save','delete'], true) && $mutationId > 0 && rubber_receipt_issued($db, $mutationId) && !is_admin()) {
+      http_response_code(403);
+      exit('รายการนี้ออกใบเสร็จแล้ว เฉพาะ admin เท่านั้นที่แก้ไขได้');
+    }
+
     if ($action === 'delete') {
       $id = (int)($_POST['ru_id'] ?? 0);
-      if ($id > 0) {
+      if ($id > 0 && weighing_for_rubber($db, $id)) {
+        $errors[] = 'รายการนี้เชื่อมกับผลชั่ง ไม่สามารถลบจากหน้ายอดหักได้';
+      } elseif ($id > 0) {
         $st = $db->prepare("DELETE FROM tbl_rubber WHERE ru_id=?");
         $st->bind_param('i', $id);
         $st->execute();
@@ -185,6 +198,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       $errors[] = 'ระบุรายการที่จะลบไม่ถูกต้อง';
     } elseif ($action === 'save') {
+      $postedId = (int)($_POST['ru_id'] ?? 0);
+      $postedWeighing = $postedId > 0 ? weighing_for_rubber($db, $postedId) : null;
+      if ($postedId <= 0) $errors[] = 'กรุณานำรายการจากหน้าชั่งน้ำหนักมาใส่ยอดหัก';
+      if ($postedWeighing) {
+        // Never accept source details or weight from the browser for weighed purchases.
+        $sourceStmt = $db->prepare('SELECT r.* FROM tbl_rubber r WHERE r.ru_id = ?');
+        $sourceStmt->bind_param('i', $postedId);
+        $sourceStmt->execute();
+        $sourceRow = $sourceStmt->get_result()->fetch_assoc();
+        $sourceStmt->close();
+        foreach (['ru_date','ru_lan','ru_group','ru_number','ru_fullname','ru_class'] as $sourceKey) {
+          $_POST[$sourceKey] = $sourceRow[$sourceKey];
+        }
+        $_POST['ru_quantity'] = $postedWeighing['net_weight'];
+        $linkedWeighing = $postedWeighing;
+      }
       // added: enforce member-linked fields for new record
       $post_member_id = isset($_POST['ru_member_id']) ? (int)$_POST['ru_member_id'] : 0;
       $isNew = empty($_POST['ru_id']);
@@ -207,7 +236,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $data = [];
       $fieldsText = ['ru_lan', 'ru_group', 'ru_number', 'ru_fullname', 'ru_class']; // ensure ru_lan present
       $fieldsDate = ['ru_date', 'ru_savedate'];
-      $fieldsNum  = ['ru_quantity', 'ru_hoon', 'ru_loan', 'ru_shortdebt', 'ru_deposit', 'ru_tradeloan', 'ru_insurance'];
+      $fieldsNum = ['ru_quantity'];
+      try {
+        $data = array_merge($data, normalize_rubber_deductions($_POST));
+      } catch (InvalidArgumentException $error) {
+        $errors[] = $error->getMessage();
+        foreach (rubber_deduction_fields() as $field) $data[$field] = '0.00';
+      }
 
       foreach ($fieldsText as $f) {
         $data[$f] = trim((string)($_POST[$f] ?? ''));
@@ -221,8 +256,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       foreach ($fieldsNum as $f) {
         $val = $_POST[$f] ?? '';
         $flt = filter_var($val, FILTER_VALIDATE_FLOAT);
-        if ($flt === false) {
-          $errors[] = "ต้องเป็นตัวเลข: {$f}";
+        if ($flt === false || $flt < 0) {
+          $errors[] = "ต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป: {$f}";
           $data[$f] = '0.00';
         } else {
           $data[$f] = number_format((float)$flt, 2, '.', '');
@@ -242,6 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($pr = $res->fetch_assoc()) $latestPrice = (float)$pr['pr_price'];
         $res->free();
       }
+      if ($postedWeighing) $latestPrice = (float)$postedWeighing['price_per_kg'];
       $qty = (float)$data['ru_quantity'];
       $value  = $qty * $latestPrice;
       $expend = (float)$data['ru_hoon'] + (float)$data['ru_loan'] + (float)$data['ru_shortdebt'] + (float)$data['ru_deposit'] + (float)$data['ru_tradeloan'] + (float)$data['ru_insurance'];
@@ -260,6 +296,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!$errors) {
         $id = isset($_POST['ru_id']) && $_POST['ru_id'] !== '' ? (int)$_POST['ru_id'] : 0;
         if ($id > 0) {
+          $db->begin_transaction();
+          try {
+          lock_rubber_for_edit($db, $id, is_admin());
+          if ($postedWeighing) $data = refresh_weighed_financial_data($db, $id, $data);
           $st = $db->prepare("UPDATE tbl_rubber SET
 						ru_date=?, ru_lan=?, ru_group=?, ru_number=?, ru_fullname=?, ru_class=?, ru_quantity=?,
 						ru_hoon=?, ru_loan=?, ru_shortdebt=?, ru_deposit=?, ru_tradeloan=?, ru_insurance=?,
@@ -287,8 +327,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           );
           $st->execute();
           $st->close();
+          if ($postedWeighing) mark_weighing_deductions_saved($db, $id, $data['ru_saveby']);
+          if (is_admin()) record_receipt_admin_edit($db, $id, $data['ru_saveby']);
+          $db->commit();
+          } catch (Throwable $error) {
+            $db->rollback();
+            if ($error instanceof DomainException) { http_response_code(403); exit($error->getMessage()); }
+            throw $error;
+          }
           $lanRedirect = ($lanParam === 'all') ? 'all' : (int)$data['ru_lan'];
-          header('Location: rubbers.php?lan=' . $lanRedirect . '&msg=' . urlencode('บันทึกการแก้ไขแล้ว'));
+          header('Location: rubbers.php?lan=' . $lanRedirect . ($postedWeighing ? '&date_from=' . urlencode($postedWeighing['round_date']) . '&date_to=' . urlencode($postedWeighing['round_date']) : '') . '&msg=' . urlencode('บันทึกการแก้ไขแล้ว'));
           exit;
         } else {
           $st = $db->prepare("INSERT INTO tbl_rubber
@@ -347,7 +395,7 @@ if ($currentLan !== 'all') {
 if (!$isAdmin) {
   $svFull = $cu['user_fullname'] ?? ($_SESSION['user_fullname'] ?? '');
   $svUser = $cu['user_name'] ?? ($_SESSION['user_name'] ?? $svFull);
-  $conds[] = '(ru_saveby = ? OR ru_saveby = ?)';
+  $conds[] = '(ru_saveby = ? OR ru_saveby = ? OR EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id = tbl_rubber.ru_id))';
   $types .= 'ss';
   array_push($binds, $svFull, $svUser);
 }
@@ -379,6 +427,21 @@ if (in_array($classFilter, ['member', 'general'], true)) {
   $binds[] = $classFilter;
 }
 
+// Counts use the same lane, round, search and access filters, before status filtering.
+$baseWhereSql = $conds ? ' WHERE ' . implode(' AND ', $conds) : '';
+$statusSql = "SELECT COUNT(*) AS total,
+    COALESCE(SUM(EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id AND q.deductions_saved_at IS NULL)),0) AS pending,
+    COALESCE(SUM(EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id AND q.deductions_saved_at IS NOT NULL)),0) AS completed,
+    COALESCE(SUM(NOT EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id)),0) AS legacy
+    FROM tbl_rubber" . $baseWhereSql;
+$statusStmt = $db->prepare($statusSql);
+if ($types !== '') $statusStmt->bind_param($types, ...$binds);
+$statusStmt->execute();
+$workflowCounts = array_map('intval', $statusStmt->get_result()->fetch_assoc());
+$statusStmt->close();
+if ($workflowStatus === 'pending') $conds[] = 'EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id AND q.deductions_saved_at IS NULL)';
+if ($workflowStatus === 'completed') $conds[] = 'EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id AND q.deductions_saved_at IS NOT NULL)';
+if ($workflowStatus === 'legacy') $conds[] = 'NOT EXISTS (SELECT 1 FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id)';
 $whereSql = $conds ? ' WHERE ' . implode(' AND ', $conds) : '';
 
 $countSql = "SELECT COUNT(*) AS total_count FROM tbl_rubber" . $whereSql;
@@ -436,7 +499,7 @@ if ($page > $totalPages) {
 }
 $offset = ($page - 1) * $perPage;
 
-$listSql = "SELECT * FROM tbl_rubber" . $whereSql . " ORDER BY ru_date DESC, ru_id DESC LIMIT " . (int)$perPage . " OFFSET " . (int)$offset;
+$listSql = "SELECT tbl_rubber.*, (SELECT z.issued_at FROM tbl_rubber_receipts z WHERE z.ru_id=tbl_rubber.ru_id) AS receipt_issued_at, (SELECT q.weighing_id FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id) AS linked_weighing_id, (SELECT q.weighed_by FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id) AS weighed_by, (SELECT q.deductions_saved_by FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id) AS deductions_saved_by, (SELECT q.deductions_saved_at FROM tbl_wang_weighing q WHERE q.ru_id=tbl_rubber.ru_id) AS deductions_saved_at FROM tbl_rubber" . $whereSql . " ORDER BY ru_date DESC, ru_id DESC LIMIT " . (int)$perPage . " OFFSET " . (int)$offset;
 $listStmt = $db->prepare($listSql);
 if ($listStmt) {
   if ($types !== '') {
@@ -455,6 +518,7 @@ if ($listStmt) {
 
 // new: build export query string for Excel/PDF buttons
 $exportBaseParams = [
+  'status' => $workflowStatus,
   'lan' => ($currentLan === 'all' ? 'all' : $currentLan),
   'search' => $search,
   'date_from' => $date_from,
@@ -462,753 +526,22 @@ $exportBaseParams = [
   'class' => $classFilter,
 ];
 $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !== ''));
+require_once __DIR__ . '/header.php';
 ?>
-<html lang="th">
-
-<head>
-  <meta charset="utf-8">
-  <title>จัดการข้อมูลยางพารา</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    crossorigin="anonymous">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
-  <style>
-  .rubbers-page {
-    --rubber-primary: #198754;
-    --rubber-primary-soft: #e9f6ed;
-    --rubber-surface: #ffffff;
-    --rubber-border: #cfe2d4;
-    --rubber-text: #245c38;
-    --rubber-shadow: var(--bs-box-shadow-sm);
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-  }
-
-  .rubbers-page,
-  .rubbers-page .card,
-  .rubbers-page .table,
-  .rubbers-page .form-control,
-  .rubbers-page .form-select,
-  .rubbers-page .form-label,
-  .rubbers-page .nav-link,
-  .rubbers-page .alert,
-  .rubbers-page .badge,
-  .rubbers-page .btn {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-  }
-
-  .rubbers-page .page-shell {
-    max-width: 1240px;
-    margin: 0 auto;
-  }
-
-  .rubbers-page .container.py-4 {
-    background: var(--rubber-surface);
-    border-radius: 1.25rem;
-    padding: 2rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--rubber-shadow);
-  }
-
-  .rubbers-page .hero-panel {
-    background: var(--bs-success-bg-subtle);
-    color: var(--bs-success-text-emphasis);
-    border-radius: 1.25rem;
-    padding: 1.35rem 1.5rem;
-    box-shadow: none;
-    border: 1px solid var(--bs-success-border-subtle);
-    margin-bottom: 1rem;
-  }
-
-  .rubbers-page .hero-title {
-    font-size: 1.55rem;
-    font-weight: 700;
-    margin-bottom: 0.35rem;
-  }
-
-  .rubbers-page .hero-subtitle {
-    margin-bottom: 0;
-    color: #4e7c59;
-  }
-
-  .rubbers-page .hero-chip-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  .rubbers-page .hero-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.55rem 0.85rem;
-    border-radius: 999px;
-    background: #ffffff;
-    border: 1px solid var(--bs-success-border-subtle);
-    color: var(--bs-success-text-emphasis);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .rubbers-page .surface-card {
-    background: var(--rubber-surface);
-    border: 1px solid var(--bs-border-color);
-    border-radius: 1.15rem;
-    box-shadow: var(--rubber-shadow);
-  }
-
-  .rubbers-page .surface-card .card-header,
-  .rubbers-page .surface-card .card-footer {
-    background: #fff;
-    border-color: var(--rubber-border);
-  }
-
-  .rubbers-page .lane-tabs {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .rubbers-page .lane-tabs .nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-  }
-
-  .rubbers-page .lane-tabs .nav-link {
-    border-radius: 999px;
-    padding: 0.45rem 1rem;
-    font-weight: 600;
-    color: var(--bs-success-text-emphasis);
-    background: var(--bs-success-bg-subtle);
-    border: 1px solid var(--bs-success-border-subtle);
-  }
-
-  .rubbers-page .lane-tabs .nav-link.active {
-    background: var(--bs-success);
-    color: #fff;
-    box-shadow: var(--bs-box-shadow-sm);
-  }
-
-  .rubbers-page .toolbar-actions {
-    display: flex;
-    gap: 0.65rem;
-    flex-wrap: wrap;
-  }
-
-  .rubbers-page .form-control,
-  .rubbers-page .input-group-text,
-  .rubbers-page .list-group-item {
-    border-radius: .85rem;
-  }
-
-  .rubbers-page .form-control {
-    border: 1px solid #d5ddd8;
-    min-height: 46px;
-    box-shadow: none;
-  }
-
-  .rubbers-page .form-control:focus {
-    border-color: #9fcca6;
-    box-shadow: 0 0 0 .2rem rgba(25, 135, 84, 0.12);
-  }
-
-  .rubbers-page .input-group-text {
-    background: var(--bs-success-bg-subtle);
-    border: 1px solid #d5ddd8;
-    color: var(--rubber-text);
-    font-weight: 700;
-  }
-
-  .rubbers-page .field-inline {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-  }
-
-  .rubbers-page .field-inline .field-label {
-    margin: 0;
-    min-width: 92px;
-    flex: 0 0 auto;
-    white-space: nowrap;
-    font-weight: 600;
-    color: #3f5f4b;
-  }
-
-  .rubbers-page .field-inline .field-control {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .rubbers-page .field-inline .field-control .form-control,
-  .rubbers-page .field-inline .field-control .input-group {
-    width: 100%;
-  }
-
-  .rubbers-page .field-inline.compact .field-label {
-    min-width: 78px;
-  }
-
-  .rubbers-page .search-inline {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-  }
-
-  .rubbers-page .search-inline .form-label {
-    flex: 0 0 auto;
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .rubbers-page .search-inline .input-group {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .rubbers-page .member-summary {
-    background: var(--bs-success-bg-subtle);
-    border: 1px solid var(--bs-success-border-subtle);
-    border-radius: .9rem;
-    padding: .75rem .9rem;
-  }
-
-  .rubbers-page .metric-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: .85rem;
-  }
-
-  .rubbers-page .metric-card {
-    background: #ffffff;
-    border: 1px solid var(--bs-success-border-subtle);
-    border-radius: 1rem;
-    padding: .9rem 1rem;
-  }
-
-  .rubbers-page .metric-label {
-    display: block;
-    color: #5d7568;
-    font-size: .95rem;
-    margin-bottom: .25rem;
-  }
-
-  .rubbers-page .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: .75rem;
-  }
-
-  .rubbers-page .summary-card {
-    border-radius: 1rem;
-    padding: .9rem 1rem;
-    color: #183529;
-    background: var(--bs-success-bg-subtle);
-    border: 1px solid var(--bs-success-border-subtle);
-  }
-
-  .rubbers-page .summary-title {
-    display: block;
-    font-size: .9rem;
-    color: #60786c;
-    margin-bottom: .15rem;
-  }
-
-  .rubbers-page .table-shell {
-    padding: 0 .75rem .75rem;
-  }
-
-  .table-responsive .table thead.sticky-header th {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    background: var(--bs-success);
-    color: #fff;
-    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .05);
-  }
-
-  .table td.text-end,
-  .table th.text-end {
-    font-variant-numeric: tabular-nums;
-  }
-
-  .table-hover tbody tr:hover td {
-    background-color: rgba(13, 110, 253, .04);
-  }
-
-  .table caption {
-    color: #6c757d;
-    padding-left: .5rem;
-  }
-
-  .rubbers-page .table {
-    margin-bottom: 0;
-  }
-
-  .rubbers-page .table th {
-    color: var(--rubber-text);
-    font-weight: 700;
-  }
-
-  .rubbers-page .table td,
-  .rubbers-page .table th {
-    border-color: #e7efea;
-    vertical-align: middle;
-  }
-
-  .rubbers-page .name-cell {
-    min-width: 220px;
-  }
-
-  .rubbers-page .action-stack {
-    display: flex;
-    gap: .35rem;
-    flex-wrap: wrap;
-  }
-
-  .rubbers-page .bottom-backlink {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-
-  /* Reduce font size for data table section */
-  .rubbers-page .data-card .table-toolbar,
-  .rubbers-page .data-card .table-shell,
-  .rubbers-page .data-card .table,
-  .rubbers-page .data-card .table th,
-  .rubbers-page .data-card .table td,
-  .rubbers-page .data-card .table-toolbar-title,
-  .rubbers-page .data-card .table-toolbar-subtitle,
-  .rubbers-page .data-card .btn {
-    font-size: 14px !important;
-    font-weight: 300 !important;
-  }
-
-  .rubbers-page .data-card .badge {
-    font-size: 12px !important;
-    font-weight: 400 !important;
-  }
-
-  /* Enhanced Responsive Design */
-  @media (max-width: 992px) {
-    .form-wrap {
-      max-width: 100%;
-      padding: 0 1rem;
-    }
-
-    .rubbers-page .hero-chip-wrap {
-      justify-content: flex-start;
-    }
-
-    .rubbers-page .metric-grid,
-    .rubbers-page .summary-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .rubbers-page .field-inline {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.35rem;
-    }
-
-    .rubbers-page .field-inline .field-label {
-      min-width: 0;
-    }
-
-    .rubbers-page .member-chooser .field-inline.compact {
-      flex-direction: row;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .rubbers-page .member-chooser .field-inline.compact .field-label {
-      min-width: 78px;
-    }
-
-    .rubbers-page .search-inline {
-      flex-direction: row;
-      align-items: center;
-    }
-
-    fieldset {
-      padding: 0.75rem 1rem;
-    }
-
-    .nav-pills .nav-link {
-      font-size: 0.9rem;
-      padding: 0.4rem 0.8rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .container.py-4 {
-      padding: 1rem 0.5rem !important;
-    }
-
-    .rubbers-page .lane-toolbar,
-    .rubbers-page .toolbar-actions,
-    .rubbers-page .table-toolbar {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .rubbers-page .hero-title {
-      font-size: 1.3rem;
-    }
-
-    h1.h4 {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-    }
-
-    .rubbers-page .lane-tabs {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.5rem;
-    }
-
-    .rubbers-page .lane-tabs .nav {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.5rem;
-      width: 100%;
-    }
-
-    .rubbers-page .lane-tabs .nav-item {
-      width: 100%;
-    }
-
-    .rubbers-page .lane-tabs .nav-link {
-      width: 100%;
-      justify-content: center;
-      white-space: nowrap;
-    }
-
-    .rubbers-page .lane-label {
-      flex: 0 0 auto;
-      white-space: nowrap;
-    }
-
-    .rubbers-page .lane-tabs .nav-item:first-child {
-      grid-column: 1 / -1;
-    }
-
-    .nav-pills {
-      gap: 0.5rem;
-    }
-
-    .ms-auto {
-      margin-left: 0 !important;
-      margin-top: 1rem;
-      justify-content: center;
-    }
-
-    .ms-auto .d-flex {
-      flex-direction: column;
-      width: 100%;
-      gap: 0.5rem;
-    }
-
-    .form-wrap {
-      margin: 0;
-      padding: 0;
-    }
-
-    fieldset {
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    fieldset legend {
-      font-size: 1.1rem;
-      padding: 0 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .row.g-3 {
-      gap: 1rem;
-    }
-
-    .col-md-3,
-    .col-md-9 {
-      flex: 0 0 100%;
-      max-width: 100%;
-    }
-
-    .input-group {
-      flex-direction: column;
-    }
-
-    .input-group .input-group-text {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-top: none;
-      border-left: none;
-      border-right: none;
-      justify-content: flex-start;
-      padding: 0.5rem 0;
-      background: transparent;
-      color: #495057;
-      font-weight: 600;
-    }
-
-    .input-group .form-control {
-      border-top-left-radius: 0.375rem;
-      border-top-right-radius: 0.375rem;
-    }
-
-    .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4 {
-      gap: 0.75rem;
-    }
-
-    .row-cols-lg-4>.col {
-      flex: 0 0 calc(50% - 0.375rem);
-      max-width: calc(50% - 0.375rem);
-    }
-
-    .card-footer {
-      flex-direction: column;
-      gap: 1rem;
-      align-items: stretch !important;
-    }
-
-    .card-footer .d-flex {
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .btn {
-      min-height: 44px;
-      font-size: 0.95rem;
-    }
-
-    .btn-sm {
-      min-height: 38px;
-      font-size: 0.85rem;
-    }
-
-    /* Responsive table */
-    .table-responsive {
-      font-size: 0.85rem;
-      margin: 0 -0.5rem;
-      padding: 0 0.5rem;
-    }
-
-    .table th,
-    .table td {
-      padding: 0.4rem 0.3rem;
-      white-space: nowrap;
-    }
-
-    .table th:nth-child(n+6),
-    .table td:nth-child(n+6) {
-      white-space: normal;
-      min-width: 80px;
-    }
-
-    .table .d-flex.gap-1 {
-      flex-direction: column;
-      gap: 0.25rem !important;
-    }
-
-    .table .btn-sm {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.4rem;
-      min-height: auto;
-    }
-
-    /* Search form responsive */
-    .card.mb-4.form-wrap {
-      margin: 0 -0.5rem 1rem;
-      padding: 0 0.5rem;
-    }
-
-    .row.gy-3.gx-3 {
-      gap: 1rem;
-    }
-
-    .col-md-8,
-    .col-md-2 {
-      flex: 0 0 100%;
-      max-width: 100%;
-    }
-
-    .badge.bg-secondary {
-      font-size: 0.8rem;
-      padding: 0.25rem 0.5rem;
-    }
-
-    /* Summary badges */
-    .d-flex.flex-wrap.gap-2 {
-      gap: 0.5rem !important;
-    }
-
-    .badge.p-2 {
-      padding: 0.5rem 0.75rem !important;
-      font-size: 0.8rem;
-    }
-
-    /* Alert messages */
-    .alert {
-      font-size: 0.9rem;
-      padding: 0.75rem 1rem;
-      margin: 0 -0.5rem 1rem;
-      border-radius: 0;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .container.py-4 {
-      padding: 0.5rem 0.25rem !important;
-    }
-
-    h1.h4 {
-      font-size: 1.1rem;
-    }
-
-    fieldset {
-      padding: 0.75rem;
-    }
-
-    fieldset legend {
-      font-size: 1rem;
-    }
-
-    .row-cols-lg-4>.col {
-      flex: 0 0 100%;
-      max-width: 100%;
-    }
-
-    .table-responsive {
-      font-size: 0.8rem;
-      margin: 0 -0.25rem;
-      padding: 0 0.25rem;
-    }
-
-    .table th,
-    .table td {
-      padding: 0.3rem 0.2rem;
-    }
-
-    .table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)),
-    .table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(5)) {
-      display: none;
-    }
-
-    .badge.p-2 {
-      padding: 0.4rem 0.6rem !important;
-      font-size: 0.75rem;
-    }
-
-    .btn {
-      font-size: 0.9rem;
-      padding: 0.4rem 0.6rem;
-    }
-
-    .btn-sm {
-      font-size: 0.75rem;
-      padding: 0.3rem 0.4rem;
-    }
-  }
-
-  /* Landscape orientation */
-  @media (max-width: 768px) and (orientation: landscape) {
-    .container.py-4 {
-      padding: 0.5rem !important;
-    }
-
-    fieldset {
-      padding: 0.75rem;
-    }
-
-    .row-cols-lg-4>.col {
-      flex: 0 0 calc(33.333% - 0.5rem);
-      max-width: calc(33.333% - 0.5rem);
-    }
-  }
-
-  /* Touch-friendly improvements */
-  @media (hover: none) and (pointer: coarse) {
-    .table-hover tbody tr:hover td {
-      background-color: transparent;
-    }
-
-    .btn,
-    .form-control,
-    .form-select {
-      min-height: 44px;
-    }
-
-    .list-group-item-action {
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  /* Ensure input groups and numeric inputs can shrink/grow correctly on small screens */
-  .rubbers-page .input-group .form-control {
-    min-width: 0;
-    /* allow flex children to shrink properly */
-    width: 100%;
-  }
-
-  .rubbers-page .member-chooser .input-group,
-  .rubbers-page .row .col>.input-group {
-    width: 100%;
-  }
-
-  .rubbers-page .search-inline .input-group {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    width: 100%;
-  }
-
-  .rubbers-page .search-inline .input-group .input-group-text {
-    border: 1px solid #d5ddd8;
-    border-right: 0;
-    border-radius: .85rem 0 0 .85rem;
-    padding: 0.375rem 0.75rem;
-    background: var(--bs-success-bg-subtle);
-    color: var(--rubber-text);
-  }
-
-  .rubbers-page .search-inline .input-group .form-control {
-    width: 1%;
-    border-radius: 0 .85rem .85rem 0;
-  }
-
-  .rubbers-page .num-group .col {
-    min-width: 0;
-  }
-  </style>
-</head>
-
-<body class="bg-light rubbers-page">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="assets/css/rubbers.css">
+<div class="rubbers-page">
   <div class="container page-shell">
     <section class="hero-panel">
       <div class="row g-3 align-items-center">
         <div class="col-lg-7">
-          <h1 class="hero-title"><i data-lucide="droplet" class="me-2" aria-hidden="true"></i>จัดการข้อมูลยางพารา</h1>
-          <p class="hero-subtitle">บันทึกรับซื้อ ติดตามยอดหัก และตรวจสอบข้อมูลประจำรอบล่าสุดได้ในหน้าจอเดียว</p>
+          <h1 class="hero-title"><i data-lucide="droplet" class="me-2" aria-hidden="true"></i>บันทึกยอดหัก</h1>
+          <p class="hero-subtitle">ดึงน้ำหนักสุทธิจากการชั่ง แล้วบันทึกยอดหักของแต่ละรายการ</p>
         </div>
         <div class="col-lg-5">
           <div class="hero-chip-wrap">
             <span class="hero-chip"><i data-lucide="calendar"
-                aria-hidden="true"></i><?php echo e(thai_date_format($latest_round_date)); ?></span>
+                aria-hidden="true"></i>คิวจากการชั่ง</span>
             <span class="hero-chip"><i data-lucide="check-square"
                 aria-hidden="true"></i><?php echo number_format($totalCount); ?> รายการ</span>
           </div>
@@ -1216,6 +549,12 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       </div>
     </section>
 
+    <div class="row g-3 mb-3 workflow-grid" aria-label="สถานะบันทึกยอดหัก">
+      <?php foreach (['pending'=>['ชั่งแล้ว รอบันทึกยอดหัก','pending'], 'completed'=>['บันทึกยอดหักแล้ว','completed'], 'legacy'=>['รายการเดิม','legacy'], 'all'=>['ทั้งหมด','total']] as $key=>$card): ?>
+        <div class="col-6 col-lg-3"><a class="workflow-card <?php echo $workflowStatus === $key ? 'is-active' : ''; ?>" <?php echo $workflowStatus === $key ? 'aria-current="page"' : ''; ?> href="rubbers.php?<?php echo e(http_build_query(array_merge($exportBaseParams, ['status'=>$key]))); ?>"><span class="workflow-label"><?php echo e($card[0]); ?></span><span><strong class="workflow-number"><?php echo number_format($workflowCounts[$card[1]]); ?></strong><span class="workflow-unit">รายการ</span></span></a></div>
+      <?php endforeach; ?>
+    </div>
+    <p class="small text-muted">เลือกสถานะเพื่อดูรายการ · จำนวนสรุปตามลานและเงื่อนไขค้นหา</p>
     <!-- nav: add 'ทั้งหมด' -->
     <nav class="surface-card toolbar-card p-2">
       <div class="lane-toolbar">
@@ -1225,26 +564,25 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           </span>
           <ul class="nav nav-pills align-items-center small mb-0">
             <li class="nav-item">
-              <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?lan=all">
+              <a class="nav-link <?php echo ($currentLan === 'all') ? 'active' : ''; ?>" href="rubbers.php?<?php echo e(http_build_query(array_merge($exportBaseParams, ['lan'=>'all']))); ?>">
                 ทั้งหมด
               </a>
             </li>
             <?php for ($i = 1; $i <= 4; $i++): ?>
             <li class="nav-item">
               <a class="nav-link <?php echo ($currentLan === $i) ? 'active' : ''; ?>"
-                href="rubbers.php?lan=<?php echo $i; ?>">
+                href="rubbers.php?<?php echo e(http_build_query(array_merge($exportBaseParams, ['lan'=>$i]))); ?>">
                 ลานที่ <?php echo $i; ?>
               </a>
             </li>
             <?php endfor; ?>
           </ul>
         </div>
-        <div class="toolbar-actions">
 
-        </div>
       </div>
     </nav>
 
+    <?php if ($receiptInfo): ?><div class="alert alert-warning">รายการนี้ออกใบเสร็จแล้วเมื่อ <?php echo e($receiptInfo['issued_at']); ?> โดย <?php echo e($receiptInfo['issued_by']); ?> · <?php echo is_admin() ? 'คุณกำลังแก้ไขด้วยสิทธิ์ admin' : 'ต้องให้ admin ดำเนินการแก้ไข'; ?></div><?php endif; ?>
     <?php if ($msg): ?>
     <div class="alert alert-success py-2"><?php echo e($msg); ?></div>
     <?php endif; ?>
@@ -1252,7 +590,8 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <div class="alert alert-danger py-2"><?php echo e(implode(' | ', $errors)); ?></div>
     <?php endif; ?>
 
-    <?php if ($currentLan !== 'all'): ?>
+
+    <?php if ($currentLan !== 'all' && !empty($form['ru_id']) && !$receiptEditLocked): ?>
     <form method="post" autocomplete="off" class="card mb-4 form-wrap surface-card" id="rubberForm">
       <div class="card-header d-flex justify-content-between align-items-center small">
         <span>ลาน:
@@ -1307,13 +646,22 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
         <?php endif; ?>
         <hr>
         <fieldset>
-          <legend>ข้อมูลพื้นฐาน</legend>
+          <legend><?php echo $linkedWeighing ? 'ข้อมูลจากการชั่ง' : 'ข้อมูลรายการ'; ?></legend>
+          <?php if ($linkedWeighing): ?>
+          <div class="source-overview">
+            <div><span class="source-caption">ผู้ส่งยาง</span><strong><?php echo e($form['ru_fullname']); ?></strong><span class="person-meta">เลขที่ <?php echo e($form['ru_number']); ?> · กลุ่ม <?php echo e($form['ru_group']); ?> · ลาน <?php echo e($form['ru_lan']); ?></span></div>
+            <div><span class="source-caption">น้ำหนักสุทธิ</span><strong><?php echo number_format((float)$linkedWeighing['net_weight'],2); ?> <small>กก.</small></strong></div>
+            <div><span class="source-caption">ราคา / กก.</span><strong><?php echo number_format((float)$linkedWeighing['price_per_kg'],2); ?> <small>บาท</small></strong><span class="person-meta">รอบ <?php echo e(thai_date_format($linkedWeighing['round_date'])); ?></span></div>
+          </div>
+          <details class="source-details"><summary>ดูรายละเอียดรายการและผู้ชั่ง</summary>
+          <?php endif; ?>
+          <?php if ($linkedWeighing): ?><div class="alert alert-success py-2">อ้างอิงวางยาง #<?php echo (int)$linkedWeighing['wang_id']; ?> · น้ำหนักสุทธิ <?php echo number_format((float)$linkedWeighing['net_weight'], 2); ?> กก. · ราคา <?php echo number_format((float)$linkedWeighing['price_per_kg'], 2); ?> บาท/กก. · รอบ <?php echo e($linkedWeighing['round_date']); ?><br>ผู้ชั่ง: <?php echo e($linkedWeighing['weighed_by']); ?> · เวลาชั่ง: <?php echo e($linkedWeighing['weighed_at']); ?><?php if ($linkedWeighing['deductions_saved_at']): ?><br>ผู้บันทึกยอดหัก: <?php echo e($linkedWeighing['deductions_saved_by']); ?> · <?php echo e($linkedWeighing['deductions_saved_at']); ?><?php endif; ?></div><?php endif; ?>
           <div class="row g-3">
             <div class="col-12 col-md-3">
               <div class="field-inline">
                 <label class="field-label" for="ru_date">วันที่</label>
                 <div class="field-control">
-                  <input id="ru_date" type="date" name="ru_date" required class="form-control"
+                  <input id="ru_date" <?php echo $linkedWeighing ? 'readonly' : ''; ?> type="date" name="ru_date" required class="form-control"
                     value="<?php echo e($form['ru_date']); ?>">
                 </div>
               </div>
@@ -1323,7 +671,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <label class="field-label" for="ru_group">กลุ่ม</label>
                 <div class="field-control">
                   <input id="ru_group" name="ru_group" required class="form-control"
-                    <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?>
+                    <?php if ($linkedWeighing || (empty($form['ru_id']) && $memberSelectedRow)) echo 'readonly'; ?>
                     value="<?php echo e($form['ru_group']); ?>">
                 </div>
               </div>
@@ -1333,7 +681,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <label class="field-label" for="ru_number">เลขที่</label>
                 <div class="field-control">
                   <input id="ru_number" name="ru_number" required class="form-control"
-                    <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?>
+                    <?php if ($linkedWeighing || (empty($form['ru_id']) && $memberSelectedRow)) echo 'readonly'; ?>
                     value="<?php echo e($form['ru_number']); ?>">
                 </div>
               </div>
@@ -1343,7 +691,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <label class="field-label" for="ru_class">ชั้น</label>
                 <div class="field-control">
                   <input id="ru_class" name="ru_class" required class="form-control"
-                    <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?>
+                    <?php if ($linkedWeighing || (empty($form['ru_id']) && $memberSelectedRow)) echo 'readonly'; ?>
                     value="<?php echo e($form['ru_class']); ?>">
                 </div>
               </div>
@@ -1355,31 +703,33 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 <label class="field-label" for="ru_fullname">ชื่อ-สกุล</label>
                 <div class="field-control">
                   <input id="ru_fullname" name="ru_fullname" required class="form-control"
-                    <?php if (empty($form['ru_id']) && $memberSelectedRow) echo 'readonly'; ?>
+                    <?php if ($linkedWeighing || (empty($form['ru_id']) && $memberSelectedRow)) echo 'readonly'; ?>
                     value="<?php echo e($form['ru_fullname']); ?>">
                 </div>
               </div>
             </div>
             <div class="col-12 col-lg-3">
               <div class="field-inline">
-                <label class="field-label" for="ru_quantity">ปริมาณ</label>
+                <label class="field-label" for="ru_quantity">น้ำหนักสุทธิ (กก.)</label>
                 <div class="field-control">
-                  <input name="ru_quantity" id="ru_quantity" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
+                  <input name="ru_quantity" id="ru_quantity" <?php echo $linkedWeighing ? 'readonly' : ''; ?> required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_quantity']); ?>">
                 </div>
               </div>
             </div>
           </div>
+          <?php if ($linkedWeighing): ?></details><?php endif; ?>
         </fieldset>
 
         <fieldset>
-          <legend>การหัก</legend>
+          <legend>บันทึกยอดหัก (บาท)</legend>
+          <p class="small text-muted">กรอกอย่างน้อย 1 ช่อง หากไม่มีรายการหัก ให้กรอก <strong>0</strong> ช่องใดช่องหนึ่ง แล้วกดบันทึก</p>
           <div class="row g-3 num-group">
             <div class="col-12 col-lg-4">
               <div class="field-inline">
                 <label class="field-label" for="ru_hoon">หุ้น</label>
                 <div class="field-control">
-                  <input id="ru_hoon" name="ru_hoon" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
+                  <input id="ru_hoon" name="ru_hoon" placeholder="0.00" inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_hoon']); ?>">
                 </div>
               </div>
@@ -1388,7 +738,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_loan">เงินกู้</label>
                 <div class="field-control">
-                  <input id="ru_loan" name="ru_loan" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
+                  <input id="ru_loan" name="ru_loan" placeholder="0.00" inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_loan']); ?>">
                 </div>
               </div>
@@ -1397,7 +747,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_shortdebt">หนี้สั้น</label>
                 <div class="field-control">
-                  <input id="ru_shortdebt" name="ru_shortdebt" required inputmode="decimal" step="0.01" min="0"
+                  <input id="ru_shortdebt" name="ru_shortdebt" placeholder="0.00" inputmode="decimal" step="0.01" min="0"
                     class="form-control text-end" value="<?php echo e($form['ru_shortdebt']); ?>">
                 </div>
               </div>
@@ -1406,7 +756,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_deposit">เงินฝาก</label>
                 <div class="field-control">
-                  <input id="ru_deposit" name="ru_deposit" required inputmode="decimal" step="0.01" min="0" class="form-control text-end"
+                  <input id="ru_deposit" name="ru_deposit" placeholder="0.00" inputmode="decimal" step="0.01" min="0" class="form-control text-end"
                     value="<?php echo e($form['ru_deposit']); ?>">
                 </div>
               </div>
@@ -1415,7 +765,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_tradeloan">กู้ซื้อขาย</label>
                 <div class="field-control">
-                  <input id="ru_tradeloan" name="ru_tradeloan" required inputmode="decimal" step="0.01" min="0"
+                  <input id="ru_tradeloan" name="ru_tradeloan" placeholder="0.00" inputmode="decimal" step="0.01" min="0"
                     class="form-control text-end" value="<?php echo e($form['ru_tradeloan']); ?>">
                 </div>
               </div>
@@ -1424,7 +774,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <div class="field-inline">
                 <label class="field-label" for="ru_insurance">ประกันภัย</label>
                 <div class="field-control">
-                  <input id="ru_insurance" name="ru_insurance" required inputmode="decimal" step="0.01" min="0"
+                  <input id="ru_insurance" name="ru_insurance" placeholder="0.00" inputmode="decimal" step="0.01" min="0"
                     class="form-control text-end" value="<?php echo e($form['ru_insurance']); ?>">
                 </div>
               </div>
@@ -1434,13 +784,14 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
         </fieldset>
         <hr>
         <fieldset>
-          <legend>ยอดเงินคงเหลือที่ได้รับ</legend>
+          <legend>สรุปยอดรับเงิน</legend>
           <div class="alert alert-info py-2">
             <?php
                 // ดึงราคาล่าสุด
                 $latestPrice = 0.00;
                 $res = $db->query("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
                 if ($res && ($r = $res->fetch_assoc())) { $latestPrice = (float)$r['pr_price']; }
+                if ($linkedWeighing) $latestPrice = (float)$linkedWeighing['price_per_kg'];
                 $qty = isset($form['ru_quantity']) ? (float)$form['ru_quantity'] : 0;
                 $amount = ($qty > 0 && $latestPrice > 0) ? $qty * $latestPrice : 0;
 
@@ -1459,7 +810,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
                 $initialNetValue = isset($form['ru_netvalue']) ? (float)$form['ru_netvalue'] : ($initialRuValue - $initialExpend);
                 ?>
             <p class="mb-3 small text-muted">
-              ราคาล่าสุด: <span id="latestPrice"
+              ราคาที่ใช้คำนวณ: <span id="latestPrice"
                 data-price="<?php echo $latestPrice; ?>"><?php echo number_format($latestPrice, 2); ?></span> บาท/กก.
             </p>
             <div class="metric-grid">
@@ -1534,8 +885,8 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           <?php endif; ?>
         </small>
         <div>
-          <button type="button" id="btnSave" class="btn btn-primary px-4">
-            <i data-lucide="floppy2" class="me-1" aria-hidden="true"></i>บันทึก
+          <button type="button" id="btnSave" class="btn btn-success px-4">
+            <i data-lucide="save" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
           </button>
           <?php if (!empty($form['ru_id'])): ?>
           <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>"
@@ -1549,31 +900,32 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <?php else: ?>
     <div class="card mb-4 form-wrap surface-card">
       <div class="card-header d-flex justify-content-between align-items-center gap-2 flex-wrap">
-        <span class="small fw-semibold">ค้นหาและกรองข้อมูลทุกลาน</span>
+        <span class="small fw-semibold">ค้นหาและกรองข้อมูล<?php echo $currentLan === 'all' ? 'ทุกลาน' : 'ลาน ' . (int)$currentLan; ?></span>
         <span class="small text-muted">ผลลัพธ์ทั้งหมด <?php echo number_format($totalCount); ?> รายการ</span>
       </div>
       <div class="card-body">
         <form method="get" class="row gy-3 gx-3 align-items-end">
-          <input type="hidden" name="lan" value="all">
-          <div class="col-12 col-lg-5">
+          <input type="hidden" name="status" value="<?php echo e($workflowStatus); ?>">
+          <input type="hidden" name="lan" value="<?php echo e($currentLan); ?>">
+          <div class="col-12 col-lg-4">
             <label class="form-label" for="rubberSearchInput">คำค้น</label>
             <div class="input-group">
               <span class="input-group-text">ค้นหา</span>
               <input type="text" id="rubberSearchInput" name="search" class="form-control"
-                value="<?php echo e($search); ?>" placeholder="เช่น กลุ่ม 1, 001, นายเอ, ป.6">
-              <?php if ($search !== '' || $classFilter !== 'all' || $date_from !== $latest_round_date || $date_to !== $latest_round_date): ?>
-              <a class="btn btn-outline-secondary" href="rubbers.php?lan=all" title="ล้างตัวกรอง">
+                value="<?php echo e($search); ?>" placeholder="ค้นหาชื่อผู้ส่ง เลขสมาชิก หรือกลุ่ม">
+              <?php if ($search !== '' || $classFilter !== 'all' || $date_from !== '' || $date_to !== ''): ?>
+              <a class="btn btn-outline-secondary" href="rubbers.php?<?php echo e(http_build_query(['lan'=>$currentLan,'status'=>$workflowStatus])); ?>" title="ล้างตัวกรอง">
                 <i data-lucide="x-circle" class="me-1" aria-hidden="true"></i>ล้าง
               </a>
               <?php endif; ?>
             </div>
           </div>
           <div class="col-6 col-lg-2">
-            <label class="form-label" for="date_from">วันที่เริ่ม</label>
+            <label class="form-label" for="date_from">รอบราคาตั้งแต่</label>
             <input type="date" id="date_from" name="date_from" class="form-control" value="<?php echo e($date_from); ?>">
           </div>
           <div class="col-6 col-lg-2">
-            <label class="form-label" for="date_to">วันที่สิ้นสุด</label>
+            <label class="form-label" for="date_to">ถึงวันที่</label>
             <input type="date" id="date_to" name="date_to" class="form-control" value="<?php echo e($date_to); ?>">
           </div>
           <div class="col-12 col-lg-2">
@@ -1584,9 +936,9 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
               <option value="general" <?php echo $classFilter === 'general' ? 'selected' : ''; ?>>เกษตรกรทั่วไป</option>
             </select>
           </div>
-          <div class="col-12 col-lg-1 d-grid">
-            <button type="submit" class="btn btn-primary">
-              <i data-lucide="check" class="me-1" aria-hidden="true"></i>ตกลง
+          <div class="col-12 col-lg-2 d-grid">
+            <button type="submit" class="btn btn-success">
+              <i data-lucide="check" class="me-1" aria-hidden="true"></i>ค้นหารายการ
             </button>
           </div>
         </form>
@@ -1613,8 +965,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
           เงื่อนไข:
           <?php echo $search ? 'คำค้น="' . e($search) . '" ' : 'ทั้งหมด '; ?>
           <span class="ms-1">
-            <?php echo $date_from ? e(thai_date_format($date_from)) : '-'; ?>
-            ถึง <?php echo $date_to ? e(thai_date_format($date_to)) : '-'; ?>
+            <?php if ($date_from === '' && $date_to === ''): ?>ทุกรอบราคา<?php else: ?><?php echo $date_from ? e(thai_date_format($date_from)) : 'ไม่จำกัดวันเริ่ม'; ?> ถึง <?php echo $date_to ? e(thai_date_format($date_to)) : 'ไม่จำกัดวันสิ้นสุด'; ?><?php endif; ?>
           </span>
           <span class="ms-1">
             <?php echo $classFilter === 'member' ? 'เฉพาะสมาชิก' : ($classFilter === 'general' ? 'เฉพาะเกษตรกรทั่วไป' : 'ทุกประเภท'); ?>
@@ -1627,95 +978,53 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     <!-- ตาราง -->
     <div class="surface-card data-card">
       <div class="table-toolbar">
-        <div class="text-center d-flex justify-content-center align-items-center gap-3 mt-2">
-          <div style="font-size: 16px;">
-            ผลลัพธ์ <?php echo number_format($totalCount); ?> รายการ
-            <?php if ($totalPages > 1): ?>
-            <span class="text-muted">| หน้า <?php echo number_format($page); ?>/<?php echo number_format($totalPages); ?></span>
-            <?php endif; ?>
-          </div>
-          <div style="font-size: 16px;">
-            <?php echo ($currentLan === 'all') ? 'แสดงข้อมูลทุกลาน' : 'แสดงข้อมูลลาน '.(int)$currentLan; ?></div>
-        </div>
-        <div class="text-end mb-2 p-2">
-          <?php if (!empty($rows)): ?>
-          <a href="export_rubbers_excel.php?<?php echo $exportQuery; ?>" class="btn btn-sm btn-outline-success">
-            <i data-lucide="file-text" class="me-1" aria-hidden="true"></i>Excel
-          </a>
-          <?php endif; ?>
-        </div>
+        <div><h2 class="table-heading"><?php echo ['pending'=>'รายการรอบันทึกยอดหัก','completed'=>'รายการบันทึกยอดหักแล้ว','legacy'=>'รายการเดิม','all'=>'รายการทั้งหมด'][$workflowStatus]; ?></h2><p class="table-hint"><?php echo number_format($totalCount); ?> รายการ · <?php echo $currentLan === 'all' ? 'ทุกลาน' : 'ลาน ' . (int)$currentLan; ?><?php if ($totalPages > 1): ?> · หน้า <?php echo $page; ?> / <?php echo $totalPages; ?><?php endif; ?></p></div>
+        <?php if (!empty($rows) && $workflowStatus === 'all'): ?><a href="export_rubbers_excel.php?<?php echo e($exportQuery); ?>" class="btn btn-sm btn-outline-success"><i data-lucide="download" aria-hidden="true"></i>ส่งออก Excel</a><?php endif; ?>
       </div>
+      <p class="small text-muted d-md-none px-3 mt-3 mb-2">เลื่อนตารางไปทางซ้ายเพื่อดูยอดเงินและปุ่มบันทึกยอดหัก</p>
       <div class="table-shell">
         <div class="table-responsive rounded-3">
           <table class="table table-sm table-hover align-middle caption-top">
-            <thead class="table-light sticky-header">
-              <tr>
-                <th>ID</th>
-
-                <th>วันที่</th>
-                <th>ลาน</th>
-                <th>กลุ่ม</th>
-                <th>เลขที่</th>
-                <th>ชื่อ-สกุล</th>
-                <th class="text-end">ปริมาณ</th>
-                <th class="text-end">หุ้น</th>
-                <th class="text-end">เงินกู้</th>
-                <th class="text-end">หนี้สั้น</th>
-                <th class="text-end">เงินฝาก</th>
-                <th class="text-end">ลูกหนี้การค้า</th>
-                <th class="text-end">ประกันภัย</th>
-                <th class="text-center">จัดการ</th>
-              </tr>
-            </thead>
+            <thead><tr><th>รายการ / รอบราคา</th><th>ผู้ส่งยาง</th><th>ลาน</th><th class="text-end">น้ำหนัก (กก.)</th><th class="text-end">ยอดหัก (บาท)</th><th class="text-end">สุทธิ (บาท)</th><th>สถานะ / ผู้รับผิดชอบ</th><th>ดำเนินการ</th></tr></thead>
             <tbody>
               <?php if (!$rows): ?>
               <tr>
-                <td colspan="17" class="text-center text-muted py-4">ยังไม่มีข้อมูล</td>
+                <td colspan="8" class="empty-state"><strong>ไม่มีรายการในสถานะที่เลือก</strong>เลือกสถานะอื่น หรือปรับลานและช่วงวันที่เพื่อค้นหารายการ</td>
               </tr>
               <?php else: foreach ($rows as $r): ?>
               <tr>
-                <td><?php echo e($r['ru_id']); ?></td>
-
-                <td><?php echo thai_date_format($r['ru_date']); ?></td>
+                <td><strong>#<?php echo (int)$r['ru_id']; ?></strong><span class="person-meta"><?php echo e(thai_date_format($r['ru_date'])); ?></span></td>
+                <td><span class="person-name"><?php echo e($r['ru_fullname']); ?></span><span class="person-meta">เลขที่ <?php echo e($r['ru_number']); ?> · กลุ่ม <?php echo e($r['ru_group']); ?> · <?php echo $r['ru_class'] === 'member' ? 'สมาชิก' : 'เกษตรกรทั่วไป'; ?></span></td>
                 <td><?php echo e($r['ru_lan']); ?></td>
-                <td><?php echo e($r['ru_group']); ?></td>
-                <td><?php echo e($r['ru_number']); ?></td>
-                <td class="name-cell">
-                  <?php echo e($r['ru_fullname']); ?>
-                  <?php if ($r['ru_class'] == 'general'): ?>
-                  <span class="badge bg-danger">เกษตรกร</span>
-                  <?php elseif ($r['ru_class'] == 'member'): ?>
-                  <span class="badge bg-success">สมาชิก</span>
-                  <?php else: ?>
-                  <span class="badge bg-secondary">ไม่ระบุ</span>
-                  <?php endif; ?>
-                </td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_hoon'], 2); ?></td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_loan'], 2); ?></td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_shortdebt'], 2); ?></td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_deposit'], 2); ?></td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_tradeloan'], 2); ?></td>
-                <td class="text-end"><?php echo number_format((float)$r['ru_insurance'], 2); ?></td>
+                <td class="text-end amount"><?php echo number_format((float)$r['ru_quantity'], 2); ?></td>
+                <td class="text-end amount"><?php echo number_format((float)$r['ru_expend'], 2); ?></td>
+                <td class="text-end amount"><?php echo number_format((float)$r['ru_netvalue'], 2); ?></td>
+                <td><span class="badge <?php echo !$r['linked_weighing_id'] ? 'text-bg-secondary' : ($r['deductions_saved_at'] ? 'text-bg-success' : 'text-bg-warning'); ?>"><?php echo !$r['linked_weighing_id'] ? 'รายการเดิม' : ($r['deductions_saved_at'] ? 'บันทึกยอดหักแล้ว' : 'รอบันทึกยอดหัก'); ?></span><?php if ($r['linked_weighing_id']): ?><div class="small text-muted">ผู้ชั่ง: <?php echo e($r['weighed_by']); ?><?php if ($r['deductions_saved_at']): ?><br>ผู้บันทึกยอดหัก: <?php echo e($r['deductions_saved_by']); ?><?php endif; ?></div><?php endif; ?></td>
                 <td>
                   <div class="action-stack">
-                    <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>"
-                      class="btn btn-sm btn-warning" title="แก้ไข" aria-label="แก้ไข">
-                      <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>
+                    <?php if ($r['receipt_issued_at'] && !$isAdmin): ?><span class="badge text-bg-secondary">ออกใบเสร็จแล้ว · ล็อก</span><?php else: ?>
+                    <a href="rubbers.php?lan=<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>&action=edit&id=<?php echo (int)$r['ru_id']; ?>#rubberForm"
+                      class="btn btn-sm btn-success" title="บันทึกยอดหัก" aria-label="ใส่ / แก้ยอดหัก">
+                      <i class="bi bi-pencil-square" aria-hidden="true"></i><?php echo $r['deductions_saved_at'] ? 'แก้ไข' : 'บันทึกยอดหัก'; ?>
                     </a>
+                    <?php endif; ?>
+                    <?php if (!$r['linked_weighing_id'] && !$r['receipt_issued_at']): ?>
                     <form method="post" onsubmit="return confirm('ลบรายการนี้?');" class="d-inline">
                       <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
                       <input type="hidden" name="action" value="delete">
                       <input type="hidden" name="lan"
                         value="<?php echo ($currentLan === 'all') ? 'all' : (int)$currentLan; ?>">
                       <input type="hidden" name="ru_id" value="<?php echo (int)$r['ru_id']; ?>">
-                      <button type="submit" class="btn btn-sm btn-danger" title="ลบ" aria-label="ลบ">
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="ลบ" aria-label="ลบ">
                         <i data-lucide="trash-2" aria-hidden="true"></i>
                       </button>
                     </form>
-                    <?php if ($hasDompdf): ?>
+                    <?php endif; ?>
+                    <?php if ($r['linked_weighing_id'] && !$r['deductions_saved_at']): ?>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="กรุณาบันทึกยอดหักก่อนพิมพ์ใบเสร็จ">พิมพ์ใบเสร็จ</button>
+                    <?php elseif ($hasDompdf): ?>
                     <a href="export_rubber_pdf.php?ru_id=<?php echo (int)$r['ru_id']; ?>" target="_blank"
-                      class="btn btn-sm btn-outline-dark" title="ส่งออก PDF" aria-label="ส่งออก PDF">
+                      class="btn btn-sm btn-outline-dark" title="พิมพ์ใบเสร็จ" aria-label="พิมพ์ใบเสร็จ">
                       <i data-lucide="file-text" aria-hidden="true"></i>
                     </a>
                     <?php else: ?>
@@ -1797,6 +1106,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       // new: reference quantity field for focusing
       const fQty = document.getElementById('ru_quantity');
 
+      if (!q || !list || !hid) return;
       let t = null;
 
       function hideList() {
@@ -1906,6 +1216,9 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
       const saveBtn = document.getElementById('btnSave');
       if (!form || !saveBtn) return;
       let allowSubmit = false;
+      const deductionInputs = ['ru_hoon','ru_loan','ru_shortdebt','ru_deposit','ru_tradeloan','ru_insurance'].map(id => document.getElementById(id));
+      deductionInputs.forEach(input => input?.addEventListener('input', () => deductionInputs[0]?.setCustomValidity('')));
+
 
       // block Enter key from submitting form
       form.addEventListener('keydown', function(e) {
@@ -1926,6 +1239,9 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
 
       // only allow submit via Save button (with HTML5 validation)
       saveBtn.addEventListener('click', function() {
+        const entered = deductionInputs.some(input => input && input.value.trim() !== '');
+        if (deductionInputs[0]) deductionInputs[0].setCustomValidity(entered ? '' : 'กรุณากรอกยอดหักอย่างน้อย 1 ช่อง หากไม่มีรายการหักให้กรอก 0');
+
         if (form.reportValidity && !form.reportValidity()) return;
         allowSubmit = true;
         if (form.requestSubmit) form.requestSubmit();
@@ -1935,7 +1251,7 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     </script>
 
   </div><!-- /container -->
-  <?php include 'footer.php'; ?>
+
   <script>
   (function() {
     function ensureEditIcon() {
@@ -1967,3 +1283,6 @@ $exportQuery = http_build_query(array_filter($exportBaseParams, fn($v) => $v !==
     else ensureEditIcon();
   })();
   </script>
+
+</div><!-- /rubbers-page -->
+<?php include __DIR__ . '/footer.php'; ?>

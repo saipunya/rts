@@ -581,4 +581,30 @@ function fetch_online_presence_stats(?mysqli $db = null): array {
     return $stats;
 }
 
-?>
+// The legacy SQL dump does not include the rubber collection table.
+function ensure_wang_collection_table(mysqli $db): void {
+    $db->query("
+        CREATE TABLE IF NOT EXISTS tbl_wangyang (
+            wang_id INT(11) NOT NULL AUTO_INCREMENT,
+            wang_date DATE NOT NULL,
+            wang_mid INT(11) NOT NULL DEFAULT 0,
+            wang_group VARCHAR(255) NOT NULL DEFAULT '',
+            wang_number VARCHAR(255) NOT NULL DEFAULT '',
+            wang_name VARCHAR(255) NOT NULL DEFAULT '',
+            wang_class VARCHAR(255) NOT NULL DEFAULT '',
+            wang_sack DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+            wang_weight DECIMAL(18,2) NOT NULL DEFAULT 0,
+            wang_lan VARCHAR(255) NOT NULL DEFAULT '',
+            wang_note TEXT NULL,
+            wang_status VARCHAR(50) NOT NULL DEFAULT '',
+            wang_saveby VARCHAR(255) NOT NULL DEFAULT '',
+            wang_savedate DATETIME NOT NULL,
+            PRIMARY KEY (wang_id),
+            KEY idx_wang_date (wang_date),
+            KEY idx_wang_lan (wang_lan),
+            KEY idx_wang_savedate (wang_savedate)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+}
+
+require_once __DIR__ . '/weighing_functions.php';
