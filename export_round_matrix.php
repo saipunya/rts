@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/functions.php';
 require_login();
+ensure_weighing_schema(db());
 include __DIR__ . '/header.php';
 ?>
 
@@ -142,7 +143,7 @@ if ($date_to !== '')   { $conds[] = 'pr_date <= ?'; $types .= 's'; $params[] = $
 $whereSql = $conds ? ('WHERE ' . implode(' AND ', $conds)) : '';
 
 $dates = [];
-$sql = "SELECT pr_date, pr_price FROM tbl_price $whereSql ORDER BY pr_date DESC";
+$sql = "SELECT pr_date, pr_price FROM (" . collection_price_dates_sql() . ") price_dates $whereSql ORDER BY pr_date DESC";
 $st = $db->prepare($sql);
 if ($st) {
   if ($params) $st->bind_param($types, ...$params);

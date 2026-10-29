@@ -1,0 +1,8 @@
+.demo-test-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:#fff8e8;border:1px solid #eed9a8;color:#725721;border-radius:12px;padding:16px;margin-bottom:20px;font-family:'Sarabun',system-ui,sans-serif;line-height:1.5}
+.demo-test-banner strong{font-size:.95rem}.demo-test-banner p{font-size:.8rem;margin:5px 0 0;color:#887344}
+.demo-test-banner-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.demo-test-banner-actions form{margin:0}
+.demo-test-banner-actions .btn{border:1px solid #dac9a5;background:#fffdf7;color:#725721;text-decoration:none;padding:8px 12px;border-radius:8px;font:inherit;font-size:.8rem;cursor:pointer}
+@media(max-width:575px){.demo-test-banner{padding:14px}.demo-test-banner-actions .btn{min-height:40px}}
+
+.demo-test-info{flex:1 1 220px;min-width:0}.demo-test-info summary{cursor:pointer;font-size:.85rem}.demo-test-brief{display:block;margin-top:3px;font-size:.75rem;color:#887344}.demo-test-info p{padding-top:6px}
+@media(max-width:575px){.demo-test-banner{padding:11px 12px;gap:9px}.demo-test-info{flex-basis:100%}.demo-test-banner-actions .btn{padding:7px 10px;min-height:38px}}

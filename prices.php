@@ -1,14 +1,16 @@
 <?php
 require_once 'functions.php';
+$db = db();
+ensure_weighing_schema($db);
 // require_admin();
 include 'header.php';
 
 $msg = isset($_GET['msg']) ? trim($_GET['msg']) : '';
 
 // fetch prices
-$stmt = $mysqli->prepare("SELECT pr_id, pr_year, pr_date, pr_number, pr_price, pr_saveby, pr_savedate FROM tbl_price ORDER BY pr_date DESC, pr_id DESC");
+$stmt = $db->prepare("SELECT p.pr_id, p.pr_year, p.pr_date, p.pr_number, p.pr_price, p.pr_saveby, p.pr_savedate, p.pr_date AS collection_weigh_date FROM tbl_price p LEFT JOIN tbl_collection_rounds c ON c.round_id=p.collection_round_id ORDER BY p.pr_date DESC, p.pr_id DESC");
 if (!$stmt) {
-    die('Prepare failed: ' . $mysqli->error);
+    die('Prepare failed: ' . $db->error);
 }
 $stmt->execute();
 $result = $stmt->get_result();
@@ -24,7 +26,7 @@ $priceChartValues = array_values(array_map(static function ($row) {
 }, $priceChartRows));
 $latestPrice = !empty($prices) ? (float)($prices[0]['pr_price'] ?? 0) : 0;
 $latestPriceDate = !empty($prices) ? thai_date_format((string)($prices[0]['pr_date'] ?? '')) : '-';
-$rubberAnnouncement = fetch_rubber_collection_announcement($db, !empty($prices) ? (string)($prices[0]['pr_date'] ?? '') : null);
+$rubberAnnouncement = fetch_rubber_collection_announcement($db);
 
 function price_thai_year(array $price): int {
     $date = (string)($price['pr_date'] ?? '');

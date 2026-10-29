@@ -1,5 +1,7 @@
 <?php
 require_once 'functions.php';
+$db = db(); ensure_weighing_schema($db);
+$currentCollectionRound = selected_collection_round($db);
 include 'header.php';
 
 // added: use db() instead of undefined $mysqli
@@ -721,33 +723,10 @@ html, body {
 </style>
 
 <?php
-// late price from tbl_price
-$stmt = $db->prepare("SELECT pr_price FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
-if ($stmt) {
-	$stmt->execute();
-	$res = $stmt->get_result();
-	$row = $res->fetch_assoc();
-	if ($row) {
-		$latest_price = $row['pr_price'];
-	} else {
-		$latest_price = 0;
-	}
-
-} else {
-	$latest_price = 0;
-}
-// pr_date of latest_price
-
-
-$stmt = $db->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1"); // changed: $mysqli -> $db
-if ($stmt) {
-	$stmt->execute();
-	$res = $stmt->get_result();
-	$row = $res->fetch_assoc();
-	$latest_price_date = $row ? $row['pr_date'] : null;
-} else {
-	$latest_price_date = null;
-}
+// Round dates come from configuration; publication dates never define the collection window.
+$currentRoundPrice = $currentCollectionRound ? latest_collection_round_price($db, (int)$currentCollectionRound['round_id']) : null;
+$latest_price = (float)($currentRoundPrice['pr_price'] ?? 0);
+$latest_price_date = $currentCollectionRound['weigh_date'] ?? null;
 
 $onlinePresenceStats = fetch_online_presence_stats($db);
 $rubberAnnouncement = fetch_rubber_collection_announcement($db, $latest_price_date);
@@ -758,21 +737,22 @@ $latest_price_date_text = $latest_price_date ? thai_date_format($latest_price_da
 
 // Sum totals for the date of latest price (match by ru_date == $latest_price_date)
 // ยอดปริมาณรวม: ผลรวม ru_quantity ของ tbl_rubber ที่ ru_date == pr_date ล่าสุด
-// ยอดเงินรวม: ผลรวม ru_quantity * ราคายางล่าสุด (pr_price)
+// Financial totals use each purchase's frozen weighing price.
 $price_date_total_quantity = 0;
 $price_date_total_value = 0;
 if ($latest_price_date) {
     // Query จากฐานข้อมูลโดยตรงเพื่อให้ได้ผลรวมที่ถูกต้องทุกลาน (ไม่ใช้ LIMIT)
-	$stmt = $db->prepare("SELECT SUM(ru_quantity) as total_qty FROM tbl_rubber WHERE ru_date = ?");
+	$stmt = $db->prepare("SELECT SUM(ru_quantity) as total_qty, SUM(ru_value) AS total_value FROM tbl_rubber WHERE ru_date = ?");
     if ($stmt) {
         $stmt->bind_param('s', $latest_price_date);
         $stmt->execute();
         $res = $stmt->get_result();
         $row = $res->fetch_assoc();
         $price_date_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
+        $price_date_total_value = (float)($row['total_value'] ?? 0);
         $stmt->close();
     }
-    $price_date_total_value = $price_date_total_quantity * $latest_price;
+
 }
 
 // Summary filters (for daily/lan round summary)
@@ -877,14 +857,13 @@ if ($sum_lan !== 'all') {
 $sum_where_sql = $sum_where ? ('WHERE ' . implode(' AND ', $sum_where)) : '';
 
 $summary_rows = [];
-$sql = "SELECT r.ru_date, r.ru_lan, MAX(p.pr_price) AS pr_price,
+$sql = "SELECT r.ru_date, r.ru_lan, ROUND(SUM(r.ru_value)/NULLIF(SUM(r.ru_quantity),0),2) AS pr_price,
 		SUM(r.ru_quantity) AS total_qty,
 		SUM(r.ru_value) AS total_value,
 		SUM(r.ru_expend) AS total_expend,
 		SUM(r.ru_netvalue) AS total_net,
 		COUNT(*) AS row_count
 	FROM tbl_rubber r
-	LEFT JOIN tbl_price p ON p.pr_date = r.ru_date
 	$sum_where_sql
 	GROUP BY r.ru_date, r.ru_lan
 	ORDER BY r.ru_date DESC, CAST(r.ru_lan AS UNSIGNED) ASC
@@ -992,6 +971,7 @@ if (!empty($chartSummaryByDate)) {
 			<h4 class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
 			<p class="hero-description">ดูภาพรวมการรวบรวมยาง ราคาอ้างอิง และสรุปข้อมูลสำคัญในหน้าเดียวแบบอ่านง่าย</p>
 			<div class="hero-actions">
+                <a href="prices.php" class="btn btn-outline-success btn-lg rounded-pill px-4 fw-semibold"><i data-lucide="coins" aria-hidden="true"></i> ราคายาง</a>
 				<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 fw-semibold">
 					<i data-lucide="user" aria-hidden="true"></i> สำหรับสมาชิก
 				</a>
@@ -1000,7 +980,7 @@ if (!empty($chartSummaryByDate)) {
 				</a>
 			</div>
 			<div class="hero-meta">
-				<span><i data-lucide="coins" aria-hidden="true"></i> ราคาล่าสุด <?php echo number_format($latest_price,2); ?> บาท</span>
+				<span><i data-lucide="coins" aria-hidden="true"></i> ราคาล่าสุดของรอบ <?php echo number_format($latest_price,2); ?> บาท</span>
 				<span><i data-lucide="calendar" aria-hidden="true"></i> วันที่ <?php echo htmlspecialchars($latest_price_date_text); ?></span>
 				<span><i data-lucide="database" aria-hidden="true"></i> ทั้งหมด <?php echo number_format($total_records); ?> รายการ</span>
 			</div>
@@ -1027,7 +1007,7 @@ if (!empty($chartSummaryByDate)) {
 									สำหรับการวางยาง และชั่งยางวันที่ <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?>
 								</div>
 								<div class="small text-muted">
-									ประกาศนี้จะแสดงจนถึงวันชั่งยางของราคายางล่าสุด และจะหายไปอัตโนมัติหลังวันชั่งยาง
+									ประกาศนี้แสดงตามรอบขายยางที่ตั้งค่า และแสดงจนถึงวันชั่งยาง และจะหายไปอัตโนมัติหลังวันชั่งยาง
 								</div>
 							</div>
 						</div>
@@ -1136,11 +1116,11 @@ if (!empty($chartSummaryByDate)) {
 				บันทึกข้อมูลสมาชิกหรือเกษตรกรใหม่
 			</span>
 		</a>
-		<a class="quick-action" href="price_form.php?action=create">
+		<a class="quick-action" href="prices.php">
 			<i data-lucide="dollar-sign" aria-hidden="true"></i>
 			<span>
-				<strong>เพิ่มราคายาง</strong>
-				ประกาศราคาสำหรับรอบล่าสุดอย่างรวดเร็ว
+				<strong>ราคายาง</strong>
+				ดูราคายางและจัดการรอบราคา
 			</span>
 		</a>
 		<a class="quick-action" href="members.php">
@@ -1180,7 +1160,7 @@ if (!empty($chartSummaryByDate)) {
 			<div class="stat-card stat-card-accent-3">
 				<div class="stat-label"><i data-lucide="file-text" aria-hidden="true"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
 				<div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
-				<div class="stat-sub">ปริมาณ x ราคาล่าสุด</div>
+				<div class="stat-sub">รวมมูลค่าตามราคาที่ใช้ตอนชั่ง</div>
 			</div>
 		</div>
 	</div>

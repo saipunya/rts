@@ -185,7 +185,7 @@ if ($wangId > 0) {
         $wangId
     );
 
-    if (!$stmt->execute()) {
+    if (!execute_wang_with_audit($db, $stmt, $wangId, 'placement_edit')) {
         $err = $stmt->error;
         $stmt->close();
         respond(false, ['message' => 'Update failed: ' . $err], 500);
@@ -225,7 +225,7 @@ $stmt->bind_param(
     $savedAt
 );
 
-if (!$stmt->execute()) {
+if (!execute_wang_with_audit($db, $stmt, 0, 'placement_create')) {
     $err = $stmt->error;
     $stmt->close();
     respond(false, ['message' => 'Save failed: ' . $err], 500);

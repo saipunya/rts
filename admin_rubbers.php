@@ -132,6 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->begin_transaction();
                 try {
                 lock_rubber_for_edit($db, $id, is_admin());
+                assert_weighed_weight_unchanged($db, $id, $data['ru_quantity']);
+                $auditStmt = $db->prepare('SELECT * FROM tbl_rubber WHERE ru_id=?');
+                $auditStmt->bind_param('i', $id); $auditStmt->execute(); $auditBefore = $auditStmt->get_result()->fetch_assoc(); $auditStmt->close();
                 $stmt = $db->prepare("UPDATE tbl_rubber SET
                     ru_date = ?, ru_lan = ?, ru_group = ?, ru_number = ?, ru_fullname = ?, ru_class = ?,
                     ru_quantity = ?, ru_value = ?, ru_hoon = ?, ru_loan = ?, ru_shortdebt = ?, ru_deposit = ?,
@@ -164,10 +167,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $ok = $stmt->execute();
                 $stmt->close();
+                record_collection_audit($db, 'purchase_admin_edit', 0, $id, '', ['before'=>$auditBefore, 'after'=>$data]);
                 record_receipt_admin_edit($db, $id, (string)($currentUser['user_fullname'] ?: $currentUser['user_username']));
                 $db->commit();
-                } catch (Throwable $error) { $db->rollback(); throw $error; }
-                admin_rubber_redirect(['msg' => $ok ? 'บันทึกการแก้ไขข้อมูลยางเรียบร้อยแล้ว' : 'บันทึกข้อมูลไม่สำเร็จ']);
+                } catch (DomainException $error) { $db->rollback(); $errors[] = $error->getMessage(); }
+                catch (Throwable $error) { $db->rollback(); throw $error; }
+                if (!$errors) admin_rubber_redirect(['msg' => $ok ? 'บันทึกการแก้ไขข้อมูลยางเรียบร้อยแล้ว' : 'บันทึกข้อมูลไม่สำเร็จ']);
             }
         }
     }
@@ -309,6 +314,7 @@ $pageUrl = static function (int $targetPage) use ($queryBase): string {
 };
 
 $formRubber = $editRubber ?: $emptyRubber;
+$formWeighing = $editRubber ? weighing_for_rubber($db, (int)$editRubber['ru_id']) : null;
 ?>
 <style>
 body {
@@ -551,7 +557,8 @@ body {
       </div>
       <div class="col-12 col-md-3">
         <label class="form-label" for="ru_quantity">ปริมาณ</label>
-        <input type="number" step="0.01" class="form-control" id="ru_quantity" name="ru_quantity" value="<?php echo e($formRubber['ru_quantity']); ?>" required>
+        <input type="number" step="0.01" class="form-control" id="ru_quantity" name="ru_quantity" value="<?php echo e($formRubber['ru_quantity']); ?>" <?php echo $formWeighing ? 'readonly aria-describedby="weight-lock-help"' : ''; ?> required>
+        <?php if ($formWeighing): ?><div class="form-text" id="weight-lock-help">น้ำหนักอ้างอิงจากผลชั่ง แก้ไขได้ที่หน้าชั่งก่อนอนุมัติหรือส่งตรวจสอบยอดหักเท่านั้น</div><?php endif; ?>
       </div>
 
       <?php
@@ -637,7 +644,7 @@ body {
             <td class="text-end number-cell"><?php echo number_format((float)$row['ru_quantity'], 2); ?></td>
             <td class="text-end number-cell"><?php echo number_format((float)$row['ru_value'], 2); ?></td>
             <td class="text-end number-cell fw-semibold"><?php echo number_format((float)$row['ru_netvalue'], 2); ?></td>
-            <td><?php echo e($row['ru_saveby']); ?></td>
+            <td><?php echo e($row['ru_saveby']); ?><br><a class="btn btn-sm collection-history-btn" title="ประวัติผู้ดำเนินการ" href="collection_history.php?ru_id=<?php echo (int)$row['ru_id']; ?>"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a></td>
             <td class="text-end">
               <div class="d-inline-flex gap-2 admin-rubber-actions">
                 <a href="<?php echo e('admin_rubbers.php?' . http_build_query(array_filter(array_merge($queryBase, ['page' => $page, 'edit' => (int)$row['ru_id']]), static fn($v) => $v !== '' && $v !== null))); ?>#edit-form"

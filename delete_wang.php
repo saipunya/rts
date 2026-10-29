@@ -70,7 +70,7 @@ if (!$stmt) {
 }
 
 $stmt->bind_param('i', $wangId);
-if (!$stmt->execute()) {
+if (!execute_wang_with_audit($db, $stmt, $wangId, 'placement_delete')) {
     $err = $stmt->error;
     $stmt->close();
     respond(false, ['message' => 'Delete failed: ' . $err], 500);

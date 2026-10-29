@@ -58,14 +58,18 @@ function ensure_wangyang_form_columns(mysqli $db): void {
   $db->query("ALTER TABLE tbl_wangyang MODIFY COLUMN wang_sack DECIMAL(18,2) NOT NULL DEFAULT 0.00");
 }
 
-// Load only today's wang records to prevent mixing entries from previous dates.
+// Placement records are scoped to the independently configured collection round.
+$round = null;
+$roundId = (int)($round['round_id'] ?? 0);
+$placementToday = placement_entry_date();
+$canPlaceToday = true;
 $initial_records = [];
 $selected_lane = isset($_GET['lane']) ? trim((string)$_GET['lane']) : '';
 $current_wang_date = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
 if ($selected_lane !== '') {
   $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_lan = ? AND w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
-    $wstm->bind_param('ss', $selected_lane, $current_wang_date);
+    $wstm->bind_param('ss', $selected_lane, $placementToday);
     $wstm->execute();
     $wres = $wstm->get_result();
     while ($wr = $wres->fetch_assoc()) {
@@ -90,7 +94,7 @@ if ($selected_lane !== '') {
 } else {
   $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
-    $wstm->bind_param('s', $current_wang_date);
+    $wstm->bind_param('s', $placementToday);
     $wstm->execute();
     $wres = $wstm->get_result();
     while ($wr = $wres->fetch_assoc()) {
@@ -993,9 +997,11 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     }
   }
   </style>
+<link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
+<link rel="stylesheet" href="assets/css/placement-mobile.css?v=<?php echo filemtime(__DIR__ . '/assets/css/placement-mobile.css'); ?>">
 </head>
 
-<body>
+<body class="collection-ui placement-page">
   <div id="app">
     <header class="app-header">
       <div class="container">
@@ -1026,9 +1032,12 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     </header>
 
     <main class="container" style="padding-top:.75rem;padding-bottom:2rem">
+      <?php require __DIR__ . '/demo_test_banner.php'; ?>
+
+      <?php if ($round && !$canPlaceToday): ?><p class="text-muted small">วันนี้ไม่อยู่ในช่วงวางยางของรอบนี้ สามารถดูรายการเดิมได้</p><?php endif; ?>
       <div class="top-bar">
         <span id="lane-badge" class="lane-pill" style="display:none">ลาน -</span>
-        <span class="page-sub">บันทึกข้อมูลวันวางยางพารา · <span id="current-date-label"></span></span>
+        <span class="page-sub">วันที่วางยาง · <span id="current-date-label"></span></span>
       </div>
 
       <div class="stats-row">
@@ -1049,13 +1058,13 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       <div class="toolbar" id="toolbar">
         <div class="srch">
           <i data-lucide="search" aria-hidden="true"></i>
-          <input id="record-search-input" type="search" placeholder="ค้นหาชื่อ, กลุ่ม, กระสอบ, วันที่">
+          <input id="record-search-input" type="search" placeholder="ค้นหาชื่อ เลขสมาชิก หรือหมายเหตุ">
           <span id="search-summary" class="cnt"></span>
         </div>
         <button id="btn-clear-search" class="clr-btn" type="button" aria-label="ล้างคำค้น">
           <i data-lucide="x" aria-hidden="true"></i>
         </button>
-        <button id="btn-add-top" type="button" class="add-btn">
+        <button id="btn-add-top" type="button" class="add-btn" <?php echo $canPlaceToday ? '' : 'disabled title="วันนี้ไม่อยู่ในช่วงวางยางของรอบที่เลือก"'; ?>>
           <i data-lucide="plus" aria-hidden="true"></i>
           <span>เพิ่มรายการ</span>
         </button>
@@ -1132,7 +1141,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 
           <div class="fld">
             <label for="f-note">หมายเหตุ</label>
-            <textarea id="f-note" rows="3" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
+            <textarea id="f-note" rows="2" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
           </div>
 
           <button type="submit" id="btn-submit" class="btn-go">บันทึก</button>
@@ -1154,6 +1163,14 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
       </div>
     </div>
   </div>
+
+  <dialog id="placementDetails" class="placement-dialog" aria-labelledby="placementDetailsTitle">
+    <div class="placement-dialog-heading"><h2 id="placementDetailsTitle">ข้อมูลรายการวางยาง</h2><form method="dialog"><button class="modal-x" type="submit" aria-label="ปิด"><i data-lucide="x" aria-hidden="true"></i></button></form></div>
+    <div class="placement-dialog-body"><p class="placement-detail-name" data-placement-detail="name"></p><dl>
+      <dt>เลขสมาชิก</dt><dd data-placement-detail="number"></dd><dt>กลุ่ม</dt><dd data-placement-detail="group"></dd><dt>ลาน</dt><dd data-placement-detail="lane"></dd><dt>จำนวนกระสอบ</dt><dd data-placement-detail="sacks"></dd><dt>วันที่วางยาง</dt><dd data-placement-detail="date"></dd><dt>สถานะ</dt><dd data-placement-detail="status"></dd>
+    </dl></div>
+    <div class="placement-dialog-actions"><a class="btn btn-outline-secondary" id="placementDetailHistory" href="collection_history.php"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a><button class="btn btn-outline-success" type="button" id="placementDetailEdit"><i data-lucide="pencil" aria-hidden="true"></i>แก้ไข</button><button class="btn btn-outline-danger" type="button" id="placementDetailDelete"><i data-lucide="trash-2" aria-hidden="true"></i>ลบ</button><form method="dialog"><button class="btn btn-outline-secondary" type="submit">ปิด</button></form></div>
+  </dialog>
 
   <script>
   // State (initialized from server data)
@@ -1357,7 +1374,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
-          backend_id: backendId
+          backend_id: backendId,
+          round_id: <?php echo $roundId; ?>
         })
       });
       const j = await res.json().catch(() => null);
@@ -1395,10 +1413,38 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   }
 
   function recordActions(rec) {
-    if (rec.edit_locked) return `<span class="badge text-bg-secondary" title="ติดต่อ admin เพื่อดำเนินการแก้ไข">${esc(rec.lock_reason || 'ล็อกข้อมูลวางยางแล้ว')}</span>`;
-    return `<button type="button" class="btn btn-outline-success rounded-pill" title="แก้ไข" aria-label="แก้ไข" onclick="openEditModal('${rec.__backendId}')"><i data-lucide="pencil" aria-hidden="true"></i></button>
-      <button type="button" class="btn btn-outline-danger rounded-pill" title="ลบ" aria-label="ลบ" onclick="confirmDelete('${rec.__backendId}')"><i data-lucide="trash-2" aria-hidden="true"></i></button>`;
+    const info = `<button type="button" class="btn placement-info" data-placement-details="${encodeURIComponent(String(rec.__backendId))}" aria-label="ข้อมูลรายการวางยาง"><i data-lucide="info" aria-hidden="true"></i><span>ข้อมูล</span></button>`;
+    if (rec.edit_locked) return `${info}<span class="placement-lock" title="รายการที่ชั่งแล้วไม่สามารถแก้ไขได้"><span class="placement-lock-full">ล็อกรายการแล้ว</span><span class="placement-lock-short">ชั่งแล้ว</span></span>`;
+    return `${info}<button type="button" class="btn btn-outline-success rounded-pill" title="แก้ไข" aria-label="แก้ไข" data-placement-edit="${encodeURIComponent(String(rec.__backendId))}"><i data-lucide="pencil" aria-hidden="true"></i></button>
+      <button type="button" class="btn btn-outline-danger rounded-pill placement-delete" title="ลบ" aria-label="ลบ" data-placement-delete="${encodeURIComponent(String(rec.__backendId))}"><i data-lucide="trash-2" aria-hidden="true"></i></button>`;
   }
+
+  const placementDialog = document.getElementById('placementDetails');
+  let detailRecordId = null;
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-placement-details], [data-placement-edit], [data-placement-delete]');
+    if (!trigger) return;
+    if (trigger.hasAttribute('data-placement-edit')) { window.openEditModal(decodeURIComponent(trigger.dataset.placementEdit)); return; }
+    if (trigger.hasAttribute('data-placement-delete')) { window.confirmDelete(decodeURIComponent(trigger.dataset.placementDelete)); return; }
+    const record = records.find(item => item.__backendId === decodeURIComponent(trigger.dataset.placementDetails));
+    if (!record) return;
+    detailRecordId = record.__backendId;
+    const details = {name: formatFarmerDisplay(record.farmer_name, record.note), number: record.member_number || '—', group: record.group_name || '—', lane: 'ลาน ' + record.lane, sacks: formatNumber(record.bags) + ' กระสอบ', date: formatThaiDate(record.date), status: record.lock_reason || 'รอชั่งน้ำหนัก'};
+    placementDialog.querySelectorAll('[data-placement-detail]').forEach(element => { element.textContent = details[element.dataset.placementDetail] || '—'; });
+    document.getElementById('placementDetailEdit').hidden = Boolean(record.edit_locked);
+    document.getElementById('placementDetailDelete').hidden = Boolean(record.edit_locked);
+    const match = String(record.__backendId).match(/^db-(\d+)$/);
+    const history = document.getElementById('placementDetailHistory');
+    history.hidden = !match;
+    history.href = match ? 'collection_history.php?wang_id=' + match[1] : '#';
+    placementDialog.showModal();
+  });
+  document.getElementById('placementDetailEdit').addEventListener('click', () => { placementDialog.close(); window.openEditModal(detailRecordId); });
+  document.getElementById('placementDetailDelete').addEventListener('click', () => { placementDialog.close(); window.confirmDelete(detailRecordId); });
+  placementDialog.addEventListener('click', event => {
+    const bounds = placementDialog.getBoundingClientRect();
+    if (event.target === placementDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) placementDialog.close();
+  });
 
   function renderTable() {
     const tbody = document.getElementById('data-table');
@@ -1417,7 +1463,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     visible.forEach(rec => {
       if (existingRows.has(rec.__backendId)) {
         const row = existingRows.get(rec.__backendId);
-        row.children[0].innerHTML = esc(formatFarmerDisplay(rec.farmer_name, rec.date));
+        row.children[0].innerHTML = `${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')}</small>`;
         row.children[1].textContent = rec.group_name;
         row.children[2].textContent = rec.lane;
         row.children[3].textContent = formatNumber(rec.bags);
@@ -1431,7 +1477,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         row.dataset.id = rec.__backendId;
         row.className = '';
         row.innerHTML = `
-        <td data-label="ชื่อเกษตรกร" class="fw-semibold text-success-emphasis">${esc(formatFarmerDisplay(rec.farmer_name, rec.date))}</td>
+        <td data-label="ชื่อเกษตรกร" class="fw-semibold text-success-emphasis">${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')}</small></td>
         <td data-label="กลุ่ม" class="text-success">${esc(rec.group_name)}</td>
         <td data-label="ลาน"><span class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis">ลาน ${esc(rec.lane)}</span></td>
         <td data-label="กระสอบ">${esc(formatNumber(rec.bags))}</td>
@@ -1457,8 +1503,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   }
 
   function getTodaysRecords() {
-    const today = getTodayDateString();
-    return records.filter(rec => String(rec.date || '') === today);
+    return records; // The server has already scoped records to the placement day.
   }
 
   function getVisibleRecords() {
@@ -1468,6 +1513,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     return todaysRecords.filter(rec => {
       const haystack = [
         rec.farmer_name,
+        rec.member_number,
+        rec.note,
         rec.group_name,
         `ลาน ${rec.lane}`,
         rec.lane,
@@ -1493,14 +1540,18 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     });
   }
 
-  function formatFarmerDisplay(name, dateStr) {
+  function formatFarmerDisplay(name, note = '') {
+    const cleanNote = String(note || '').trim();
     const cleanName = String(name || '').trim();
-    const cleanDate = formatThaiDateShort(dateStr);
-    return cleanDate ? `${cleanName} (${cleanDate})` : cleanName;
+    if (!cleanNote) return cleanName;
+    const suffix = cleanNote.startsWith('(') && cleanNote.endsWith(')') ? cleanNote : `(${cleanNote})`;
+    return `${cleanName} ${suffix}`;
   }
 
   function formatThaiDate(dateStr) {
-    const date = new Date(dateStr);
+    const parts = String(dateStr || '').split('-').map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    if (Number.isNaN(date.getTime())) return '';
     const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
       'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
     ];
@@ -1511,7 +1562,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   }
 
   function formatThaiDateShort(dateStr) {
-    const date = new Date(dateStr);
+    const parts = String(dateStr || '').split('-').map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
     if (Number.isNaN(date.getTime())) return '';
     const monthsThShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.',
       'ธ.ค.'
@@ -1519,15 +1571,11 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     const day = date.getDate();
     const month = monthsThShort[date.getMonth()];
     const year = date.getFullYear() + 543;
-    return `${day} ${month}${year}`;
+    return `${day} ${month} ${year}`;
   }
 
   function getTodayDateString() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return <?php echo json_encode($placementToday); ?>;
   }
 
   // Modal
@@ -1682,7 +1730,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     dateInput.value = dateValue;
     currentDateDisplay.textContent = formatThaiDate(dateValue);
     recordSummary.textContent = record ?
-      `${record.farmer_name} · กลุ่ม ${record.group_name} · ลาน ${record.lane}` :
+      `${formatFarmerDisplay(record.farmer_name, record.note)} · กลุ่ม ${record.group_name} · ลาน ${record.lane}` :
       'กรอกข้อมูลเพื่อบันทึกรายการใหม่';
   }
 
@@ -1819,7 +1867,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         bags,
         weight: 0,
         note: noteInput ? noteInput.value.trim() : '',
-        date: dateInput.value || getTodayDateString()
+        date: dateInput.value || getTodayDateString(),
+        round_id: <?php echo $roundId; ?>
       };
       if (backendIdInput.value) {
         payload.backend_id = backendIdInput.value;

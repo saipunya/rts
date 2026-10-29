@@ -7,6 +7,7 @@ require_login();
 @set_time_limit(120);
 
 $db = db();
+ensure_weighing_schema($db);
 
 // Inputs
 $dates = $_POST['dates'] ?? [];
@@ -46,7 +47,7 @@ sort($validDates);
 $priceByDate = [];
 {
 	$placeholders = implode(',', array_fill(0, count($validDates), '?'));
-	$sql = "SELECT pr_date, pr_price FROM tbl_price WHERE pr_date IN ($placeholders)";
+	$sql = "SELECT pr_date, pr_price FROM (" . collection_price_dates_sql() . ") price_dates WHERE pr_date IN ($placeholders)";
 	$st = $db->prepare($sql);
 	if ($st) {
 		$types = str_repeat('s', count($validDates));

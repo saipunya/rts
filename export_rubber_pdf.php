@@ -61,6 +61,11 @@ if (!rubber_receipt_ready($db, $ru_id)) {
   exit;
 }
 
+$sourceWeighing = weighing_for_rubber($db, $ru_id);
+$row['wang_note'] = $sourceWeighing['wang_note'] ?? '';
+$row['collection_round_id'] = $sourceWeighing['collection_round_id'] ?? null;
+$row['collection_weigh_date'] = $sourceWeighing['collection_weigh_date'] ?? null;
+
 // numeric values
 $qty       = (float)$row['ru_quantity'];
 $hoon      = (float)$row['ru_hoon'];
@@ -77,6 +82,8 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
+$roundCaption = $row['collection_weigh_date'] ? '<div style="text-align:center">รอบขายยาง ' . e(thai_date_format($row['collection_weigh_date'])) . '</div>' : '';
+
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
@@ -84,6 +91,7 @@ $card = '<div class="card">
     <h2 style="text-align:center; margin-bottom: 0; font-size: 20px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
     <h3 style="text-align:center; margin-bottom: 0; font-size: 20px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
   </div>
+  '.$roundCaption.'
   <table class="info-table kv" style="width:100%;">
     <tr>
       <td>
@@ -96,7 +104,7 @@ $card = '<div class="card">
         <div class="k">เลขที่ '.e($row['ru_number']).'</div>
       </td>
       <td>
-        <div class="k">ชื่อ-สกุล '.e($row['ru_fullname']).'</div>
+        <div class="k">ชื่อ-สกุล '.e(collection_display_name($row['ru_fullname'], $row['wang_note'])).'</div>
       </td>
     </tr>
   </table>

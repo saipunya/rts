@@ -5,11 +5,12 @@ include 'header.php';
 $cu = current_user();
 
 $conn = db();
+ensure_weighing_schema($conn);
 $memberPortalStats = fetch_member_portal_usage_stats($conn);
 
 function get_latest_collection_date(mysqli $conn): string {
     $latest = '';
-    $sql = "SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1";
+    $sql = "SELECT pr_date FROM (" . collection_price_dates_sql() . ") price_dates ORDER BY pr_date DESC LIMIT 1";
     if ($result = $conn->query($sql)) {
         if ($row = $result->fetch_assoc()) {
             $latest = (string)($row['pr_date'] ?? '');
@@ -966,11 +967,11 @@ body {
       <div class="card h-100 shadow-sm">
         <div class="card-body">
           <h5 class="card-title"><i data-lucide="download" class="me-2" aria-hidden="true"></i>Export Data</h5>
-          <p class="card-text text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ที่รวบรวม (จากราคายาง)</p>
+          <p class="card-text text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ขาย / ชั่งยาง</p>
           <?php
                     // ดึง pr_date จาก tbl_price โดยใช้ db() จาก functions.php
                     $dates = [];
-                    $sql = "SELECT DISTINCT pr_date FROM tbl_price ORDER BY pr_date DESC";
+                    $sql = "SELECT pr_date FROM (" . collection_price_dates_sql() . ") price_dates ORDER BY pr_date DESC";
                     $result = $conn->query($sql);
                     if ($result && $result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {

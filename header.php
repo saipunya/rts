@@ -327,10 +327,15 @@ if (!function_exists('nav_active')) {
   }
 
   .topbar-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid transparent;
+    border-radius: 5px;
     color: var(--header-deep);
     text-decoration: none;
     font-weight: 500;
-    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     font-size: 0.84rem;
     font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   }
@@ -339,10 +344,7 @@ if (!function_exists('nav_active')) {
     color: #0f3d23;
     background: rgba(255, 255, 255, 0.55);
     box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
-    transform: translateY(-1px);
-    border: 1px solid rgba(24, 77, 45, 0.12);
-    border-radius: 5px;
-    padding: 0.35rem 0.85rem;
+    border-color: rgba(24, 77, 45, 0.12);
   }
 
   .topbar-link.active {
@@ -630,11 +632,12 @@ if (!function_exists('nav_active')) {
 
   .navbar-nav .nav-link,
   .topbar-actions .topbar-link {
+    border: 1px solid transparent;
     color: var(--header-deep);
     font-weight: 500;
     padding: 0.5rem 0.75rem;
     border-radius: 999px;
-    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     font-size: 0.92rem;
     font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   }
@@ -648,7 +651,6 @@ if (!function_exists('nav_active')) {
     color: var(--header-deep);
     background: rgba(255, 255, 255, 0.72);
     box-shadow: 0 10px 20px rgba(16, 24, 40, 0.06);
-    transform: translateY(-1px);
   }
 
   .navbar-nav .nav-link.active,
@@ -976,9 +978,11 @@ if (!function_exists('nav_active')) {
   </style>
   <!-- Lucide Icons (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js"></script>
+<?php $collectionControls = in_array($currentPage, ['demo_test.php','demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
+<?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
 </head>
 
-<body>
+<body class="<?php echo $collectionControls ? 'collection-ui' : ''; ?>">
   <header class="app-header">
     <div class="header-shell">
       <div class="app-shell">
@@ -1006,11 +1010,20 @@ if (!function_exists('nav_active')) {
               <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
                 <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
               </a>
-              <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
-                <i data-lucide="droplet" class="me-1" aria-hidden="true"></i>รวบรวมยาง
+              <a href="wang_main.php" class="topbar-link<?php echo nav_active(['wang_main.php', 'create_rubber.php', 'manage_wang.php', 'wang_summary.php']); ?>">
+            <i data-lucide="package-check" class="me-1" aria-hidden="true"></i>วางยาง
+          </a>
+          <a href="weigh_wang.php" class="topbar-link<?php echo nav_active('weigh_wang.php'); ?>">
+            <i data-lucide="scale" class="me-1" aria-hidden="true"></i>ชั่งยาง
+          </a>
+          <a href="approve_weighing.php" class="topbar-link<?php echo nav_active('approve_weighing.php'); ?>">
+            <i data-lucide="clipboard-check" class="me-1" aria-hidden="true"></i>อนุมัติหลังชั่ง
+          </a>
+          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
+                <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
               </a>
-              <a href="prices.php" class="topbar-link<?php echo nav_active(['prices.php', 'price_form.php']); ?>">
-                <i data-lucide="dollar-sign" class="me-1" aria-hidden="true"></i>ราคาอ้างอิง
+              <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
+                <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
               </a>
               <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
               <a href="dashboard.php"
@@ -1033,11 +1046,20 @@ if (!function_exists('nav_active')) {
           <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
             <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
           </a>
-          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
-            <i data-lucide="droplet" class="me-1" aria-hidden="true"></i>รวบรวมยาง
+          <a href="wang_main.php" class="topbar-link<?php echo nav_active(['wang_main.php', 'create_rubber.php', 'manage_wang.php', 'wang_summary.php']); ?>">
+            <i data-lucide="package-check" class="me-1" aria-hidden="true"></i>วางยาง
           </a>
-          <a href="prices.php" class="topbar-link<?php echo nav_active(['prices.php', 'price_form.php']); ?>">
-            <i data-lucide="dollar-sign" class="me-1" aria-hidden="true"></i>ราคาอ้างอิง
+          <a href="weigh_wang.php" class="topbar-link<?php echo nav_active('weigh_wang.php'); ?>">
+            <i data-lucide="scale" class="me-1" aria-hidden="true"></i>ชั่งยาง
+          </a>
+          <a href="approve_weighing.php" class="topbar-link<?php echo nav_active('approve_weighing.php'); ?>">
+            <i data-lucide="clipboard-check" class="me-1" aria-hidden="true"></i>อนุมัติหลังชั่ง
+          </a>
+          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
+            <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
+          </a>
+          <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
+            <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
           </a>
           <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
           <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php', 'members.php', 'member_form.php', 'users.php', 'user_form.php']); ?>">
@@ -1067,5 +1089,6 @@ if (!function_exists('nav_active')) {
     <div class="app-shell">
 
       <div class="content-card">
+        <?php if ($collectionControls || in_array($currentPage, ['price_form.php','prices.php','index.php'], true)) require __DIR__ . '/demo_test_banner.php'; ?>
         <!-- หน้าหลักแต่ละเพจจะต่อเนื่องจาก container นี้ -->
         <!-- เนื้อหาของแต่ละหน้าให้วางต่อจาก div นี้ และปิด div/แท็กต่าง ๆ ใน footer.php -->

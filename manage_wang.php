@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare('DELETE FROM tbl_wangyang WHERE wang_id = ? AND NOT EXISTS (SELECT 1 FROM tbl_wang_weighing x WHERE x.wang_id = tbl_wangyang.wang_id) LIMIT 1');
             if ($stmt) {
                 $stmt->bind_param('i', $wangId);
-                if ($stmt->execute()) {
+                if (execute_wang_with_audit($db, $stmt, $wangId, 'placement_delete')) {
                     $returnParams['msg'] = 'ลบรายการ ID ' . $wangId . ' เรียบร้อย';
                     $stmt->close();
                     redirect_manage($returnParams);
@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             if ($stmt) {
                 $stmt->bind_param('sissssdssssi', $date, $memberId, $group, $number, $name, $class, $sack, $lane, $note, $saveBy, $savedAt, $wangId);
-                if ($stmt->execute()) {
+                if (execute_wang_with_audit($db, $stmt, $wangId, 'placement_edit')) {
                     $returnParams['msg'] = 'แก้ไขรายการ ID ' . $wangId . ' เรียบร้อย';
                     $stmt->close();
                     redirect_manage($returnParams);
@@ -364,8 +364,9 @@ if ($q !== '') {
     .table { min-width: 900px; }
   }
   </style>
+<link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
 </head>
-<body>
+<body class="collection-ui">
   <header class="app-header">
     <div class="main-shell">
       <div class="header-row">
@@ -479,11 +480,11 @@ if ($q !== '') {
                 <td><span class="id-badge">#<?php echo (int)$row['wang_id']; ?></span></td>
                 <td class="text-nowrap"><?php echo e(thai_date_short_manage((string)$row['wang_date'])); ?></td>
                 <td><span class="badge rounded-pill text-bg-success">ลาน <?php echo e($row['wang_lan']); ?></span></td>
-                <td class="fw-semibold"><?php echo e($row['wang_name']); ?></td>
+                <td class="fw-semibold"><?php echo e(collection_display_name($row['wang_name'], $row['wang_note'] ?? null)); ?></td>
                 <td><?php echo e($row['wang_group']); ?></td>
                 <td><?php echo e($row['wang_number'] !== '' ? $row['wang_number'] : '-'); ?></td>
                 <td class="text-end fw-bold"><?php echo number_format((float)$row['wang_sack'], 2); ?></td>
-                <td><?php echo e($row['wang_saveby'] !== '' ? $row['wang_saveby'] : '-'); ?></td>
+                <td><?php echo e($row['wang_saveby'] !== '' ? $row['wang_saveby'] : '-'); ?><br><a class="btn btn-sm collection-history-btn" title="ประวัติผู้ดำเนินการ" href="collection_history.php?wang_id=<?php echo (int)$row['wang_id']; ?>"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a></td>
                 <td class="text-nowrap"><?php echo e($row['wang_savedate'] ? thai_date_format((string)$row['wang_savedate']) : '-'); ?></td>
                 <td class="text-center action-cell">
                   <?php if (wang_record_lock_label($row) !== ''): ?><span class="badge text-bg-secondary"><?php echo e(wang_record_lock_label($row)); ?></span><?php elseif ($canManageWang): ?>

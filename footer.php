@@ -494,6 +494,7 @@ AOS.init({
   window.addEventListener('pageshow', pingPresence);
 })();
 </script>
+<script src="assets/js/thai-date-preview.js?v=<?php echo filemtime(__DIR__ . '/assets/js/thai-date-preview.js'); ?>"></script>
 </body>
 
 </html>

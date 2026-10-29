@@ -1,0 +1,26 @@
+.wang-main{color:#244532;font-family:'Sarabun',system-ui,sans-serif}
+.wang-main .wang-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:24px;padding:24px;border:1px solid #dbe8df;border-radius:16px;background:linear-gradient(120deg,#f2f9f4,#fff)}
+.wang-main .wang-eyebrow{display:inline-flex;align-items:center;gap:7px;color:#547963;font-size:.82rem;font-weight:600;margin-bottom:8px}
+.wang-main .wang-eyebrow svg{width:17px;height:17px}
+.wang-main h1{font-size:1.6rem;font-weight:700;color:#214e32;margin:0 0 8px;line-height:1.4}
+.wang-main .wang-heading p{margin:0;color:#6c7e72;font-size:.92rem}
+.wang-main .wang-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.wang-main .workflow-links{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.wang-main .workflow-links .btn{flex:1 1 200px;justify-content:space-between;gap:12px;background:#fff;border-color:#dbe6df}
+.wang-main .workflow-links strong{color:#245c38;font-variant-numeric:tabular-nums}
+.wang-main .date-badge{display:flex;align-items:center;gap:8px;color:#667c6d;font-size:.88rem;margin-bottom:14px}
+.wang-main .date-badge svg{width:17px;height:17px;color:#578267}
+.wang-main .summary-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.wang-main .summary-item{background:#f8fbf9;border:1px solid #e2eae5;border-radius:12px;padding:18px 20px}
+.wang-main .summary-value{font-size:1.65rem;line-height:1.3;font-weight:700;color:#245c38;font-variant-numeric:tabular-nums}
+.wang-main .summary-label{font-size:.85rem;color:#75847a;margin-top:5px}
+.wang-main .lanes-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.wang-main .lane-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:210px;padding:24px 12px;border:1px solid;border-radius:16px;text-align:center;transition:box-shadow .15s,border-color .15s}
+.wang-main .lane-card:hover{box-shadow:0 6px 18px #24453212}
+.wang-main .lane-card:focus-visible{outline:3px solid #245c38;outline-offset:4px}
+.wang-main .lane-badge{display:flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:16px;font-size:1.7rem;font-weight:700}
+.wang-main .lane-label{font-size:1.15rem;font-weight:700}
+.wang-main .lane-stat{font-size:.85rem;line-height:1.5;opacity:.85}
+@media(max-width:991px){.wang-main .lanes-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:575px){.wang-main .wang-heading{padding:18px;gap:16px}.wang-main h1{font-size:1.3rem}.wang-main .wang-actions{width:100%}.wang-main .wang-actions .btn{flex:1 1 auto}.wang-main .workflow-links{gap:8px}.wang-main .workflow-links .btn{flex-basis:100%}.wang-main .summary-strip{gap:8px}.wang-main .summary-item{padding:14px 8px;text-align:center}.wang-main .summary-value{font-size:1.2rem}.wang-main .summary-label{font-size:.73rem}.wang-main .lanes-grid{gap:10px}.wang-main .lane-card{min-height:180px;padding:18px 8px;gap:10px}.wang-main .lane-stat{font-size:.77rem}}
+@media(prefers-reduced-motion:reduce){.wang-main .lane-card{transition:none}}

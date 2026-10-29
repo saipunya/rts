@@ -1,5 +1,6 @@
 <?php
 require_once 'functions.php';
+ensure_weighing_schema(db());
 
 header('Content-Type: application/json; charset=utf-8');
 

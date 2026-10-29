@@ -1,0 +1,9 @@
+.collection-round-bar{padding:16px;margin-bottom:20px;border:1px solid #d9e5dd;border-radius:12px;background:#f5f9f6;color:#294e36;font-family:'Sarabun',system-ui,sans-serif;line-height:1.5}
+.collection-round-content{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.collection-round-description{font-size:.82rem;color:#6d8173;margin-top:4px}
+.collection-round-form{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0}
+.collection-round-form select{max-width:100%;min-height:42px;padding:8px 30px 8px 12px;border:1px solid #cdded2;border-radius:9px;background-color:#fff;color:#35533f;font:inherit;font-size:.85rem}
+.collection-round-bar .collection-round-settings{margin-top:12px}
+.collection-round-bar .btn{border-style:solid;border-width:1px}
+.collection-round-bar .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:575px){.collection-round-bar{padding:14px}.collection-round-form{width:100%}.collection-round-form select{flex:1 1 160px;width:100%}.collection-round-description{font-size:.78rem}}

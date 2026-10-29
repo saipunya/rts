@@ -36,6 +36,14 @@ function e($v): string {
 	return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 }
 
+// Format a placement note for display without changing the stored person's name.
+function collection_display_name(string $name, ?string $note = null): string {
+    $note = trim((string)$note);
+    if ($note === '') return $name;
+    $suffix = str_starts_with($note, '(') && str_ends_with($note, ')') ? $note : '(' . $note . ')';
+    return $name . ' ' . $suffix;
+}
+
 function csrf_token(): string {
 	if (empty($_SESSION['csrf_token'])) {
 		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -310,59 +318,49 @@ function thai_date_format(string $date_str): string {
     return sprintf('%d %s %d', $day, $months[$month], $year);
 }
 
+function thai_date_short_format(string $value): string {
+    $value = trim($value);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) return '';
+    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value, new DateTimeZone('Asia/Bangkok'));
+    if (!$date || $date->format('Y-m-d') !== $value) return '';
+    $months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return $date->format('j') . ' ' . $months[(int)$date->format('n') - 1] . ' ' . ((int)$date->format('Y') + 543);
+}
+
+function thai_datetime_format(string $value): string {
+    $value = trim($value);
+    if ($value === '') return '';
+    foreach (['Y-m-d H:i:s','Y-m-d H:i','Y-m-d'] as $format) {
+        $date = DateTimeImmutable::createFromFormat('!' . $format, $value, new DateTimeZone('Asia/Bangkok'));
+        if (!$date || $date->format($format) !== $value) continue;
+        $label = thai_date_format($date->format('Y-m-d'));
+        if ($format === 'Y-m-d') return $label;
+        return $label . ' เวลา ' . $date->format($format === 'Y-m-d H:i:s' ? 'H:i:s' : 'H:i') . ' น.';
+    }
+    return '';
+}
+
 function fetch_rubber_collection_announcement(?mysqli $db = null, ?string $priceDate = null): array {
     $db = $db ?: db();
-    $priceDate = $priceDate !== null ? trim($priceDate) : '';
-
-    if ($priceDate === '') {
-        $stmt = $db->prepare("SELECT pr_date FROM tbl_price ORDER BY pr_date DESC, pr_id DESC LIMIT 1");
-        if ($stmt) {
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($res && ($row = $res->fetch_assoc())) {
-                $priceDate = trim((string)($row['pr_date'] ?? ''));
-            }
-            if ($res) {
-                $res->free();
-            }
-            $stmt->close();
-        }
+    $round = null;
+    if ($priceDate !== null && $priceDate !== '') {
+        $stmt = $db->prepare('SELECT * FROM tbl_collection_rounds WHERE weigh_date=?');
+        $stmt->bind_param('s', $priceDate); $stmt->execute(); $round = $stmt->get_result()->fetch_assoc(); $stmt->close();
     }
-
-    $tz = new DateTimeZone('Asia/Bangkok');
-    $today = new DateTimeImmutable('today', $tz);
-    $priceDt = $priceDate !== '' ? DateTimeImmutable::createFromFormat('Y-m-d', $priceDate, $tz) : false;
-
-    if (!$priceDt instanceof DateTimeImmutable) {
-        return [
-            'show' => false,
-            'price_date' => null,
-            'lay_start' => null,
-            'lay_end' => null,
-            'weigh_date' => null,
-            'price_date_text' => null,
-            'lay_start_text' => null,
-            'lay_end_text' => null,
-            'weigh_date_text' => null,
-            'today_text' => thai_date_format($today->format('Y-m-d')),
-        ];
-    }
-
-    $layStart = $priceDt->modify('-2 days');
-    $layEnd = $priceDt->modify('-1 day');
-    $show = $today <= $priceDt;
-
+    if (!$round) $round = selected_collection_round($db);
+    $today = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
     return [
-        'show' => $show,
-        'price_date' => $priceDt->format('Y-m-d'),
-        'lay_start' => $layStart->format('Y-m-d'),
-        'lay_end' => $layEnd->format('Y-m-d'),
-        'weigh_date' => $priceDt->format('Y-m-d'),
-        'price_date_text' => thai_date_format($priceDt->format('Y-m-d')),
-        'lay_start_text' => thai_date_format($layStart->format('Y-m-d')),
-        'lay_end_text' => thai_date_format($layEnd->format('Y-m-d')),
-        'weigh_date_text' => thai_date_format($priceDt->format('Y-m-d')),
-        'today_text' => thai_date_format($today->format('Y-m-d')),
+        'show'=>$round !== null && $today <= $round['weigh_date'],
+        'round_id'=>$round ? (int)$round['round_id'] : null,
+        'price_date'=>$round['weigh_date'] ?? null,
+        'lay_start'=>$round['lay_start'] ?? null,
+        'lay_end'=>$round['lay_end'] ?? null,
+        'weigh_date'=>$round['weigh_date'] ?? null,
+        'price_date_text'=>$round ? thai_date_format($round['weigh_date']) : null,
+        'lay_start_text'=>$round ? thai_date_format($round['lay_start']) : null,
+        'lay_end_text'=>$round ? thai_date_format($round['lay_end']) : null,
+        'weigh_date_text'=>$round ? thai_date_format($round['weigh_date']) : null,
+        'today_text'=>thai_date_format($today),
     ];
 }
 
@@ -403,10 +401,11 @@ function fetch_rubber_round_live_summary(?mysqli $db = null, ?string $priceDate 
             COALESCE(SUM(ru_expend), 0) AS total_expend,
             COALESCE(SUM(ru_netvalue), 0) AS total_net
         FROM tbl_rubber
-        WHERE ru_date = ?";
+        WHERE EXISTS (SELECT 1 FROM tbl_wang_weighing x JOIN tbl_wangyang w ON w.wang_id=x.wang_id WHERE x.ru_id=tbl_rubber.ru_id AND w.collection_round_id=?)";
         $stmt = $db->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param('s', $priceDateValue);
+            $roundId = (int)($announcement['round_id'] ?? 0);
+            $stmt->bind_param('i', $roundId);
             $stmt->execute();
             $res = $stmt->get_result();
             if ($res && ($row = $res->fetch_assoc())) {
@@ -607,4 +606,6 @@ function ensure_wang_collection_table(mysqli $db): void {
     ");
 }
 
+require_once __DIR__ . '/demo_test_functions.php';
+require_once __DIR__ . '/collection_round_functions.php';
 require_once __DIR__ . '/weighing_functions.php';
