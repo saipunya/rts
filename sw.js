@@ -1,4 +1,5 @@
-const CACHE_NAME = 'rts-member-v1';
+const CACHE_PREFIX = 'rts-member-' + encodeURIComponent(self.registration.scope) + '-';
+const CACHE_NAME = CACHE_PREFIX + 'v2';
 const STATIC_ASSETS = [
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
@@ -15,7 +16,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -28,7 +29,7 @@ self.addEventListener('fetch', (event) => {
 
   if (STATIC_ASSETS.includes(event.request.url)) {
     event.respondWith(
-      caches.match(event.request).then((cached) => cached || fetch(event.request).then((res) => {
+      caches.open(CACHE_NAME).then((cache) => cache.match(event.request)).then((cached) => cached || fetch(event.request).then((res) => {
         const clone = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return res;
@@ -38,6 +39,6 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.pathname.endsWith('.php')) {
-    event.respondWith(fetch(event.request).catch(() => caches.match('/allmember.php')));
+    event.respondWith(fetch(event.request));
   }
 });

@@ -1,8 +1,6 @@
 <?php
 // functions.php should be required by pages that need it to avoid double-includes
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/app_bootstrap.php';
 
 if (function_exists('touch_online_presence')) {
     touch_online_presence();

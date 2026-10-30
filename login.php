@@ -58,10 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_level'] = (string) $level;
                     $_SESSION['user_status'] = (string) $status;
 
-                    $redirect = $_GET['redirect'] ?? 'dashboard.php';
-                    if (strpos($redirect, '/') === 0) {
-                        $redirect = ltrim($redirect, '/');
-                    }
+                    session_regenerate_id(true);
+                    $redirect = app_login_destination((string)($_GET['redirect'] ?? 'dashboard.php'));
 
                     header('Location: ' . $redirect);
                     exit;
