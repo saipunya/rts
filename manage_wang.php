@@ -81,6 +81,19 @@ function thai_date_short_manage(?string $date): string {
     return (int)date('j', $ts) . ' ' . $months[(int)date('n', $ts) - 1] . ' ' . ((int)date('Y', $ts) + 543);
 }
 
+// Keep this standalone management page compatible with older hosted helpers.
+function wang_manage_display_name(?string $name, ?string $note): string {
+    $name = (string)$name;
+    $note = trim((string)$note);
+    if ($note === '') return $name;
+    return $name . ' ' . (substr($note, 0, 1) === '(' && substr($note, -1) === ')' ? $note : '(' . $note . ')');
+}
+
+function wang_manage_datetime(?string $value): string {
+    if (!$value || strtotime($value) === false) return '-';
+    return thai_date_short_manage($value) . ' เวลา ' . date('H:i:s', strtotime($value)) . ' น.';
+}
+
 function bind_stmt_params(mysqli_stmt $stmt, string $types, array &$params): bool {
     $refs = [$types];
     foreach ($params as $key => &$value) {
@@ -210,13 +223,13 @@ $types = '';
 if ($q !== '') {
     $like = '%' . $q . '%';
     $id = ctype_digit($q) ? (int)$q : 0;
-    $where = "WHERE w.wang_id = ? OR w.wang_mid = ? OR w.wang_name LIKE ? OR w.wang_group LIKE ? OR w.wang_number LIKE ? OR w.wang_lan LIKE ? OR w.wang_date LIKE ?";
-    $params = [$id, $id, $like, $like, $like, $like, $like];
-    $types = 'iisssss';
+    $where = "WHERE w.wang_id = ? OR w.wang_mid = ? OR w.wang_name LIKE ? OR COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') LIKE ? OR COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') LIKE ? OR w.wang_lan LIKE ? OR w.wang_date LIKE ? OR w.wang_note LIKE ?";
+    $params = [$id, $id, $like, $like, $like, $like, $like, $like];
+    $types = 'iissssss';
 }
 
 $totalRows = 0;
-$countSql = "SELECT COUNT(*) AS c FROM tbl_wangyang w $where";
+$countSql = "SELECT COUNT(*) AS c FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid=m.mem_id $where";
 $countStmt = $db->prepare($countSql);
 if ($countStmt) {
     if ($params) {
@@ -237,7 +250,7 @@ if ($page > $totalPages) {
 $rows = [];
 $sql = "
     SELECT
-        x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at,
+        x.weighing_id, x.net_weight, x.deductions_saved_at, z.issued_at AS receipt_issued_at,
         w.wang_id,
         w.wang_date,
         w.wang_mid,
@@ -302,7 +315,7 @@ if ($q !== '') {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #bbf7d0;
   }
-  .main-shell { width: min(100% - 1.5rem, 1180px); margin: 0 auto; }
+  .main-shell { width: min(100% - 1.5rem, 1600px); margin: 0 auto; }
   .header-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .7rem 0; }
   .brand { display: flex; align-items: center; gap: .65rem; min-width: 0; }
   .brand-icon {
@@ -362,6 +375,18 @@ if ($q !== '') {
     .header-row { align-items: flex-start; flex-direction: column; }
     .header-actions { justify-content: flex-start; }
     .table { min-width: 900px; }
+  }
+  @media(max-width:991px){
+    .table-responsive{overflow:visible}
+    .table{min-width:0;width:100%}
+    .table thead{display:none}
+    .table tbody{display:block}
+    .table tbody tr{display:block;padding:12px;border-bottom:1px solid #bbf7d0}
+    .table tbody td{display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px;padding:6px 0;border:0;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere}
+    .table tbody td[data-label]::before{content:attr(data-label);font-size:.8rem;color:#63806c;font-weight:400}
+    .table tbody td[colspan]{display:block}
+    .action-cell{min-width:0}
+    .table tbody td .d-inline-flex{flex-wrap:wrap}
   }
   </style>
 <link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
@@ -435,7 +460,7 @@ if ($q !== '') {
           รายการวางยาง
         </div>
         <div class="text-success">
-          พบ <?php echo number_format($totalRows); ?> รายการ · หน้า <?php echo number_format($page); ?>/<?php echo number_format($totalPages); ?>
+          พบ <?php echo number_format($totalRows); ?> รายการ · แสดง <?php echo $totalRows ? number_format($offset + 1) : 0; ?>–<?php echo number_format($offset + count($rows)); ?> · หน้า <?php echo number_format($page); ?>/<?php echo number_format($totalPages); ?>
         </div>
       </div>
 
@@ -450,6 +475,7 @@ if ($q !== '') {
               <th>กลุ่ม</th>
               <th>เลขสมาชิก</th>
               <th class="text-end">กระสอบ</th>
+              <th>น้ำหนัก / สถานะ</th>
               <th>บันทึกโดย</th>
               <th>เวลาแก้ไขล่าสุด</th>
               <th class="text-center">จัดการ</th>
@@ -458,7 +484,7 @@ if ($q !== '') {
           <tbody>
             <?php if (!$rows): ?>
               <tr>
-                <td colspan="10" class="text-center text-success py-5">ไม่พบข้อมูลวางยาง</td>
+                <td colspan="11" class="text-center text-success py-5">ไม่พบข้อมูลวางยาง</td>
               </tr>
             <?php endif; ?>
             <?php foreach ($rows as $row): ?>
@@ -477,16 +503,17 @@ if ($q !== '') {
                 ];
               ?>
               <tr>
-                <td><span class="id-badge">#<?php echo (int)$row['wang_id']; ?></span></td>
-                <td class="text-nowrap"><?php echo e(thai_date_short_manage((string)$row['wang_date'])); ?></td>
-                <td><span class="badge rounded-pill text-bg-success">ลาน <?php echo e($row['wang_lan']); ?></span></td>
-                <td class="fw-semibold"><?php echo e(collection_display_name($row['wang_name'], $row['wang_note'] ?? null)); ?></td>
-                <td><?php echo e($row['wang_group']); ?></td>
-                <td><?php echo e($row['wang_number'] !== '' ? $row['wang_number'] : '-'); ?></td>
-                <td class="text-end fw-bold"><?php echo number_format((float)$row['wang_sack'], 2); ?></td>
-                <td><?php echo e($row['wang_saveby'] !== '' ? $row['wang_saveby'] : '-'); ?><br><a class="btn btn-sm collection-history-btn" title="ประวัติผู้ดำเนินการ" href="collection_history.php?wang_id=<?php echo (int)$row['wang_id']; ?>"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a></td>
-                <td class="text-nowrap"><?php echo e($row['wang_savedate'] ? thai_date_format((string)$row['wang_savedate']) : '-'); ?></td>
-                <td class="text-center action-cell">
+                <td data-label="ID"><span class="id-badge">#<?php echo (int)$row['wang_id']; ?></span></td>
+                <td data-label="วันที่วางยาง" class="text-nowrap"><?php echo e(thai_date_short_manage((string)$row['wang_date'])); ?></td>
+                <td data-label="ลาน"><span class="badge rounded-pill text-bg-success">ลาน <?php echo e($row['wang_lan']); ?></span></td>
+                <td data-label="ชื่อ" class="fw-semibold"><?php echo e(wang_manage_display_name($row['wang_name'], $row['wang_note'] ?? null)); ?></td>
+                <td data-label="กลุ่ม"><?php echo e($row['wang_group']); ?></td>
+                <td data-label="เลขสมาชิก"><?php echo e($row['wang_number'] !== '' ? $row['wang_number'] : '-'); ?></td>
+                <td data-label="กระสอบ" class="text-end fw-bold"><?php echo number_format((float)$row['wang_sack'], 2); ?></td>
+                <td data-label="น้ำหนัก / สถานะ"><?php if ($row['net_weight'] !== null): ?><strong><?php echo number_format((float)$row['net_weight'], 2); ?> กก.</strong><br><?php endif; ?><small><?php echo e(wang_record_lock_label($row) ?: 'รอชั่งน้ำหนัก'); ?></small></td>
+                <td data-label="บันทึกโดย"><?php echo e($row['wang_saveby'] !== '' ? $row['wang_saveby'] : '-'); ?><br><a class="btn btn-sm collection-history-btn" title="ประวัติผู้ดำเนินการ" href="collection_history.php?wang_id=<?php echo (int)$row['wang_id']; ?>"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a></td>
+                <td data-label="แก้ไขล่าสุด" class="text-nowrap"><?php echo e(wang_manage_datetime($row['wang_savedate'])); ?></td>
+                <td data-label="จัดการ" class="text-center action-cell">
                   <?php if (wang_record_lock_label($row) !== ''): ?><span class="badge text-bg-secondary"><?php echo e(wang_record_lock_label($row)); ?></span><?php elseif ($canManageWang): ?>
                   <div class="d-inline-flex gap-2">
                     <button type="button" class="btn btn-sm btn-outline-primary" data-edit='<?php echo e(json_encode($payload, JSON_UNESCAPED_UNICODE)); ?>'>
@@ -544,7 +571,8 @@ if ($q !== '') {
             </div>
             <div class="col-12 col-md-3">
               <label class="form-label">วันที่</label>
-              <input type="date" class="form-control" name="wang_date" id="edit-wang-date" required>
+              <input type="date" class="form-control" name="wang_date" id="edit-wang-date" required <?php echo is_admin() ? '' : 'readonly'; ?>>
+              <?php if (is_admin()): ?><div class="form-text">แก้วันที่ได้เฉพาะรายการที่ยังไม่ชั่ง เก็บประวัติวันที่ก่อน–หลังและผู้แก้ไข</div><?php endif; ?>
             </div>
             <div class="col-12 col-md-3">
               <label class="form-label">ลาน</label>

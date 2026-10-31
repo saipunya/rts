@@ -1,6 +1,19 @@
 <?php
 declare(strict_types=1);
 
+// Report incomplete uploads before requiring any shared application files.
+$requiredAppFiles = ['app_bootstrap.php', 'collection_round_functions.php', 'weighing_functions.php'];
+$missingAppFiles = [];
+foreach ($requiredAppFiles as $requiredAppFile) {
+    if (!is_file(__DIR__ . '/' . $requiredAppFile)) $missingAppFiles[] = $requiredAppFile;
+}
+if ($missingAppFiles) {
+    http_response_code(503);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('อัปโหลดไฟล์ระบบไม่ครบ กรุณาอัปโหลดไฟล์ต่อไปนี้ไว้ในโฟลเดอร์เดียวกับ functions.php: ' . implode(', ', $missingAppFiles));
+}
+unset($requiredAppFiles, $missingAppFiles, $requiredAppFile);
+
 require_once __DIR__ . '/app_bootstrap.php';
 
 function db(): mysqli {
@@ -35,10 +48,11 @@ function e($v): string {
 }
 
 // Format a placement note for display without changing the stored person's name.
-function collection_display_name(string $name, ?string $note = null): string {
+function collection_display_name(?string $name, ?string $note = null): string {
+    $name = (string)$name;
     $note = trim((string)$note);
     if ($note === '') return $name;
-    $suffix = str_starts_with($note, '(') && str_ends_with($note, ')') ? $note : '(' . $note . ')';
+    $suffix = substr($note, 0, 1) === '(' && substr($note, -1) === ')' ? $note : '(' . $note . ')';
     return $name . ' ' . $suffix;
 }
 
@@ -604,6 +618,5 @@ function ensure_wang_collection_table(mysqli $db): void {
     ");
 }
 
-require_once __DIR__ . '/demo_test_functions.php';
 require_once __DIR__ . '/collection_round_functions.php';
 require_once __DIR__ . '/weighing_functions.php';

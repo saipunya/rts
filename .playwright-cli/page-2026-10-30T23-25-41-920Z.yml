@@ -1,0 +1,84 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "จัดการข้อมูลวางยาง เรียงตาม ID ล่าสุด ค้นหา แก้ไข และลบรายการ" [ref=e5] [cursor=pointer]:
+        - /url: manage_wang.php
+        - generic [ref=e11]:
+          - generic [ref=e12]: จัดการข้อมูลวางยาง
+          - generic [ref=e13]: เรียงตาม ID ล่าสุด ค้นหา แก้ไข และลบรายการ
+      - generic [ref=e14]:
+        - link "วางยาง" [ref=e15] [cursor=pointer]:
+          - /url: wang_main.php
+        - link "ชั่งน้ำหนัก" [ref=e22] [cursor=pointer]:
+          - /url: weigh_wang.php
+        - link "สรุป" [ref=e23] [cursor=pointer]:
+          - /url: wang_summary.php
+        - link "ส่งออก" [ref=e28] [cursor=pointer]:
+          - /url: export_wang.php
+        - link "Dashboard" [ref=e33] [cursor=pointer]:
+          - /url: dashboard.php
+  - main [ref=e38]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]: ค้นหา
+        - textbox "ค้นหา" [ref=e46]:
+          - /placeholder: ค้นหา ID, ID สมาชิก, ชื่อ, กลุ่ม, เลขสมาชิก, ลาน หรือวันที่ YYYY-MM-DD
+      - generic [ref=e47]:
+        - button "ค้นหา" [ref=e48] [cursor=pointer]
+        - link "ล้าง" [ref=e52] [cursor=pointer]:
+          - /url: manage_wang.php
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]: รายการวางยาง
+        - generic [ref=e60]: พบ 2 รายการ · แสดง 1–2 · หน้า 1/1
+      - table [ref=e62]:
+        - rowgroup [ref=e63]:
+          - row [ref=e64]:
+            - columnheader "ID" [ref=e65]
+            - columnheader "วันที่" [ref=e66]
+            - columnheader "ลาน" [ref=e67]
+            - columnheader "ชื่อ" [ref=e68]
+            - columnheader "กลุ่ม" [ref=e69]
+            - columnheader "เลขสมาชิก" [ref=e70]
+            - columnheader "กระสอบ" [ref=e71]
+            - columnheader "น้ำหนัก / สถานะ" [ref=e72]
+            - columnheader "บันทึกโดย" [ref=e73]
+            - columnheader "เวลาแก้ไขล่าสุด" [ref=e74]
+            - columnheader "จัดการ" [ref=e75]
+        - rowgroup [ref=e76]:
+          - row [ref=e77]:
+            - cell "#2" [ref=e78]
+            - cell "30 ต.ค. 2569" [ref=e80]
+            - cell "ลาน 1" [ref=e81]
+            - cell "สมาชิกทดสอบวันที่สอง" [ref=e83]
+            - cell "1" [ref=e84]
+            - cell "002" [ref=e85]
+            - cell "3.00" [ref=e86]
+            - cell "รอชั่งน้ำหนัก" [ref=e87]
+            - cell [ref=e88]:
+              - text: test
+              - link "ประวัติ" [ref=e89] [cursor=pointer]:
+                - /url: collection_history.php?wang_id=2
+            - cell "31 ตุลาคม 2569 เวลา 06:25:36 น." [ref=e94]
+            - cell [ref=e95]:
+              - generic [ref=e96]:
+                - button "แก้ไข" [ref=e97] [cursor=pointer]
+                - button "ลบ" [ref=e102] [cursor=pointer]
+          - row [ref=e106]:
+            - cell "#1" [ref=e107]
+            - cell "29 ต.ค. 2569" [ref=e109]
+            - cell "ลาน 1" [ref=e110]
+            - cell "สมาชิกทดสอบวันแรก (บิน)" [ref=e112]
+            - cell "1" [ref=e113]
+            - cell "001" [ref=e114]
+            - cell "4.00" [ref=e115]
+            - cell "รอชั่งน้ำหนัก" [ref=e116]
+            - cell [ref=e117]:
+              - text: test
+              - link "ประวัติ" [ref=e118] [cursor=pointer]:
+                - /url: collection_history.php?wang_id=1
+            - cell "31 ตุลาคม 2569 เวลา 06:25:36 น." [ref=e123]
+            - cell [ref=e124]:
+              - generic [ref=e125]:
+                - button "แก้ไข" [ref=e126] [cursor=pointer]
+                - button "ลบ" [ref=e131] [cursor=pointer]

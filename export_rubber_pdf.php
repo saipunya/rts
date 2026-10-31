@@ -82,16 +82,15 @@ function nf($n){ return number_format((float)$n, 2); }
 
 $printedAt = date('Y-m-d H:i:s');
 
-$roundCaption = $row['collection_weigh_date'] ? '<div style="text-align:center">รอบขายยาง ' . e(thai_date_format($row['collection_weigh_date'])) . '</div>' : '';
+$roundCaption = $row['collection_weigh_date'] ? ' · รอบขายยาง ' . e(thai_date_format($row['collection_weigh_date'])) : '';
 
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
 $card = '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="text-align:center; margin-bottom: 0;font-size:20px;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
     <h2 style="text-align:center; margin-bottom: 0; font-size: 20px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
-    <h3 style="text-align:center; margin-bottom: 0; font-size: 20px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')</h3>
+    <h3 style="text-align:center; margin-bottom: 0; font-size: 20px;">ใบรับยางก้อนถ้วย (ID: '.e($row['ru_id']).')'.$roundCaption.'</h3>
   </div>
-  '.$roundCaption.'
   <table class="info-table kv" style="width:100%;">
     <tr>
       <td>
@@ -199,7 +198,7 @@ $hasThaiFonts = (bool)$defaultFamily;
 // ปรับ CSS layout ให้ทันสมัยและเหมาะกับ print
 $style = '
   @page { margin: 5mm; }
-  html, body { width: 100%; height: 100%; }
+  html, body { width: 100%; }
   .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
   body { font-family: '.($hasThaiFonts ? '"'.$defaultFamily.'", ' : '').'DejaVu Sans, sans-serif; font-size: 20px; color: #000; background: #fff; line-height: 1.1; }
@@ -220,7 +219,7 @@ $style = '
   .info-table.kv td { border: 0; }
   .data-table { border: 0; border-radius: 0; background: #fff; margin-bottom: 2px; }
   .data-table thead th { padding: 1px; color: #000; font-weight: 700; text-align: left; border-bottom: 0; font-size: 18px; }
-  .data-table td, .data-table th { padding: 1px; border: 0; background: #fff; font-size: 18px; height: auto; color: #000; }
+  .data-table td, .data-table th { padding: 0 1px; border: 0; background: #fff; font-size: 18px; height: auto; line-height: 1.05; color: #000; }
   .data-table tr:nth-child(even) td { background: transparent; }
   .kpi { margin-top: 1px; background: #f7f7f7; padding: 1px 3px; page-break-inside: avoid; font-size: 20px; color: #000; }
   .kpi .kpi-value { font-size: 20px; font-weight: 700; color: #000; }

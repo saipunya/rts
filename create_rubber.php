@@ -65,11 +65,16 @@ $placementToday = placement_entry_date();
 $canPlaceToday = true;
 $initial_records = [];
 $selected_lane = isset($_GET['lane']) ? trim((string)$_GET['lane']) : '';
-$current_wang_date = (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
+// Admin can find placements saved on real or simulated dates.
+$viewDate = is_admin() ? trim((string)($_GET['view_date'] ?? '')) : $placementToday;
+if ($viewDate !== '') {
+  $parsedViewDate = DateTimeImmutable::createFromFormat('!Y-m-d', $viewDate);
+  if (!$parsedViewDate || $parsedViewDate->format('Y-m-d') !== $viewDate) $viewDate = $placementToday;
+}
 if ($selected_lane !== '') {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_lan = ? AND w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_lan = ? AND (? = '' OR w.wang_date = ?) ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
-    $wstm->bind_param('ss', $selected_lane, $placementToday);
+    $wstm->bind_param('sss', $selected_lane, $viewDate, $viewDate);
     $wstm->execute();
     $wres = $wstm->get_result();
     while ($wr = $wres->fetch_assoc()) {
@@ -92,9 +97,9 @@ if ($selected_lane !== '') {
     $wstm->close();
   }
 } else {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_date = ? ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM tbl_wangyang w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE (? = '' OR w.wang_date = ?) ORDER BY w.wang_savedate DESC LIMIT 500");
   if ($wstm) {
-    $wstm->bind_param('s', $placementToday);
+    $wstm->bind_param('ss', $viewDate, $viewDate);
     $wstm->execute();
     $wres = $wstm->get_result();
     while ($wr = $wres->fetch_assoc()) {
@@ -1014,6 +1019,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
             </div>
           </a>
           <div class="header-actions">
+            <?php if (is_admin()): ?><a href="manage_wang.php" class="btn">รายการย้อนหลัง / แก้วันที่</a><?php endif; ?>
             <a href="wang_main.php" class="btn">
               <i data-lucide="arrow-left" aria-hidden="true"></i>
               <span>กลับ</span>
@@ -1032,7 +1038,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     </header>
 
     <main class="container" style="padding-top:.75rem;padding-bottom:2rem">
-      <?php require __DIR__ . '/demo_test_banner.php'; ?>
+
 
       <?php if ($round && !$canPlaceToday): ?><p class="text-muted small">วันนี้ไม่อยู่ในช่วงวางยางของรอบนี้ สามารถดูรายการเดิมได้</p><?php endif; ?>
       <div class="top-bar">
@@ -1040,6 +1046,16 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         <span class="page-sub">วันที่วางยาง · <span id="current-date-label"></span></span>
       </div>
 
+      <?php if (is_admin()): ?>
+      <form method="get" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px">
+        <input type="hidden" name="lane" value="<?php echo e($selected_lane); ?>">
+        <label for="view-date">วันที่รายการ</label>
+        <input type="date" id="view-date" name="view_date" value="<?php echo e($viewDate); ?>" style="min-height:44px;font-size:16px">
+        <button class="btn" type="submit">แสดง</button>
+        <a class="btn" href="create_rubber.php?<?php echo e(http_build_query(['lane'=>$selected_lane])); ?>">ทุกวันที่</a>
+        <small><?php echo $viewDate === '' ? 'แสดงรายการล่าสุดทุกวันที่ สูงสุด 500 รายการ' : e(thai_date_format($viewDate)); ?></small>
+      </form>
+      <?php endif; ?>
       <div class="stats-row">
         <div class="stat-cell">
           <div class="stat-num" id="stat-total">0</div>
@@ -1102,7 +1118,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         </div>
         <form id="form-add" class="modal-bd">
           <input type="hidden" id="f-backend-id" value="">
-          <input type="hidden" id="f-date" value="">
+          <?php if (!is_admin()): ?><input type="hidden" id="f-date" value=""><?php endif; ?>
           <input type="hidden" id="f-member-id" value="">
           <input type="hidden" id="f-member-name" value="">
           <input type="hidden" id="f-member-group" value="">
@@ -1134,7 +1150,12 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
           </div>
 
           <div class="date-box">
+            <?php if (is_admin()): ?>
+            <label for="f-date" class="lbl">วันที่วางยาง (admin แก้ไขได้ก่อนชั่ง)</label>
+            <input type="date" id="f-date" required style="width:100%;min-height:44px;font-size:16px">
+            <?php else: ?>
             <span class="lbl">วันที่</span>
+            <?php endif; ?>
             <span id="current-date-display"></span>
             <div id="record-summary" style="margin-top:.25rem"></div>
           </div>
@@ -1463,7 +1484,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     visible.forEach(rec => {
       if (existingRows.has(rec.__backendId)) {
         const row = existingRows.get(rec.__backendId);
-        row.children[0].innerHTML = `${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')}</small>`;
+        row.children[0].innerHTML = `${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')} · ${esc(formatThaiDateShort(rec.date))}</small>`;
         row.children[1].textContent = rec.group_name;
         row.children[2].textContent = rec.lane;
         row.children[3].textContent = formatNumber(rec.bags);
@@ -1477,7 +1498,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         row.dataset.id = rec.__backendId;
         row.className = '';
         row.innerHTML = `
-        <td data-label="ชื่อเกษตรกร" class="fw-semibold text-success-emphasis">${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')}</small></td>
+        <td data-label="ชื่อเกษตรกร" class="fw-semibold text-success-emphasis">${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')} · ${esc(formatThaiDateShort(rec.date))}</small></td>
         <td data-label="กลุ่ม" class="text-success">${esc(rec.group_name)}</td>
         <td data-label="ลาน"><span class="badge text-bg-success-subtle border border-success-subtle text-success-emphasis">ลาน ${esc(rec.lane)}</span></td>
         <td data-label="กระสอบ">${esc(formatNumber(rec.bags))}</td>
@@ -1586,6 +1607,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   const backendIdInput = document.getElementById('f-backend-id');
   const dateInput = document.getElementById('f-date');
   const currentDateDisplay = document.getElementById('current-date-display');
+  dateInput.addEventListener('change', () => { currentDateDisplay.textContent = formatThaiDate(dateInput.value); });
   const recordSummary = document.getElementById('record-summary');
   const bagsInput = document.getElementById('f-bags');
   const memberSearchInput = document.getElementById('memberSearch');
@@ -1724,7 +1746,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   function setFormMode(mode, record = null) {
     formMode = mode;
     editingTarget = record;
-    formTitle.textContent = mode === 'edit' ? 'แก้ไขจำนวนกระสอบ' : 'เพิ่มรายการรวบรวมยาง';
+    formTitle.textContent = mode === 'edit' ? 'แก้ไขรายการวางยาง' : 'เพิ่มรายการรวบรวมยาง';
     submitBtn.textContent = mode === 'edit' ? 'บันทึกการแก้ไข' : 'บันทึก';
     const dateValue = record ? record.date : getTodayDateString();
     dateInput.value = dateValue;

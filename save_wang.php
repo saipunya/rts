@@ -3,6 +3,10 @@ require_once 'functions.php';
 require_login();
 
 header('Content-Type: application/json; charset=utf-8');
+set_exception_handler(function (Throwable $error): void {
+    if (!($error instanceof DomainException)) error_log((string)$error);
+    respond(false, ['message' => $error instanceof DomainException ? $error->getMessage() : 'บันทึกไม่สำเร็จ กรุณาลองใหม่'], $error instanceof DomainException ? 400 : 500);
+});
 
 $db = db();
 ensure_weighing_schema($db);

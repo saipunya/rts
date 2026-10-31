@@ -1,6 +1,15 @@
 <?php
 declare(strict_types=1);
 
+function placement_entry_date(): string {
+    return (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d');
+}
+
+function can_weigh_on_price_date(string $date): bool {
+    $parsed = DateTimeImmutable::createFromFormat('!Y-m-d', $date, new DateTimeZone('Asia/Bangkok'));
+    return $parsed && $parsed->format('Y-m-d') === $date && placement_entry_date() >= $date;
+}
+
 function ensure_collection_round_schema(mysqli $db): void {
     $db->query("CREATE TABLE IF NOT EXISTS tbl_collection_rounds (
         round_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

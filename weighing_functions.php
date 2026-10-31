@@ -379,8 +379,6 @@ function record_collection_audit(mysqli $db, string $action, int $wangId, int $r
         $stmt = $db->prepare('SELECT wang_id FROM tbl_wang_weighing WHERE ru_id=?');
         $stmt->bind_param('i', $rubberId); $stmt->execute(); $wangId = (int)($stmt->get_result()->fetch_row()[0] ?? 0); $stmt->close();
     }
-    $test = demo_test_settings();
-    if ($test) $details['demo_test'] = $test;
     $json = json_encode($details, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     $now = (new DateTimeImmutable('now', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d H:i:s');
     $stmt = $db->prepare('INSERT INTO tbl_collection_audit (wang_id, ru_id, action, actor_id, actor_username, actor_name, recorded_at, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
@@ -404,6 +402,14 @@ function execute_wang_with_audit(mysqli $db, mysqli_stmt $mutation, int $id, str
             $recordId = $id ?: (int)$mutation->insert_id;
             $stmt = $db->prepare('SELECT * FROM tbl_wangyang WHERE wang_id=?');
             $stmt->bind_param('i', $recordId); $stmt->execute(); $after = $stmt->get_result()->fetch_assoc(); $stmt->close();
+            if ($after) {
+                $date = DateTimeImmutable::createFromFormat('!Y-m-d', (string)$after['wang_date']);
+                if (!$date || $date->format('Y-m-d') !== $after['wang_date']) throw new DomainException('วันที่วางยางไม่ถูกต้อง');
+            }
+            if ($before && $after && $before['wang_date'] !== $after['wang_date']) {
+                if (!is_admin()) throw new DomainException('เฉพาะ admin เท่านั้นที่แก้ไขวันที่วางยางได้');
+                if (wang_has_weighing($db, $recordId)) throw new DomainException('รายการที่ชั่งน้ำหนักแล้วไม่สามารถแก้ไขวันที่วางยางได้');
+            }
             $effectiveRoundId = $roundId ?? 0;
             if ($after && $effectiveRoundId) {
                 $round = collection_round_by_id($db, $effectiveRoundId, true);
@@ -428,11 +434,30 @@ function assert_weighed_weight_unchanged(mysqli $db, int $id, string $weight): v
     }
 }
 
-function issued_rubber_receipts(mysqli $db, string $search = '', string $lane = 'all', int $page = 1): array {
+function delete_unlinked_rubber(mysqli $db, int $id): void {
+    if (!is_admin()) throw new DomainException('เฉพาะ admin เท่านั้นที่ลบข้อมูลได้');
+    $db->begin_transaction();
+    try {
+        $stmt = $db->prepare('SELECT * FROM tbl_rubber WHERE ru_id=? FOR UPDATE');
+        $stmt->bind_param('i', $id); $stmt->execute(); $before = $stmt->get_result()->fetch_assoc(); $stmt->close();
+        if (!$before) throw new DomainException('ไม่พบรายการที่ต้องการลบ');
+        if (rubber_receipt_issued($db, $id) || weighing_for_rubber($db, $id)) {
+            throw new DomainException('รายการนี้เชื่อมกับผลชั่งหรือใบเสร็จ ให้ดำเนินการแก้ไขข้อมูลแทนการลบ');
+        }
+        $stmt = $db->prepare('DELETE FROM tbl_rubber WHERE ru_id=? LIMIT 1');
+        $stmt->bind_param('i', $id); $stmt->execute(); $deleted = $stmt->affected_rows; $stmt->close();
+        if ($deleted !== 1) throw new DomainException('ไม่พบรายการที่ต้องการลบ');
+        record_collection_audit($db, 'purchase_admin_delete', 0, $id, '', ['before'=>$before, 'after'=>null]);
+        $db->commit();
+    } catch (Throwable $error) { $db->rollback(); throw $error; }
+}
+
+function issued_rubber_receipts(mysqli $db, string $search = '', string $lane = 'all', int $page = 1, bool $allRows = false, ?string $roundDate = null): array {
     if (!in_array($lane, ['all','1','2','3','4'], true)) $lane = 'all';
     $from = ' FROM tbl_rubber_receipts z JOIN tbl_rubber r ON r.ru_id=z.ru_id
         LEFT JOIN tbl_wang_weighing x ON x.ru_id=r.ru_id LEFT JOIN tbl_wangyang w ON w.wang_id=x.wang_id LEFT JOIN tbl_collection_rounds c ON c.round_id=w.collection_round_id';
     $conditions = []; $params = []; $types = '';
+    if ($roundDate !== null) { $conditions[] = 'COALESCE(x.round_date, r.ru_date)=?'; $params[] = $roundDate; $types .= 's'; }
     if ($lane !== 'all') { $conditions[] = 'r.ru_lan=?'; $params[] = $lane; $types .= 's'; }
     if (trim($search) !== '') {
         $conditions[] = '(r.ru_fullname LIKE ? OR r.ru_number LIKE ? OR r.ru_group LIKE ? OR w.wang_note LIKE ?)';
@@ -445,9 +470,10 @@ function issued_rubber_receipts(mysqli $db, string $search = '', string $lane = 
     $stmt->execute(); $total = (int)$stmt->get_result()->fetch_row()[0]; $stmt->close();
     $perPage = 25; $totalPages = max(1, (int)ceil($total / $perPage)); $page = max(1, min($page, $totalPages));
     $offset = ($page - 1) * $perPage;
-    $stmt = $db->prepare('SELECT r.*, w.wang_id, w.wang_note, w.wang_sack, c.weigh_date AS collection_weigh_date, z.issued_at, z.issued_by' . $from . $where . ' ORDER BY z.issued_at DESC, r.ru_id DESC LIMIT ? OFFSET ?');
-    $params[] = $perPage; $params[] = $offset; $types .= 'ii';
-    $stmt->bind_param($types, ...$params); $stmt->execute(); $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); $stmt->close();
+    $stmt = $db->prepare('SELECT r.*, w.wang_id, w.wang_note, w.wang_sack, c.weigh_date AS collection_weigh_date, z.issued_at, z.issued_by' . $from . $where . ' ORDER BY COALESCE(x.deductions_saved_at, z.issued_at) DESC, r.ru_id DESC' . ($allRows ? '' : ' LIMIT ? OFFSET ?'));
+    if (!$allRows) { $params[] = $perPage; $params[] = $offset; $types .= 'ii'; }
+    if ($types !== '') $stmt->bind_param($types, ...$params);
+    $stmt->execute(); $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); $stmt->close();
     return ['rows'=>$rows, 'total'=>$total, 'page'=>$page, 'total_pages'=>$totalPages, 'per_page'=>$perPage];
 }
 

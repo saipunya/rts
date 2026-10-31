@@ -19,8 +19,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $user = current_user();
         $actor = (string)(($user['user_fullname'] ?? '') ?: ($user['user_username'] ?? 'เจ้าหน้าที่'));
         save_round_rubber_deductions($db, $id, $_POST, $actor, $roundId);
-        $_SESSION['deductions_success'] = 'บันทึกยอดหักแล้ว ส่งรายการไปรอพิมพ์ใบเสร็จเรียบร้อย';
-        header('Location: rubbers.php?' . http_build_query(['round'=>$roundId,'search'=>$search]));
+        $_SESSION['deductions_success'] = 'บันทึกยอดหักแล้ว เปิดใบเสร็จสำหรับพิมพ์เรียบร้อย';
+        $receiptUrl = 'export_rubber_pdf.php?' . http_build_query(['ru_id'=>$id]);
+        $queueUrl = 'rubbers.php?' . http_build_query(['round'=>$roundId]);
+        header('Content-Type: text/html; charset=utf-8');
+        ?>
+        <!doctype html><html lang="th"><meta charset="utf-8"><title>เปิดใบเสร็จ</title>
+        <p>บันทึกยอดหักเรียบร้อย <a href="<?php echo e($receiptUrl); ?>">เปิดใบเสร็จ</a> · <a href="<?php echo e($queueUrl); ?>">กลับบันทึกยอดหัก</a></p>
+        <script>
+        if (window.opener && !window.opener.closed) {
+          try { window.opener.location.replace(<?php echo json_encode($queueUrl); ?>); } catch (error) {}
+        }
+        window.location.replace(<?php echo json_encode($receiptUrl); ?>);
+        </script></html>
+        <?php
         exit;
     } catch (InvalidArgumentException | DomainException $error) {
         $errors[] = $error->getMessage();
@@ -63,7 +75,7 @@ require __DIR__ . '/header.php';
   <?php if ($success): ?><div class="alert alert-success" role="status"><?php echo e($success); ?></div><?php endif; ?>
   <?php if ($errors): ?><div class="alert alert-danger" role="alert"><?php echo e(implode(' · ', array_unique($errors))); ?></div><?php endif; ?>
   <?php if ($selected): ?>
-  <form method="post" class="deductions-form" id="rubberForm" autocomplete="off">
+  <form method="post" target="_blank" rel="opener" class="deductions-form" id="rubberForm" autocomplete="off">
     <input type="hidden" name="round" value="<?php echo $roundId; ?>"><input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>"><input type="hidden" name="ru_id" value="<?php echo (int)$selected['ru_id']; ?>">
     <div class="deductions-source"><div><h2><?php echo e(collection_display_name($selected['ru_fullname'], $selected['wang_note'])); ?></h2><p>รายการ #<?php echo (int)$selected['ru_id']; ?> · เลขที่ <?php echo e($selected['ru_number']); ?> · กลุ่ม <?php echo e($selected['ru_group']); ?></p></div><strong><?php echo number_format((float)$selected['net_weight'],2); ?> <small>กก.</small></strong></div>
     <div class="deduction-fields">
@@ -71,7 +83,7 @@ require __DIR__ . '/header.php';
     </div>
     <p class="deductions-help">กรอกยอดหักตามผลตรวจสอบ หากไม่มียอดหักให้กรอก 0 อย่างน้อยหนึ่งช่อง ช่องที่เว้นว่างจะเป็น 0</p>
     <div class="deductions-totals"><span>ยอดหักรวม <strong id="deductionTotal">0.00</strong> บาท</span><span>รับสุทธิ <strong id="deductionNet"><?php echo number_format((float)$selected['ru_value'],2); ?></strong> บาท</span></div>
-    <div class="deductions-actions"><button class="btn btn-success" type="submit"><i data-lucide="save" aria-hidden="true"></i>บันทึกยอดหัก</button><a class="btn btn-outline-secondary" href="rubbers.php?<?php echo e(http_build_query(['round'=>$roundId,'search'=>$search])); ?>">ยกเลิก</a></div>
+    <div class="deductions-actions"><button class="btn btn-success" type="submit"><i data-lucide="printer" aria-hidden="true"></i>บันทึกยอดหักและพิมพ์ใบเสร็จ</button><a class="btn btn-outline-secondary" href="rubbers.php?<?php echo e(http_build_query(['round'=>$roundId,'search'=>$search])); ?>">ยกเลิก</a></div>
   </form>
   <?php endif; ?>
   <form method="get" class="deductions-search"><input type="hidden" name="round" value="<?php echo $roundId; ?>"><label class="visually-hidden" for="dailySearch">ค้นหารายการของรอบนี้</label><input class="form-control" type="search" id="dailySearch" name="search" value="<?php echo e($search); ?>" placeholder="ค้นหาชื่อ เลขสมาชิก กลุ่ม หรือหมายเหตุของรอบนี้"><button class="btn btn-success" type="submit"><i data-lucide="search" aria-hidden="true"></i>ค้นหา</button><?php if ($search !== ''): ?><a class="btn btn-outline-secondary" href="rubbers.php">ล้าง</a><?php endif; ?></form>

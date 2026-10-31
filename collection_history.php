@@ -22,6 +22,10 @@ if ($rubberId) {
     }
     $weighing = weighing_for_rubber($db, $rubberId);
     $receipt = rubber_receipt_issued($db, $rubberId);
+    if ($receipt && !is_admin()) {
+        http_response_code(403);
+        exit('เฉพาะ admin เท่านั้นที่ดูประวัติผู้ดำเนินการของใบเสร็จที่พิมพ์แล้วได้');
+    }
 }
 if (!$placement && !$purchase) { http_response_code(404); exit('ไม่พบรายการ'); }
 $stmt = $db->prepare('SELECT * FROM tbl_collection_audit WHERE (? > 0 AND wang_id=?) OR (? > 0 AND ru_id=?) ORDER BY audit_id DESC');
@@ -39,7 +43,7 @@ $summary = [
 $historyRound = collection_round_by_id($db, (int)($placement['collection_round_id'] ?? $weighing['collection_round_id'] ?? 0));
 require __DIR__ . '/header.php';
 ?>
-<div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="h4">ประวัติผู้ดำเนินการ</h1><p class="mb-0"><?php echo e(collection_display_name($placement['wang_name'] ?? $purchase['ru_fullname'], $placement['wang_note'] ?? null)); ?> · <?php echo $wangId ? 'วางยาง #' . $wangId : 'รับซื้อ #' . $rubberId; ?></p></div><a class="btn btn-outline-success align-self-start" href="approve_weighing.php"><i data-lucide="arrow-left" aria-hidden="true"></i>กลับหน้าอนุมัติ</a></div>
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="h4">ประวัติผู้ดำเนินการ</h1><p class="mb-0"><?php echo e(collection_display_name($placement['wang_name'] ?? $purchase['ru_fullname'], $placement['wang_note'] ?? null)); ?> · <?php echo $wangId ? 'วางยาง #' . $wangId : 'รับซื้อ #' . $rubberId; ?></p></div><a class="btn btn-outline-success align-self-start" href="<?php echo is_admin() ? 'collection_audit.php' : 'approve_weighing.php'; ?>"><i data-lucide="arrow-left" aria-hidden="true"></i><?php echo is_admin() ? 'กลับหน้าตรวจสอบประวัติ' : 'กลับหน้าอนุมัติ'; ?></a></div>
 <?php if ($historyRound): ?><p class="text-muted"><?php echo e(collection_round_label($historyRound)); ?></p><?php endif; ?>
 <div class="card mb-3"><div class="card-body"><h2 class="h6">ข้อมูลผู้ดำเนินการที่มีอยู่</h2>
 <?php foreach ($summary as [$label,$person,$time]): if ($person === '') continue; ?><p class="mb-1"><strong><?php echo e($label); ?>:</strong> <?php echo e($person); ?> <span class="text-muted"><?php echo e(thai_datetime_format($time)); ?></span></p><?php endforeach; ?>

@@ -976,7 +976,7 @@ if (!function_exists('nav_active')) {
   </style>
   <!-- Lucide Icons (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js"></script>
-<?php $collectionControls = in_array($currentPage, ['demo_test.php','demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
+<?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
 <?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
 </head>
 
@@ -1023,6 +1023,7 @@ if (!function_exists('nav_active')) {
               <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
                 <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
               </a>
+          <?php if (is_admin()): ?><a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a><?php endif; ?>
               <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
               <a href="dashboard.php"
                 class="topbar-link<?php echo nav_active(['dashboard.php', 'members.php', 'member_form.php', 'users.php', 'user_form.php']); ?>">
@@ -1059,6 +1060,7 @@ if (!function_exists('nav_active')) {
           <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
             <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
           </a>
+          <?php if (is_admin()): ?><a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a><?php endif; ?>
           <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
           <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php', 'members.php', 'member_form.php', 'users.php', 'user_form.php']); ?>">
             <i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด
@@ -1087,6 +1089,5 @@ if (!function_exists('nav_active')) {
     <div class="app-shell">
 
       <div class="content-card">
-        <?php if ($collectionControls || in_array($currentPage, ['price_form.php','prices.php','index.php'], true)) require __DIR__ . '/demo_test_banner.php'; ?>
         <!-- หน้าหลักแต่ละเพจจะต่อเนื่องจาก container นี้ -->
         <!-- เนื้อหาของแต่ละหน้าให้วางต่อจาก div นี้ และปิด div/แท็กต่าง ๆ ใน footer.php -->

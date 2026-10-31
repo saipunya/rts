@@ -1,7 +1,6 @@
 <?php
 require_once 'functions.php';
 require_admin();
-include 'header.php';
 
 $db = db();
 ensure_weighing_schema($db);
@@ -66,17 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 admin_rubber_redirect(['msg' => 'ไม่พบรายการที่ต้องการลบ']);
             }
 
-            if (rubber_receipt_issued($db, $id) || weighing_for_rubber($db, $id)) {
-                admin_rubber_redirect(['msg'=>'รายการนี้เชื่อมกับผลชั่งหรือใบเสร็จ ให้ดำเนินการแก้ไขข้อมูลแทนการลบ']);
+            try {
+                delete_unlinked_rubber($db, $id);
+                admin_rubber_redirect(['msg'=>'ลบข้อมูลยางเรียบร้อยแล้ว']);
+            } catch (DomainException $error) {
+                $errors[] = $error->getMessage();
+            } catch (Throwable $error) {
+                error_log((string)$error);
+                $errors[] = 'ลบข้อมูลไม่สำเร็จ กรุณาลองใหม่';
             }
-            $stmt = $db->prepare('DELETE FROM tbl_rubber WHERE ru_id = ? LIMIT 1');
-            if (!$stmt) {
-                die('Prepare failed: ' . $db->error);
-            }
-            $stmt->bind_param('i', $id);
-            $ok = $stmt->execute();
-            $stmt->close();
-            admin_rubber_redirect(['msg' => $ok ? 'ลบข้อมูลยางเรียบร้อยแล้ว' : 'ลบข้อมูลไม่สำเร็จ']);
         }
 
         if ($action === 'save') {
@@ -315,6 +312,7 @@ $pageUrl = static function (int $targetPage) use ($queryBase): string {
 
 $formRubber = $editRubber ?: $emptyRubber;
 $formWeighing = $editRubber ? weighing_for_rubber($db, (int)$editRubber['ru_id']) : null;
+require __DIR__ . '/header.php';
 ?>
 <style>
 body {

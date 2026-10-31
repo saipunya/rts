@@ -72,7 +72,6 @@ require __DIR__ . '/header.php';
   <header class="wang-heading">
     <div><span class="wang-eyebrow"><i data-lucide="package-check" aria-hidden="true"></i>งานรวบรวมยาง</span><h1>วางยาง — เลือกลาน</h1><p>เลือกลานเพื่อบันทึกวางยาง และติดตามรายการวางยางของวันนี้</p></div>
     <nav class="wang-actions" aria-label="จัดการข้อมูลวางยาง">
-      <?php if (is_admin()): ?><a class="btn btn-outline-primary" href="demo_test.php"><i data-lucide="flask-conical" aria-hidden="true"></i>ทดสอบในวันเดียว</a><?php endif; ?>
       <a href="wang_summary.php" class="btn btn-outline-success"><i data-lucide="bar-chart-3" aria-hidden="true"></i>สรุปวางยาง</a>
       <a href="manage_wang.php" class="btn btn-outline-secondary"><i data-lucide="list" aria-hidden="true"></i>จัดการรายการ</a>
       <?php if (is_admin()): ?><a href="export_wang.php" class="btn btn-outline-success"><i data-lucide="download" aria-hidden="true"></i>ส่งออก</a><?php endif; ?>
@@ -86,7 +85,7 @@ require __DIR__ . '/header.php';
 
     <div class="date-badge">
       <i data-lucide="calendar-days" aria-hidden="true"></i>
-      <?php echo demo_test_settings() ? 'วันที่วางยางทดสอบ:' : 'วันที่ปัจจุบัน:'; ?> <?php echo e(format_thai_date_short($overviewSummary['current_date'])); ?>
+      วันที่ปัจจุบัน: <?php echo e(format_thai_date_short($overviewSummary['current_date'])); ?>
     </div>
 
     <div class="summary-strip">

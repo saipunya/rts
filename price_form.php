@@ -12,7 +12,7 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $pr = [
     'pr_id' => 0,
     'pr_year' => date('Y') + 543, // Thai year default
-    'pr_date' => demo_test_settings()['sale_date'] ?? (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d'),
+    'pr_date' => (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d'),
     'pr_number' => '',
     'pr_price' => '0.00',
 ];
