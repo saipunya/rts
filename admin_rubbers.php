@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                 lock_rubber_for_edit($db, $id, is_admin());
                 assert_weighed_weight_unchanged($db, $id, $data['ru_quantity']);
-                $auditStmt = $db->prepare('SELECT * FROM tbl_rubber WHERE ru_id=?');
+                $auditStmt = $db->prepare('SELECT * FROM (SELECT * FROM tbl_rubber WHERE COALESCE(record_status,0x6e6f726d616c) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber WHERE ru_id=?');
                 $auditStmt->bind_param('i', $id); $auditStmt->execute(); $auditBefore = $auditStmt->get_result()->fetch_assoc(); $auditStmt->close();
                 $stmt = $db->prepare("UPDATE tbl_rubber SET
                     ru_date = ?, ru_lan = ?, ru_group = ?, ru_number = ?, ru_fullname = ?, ru_class = ?,
@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $editId = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
 $editRubber = null;
 if ($editId > 0) {
-    $stmt = $db->prepare('SELECT * FROM tbl_rubber WHERE ru_id = ? LIMIT 1');
+    $stmt = $db->prepare('SELECT * FROM (SELECT * FROM tbl_rubber WHERE COALESCE(record_status,0x6e6f726d616c) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber WHERE ru_id = ? LIMIT 1');
     if (!$stmt) {
         die('Prepare failed: ' . $db->error);
     }
@@ -238,7 +238,7 @@ if (in_array($classFilter, ['member', 'general'], true)) {
 $whereSql = $conds ? ' WHERE ' . implode(' AND ', $conds) : '';
 
 $totalRows = 0;
-$stmt = $db->prepare('SELECT COUNT(*) AS total_rows FROM tbl_rubber' . $whereSql);
+$stmt = $db->prepare('SELECT COUNT(*) AS total_rows FROM (SELECT * FROM tbl_rubber WHERE COALESCE(record_status,0x6e6f726d616c) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber' . $whereSql);
 if ($stmt) {
     if ($types !== '') {
         $stmt->bind_param($types, ...$binds);
@@ -262,7 +262,7 @@ $stmt = $db->prepare("SELECT
     COALESCE(SUM(ru_value), 0) AS total_value,
     COALESCE(SUM(ru_expend), 0) AS total_expend,
     COALESCE(SUM(ru_netvalue), 0) AS total_netvalue
-    FROM tbl_rubber" . $whereSql);
+    FROM (SELECT * FROM tbl_rubber WHERE COALESCE(record_status,0x6e6f726d616c) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber" . $whereSql);
 if ($stmt) {
     if ($types !== '') {
         $stmt->bind_param($types, ...$binds);
@@ -284,7 +284,7 @@ if ($page > $totalPages) {
 $offset = ($page - 1) * $perPage;
 
 $rubbers = [];
-$stmt = $db->prepare('SELECT * FROM tbl_rubber' . $whereSql . ' ORDER BY ru_date DESC, ru_id DESC LIMIT ' . (int)$perPage . ' OFFSET ' . (int)$offset);
+$stmt = $db->prepare('SELECT * FROM (SELECT * FROM tbl_rubber WHERE COALESCE(record_status,0x6e6f726d616c) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber' . $whereSql . ' ORDER BY ru_date DESC, ru_id DESC LIMIT ' . (int)$perPage . ' OFFSET ' . (int)$offset);
 if ($stmt) {
     if ($types !== '') {
         $stmt->bind_param($types, ...$binds);

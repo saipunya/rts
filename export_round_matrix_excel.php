@@ -86,7 +86,7 @@ $rows = [];
 		r.ru_date,
 		SUM(r.ru_quantity) AS total_qty,
 		SUM(r.ru_value)    AS total_value
-	FROM tbl_rubber r
+	FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) r
 	WHERE " . implode(' AND ', $conds) . "
 	GROUP BY r.ru_class, r.ru_group, r.ru_number, r.ru_fullname, r.ru_date
 	ORDER BY r.ru_class ASC, CAST(r.ru_group AS UNSIGNED) ASC, r.ru_group ASC, r.ru_number ASC, r.ru_fullname ASC, r.ru_date ASC";

@@ -126,7 +126,7 @@ function weighing_window_counts(mysqli $db, ?array $round, string $lane = 'all')
         COALESCE(SUM(x.deductions_saved_at IS NOT NULL),0) AS completed
         FROM tbl_wangyang w LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id
         WHERE w.wang_date BETWEEN ? AND ? AND (x.weighing_id IS NULL OR x.round_date=?)
-        AND LOWER(TRIM(w.wang_status)) NOT IN ('cancelled','canceled','deleted')";
+        AND LOWER(TRIM(COALESCE(w.record_status, 'normal'))) NOT IN ('cancelled','canceled','deleted') AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')";
     $params = [$start,$end,$date]; $types = 'sss';
     if ($lane !== 'all') { $sql .= ' AND w.wang_lan=?'; $params[]=$lane; $types.='s'; }
     $stmt=$db->prepare($sql); $stmt->bind_param($types,...$params); $stmt->execute(); $counts=$stmt->get_result()->fetch_assoc(); $stmt->close();

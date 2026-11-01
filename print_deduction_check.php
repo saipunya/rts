@@ -9,6 +9,7 @@ if (!$row) { http_response_code(404); exit('ไม่พบรายการส
 $approvalReturnUrl = 'approve_weighing.php?' . http_build_query([
     'round'=>(int)$row['collection_round_id'], 'lan'=>(string)$row['wang_lan'], 'tab'=>'pending',
 ]);
+$isCancelled = collection_is_cancelled($row);
 record_collection_audit($db, 'review_slip_open', (int)$row['wang_id'], $id, '');
 ?>
 <!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ใบตรวจสอบยอดหัก #<?php echo (int)$row['wang_id']; ?></title>
@@ -17,6 +18,7 @@ body{font-family:Tahoma,sans-serif;margin:20px;color:#000}.slip{width:80mm;max-w
 </style></head><body>
 <div class="controls"><button id="printCheck" type="button">พิมพ์ใบตรวจสอบ</button><a href="<?php echo e($approvalReturnUrl); ?>">กลับหน้ารออนุมัติ</a></div>
 <article class="slip" aria-label="ใบตรวจสอบยอดหัก">
+<?php if ($isCancelled): ?><p style="position:fixed;top:25mm;left:20mm;font-size:36px;font-weight:bold;color:#c00000;opacity:.5;transform:rotate(-20deg)">ยกเลิก</p><?php endif; ?>
 <p class="name">ชื่อ: <?php echo e(collection_display_name($row['wang_name'], $row['wang_note'])); ?></p>
 <p>วันที่ชั่งยาง: <?php echo e(thai_date_format($row['round_date'])); ?></p>
 <p>กลุ่ม: <?php echo e($row['wang_group']); ?></p>

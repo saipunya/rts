@@ -151,7 +151,7 @@ $sql = "
         COALESCE(m.mem_number, '') AS mem_number,
         COALESCE(m.mem_fullname, w.wang_name) AS member_name,
         COALESCE(m.mem_group, w.wang_group) AS member_group
-    FROM tbl_wangyang w
+    FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w
     LEFT JOIN tbl_member m ON m.mem_id = w.wang_mid
 ";
 

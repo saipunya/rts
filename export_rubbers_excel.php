@@ -66,7 +66,7 @@ $sql = "SELECT
 	ru_id, ru_date, ru_lan, ru_group, ru_number, ru_fullname, ru_class,
 	ru_quantity, ru_hoon, ru_loan, ru_shortdebt, ru_deposit, ru_tradeloan, ru_insurance,
 	ru_value, ru_expend, ru_netvalue, ru_saveby, ru_savedate
-FROM tbl_rubber";
+FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber";
 if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
 $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
 

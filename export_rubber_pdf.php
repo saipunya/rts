@@ -53,7 +53,9 @@ if (!$row) {
   exit;
 }
 
-if (!rubber_receipt_ready($db, $ru_id)) {
+$isCancelled = collection_is_cancelled($row) || collection_cancellation($db, 0, $ru_id) !== null;
+if ($isCancelled && !rubber_receipt_issued($db, $ru_id)) { $db->rollback(); http_response_code(403); exit('รายการนี้ยกเลิกแล้ว ไม่สามารถออกใบเสร็จใหม่ได้'); }
+if (!$isCancelled && !rubber_receipt_ready($db, $ru_id)) {
   $db->rollback();
   header('Content-Type: text/plain; charset=UTF-8');
   http_response_code(403);
@@ -85,7 +87,7 @@ $printedAt = date('Y-m-d H:i:s');
 $roundCaption = $row['collection_weigh_date'] ? ' · รอบขายยาง ' . e(thai_date_format($row['collection_weigh_date'])) : '';
 
 // --- สร้างเนื้อหา $card สำหรับแสดงข้อมูลรายบุคคล ---
-$card = '<div class="card">
+$card = ($isCancelled ? '<div class="cancelled-watermark">ยกเลิก</div>' : '') . '<div class="card">
   <div class="header-card">
     <h1 class="title-row" style="text-align:center; margin-bottom: 0;font-size:20px;">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด </h1>
     <h2 style="text-align:center; margin-bottom: 0; font-size: 20px;">เลขที่ 54 หมู่ที่ 4 ตำบลทุ่งลุยลาย อำเภอคอนสาร จังหวัดชัยภูมิ 36180 โทร. 044105752,0899441753</h2>
@@ -198,6 +200,7 @@ $hasThaiFonts = (bool)$defaultFamily;
 // ปรับ CSS layout ให้ทันสมัยและเหมาะกับ print
 $style = '
   @page { margin: 5mm; }
+  .cancelled-watermark { position: fixed; top: 35%; left: 25%; font-size: 100px; color: #c00000; opacity: .3; transform: rotate(-25deg); z-index: 100; }
   html, body { width: 100%; }
   .container, .card { page-break-inside: avoid !important; }
   '.$fontCss.'
@@ -280,7 +283,7 @@ $dompdf->setPaper([0, 0, $paperWidth, $paperHeight]);
   $font = $fontMetrics->getFont($defaultFamily ?: 'THSarabunNew', 'normal');
   // $canvas->page_text($w - 100, $h - 24, "หน้า {PAGE_NUM}/{PAGE_COUNT}", $font, 10, [0,0,0]);
 
-  record_rubber_receipt_issue($db, $row, (string)(current_user()['user_fullname'] ?: current_user()['user_username']));
+  if (!$isCancelled) record_rubber_receipt_issue($db, $row, (string)(current_user()['user_fullname'] ?: current_user()['user_username']));
   $db->commit();
 
   $filename = 'rubber_' . (int)$row['ru_id'] . '.pdf';

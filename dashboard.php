@@ -19,7 +19,7 @@ function get_latest_collection_date(mysqli $conn): string {
     }
 
     if ($latest === '') {
-        $sql = "SELECT MAX(ru_date) AS latest_date FROM tbl_rubber";
+        $sql = "SELECT MAX(ru_date) AS latest_date FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber";
         if ($result = $conn->query($sql)) {
             if ($row = $result->fetch_assoc()) {
                 $latest = (string)($row['latest_date'] ?? '');
@@ -48,7 +48,7 @@ function fetch_top_rubber_quantity(mysqli $conn, string $class, ?string $roundDa
             TRIM(ru_fullname) AS ru_fullname,
             SUM(ru_quantity) AS total_quantity,
             COUNT(*) AS entry_count
-        FROM tbl_rubber
+        FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
         WHERE " . implode(' AND ', $where) . "
         GROUP BY TRIM(ru_group), TRIM(ru_number), TRIM(ru_fullname)
         HAVING total_quantity > 0
@@ -100,7 +100,7 @@ function fetch_top_rubber_metric(mysqli $conn, string $class, string $metricKey,
             TRIM(ru_fullname) AS ru_fullname,
             {$metricMap[$metricKey]} AS metric_value,
             COUNT(*) AS entry_count
-        FROM tbl_rubber
+        FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
         WHERE " . implode(' AND ', $where) . "
         GROUP BY TRIM(ru_group), TRIM(ru_number), TRIM(ru_fullname)
         HAVING metric_value > 0
@@ -146,7 +146,7 @@ function fetch_latest_deduction_summary(mysqli $conn, string $class, ?string $ro
             SUM(ru_netvalue) AS total_netvalue,
             SUM(ru_quantity) AS total_quantity,
             COUNT(*) AS entry_count
-        FROM tbl_rubber
+        FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
         WHERE " . implode(' AND ', $where);
 
     $summary = [
@@ -213,7 +213,7 @@ function fetch_latest_collection_group_summary(mysqli $conn, string $class, ?str
                 COUNT(DISTINCT TRIM(ru_number)) AS person_count,
                 SUM(ru_quantity) AS total_quantity,
                 COUNT(*) AS entry_count
-            FROM tbl_rubber
+            FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
             WHERE " . implode(' AND ', $where) . "
             GROUP BY TRIM(ru_group)) AS group_summary
             ORDER BY CAST(group_summary.ru_group AS UNSIGNED), group_summary.ru_group";
@@ -222,7 +222,7 @@ function fetch_latest_collection_group_summary(mysqli $conn, string $class, ?str
                 COUNT(DISTINCT TRIM(ru_number)) AS person_count,
                 SUM(ru_quantity) AS total_quantity,
                 COUNT(*) AS entry_count
-            FROM tbl_rubber
+            FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
             WHERE " . implode(' AND ', $where);
     }
 

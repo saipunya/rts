@@ -30,7 +30,7 @@ if ($rubberId) {
 if (!$placement && !$purchase) { http_response_code(404); exit('ไม่พบรายการ'); }
 $stmt = $db->prepare('SELECT * FROM tbl_collection_audit WHERE (? > 0 AND wang_id=?) OR (? > 0 AND ru_id=?) ORDER BY audit_id DESC');
 $stmt->bind_param('iiii', $wangId, $wangId, $rubberId, $rubberId); $stmt->execute(); $events = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); $stmt->close();
-$labels = ['placement_create'=>'บันทึกวางยาง','placement_edit'=>'แก้ไขวางยาง','placement_delete'=>'ลบรายการวางยาง','weigh'=>'บันทึกน้ำหนัก','weight_edit'=>'แก้ไขน้ำหนัก','refer_review'=>'ส่งตรวจสอบยอดหัก','approve_zero'=>'อนุมัติไม่มียอดหัก','return_approval'=>'ย้อนกลับไปรออนุมัติ','deductions_save'=>'บันทึกยอดหัก','deductions_edit'=>'แก้ไขยอดหัก','purchase_edit'=>'แก้ไขข้อมูลรับซื้อ / ยอดหัก','purchase_admin_edit'=>'ผู้ดูแลแก้ไขข้อมูลรับซื้อ','admin_edit'=>'ผู้ดูแลบันทึกการแก้ไข','receipt_issue'=>'ออกใบเสร็จ','receipt_reprint'=>'เปิดพิมพ์ใบเสร็จซ้ำ','review_slip_open'=>'เปิดใบแจ้งตรวจสอบยอดหัก'];
+$labels = ['cancel_all'=>'ยกเลิกทั้งกระบวนการ','purchase_admin_delete'=>'ผู้ดูแลลบรายการเดิม','placement_create'=>'บันทึกวางยาง','placement_edit'=>'แก้ไขวางยาง','placement_delete'=>'ลบรายการวางยาง','weigh'=>'บันทึกน้ำหนัก','weight_edit'=>'แก้ไขน้ำหนัก','refer_review'=>'ส่งตรวจสอบยอดหัก','approve_zero'=>'อนุมัติไม่มียอดหัก','return_approval'=>'ย้อนกลับไปรออนุมัติ','deductions_save'=>'บันทึกยอดหัก','deductions_edit'=>'แก้ไขยอดหัก','purchase_edit'=>'แก้ไขข้อมูลรับซื้อ / ยอดหัก','purchase_admin_edit'=>'ผู้ดูแลแก้ไขข้อมูลรับซื้อ','admin_edit'=>'ผู้ดูแลบันทึกการแก้ไข','receipt_issue'=>'ออกใบเสร็จ','receipt_reprint'=>'เปิดพิมพ์ใบเสร็จซ้ำ','review_slip_open'=>'เปิดใบแจ้งตรวจสอบยอดหัก'];
 $summary = [
  ['วางยาง (ข้อมูลล่าสุด)', $placement['wang_saveby'] ?? '', $placement['wang_savedate'] ?? ''],
  ['ชั่งน้ำหนัก', $weighing['weighed_by'] ?? '', $weighing['weighed_at'] ?? ''],
@@ -40,13 +40,16 @@ $summary = [
  ['ออกใบเสร็จ', $receipt['issued_by'] ?? '', $receipt['issued_at'] ?? ''],
  ['แก้ไขหลังออกใบเสร็จล่าสุด', $receipt['last_edited_by'] ?? '', $receipt['last_edited_at'] ?? ''],
 ];
+$cancellation = collection_cancellation($db, $wangId, $rubberId);
+$isCancelled = ($placement && collection_is_cancelled($placement)) || ($purchase && collection_is_cancelled($purchase));
 $historyRound = collection_round_by_id($db, (int)($placement['collection_round_id'] ?? $weighing['collection_round_id'] ?? 0));
 require __DIR__ . '/header.php';
 ?>
 <div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="h4">ประวัติผู้ดำเนินการ</h1><p class="mb-0"><?php echo e(collection_display_name($placement['wang_name'] ?? $purchase['ru_fullname'], $placement['wang_note'] ?? null)); ?> · <?php echo $wangId ? 'วางยาง #' . $wangId : 'รับซื้อ #' . $rubberId; ?></p></div><a class="btn btn-outline-success align-self-start" href="<?php echo is_admin() ? 'collection_audit.php' : 'approve_weighing.php'; ?>"><i data-lucide="arrow-left" aria-hidden="true"></i><?php echo is_admin() ? 'กลับหน้าตรวจสอบประวัติ' : 'กลับหน้าอนุมัติ'; ?></a></div>
+<?php if ($isCancelled): ?><div class="alert alert-danger"><strong>ยกเลิกทั้งกระบวนการ</strong> — ไม่รวมในสถิติและยอดรวม<?php if ($cancellation): ?><br>ยกเลิกโดย <?php echo e($cancellation['actor_name']); ?> · <?php echo e(thai_datetime_format($cancellation['cancelled_at'])); ?><br>เหตุผล: <?php echo e($cancellation['reason']); ?><?php endif; ?></div><?php endif; ?>
 <?php if ($historyRound): ?><p class="text-muted"><?php echo e(collection_round_label($historyRound)); ?></p><?php endif; ?>
 <div class="card mb-3"><div class="card-body"><h2 class="h6">ข้อมูลผู้ดำเนินการที่มีอยู่</h2>
-<?php foreach ($summary as [$label,$person,$time]): if ($person === '') continue; ?><p class="mb-1"><strong><?php echo e($label); ?>:</strong> <?php echo e($person); ?> <span class="text-muted"><?php echo e(thai_datetime_format($time)); ?></span></p><?php endforeach; ?>
+<?php foreach ($summary as [$label,$person,$time]): if ($person === '') continue; ?><p class="mb-1"><strong><?php echo e($label); ?><?php echo $isCancelled ? ' (ยกเลิก)' : ''; ?>:</strong> <?php echo e($person); ?> <span class="text-muted"><?php echo e(thai_datetime_format($time)); ?></span></p><?php endforeach; ?>
 </div></div>
 <p class="text-muted small">ประวัติรายครั้งเริ่มเก็บเมื่อเปิดใช้ระบบประวัติ ข้อมูลเก่าแสดงผู้ดำเนินการที่มีบันทึกอยู่ วันที่และเวลาเป็นเวลาประเทศไทย</p>
 <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>วันเวลา</th><th>การดำเนินการ</th><th>เจ้าหน้าที่</th><th>บัญชีผู้ใช้</th></tr></thead><tbody>

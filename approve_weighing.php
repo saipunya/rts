@@ -52,9 +52,9 @@ $queueOrder = $tab === 'review' ? 'DESC' : 'ASC';
 $sql = "SELECT w.*, x.ru_id, x.net_weight, x.weighed_at, x.approval_route, x.approved_by, x.deductions_saved_at, z.issued_at,
     (SELECT h.returned_by FROM tbl_weighing_review_returns h WHERE h.ru_id=x.ru_id ORDER BY h.return_id DESC LIMIT 1) AS returned_by,
     (SELECT h.returned_at FROM tbl_weighing_review_returns h WHERE h.ru_id=x.ru_id ORDER BY h.return_id DESC LIMIT 1) AS returned_at
-    FROM tbl_wang_weighing x JOIN tbl_wangyang w ON w.wang_id=x.wang_id
+    FROM tbl_wang_weighing x JOIN (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w ON w.wang_id=x.wang_id
     LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id
-    WHERE w.collection_round_id=? AND (?='all' OR w.wang_lan=?) AND LOWER(TRIM(w.wang_status)) NOT IN ('cancelled','canceled','deleted')
+    WHERE w.collection_round_id=? AND (?='all' OR w.wang_lan=?) AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')
     ORDER BY x.weighed_at $queueOrder, x.weighing_id $queueOrder";
 $stmt = $db->prepare($sql); $stmt->bind_param('iss', $roundId, $lane, $lane); $stmt->execute();
 $groups = ['pending'=>[], 'review'=>[]];

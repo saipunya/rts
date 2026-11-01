@@ -1,5 +1,5 @@
 <?php
-include "functions.php";
+require_once __DIR__ . '/functions.php';
 include "header.php";
 
 // รับค่าจากฟอร์ม
@@ -86,7 +86,7 @@ if ($date_end) {
     $types .= 's';
 }
 $where_sql = $where ? ("WHERE " . implode(" AND ", $where)) : "";
-$sql = "SELECT ru_fullname, ru_number, SUM(ru_quantity) AS total_quantity, SUM(ru_value) AS total_value, SUM(ru_netvalue) AS total_netvalue FROM tbl_rubber $where_sql GROUP BY ru_fullname, ru_number ORDER BY ru_fullname";
+$sql = "SELECT ru_fullname, ru_number, SUM(ru_quantity) AS total_quantity, SUM(ru_value) AS total_value, SUM(ru_netvalue) AS total_netvalue FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber $where_sql GROUP BY ru_fullname, ru_number ORDER BY ru_fullname";
 $stmt = $mysqli->prepare($sql);
 if ($params) {
     $stmt->bind_param($types, ...$params);

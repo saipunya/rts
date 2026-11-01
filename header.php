@@ -973,10 +973,20 @@ if (!function_exists('nav_active')) {
       background-color: transparent;
     }
   }
+  /* Management links share one vertical menu without hover-driven layout shifts. */
+  .app-header{overflow:visible}
+  .management-menu{position:relative}
+  .management-menu>summary{list-style:none;cursor:pointer;gap:5px;white-space:nowrap}
+  .management-menu>summary::-webkit-details-marker{display:none}
+  .management-menu>summary:focus-visible{outline:2px solid #245c38;outline-offset:3px}
+  .management-menu-items{position:absolute;top:calc(100% + 6px);right:0;z-index:1050;display:flex;flex-direction:column;gap:4px;min-width:205px;padding:8px;background:#fff;border:1px solid #d8e5dc;border-radius:12px;box-shadow:0 12px 28px #193d2926}
+  .management-menu:not([open])>.management-menu-items{display:none}
+  .management-menu-items>.topbar-link{width:100%;min-height:42px;white-space:nowrap}
+  @media(max-width:991px){.mobile-nav .management-menu{width:100%}.mobile-nav .management-menu>summary{width:100%}.mobile-nav .management-menu-items{position:static;min-width:0;box-shadow:none;margin-top:4px;margin-left:12px}.mobile-nav .management-menu-items>.topbar-link{margin:0;flex:none}}
   </style>
   <!-- Lucide Icons (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js"></script>
-<?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
+<?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
 <?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
 </head>
 
@@ -1023,12 +1033,15 @@ if (!function_exists('nav_active')) {
               <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
                 <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
               </a>
-          <?php if (is_admin()): ?><a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a><?php endif; ?>
+          <details class="management-menu">
+            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
+            <nav class="management-menu-items" aria-label="จัดการระบบ">
               <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
-              <a href="dashboard.php"
-                class="topbar-link<?php echo nav_active(['dashboard.php', 'members.php', 'member_form.php', 'users.php', 'user_form.php']); ?>">
-                <i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด
-              </a>
+              <?php if (is_admin()): ?>
+              <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
+              <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
+              <?php endif; ?>
+              <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
               <a href="logout.php" class="topbar-link text-danger fw-semibold">
                 <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
               </a>
@@ -1038,6 +1051,8 @@ if (!function_exists('nav_active')) {
                 <i data-lucide="log-in" class="me-1" aria-hidden="true"></i>เข้าสู่ระบบ
               </a>
               <?php endif; ?>
+            </nav>
+          </details>
             </div>
           </div>
         </div>
@@ -1060,11 +1075,15 @@ if (!function_exists('nav_active')) {
           <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
             <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
           </a>
-          <?php if (is_admin()): ?><a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a><?php endif; ?>
-          <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
-          <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php', 'members.php', 'member_form.php', 'users.php', 'user_form.php']); ?>">
-            <i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด
-          </a>
+          <details class="management-menu">
+            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
+            <nav class="management-menu-items" aria-label="จัดการระบบ">
+              <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
+              <?php if (is_admin()): ?>
+              <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
+              <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
+              <?php endif; ?>
+              <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
           <a href="logout.php" class="topbar-link text-danger fw-semibold">
             <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
           </a>
@@ -1074,11 +1093,21 @@ if (!function_exists('nav_active')) {
             <i data-lucide="log-in" class="me-1" aria-hidden="true"></i>เข้าสู่ระบบ
           </a>
           <?php endif; ?>
+            </nav>
+          </details>
         </div>
       </div>
     </div>
   </header>
   <script>
+  document.addEventListener('click', function(event) {
+    document.querySelectorAll('.management-menu[open]').forEach(menu => {
+      if (!menu.contains(event.target)) menu.open = false;
+    });
+  });
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') document.querySelectorAll('.management-menu[open]').forEach(menu => { menu.open = false; menu.querySelector('summary').focus(); });
+  });
   document.addEventListener('DOMContentLoaded', function() {
     if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
       lucide.createIcons();

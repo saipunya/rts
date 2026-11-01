@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Report incomplete uploads before requiring any shared application files.
-$requiredAppFiles = ['app_bootstrap.php', 'collection_round_functions.php', 'weighing_functions.php'];
+$requiredAppFiles = ['app_bootstrap.php', 'cancellation_functions.php', 'collection_round_functions.php', 'weighing_functions.php'];
 $missingAppFiles = [];
 foreach ($requiredAppFiles as $requiredAppFile) {
     if (!is_file(__DIR__ . '/' . $requiredAppFile)) $missingAppFiles[] = $requiredAppFile;
@@ -15,6 +15,7 @@ if ($missingAppFiles) {
 unset($requiredAppFiles, $missingAppFiles, $requiredAppFile);
 
 require_once __DIR__ . '/app_bootstrap.php';
+require_once __DIR__ . '/cancellation_functions.php';
 
 function db(): mysqli {
 	static $db;
@@ -31,6 +32,7 @@ function db(): mysqli {
 			die('DB connect error: ' . $db->connect_error);
 		}
 		$db->set_charset('utf8mb4');
+        ensure_cancellation_schema($db);
 	}
 	return $db;
 }
@@ -412,8 +414,8 @@ function fetch_rubber_round_live_summary(?mysqli $db = null, ?string $priceDate 
             COALESCE(SUM(ru_quantity), 0) AS total_quantity,
             COALESCE(SUM(ru_expend), 0) AS total_expend,
             COALESCE(SUM(ru_netvalue), 0) AS total_net
-        FROM tbl_rubber
-        WHERE EXISTS (SELECT 1 FROM tbl_wang_weighing x JOIN tbl_wangyang w ON w.wang_id=x.wang_id WHERE x.ru_id=tbl_rubber.ru_id AND w.collection_round_id=?)";
+        FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
+        WHERE EXISTS (SELECT 1 FROM tbl_wang_weighing x JOIN (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w ON w.wang_id=x.wang_id WHERE x.ru_id=tbl_rubber.ru_id AND w.collection_round_id=?)";
         $stmt = $db->prepare($sql);
         if ($stmt) {
             $roundId = (int)($announcement['round_id'] ?? 0);

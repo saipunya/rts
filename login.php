@@ -348,6 +348,38 @@ include 'header.php';
         font-size: 1.7rem;
     }
 }
+/* Layered surfaces keep the form clear while giving the page depth. */
+.login-shell{position:relative;isolation:isolate;padding:2.5rem 1rem;min-height:650px}
+.login-shell::before,.login-shell::after{content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%}
+.login-shell::before{width:360px;height:360px;left:-60px;top:-50px;background:radial-gradient(circle,#a7d5b488,transparent 70%)}
+.login-shell::after{width:300px;height:300px;right:-35px;bottom:-20px;background:radial-gradient(circle,#d7bc7770,transparent 70%)}
+.login-layout{position:relative;border:1px solid #ffffff;border-radius:30px;box-shadow:0 2px 4px #153b2010,0 18px 40px #153b2020,0 45px 85px -30px #153b2045;grid-template-columns:minmax(0,1.05fr) minmax(360px,450px)}
+.login-hero{padding:3.25rem 3rem;overflow:hidden;background:radial-gradient(ellipse at 0 0,#6eaa7840,transparent 60%),linear-gradient(145deg,#123c2a,#205b3b 60%,#37744c)}
+.login-hero::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;border:1px solid #ffffff17;right:-260px;top:50px;box-shadow:0 0 0 45px #ffffff05,0 0 0 90px #ffffff04;pointer-events:none}
+.login-hero::after{width:230px;height:230px;right:-90px;bottom:-120px;background:linear-gradient(145deg,#c2dcb31c,#ffffff08);border:1px solid #ffffff18}
+.login-hero>*{position:relative;z-index:1}
+.login-hero .login-hero-icon{position:absolute;width:200px;height:200px;right:-60px;top:-65px;opacity:.07}
+.login-hero h1{font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.4;letter-spacing:-.02em;text-shadow:0 3px 12px #071b2340;margin-bottom:1rem}
+.login-hero p{font-size:.98rem;color:#e0eee3;line-height:1.85}
+.login-badge{background:#ffffff12;border:1px solid #ffffff24;box-shadow:inset 0 1px 0 #ffffff16;font-size:.82rem;margin-bottom:1.8rem}
+.login-highlights{gap:10px}
+.login-highlight{padding:12px 14px;background:linear-gradient(120deg,#ffffff12,#ffffff06);border:1px solid #ffffff18;box-shadow:inset 0 1px 0 #ffffff0d,0 5px 12px #08241614;border-radius:12px;font-size:.88rem;line-height:1.6}
+.login-highlight svg{width:20px;height:20px;flex-shrink:0;color:#c1dfbc}
+.login-panel{position:relative;padding:3rem 2.5rem;background:linear-gradient(150deg,#fff 15%,#f6faf5);border-left:1px solid #fff;box-shadow:-15px 0 30px #0b302012}
+.login-panel-head{margin-bottom:1.9rem}
+.login-panel .login-kicker{font-size:.72rem;letter-spacing:.14em;color:#6a846b}
+.login-panel .login-title{font-size:2rem;line-height:1.5;color:#183e29}
+.login-panel .login-subtitle{font-size:.9rem;color:#6c7e70}
+.login-panel .form-control{background:#fff;border-color:#d8e3d8;box-shadow:inset 0 2px 4px #183e2907,0 2px 3px #183e2903;border-radius:12px;min-height:54px;transform:none}
+.login-panel .form-control:focus{border-color:#438454;box-shadow:0 0 0 4px #43845418;transform:none}
+.login-panel .form-label{font-size:.9rem;font-weight:600}
+.login-panel .login-btn{min-height:54px;border-radius:12px;background:linear-gradient(135deg,#245c38,#327447);border:1px solid #245c38;box-shadow:inset 0 1px 0 #ffffff22,0 4px 0 #163f27,0 10px 20px #245c3826;transform:none}
+.login-panel .login-btn:hover{background:linear-gradient(135deg,#1c4d2e,#28603a);transform:none;box-shadow:inset 0 1px 0 #ffffff22,0 4px 0 #163f27,0 12px 22px #245c3833}
+.login-panel .login-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #163f27,0 5px 10px #245c3820}
+.login-panel .login-btn:focus-visible{outline:3px solid #6b9f72;outline-offset:5px}
+.login-note{font-size:.8rem;line-height:1.75;margin-top:10px}
+@media(max-width:991px){.login-shell{padding:1.5rem 0;min-height:0}.login-layout{grid-template-columns:1fr;max-width:600px}.login-hero{padding:2rem}.login-hero h1{font-size:1.9rem}.login-hero p{margin-bottom:0}.login-highlights{display:none}.login-panel{padding:2rem;border-left:0;border-top:1px solid #fff;box-shadow:0 -10px 25px #0b302012}.login-badge{margin-bottom:1rem}}
+@media(max-width:575px){.login-shell{padding:.5rem 0 1rem}.login-shell::before,.login-shell::after{display:none}.login-layout{border-radius:20px}.login-hero{padding:1.6rem 1.4rem}.login-hero h1{font-size:1.65rem;margin-bottom:.65rem}.login-hero p{display:none}.login-panel{padding:1.7rem 1.4rem}.login-panel .login-title{font-size:1.7rem}.login-panel-head{margin-bottom:1.4rem}}
 </style>
 
 <section class="login-shell">
@@ -355,7 +387,7 @@ include 'header.php';
         <div class="login-hero">
             <div class="login-badge"><i data-lucide="shield-check" aria-hidden="true"></i> ระบบงานสหกรณ์ยางพารา</div>
             <i data-lucide="droplet" class="login-hero-icon" aria-hidden="true"></i>
-            <h3>จัดการข้อมูลรับซื้อยางให้เป็นระบบ ชัดเจน และตรวจสอบง่าย</h3>
+            <h1>จัดการงานรับซื้อยาง<br>ได้อย่างมั่นใจ</h1>
             <p>เข้าสู่ระบบเพื่อดูข้อมูลการรับซื้อ ราคาอ้างอิง รายงาน และการจัดการสมาชิกภายในระบบเดียวที่ออกแบบให้ใช้งานง่ายทั้งคอมพิวเตอร์และมือถือ</p>
 
             <div class="login-highlights">

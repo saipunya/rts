@@ -74,7 +74,7 @@ if (in_array($classFilter, ['member', 'general'], true)) {
   $binds[] = $classFilter;
 }
 
-$sql = "SELECT * FROM tbl_rubber";
+$sql = "SELECT * FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber";
 if ($conds) $sql .= ' WHERE ' . implode(' AND ', $conds);
 $sql .= ' ORDER BY ru_date DESC, ru_id DESC';
 

@@ -11,23 +11,24 @@ $db = db();
 
 
 <style>
-html, body {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-	background: linear-gradient(180deg, #f3f8f4 0%, #eef6f0 100%);
-    color: var(--bs-body-color);
+html,
+body {
+  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  background: linear-gradient(180deg, #f3f8f4 0%, #eef6f0 100%);
+  color: var(--bs-body-color);
 }
 
 .container {
-	background: rgba(255, 255, 255, 0.72);
-	border: 1px solid rgba(21, 87, 36, 0.08);
-	border-radius: 1.5rem;
-	padding: 2rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-	box-shadow: 0 24px 48px rgba(16, 24, 40, 0.06);
-	backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(21, 87, 36, 0.08);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 24px 48px rgba(16, 24, 40, 0.06);
+  backdrop-filter: blur(10px);
 }
 
 .card,
@@ -40,686 +41,685 @@ html, body {
 .nav-link,
 .alert,
 .badge {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    font-size: 16px;
-    font-weight: 300;
+  font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 300;
 }
 
 .small,
 .form-text {
-    font-size: 14px !important;
-    font-weight: 300 !important;
+  font-size: 14px !important;
+  font-weight: 300 !important;
 }
 
 .hero-section {
-    padding: 0.5rem 0 2rem;
+  padding: 0.5rem 0 2rem;
 }
 
 .hero-panel {
-	background: linear-gradient(135deg, #ffffff 0%, #f5fbf6 100%);
-	border: 1px solid rgba(47, 110, 67, 0.12);
-	border-radius: 1.5rem;
-	padding: 2rem;
-	box-shadow: 0 18px 40px rgba(16, 24, 40, 0.06);
+  background: linear-gradient(135deg, #ffffff 0%, #f5fbf6 100%);
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 18px 40px rgba(16, 24, 40, 0.06);
 }
 
 .hero-badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.45rem 0.9rem;
-	border-radius: 999px;
-	background: #e8f5eb;
-	color: #2f6e43;
-	font-size: 0.95rem;
-	font-weight: 600;
-	margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: #e8f5eb;
+  color: #2f6e43;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .hero-title {
-    font-size: 2.35rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 0.75rem;
-	color: #204e31;
+  font-size: 2.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  color: #204e31;
 }
 
-	.hero-subtitle {
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-		color: #4a6b55;
-	}
-
-	.hero-description {
-		font-size: 1.05rem;
-		color: #617565;
-		margin-bottom: 1.5rem;
-	}
-
-	.hero-actions {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-		margin-bottom: 1rem;
-	}
-
-	.hero-meta {
-		display: flex;
-		justify-content: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.hero-meta span {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.45rem;
-		padding: 0.45rem 0.8rem;
-		border-radius: 999px;
-		background: #f2f8f3;
-		color: #4e6656;
-		font-size: 0.95rem;
-	}
-
-	.quick-actions {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 0.75rem;
-		margin: 0 0 1.5rem;
-	}
-
-	.quick-action {
-		display: flex;
-		align-items: center;
-		gap: 0.85rem;
-		padding: 1rem 1.1rem;
-		border-radius: 0.9rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		background: #ffffff;
-		color: #204e31;
-		text-decoration: none;
-		box-shadow: 0 10px 24px rgba(16, 24, 40, 0.05);
-		transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-		min-height: 74px;
-	}
-
-	.quick-action:hover,
-	.quick-action:focus {
-		transform: translateY(-2px);
-		box-shadow: 0 16px 30px rgba(16, 24, 40, 0.08);
-		border-color: rgba(47, 110, 67, 0.22);
-		color: #184d2d;
-	}
-
-	.quick-action i {
-		width: 2.4rem;
-		height: 2.4rem;
-		border-radius: 0.75rem;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		background: #e8f5eb;
-		color: #2f6e43;
-		flex: 0 0 auto;
-	}
-
-	.quick-action strong {
-		display: block;
-		font-size: 1rem;
-		line-height: 1.2;
-	}
-
-	.quick-action span {
-		display: block;
-		font-size: 0.9rem;
-		color: #6b7e70;
-		line-height: 1.3;
-	}
-
-	.index-toolbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-		padding: 1rem 1.25rem;
-		margin-bottom: 1.5rem;
-		background: #f7fbf8;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-	}
-
-	.index-toolbar h2 {
-		font-size: 1.35rem;
-		font-weight: 600;
-		color: #28553a;
-	}
-
-	.index-toolbar-note {
-		margin: 0;
-		font-size: 0.95rem;
-		color: #708374;
-	}
-
-	.stat-card {
-		position: relative;
-		height: 100%;
-		padding: 1.4rem 1.5rem 1.4rem 1.75rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-		background: #ffffff;
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-		overflow: hidden;
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
-	}
-
-	.stat-card::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		top: 0;
-		bottom: 0;
-		width: 6px;
-		background: var(--bs-success);
-	}
-
-	.stat-card.stat-card-accent-2::before {
-		background: #68ae7a;
-	}
-
-	.stat-card.stat-card-accent-3::before {
-		background: #4f8f61;
-	}
-
-	.stat-card.stat-card-accent-4::before {
-		background: #2f6e43;
-	}
-
-	.stat-card.stat-card-accent-5::before {
-		background: #8bbf95;
-	}
-
-	.stat-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 18px 32px rgba(16, 24, 40, 0.08);
-	}
-
-	.stat-label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 0.75rem;
-		font-size: 1rem;
-		font-weight: 600;
-		color: #5f7465;
-	}
-
-	.stat-label i {
-		font-size: 1.25rem;
-		color: var(--bs-success);
-	}
-
-	.stat-value {
-		font-size: 2.1rem;
-		font-weight: 700;
-		line-height: 1.2;
-		margin-bottom: 0.35rem;
-		color: #183524;
-	}
-
-	.stat-sub {
-		font-size: 0.95rem;
-		color: #7b8d7f;
-	}
-
-	.stat-sub .fw-semibold {
-		color: var(--bs-success-text-emphasis);
-	}
-
-	.announcement-card {
-		background: linear-gradient(135deg, #fff7ed 0%, #fffdf5 100%);
-		border: 1px solid rgba(245, 158, 11, 0.25);
-		border-radius: 1rem;
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-	}
-
-	.announcement-icon {
-		width: 3rem;
-		height: 3rem;
-		border-radius: 0.9rem;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		background: #fef3c7;
-		color: #b45309;
-		flex: 0 0 auto;
-	}
-
-	.announcement-pill {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.45rem 0.75rem;
-		border-radius: 999px;
-		background: #ffffff;
-		border: 1px solid rgba(245, 158, 11, 0.25);
-		color: #7c2d12;
-		font-weight: 600;
-	}
-
-	.announcement-note {
-		color: #7c2d12;
-	}
-
-	.live-round-card {
-		border-radius: 1rem;
-		border: 1px solid rgba(47, 110, 67, 0.14);
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-		overflow: hidden;
-	}
-
-	.live-round-card .card-body {
-		padding: 1.1rem 1.15rem;
-	}
-
-	.live-round-badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.4rem 0.7rem;
-		border-radius: 999px;
-		background: #eef8f0;
-		color: #2f6e43;
-		font-weight: 600;
-		font-size: 0.92rem;
-	}
-
-	.live-round-time {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
-		color: #6b7e70;
-		font-size: 0.92rem;
-	}
-
-	.live-round-grid {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 0.75rem;
-	}
-
-	.live-round-tile {
-		border-radius: 1rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.04);
-		overflow: hidden;
-	}
-
-	.live-round-tile .card-body {
-		padding: 1rem 1.05rem;
-	}
-
-	.live-round-icon {
-		width: 3.1rem;
-		height: 3.1rem;
-		border-radius: 0.95rem;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		background: #e8f5eb;
-		color: #2f6e43;
-		flex: 0 0 auto;
-	}
-
-	.live-round-value {
-		font-size: 1.9rem;
-		font-weight: 700;
-		line-height: 1.1;
-		color: #183524;
-	}
-
-	.live-round-label {
-		font-size: 0.95rem;
-		color: #617565;
-	}
-
-	.live-round-foot {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-		margin-top: 0.75rem;
-		padding-top: 0.75rem;
-		border-top: 1px dashed rgba(47, 110, 67, 0.14);
-	}
-
-	@media (max-width: 992px) {
-		.live-round-grid {
-			grid-template-columns: 1fr;
-		}
-	}
-
-	.average-card {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 1rem;
-	}
-
-	.average-card-icon {
-		width: 3rem;
-		height: 3rem;
-		border-radius: 0.9rem;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		flex: 0 0 auto;
-		background: #e8f5eb;
-		color: #2f6e43;
-	}
-
-	.average-card-icon.is-accent {
-		background: #eef2ff;
-		color: #4f46e5;
-	}
-
-	.average-card-value {
-		font-size: 2rem;
-		font-weight: 700;
-		line-height: 1.15;
-		margin-bottom: 0.35rem;
-		color: #183524;
-	}
-
-	.average-card-note {
-		font-size: 0.95rem;
-		color: #6f8073;
-	}
-
-	.chart-card {
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-		background: #ffffff;
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-		overflow: hidden;
-		height: 100%;
-	}
-
-	.chart-card .card-header {
-		background: #f7fbf8;
-		border-bottom: 1px solid rgba(47, 110, 67, 0.12);
-		font-weight: 600;
-		color: #28553a;
-	}
-
-	.chart-wrap {
-		position: relative;
-		width: 100%;
-		height: 320px;
-	}
-
-	.section-title {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		padding: 0.95rem 1.1rem;
-		margin-bottom: 1rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 0.9rem;
-		background: #f7fbf8;
-		color: #28553a;
-		font-size: 1.08rem;
-		font-weight: 600;
-	}
-
-	.card-table {
-		margin-bottom: 1.5rem;
-		border: 1px solid rgba(47, 110, 67, 0.12);
-		border-radius: 1rem;
-		background: #ffffff;
-		box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
-		overflow: hidden;
-	}
-
-	.table-responsive {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-	}
-
-	.table {
-		font-size: 1.2rem;
-		margin-bottom: 0;
-	}
-
-	.table th {
-		font-size: 1.15rem;
-		font-weight: 600;
-		padding: 0.95rem 0.85rem;
-		background: var(--bs-success);
-		color: #fff;
-		border: none;
-	}
-
-	.table td {
-		font-size: 1.2rem;
-		padding: 0.85rem 0.75rem;
-		vertical-align: middle;
-		color: #2f3d33;
-	}
-
-	.lan-summary-table,
-	.daily-summary-table {
-		font-size: 1.2rem;
-	}
-
-	.lan-summary-table th,
-	.daily-summary-table th {
-		white-space: nowrap;
-	}
-
-	.table-success {
-		--bs-table-bg: #e9f6ed;
-		--bs-table-striped-bg: #e9f6ed;
-		--bs-table-hover-bg: #dff0e4;
-		color: #24472d;
-	}
-
-	.daily-summary-section .daily-summary-table {
-		min-width: 900px;
-		table-layout: auto;
-	}
-
-	.daily-summary-section .daily-summary-table th,
-	.daily-summary-section .daily-summary-table td {
-		white-space: nowrap;
-	}
-
-	.daily-summary-section .daily-summary-table th:last-child,
-	.daily-summary-section .daily-summary-table td:last-child {
-		min-width: 180px;
-	}
-
-	@media (max-width: 992px) {
-		.hero-panel {
-			padding: 1.5rem;
-		}
-
-		.quick-actions {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-
-		.index-toolbar {
-			flex-direction: column;
-			align-items: stretch !important;
-			text-align: center;
-		}
-
-		.index-toolbar h2 {
-			font-size: 1.5rem;
-		}
-
-		.stat-value {
-			font-size: 2rem;
-		}
-
-		.stat-label {
-			font-size: 1rem;
-		}
-
-		.daily-summary-section {
-			margin-left: -0.25rem;
-			margin-right: -0.25rem;
-		}
-
-		.daily-summary-section .section-title {
-			font-size: 1.1rem;
-			padding: 0.9rem 1rem;
-		}
-
-		.daily-summary-section .card-table {
-			margin: 0;
-		}
-
-		.daily-summary-section .table-responsive {
-			padding: 0;
-		}
-
-		.daily-summary-section .daily-summary-table {
-			min-width: 820px;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.index-toolbar {
-			padding: 1rem 1.1rem;
-		}
-
-		.index-toolbar h2 {
-			font-size: 1.35rem;
-		}
-
-		.stat-card {
-			padding: 1.1rem 1rem 1rem 1.25rem;
-		}
-
-		.stat-value {
-			font-size: 1.9rem;
-		}
-
-		.stat-label {
-			font-size: 0.98rem;
-		}
-
-		.stat-sub {
-			font-size: 0.9rem;
-		}
-
-		.average-card {
-			flex-direction: row;
-		}
-
-		.average-card-value {
-			font-size: 1.8rem;
-		}
-
-		.card-table {
-			margin: 0 -0.5rem;
-		}
-
-		.table-responsive {
-			font-size: 1.2rem;
-			padding: 0 0.5rem;
-		}
-
-		.table th {
-			font-size: 0.98rem;
-		}
-
-		.table th,
-		.table td {
-			padding: 0.65rem 0.55rem;
-		}
-
-		.section-title {
-			font-size: 1.2rem;
-			padding: 0.85rem 1rem;
-		}
-
-		.daily-summary-section .daily-summary-table {
-			min-width: 780px;
-		}
-
-		.daily-summary-section .daily-summary-table th,
-		.daily-summary-section .daily-summary-table td {
-			font-size: 0.98rem;
-			padding: 0.6rem 0.5rem;
-		}
-	}
-
-	@media (max-width: 576px) {
-		.quick-actions {
-			grid-template-columns: 1fr;
-		}
-
-		.container {
-			padding: 1.25rem 1rem;
-			border-radius: 1rem;
-			margin-top: 1rem;
-			margin-bottom: 1rem;
-		}
-
-		.hero-panel {
-			padding: 1.25rem 1rem;
-		}
-
-		.hero-title {
-			font-size: 1.8rem;
-		}
-
-		.hero-description {
-			font-size: 1.05rem;
-		}
-
-		.hero-actions .btn {
-			width: 100%;
-		}
-
-		.index-toolbar h2 {
-			font-size: 1.2rem;
-		}
-
-		.stat-card {
-			padding: 0.85rem 0.85rem 0.85rem 1rem;
-		}
-
-		.stat-value {
-			font-size: 1.8rem;
-		}
-
-		.stat-label {
-			font-size: 1.1rem;
-		}
-
-		.table-responsive {
-			font-size: 0.95rem;
-			padding: 0 0.25rem;
-		}
-
-	}
-
-	.stat-card:hover {
-		transform: none;
-	}
-
-	@media (max-width: 768px) {
-		.chart-wrap {
-			height: 260px;
-		}
-	}
-
+.hero-subtitle {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #4a6b55;
+}
+
+.hero-description {
+  font-size: 1.05rem;
+  color: #617565;
+  margin-bottom: 1.5rem;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.hero-meta {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: #f2f8f3;
+  color: #4e6656;
+  font-size: 0.95rem;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+}
+
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  background: #ffffff;
+  color: #204e31;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-height: 74px;
+}
+
+.quick-action:hover,
+.quick-action:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(16, 24, 40, 0.08);
+  border-color: rgba(47, 110, 67, 0.22);
+  color: #184d2d;
+}
+
+.quick-action i {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f5eb;
+  color: #2f6e43;
+  flex: 0 0 auto;
+}
+
+.quick-action strong {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.quick-action span {
+  display: block;
+  font-size: 0.9rem;
+  color: #6b7e70;
+  line-height: 1.3;
+}
+
+.index-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: #f7fbf8;
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  border-radius: 1rem;
+}
+
+.index-toolbar h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #28553a;
+}
+
+.index-toolbar-note {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #708374;
+}
+
+.stat-card {
+  position: relative;
+  height: 100%;
+  padding: 1.4rem 1.5rem 1.4rem 1.75rem;
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--bs-success);
+}
+
+.stat-card.stat-card-accent-2::before {
+  background: #68ae7a;
+}
+
+.stat-card.stat-card-accent-3::before {
+  background: #4f8f61;
+}
+
+.stat-card.stat-card-accent-4::before {
+  background: #2f6e43;
+}
+
+.stat-card.stat-card-accent-5::before {
+  background: #8bbf95;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(16, 24, 40, 0.08);
+}
+
+.stat-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5f7465;
+}
+
+.stat-label i {
+  font-size: 1.25rem;
+  color: var(--bs-success);
+}
+
+.stat-value {
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+  color: #183524;
+}
+
+.stat-sub {
+  font-size: 0.95rem;
+  color: #7b8d7f;
+}
+
+.stat-sub .fw-semibold {
+  color: var(--bs-success-text-emphasis);
+}
+
+.announcement-card {
+  background: linear-gradient(135deg, #fff7ed 0%, #fffdf5 100%);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 1rem;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+}
+
+.announcement-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fef3c7;
+  color: #b45309;
+  flex: 0 0 auto;
+}
+
+.announcement-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #7c2d12;
+  font-weight: 600;
+}
+
+.announcement-note {
+  color: #7c2d12;
+}
+
+.live-round-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(47, 110, 67, 0.14);
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+  overflow: hidden;
+}
+
+.live-round-card .card-body {
+  padding: 1.1rem 1.15rem;
+}
+
+.live-round-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: #eef8f0;
+  color: #2f6e43;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.live-round-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #6b7e70;
+  font-size: 0.92rem;
+}
+
+.live-round-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.live-round-tile {
+  border-radius: 1rem;
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.04);
+  overflow: hidden;
+}
+
+.live-round-tile .card-body {
+  padding: 1rem 1.05rem;
+}
+
+.live-round-icon {
+  width: 3.1rem;
+  height: 3.1rem;
+  border-radius: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f5eb;
+  color: #2f6e43;
+  flex: 0 0 auto;
+}
+
+.live-round-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #183524;
+}
+
+.live-round-label {
+  font-size: 0.95rem;
+  color: #617565;
+}
+
+.live-round-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(47, 110, 67, 0.14);
+}
+
+@media (max-width: 992px) {
+  .live-round-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.average-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.average-card-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: #e8f5eb;
+  color: #2f6e43;
+}
+
+.average-card-icon.is-accent {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.average-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.35rem;
+  color: #183524;
+}
+
+.average-card-note {
+  font-size: 0.95rem;
+  color: #6f8073;
+}
+
+.chart-card {
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+  overflow: hidden;
+  height: 100%;
+}
+
+.chart-card .card-header {
+  background: #f7fbf8;
+  border-bottom: 1px solid rgba(47, 110, 67, 0.12);
+  font-weight: 600;
+  color: #28553a;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  border-radius: 0.9rem;
+  background: #f7fbf8;
+  color: #28553a;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.card-table {
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(47, 110, 67, 0.12);
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.05);
+  overflow: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+.table th {
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 0.95rem 0.85rem;
+  background: var(--bs-success);
+  color: #fff;
+  border: none;
+}
+
+.table td {
+  font-size: 1.2rem;
+  padding: 0.85rem 0.75rem;
+  vertical-align: middle;
+  color: #2f3d33;
+}
+
+.lan-summary-table,
+.daily-summary-table {
+  font-size: 1.2rem;
+}
+
+.lan-summary-table th,
+.daily-summary-table th {
+  white-space: nowrap;
+}
+
+.table-success {
+  --bs-table-bg: #e9f6ed;
+  --bs-table-striped-bg: #e9f6ed;
+  --bs-table-hover-bg: #dff0e4;
+  color: #24472d;
+}
+
+.daily-summary-section .daily-summary-table {
+  min-width: 900px;
+  table-layout: auto;
+}
+
+.daily-summary-section .daily-summary-table th,
+.daily-summary-section .daily-summary-table td {
+  white-space: nowrap;
+}
+
+.daily-summary-section .daily-summary-table th:last-child,
+.daily-summary-section .daily-summary-table td:last-child {
+  min-width: 180px;
+}
+
+@media (max-width: 992px) {
+  .hero-panel {
+    padding: 1.5rem;
+  }
+
+  .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .index-toolbar {
+    flex-direction: column;
+    align-items: stretch !important;
+    text-align: center;
+  }
+
+  .index-toolbar h2 {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+  }
+
+  .daily-summary-section {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+  }
+
+  .daily-summary-section .section-title {
+    font-size: 1.1rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .daily-summary-section .card-table {
+    margin: 0;
+  }
+
+  .daily-summary-section .table-responsive {
+    padding: 0;
+  }
+
+  .daily-summary-section .daily-summary-table {
+    min-width: 820px;
+  }
+}
+
+@media (max-width: 768px) {
+  .index-toolbar {
+    padding: 1rem 1.1rem;
+  }
+
+  .index-toolbar h2 {
+    font-size: 1.35rem;
+  }
+
+  .stat-card {
+    padding: 1.1rem 1rem 1rem 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.9rem;
+  }
+
+  .stat-label {
+    font-size: 0.98rem;
+  }
+
+  .stat-sub {
+    font-size: 0.9rem;
+  }
+
+  .average-card {
+    flex-direction: row;
+  }
+
+  .average-card-value {
+    font-size: 1.8rem;
+  }
+
+  .card-table {
+    margin: 0 -0.5rem;
+  }
+
+  .table-responsive {
+    font-size: 1.2rem;
+    padding: 0 0.5rem;
+  }
+
+  .table th {
+    font-size: 0.98rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.65rem 0.55rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .daily-summary-section .daily-summary-table {
+    min-width: 780px;
+  }
+
+  .daily-summary-section .daily-summary-table th,
+  .daily-summary-section .daily-summary-table td {
+    font-size: 0.98rem;
+    padding: 0.6rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 1.25rem 1rem;
+    border-radius: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-panel {
+    padding: 1.25rem 1rem;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-description {
+    font-size: 1.05rem;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .index-toolbar h2 {
+    font-size: 1.2rem;
+  }
+
+  .stat-card {
+    padding: 0.85rem 0.85rem 0.85rem 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+  }
+
+  .stat-label {
+    font-size: 1.1rem;
+  }
+
+  .table-responsive {
+    font-size: 0.95rem;
+    padding: 0 0.25rem;
+  }
+
+}
+
+.stat-card:hover {
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .chart-wrap {
+    height: 260px;
+  }
+}
 </style>
 
 <?php
@@ -742,7 +742,7 @@ $price_date_total_quantity = 0;
 $price_date_total_value = 0;
 if ($latest_price_date) {
     // Query จากฐานข้อมูลโดยตรงเพื่อให้ได้ผลรวมที่ถูกต้องทุกลาน (ไม่ใช้ LIMIT)
-	$stmt = $db->prepare("SELECT SUM(ru_quantity) as total_qty, SUM(ru_value) AS total_value FROM tbl_rubber WHERE ru_date = ?");
+	$stmt = $db->prepare("SELECT SUM(ru_quantity) as total_qty, SUM(ru_value) AS total_value FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber WHERE ru_date = ?");
     if ($stmt) {
         $stmt->bind_param('s', $latest_price_date);
         $stmt->execute();
@@ -780,7 +780,7 @@ if ($sum_date_to !== '' && (!$dt || $dt->format('Y-m-d') !== $sum_date_to)) {
 
 // Total record count for display
 $total_records = 0;
-if ($rs = $db->query("SELECT COUNT(*) AS cnt FROM tbl_rubber")) {
+if ($rs = $db->query("SELECT COUNT(*) AS cnt FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber")) {
 	$row = $rs->fetch_assoc();
 	$total_records = $row && $row['cnt'] ? (int)$row['cnt'] : 0;
 	$rs->free();
@@ -798,7 +798,7 @@ if ($latest_price_date) {
 		COALESCE(SUM(ru_netvalue), 0) AS total_net,
 		COUNT(DISTINCT CASE WHEN LOWER(TRIM(ru_class)) = 'member' THEN TRIM(ru_number) END) AS member_people,
 		COUNT(DISTINCT CASE WHEN LOWER(TRIM(ru_class)) = 'general' THEN TRIM(ru_fullname) END) AS general_people
-	FROM tbl_rubber
+	FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
 	WHERE ru_date = ?";
 	$latestRoundStmt = $db->prepare($latestRoundSql);
 	if ($latestRoundStmt) {
@@ -827,7 +827,7 @@ $all_total_value = 0;
 $all_stats = $db->query("SELECT
 	COALESCE(SUM(ru_quantity), 0) AS total_qty,
 	COALESCE(SUM(ru_value), 0) AS total_value
-FROM tbl_rubber");
+FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber");
 if ($all_stats) {
     $row = $all_stats->fetch_assoc();
     $all_total_quantity = $row['total_qty'] ? (float)$row['total_qty'] : 0;
@@ -863,7 +863,7 @@ $sql = "SELECT r.ru_date, r.ru_lan, ROUND(SUM(r.ru_value)/NULLIF(SUM(r.ru_quanti
 		SUM(r.ru_expend) AS total_expend,
 		SUM(r.ru_netvalue) AS total_net,
 		COUNT(*) AS row_count
-	FROM tbl_rubber r
+	FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) r
 	$sum_where_sql
 	GROUP BY r.ru_date, r.ru_lan
 	ORDER BY r.ru_date DESC, CAST(r.ru_lan AS UNSIGNED) ASC
@@ -919,7 +919,7 @@ if (!empty($chartSummaryByDate)) {
 		r.ru_date,
 		COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'member' THEN TRIM(r.ru_number) END) AS member_people,
 		COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'general' THEN TRIM(r.ru_fullname) END) AS general_people
-	FROM tbl_rubber r
+	FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) r
 	$sum_where_sql
 	GROUP BY r.ru_date
 	ORDER BY r.ru_date ASC";
@@ -954,356 +954,376 @@ if (!empty($chartSummaryByDate)) {
 }
 ?>
 
-	<?php
+<?php
 	$logged_in = !empty($_SESSION['user_id']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id']);
 	$username = $_SESSION['username'] ?? ($_SESSION['user_name'] ?? '');
 	$target = $logged_in ? 'rubbers.php?lan=all' : 'login.php?redirect=' . urlencode('rubbers.php?lan=all');
 	?>
 
-	<div class="hero-section mb-4">
-		<div class="hero-panel text-center">
-			<div class="hero-badge">
-				<i data-lucide="droplet" aria-hidden="true"></i>
-				ระบบภาพรวมข้อมูลยางพารา
-			</div>
-			<h1 class="hero-title">ระบบจัดการยางพารา</h1>
-			<h4 class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</h4>
-			<p class="hero-description">ดูภาพรวมการรวบรวมยาง ราคาอ้างอิง และสรุปข้อมูลสำคัญในหน้าเดียวแบบอ่านง่าย</p>
-			<div class="hero-actions">
-                <a href="prices.php" class="btn btn-outline-success btn-lg rounded-pill px-4 fw-semibold"><i data-lucide="coins" aria-hidden="true"></i> ราคายาง</a>
-				<a href="allmember.php" class="btn btn-success btn-lg rounded-pill px-4 fw-semibold">
-					<i data-lucide="user" aria-hidden="true"></i> สำหรับสมาชิก
-				</a>
-				<a href="<?php echo htmlspecialchars($target, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-success btn-lg rounded-pill px-4 fw-semibold">
-					<i data-lucide="clipboard" aria-hidden="true"></i> ดูรายการรับซื้อ
-				</a>
-			</div>
-			<div class="hero-meta">
-				<span><i data-lucide="coins" aria-hidden="true"></i> ราคาล่าสุดของรอบ <?php echo number_format($latest_price,2); ?> บาท</span>
-				<span><i data-lucide="calendar" aria-hidden="true"></i> วันที่ <?php echo htmlspecialchars($latest_price_date_text); ?></span>
-				<span><i data-lucide="database" aria-hidden="true"></i> ทั้งหมด <?php echo number_format($total_records); ?> รายการ</span>
-			</div>
-		</div>
-	</div>
+<link rel="stylesheet"
+  href="assets/css/home-dashboard.css?v=<?php echo filemtime(__DIR__ . '/assets/css/home-dashboard.css'); ?>">
+<div class="home-dashboard">
+  <section class="hero-section mb-4">
+    <div class="hero-panel">
+      <div class="home-hero-copy">
+        <div class="hero-badge"><i data-lucide="droplet" aria-hidden="true"></i> ระบบบริหารงานสหกรณ์</div>
+        <h1 class="hero-title">ระบบรวบรวมยางพารา</h1>
+        <p class="hero-subtitle">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</p>
+        <p class="hero-description">เชื่อมโยงงานรวบรวมยาง ราคา และข้อมูลรับซื้อ<br class="d-none d-md-block">
+          พร้อมภาพรวมที่ตรวจสอบได้ในหน้าเดียว</p>
+        <div class="hero-actions">
+          <a href="<?php echo e($target); ?>" class="btn home-primary-action"><i data-lucide="clipboard-list"
+              aria-hidden="true"></i>ดูรายการรับซื้อ<i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+          <a href="allmember.php" class="btn home-secondary-action"><i data-lucide="user"
+              aria-hidden="true"></i>สำหรับสมาชิก</a>
+        </div>
+      </div>
+      <aside class="home-price-panel" aria-label="ราคายางล่าสุด">
+        <div class="home-price-label"><span class="home-price-symbol" aria-hidden="true"><i
+              data-lucide="coins"></i></span><span>ราคายางล่าสุด<small>ราคาอ้างอิงของรอบ</small></span></div>
+        <div class="home-price-value"><?php echo number_format($latest_price,2); ?><span>บาท / กก.</span></div>
+        <div class="home-price-date"><i data-lucide="calendar"
+            aria-hidden="true"></i><?php echo e($latest_price_date_text); ?></div>
+        <div class="home-price-divider"></div>
+        <div class="home-price-footer"><span>รายการรับซื้อสะสม<strong><?php echo number_format($total_records); ?>
+              <small>รายการ</small></strong></span><a href="prices.php" aria-label="ดูรายละเอียดราคายาง"><i
+              data-lucide="arrow-up-right" aria-hidden="true"></i></a></div>
+      </aside>
+    </div>
+  </section>
 
-	<?php if (!empty($rubberAnnouncement['show'])): ?>
-	<div class="row g-3 mb-4">
-		<div class="col-12">
-			<div class="card announcement-card">
-				<div class="card-body p-3 p-md-4">
-					<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-						<div class="d-flex align-items-start gap-3">
-							<div class="announcement-icon" aria-hidden="true">
-								<i data-lucide="megaphone" class="fs-4"></i>
-							</div>
-							<div>
-								<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-									<span class="badge text-bg-warning text-dark">ประกาศอัตโนมัติ</span>
-									<h2 class="h5 mb-0">วันวางยางและวันชั่งยางรอบล่าสุด</h2>
-								</div>
-								<div class="announcement-note mb-2">
-									<?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?> ถึง <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?>
-									สำหรับการวางยาง และชั่งยางวันที่ <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?>
-								</div>
-								<div class="small text-muted">
-									ประกาศนี้แสดงตามรอบขายยางที่ตั้งค่า และแสดงจนถึงวันชั่งยาง และจะหายไปอัตโนมัติหลังวันชั่งยาง
-								</div>
-							</div>
-						</div>
-						<div class="d-flex flex-column gap-2">
-							<span class="announcement-pill"><i data-lucide="calendar-range" aria-hidden="true"></i> วางยาง <?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?></span>
-							<span class="announcement-pill"><i data-lucide="calendar-check" aria-hidden="true"></i> วางยาง <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?></span>
-							<span class="announcement-pill"><i data-lucide="scale" aria-hidden="true"></i> ชั่งยาง <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?></span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<?php endif; ?>
+  <?php if (!empty($rubberAnnouncement['show'])): ?>
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="card announcement-card">
+        <div class="card-body p-3 p-md-4">
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div class="d-flex align-items-start gap-3">
+              <div class="announcement-icon" aria-hidden="true">
+                <i data-lucide="megaphone" class="fs-4"></i>
+              </div>
+              <div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-warning text-dark">ประกาศอัตโนมัติ</span>
+                  <h2 class="h5 mb-0">วันวางยางและวันชั่งยางรอบล่าสุด</h2>
+                </div>
+                <div class="announcement-note mb-2">
+                  <?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?> ถึง
+                  <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?>
+                  สำหรับการวางยาง และชั่งยางวันที่ <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?>
+                </div>
+                <div class="small text-muted">
+                  ประกาศนี้แสดงตามรอบขายยางที่ตั้งค่า และแสดงจนถึงวันชั่งยาง และจะหายไปอัตโนมัติหลังวันชั่งยาง
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <span class="announcement-pill"><i data-lucide="calendar-range" aria-hidden="true"></i> วางยาง
+                <?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?></span>
+              <span class="announcement-pill"><i data-lucide="calendar-check" aria-hidden="true"></i> วางยาง
+                <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?></span>
+              <span class="announcement-pill"><i data-lucide="scale" aria-hidden="true"></i> ชั่งยาง
+                <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
 
-	<div id="liveRoundSection" class="row g-3 mb-4<?php echo empty($rubberLiveSummary['show']) ? ' d-none' : ''; ?>">
-		<div class="col-12">
-			<div class="card live-round-card">
-				<div class="card-body">
-					<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
-						<div>
-							<div class="live-round-badge mb-2">
-								<i data-lucide="radio" aria-hidden="true"></i> อัปเดตทุก 5 นาที
-							</div>
-							<h2 class="h5 mb-1">สรุปข้อมูลรอบวางยางล่าสุด</h2>
-							<div class="small text-muted">
-								<?php echo e($rubberLiveSummary['lay_start_text'] ?? '-'); ?> ถึง <?php echo e($rubberLiveSummary['lay_end_text'] ?? '-'); ?>
-								และชั่งยางวันที่ <?php echo e($rubberLiveSummary['weigh_date_text'] ?? '-'); ?>
-							</div>
-						</div>
-						<div class="live-round-time">
-							<i data-lucide="clock-3" aria-hidden="true"></i>
-							อัปเดตล่าสุด <span id="liveRoundUpdatedAt"><?php echo e($rubberLiveSummary['updated_at_text'] ?? '-'); ?></span>
-						</div>
-					</div>
+  <div id="liveRoundSection" class="row g-3 mb-4<?php echo empty($rubberLiveSummary['show']) ? ' d-none' : ''; ?>">
+    <div class="col-12">
+      <div class="card live-round-card">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+            <div>
+              <div class="live-round-badge mb-2">
+                <i data-lucide="radio" aria-hidden="true"></i> อัปเดตทุก 5 นาที
+              </div>
+              <h2 class="h5 mb-1">สรุปข้อมูลรอบวางยางล่าสุด</h2>
+              <div class="small text-muted">
+                <?php echo e($rubberLiveSummary['lay_start_text'] ?? '-'); ?> ถึง
+                <?php echo e($rubberLiveSummary['lay_end_text'] ?? '-'); ?>
+                และชั่งยางวันที่ <?php echo e($rubberLiveSummary['weigh_date_text'] ?? '-'); ?>
+              </div>
+            </div>
+            <div class="live-round-time">
+              <i data-lucide="clock-3" aria-hidden="true"></i>
+              อัปเดตล่าสุด <span
+                id="liveRoundUpdatedAt"><?php echo e($rubberLiveSummary['updated_at_text'] ?? '-'); ?></span>
+            </div>
+          </div>
 
-					<div class="live-round-grid">
-						<div class="card live-round-tile bg-success-subtle">
-							<div class="card-body">
-								<div class="d-flex justify-content-between align-items-start gap-3">
-									<div>
-										<div class="live-round-label mb-1">น้ำหนักรวม</div>
-										<div class="live-round-value" id="liveRoundQuantity"><?php echo number_format((float)($rubberLiveSummary['total_quantity'] ?? 0), 2); ?> kg</div>
-									</div>
-								<div class="live-round-icon" aria-hidden="true">
-									<i data-lucide="scale" class="fs-3"></i>
-								</div>
-							</div>
-								<div class="live-round-foot">
-									<span class="small text-success-emphasis">รวมทุกลานในรอบล่าสุด</span>
-								</div>
-							</div>
-						</div>
+          <div class="live-round-grid">
+            <div class="card live-round-tile bg-success-subtle">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                  <div>
+                    <div class="live-round-label mb-1">น้ำหนักรวม</div>
+                    <div class="live-round-value" id="liveRoundQuantity">
+                      <?php echo number_format((float)($rubberLiveSummary['total_quantity'] ?? 0), 2); ?> kg</div>
+                  </div>
+                  <div class="live-round-icon" aria-hidden="true">
+                    <i data-lucide="scale" class="fs-3"></i>
+                  </div>
+                </div>
+                <div class="live-round-foot">
+                  <span class="small text-success-emphasis">รวมทุกลานในรอบล่าสุด</span>
+                </div>
+              </div>
+            </div>
 
-						<div class="card live-round-tile bg-warning-subtle">
-							<div class="card-body">
-								<div class="d-flex justify-content-between align-items-start gap-3">
-									<div>
-										<div class="live-round-label mb-1">ยอดเงินหัก</div>
-										<div class="live-round-value" id="liveRoundDeduct"><?php echo number_format((float)($rubberLiveSummary['total_expend'] ?? 0), 2); ?> ฿</div>
-									</div>
-									<div class="live-round-icon" aria-hidden="true" style="background:#fff4db;color:#b45309;">
-										<i data-lucide="file-text" class="fs-3"></i>
-									</div>
-								</div>
-								<div class="live-round-foot">
-									<span class="small text-warning-emphasis">หักรวมจากทุกรายการในรอบนี้</span>
-								</div>
-							</div>
-						</div>
+            <div class="card live-round-tile bg-warning-subtle">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                  <div>
+                    <div class="live-round-label mb-1">ยอดเงินหัก</div>
+                    <div class="live-round-value" id="liveRoundDeduct">
+                      <?php echo number_format((float)($rubberLiveSummary['total_expend'] ?? 0), 2); ?> ฿</div>
+                  </div>
+                  <div class="live-round-icon" aria-hidden="true" style="background:#fff4db;color:#b45309;">
+                    <i data-lucide="file-text" class="fs-3"></i>
+                  </div>
+                </div>
+                <div class="live-round-foot">
+                  <span class="small text-warning-emphasis">หักรวมจากทุกรายการในรอบนี้</span>
+                </div>
+              </div>
+            </div>
 
-						<div class="card live-round-tile bg-primary-subtle">
-							<div class="card-body">
-								<div class="d-flex justify-content-between align-items-start gap-3">
-									<div>
-										<div class="live-round-label mb-1">ยอดเงินที่จ่าย</div>
-										<div class="live-round-value" id="liveRoundNet"><?php echo number_format((float)($rubberLiveSummary['total_net'] ?? 0), 2); ?> ฿</div>
-									</div>
-									<div class="live-round-icon" aria-hidden="true" style="background:#e0ecff;color:#1d4ed8;">
-										<i data-lucide="wallet" class="fs-3"></i>
-									</div>
-								</div>
-								<div class="live-round-foot">
-									<span class="small text-primary-emphasis">จ่ายสุทธิหลังหักทั้งหมด</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+            <div class="card live-round-tile bg-primary-subtle">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                  <div>
+                    <div class="live-round-label mb-1">ยอดเงินที่จ่าย</div>
+                    <div class="live-round-value" id="liveRoundNet">
+                      <?php echo number_format((float)($rubberLiveSummary['total_net'] ?? 0), 2); ?> ฿</div>
+                  </div>
+                  <div class="live-round-icon" aria-hidden="true" style="background:#e0ecff;color:#1d4ed8;">
+                    <i data-lucide="wallet" class="fs-3"></i>
+                  </div>
+                </div>
+                <div class="live-round-foot">
+                  <span class="small text-primary-emphasis">จ่ายสุทธิหลังหักทั้งหมด</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="quick-actions" aria-label="ทางลัดงานหลัก">
-		<a class="quick-action" href="rubbers.php?lan=all">
-			<i data-lucide="clipboard-list" aria-hidden="true"></i>
-			<span>
-				<strong>ดูรายการรับซื้อ</strong>
-				ตรวจสอบและค้นหารายการยางได้ทันที
-			</span>
-		</a>
-		<a class="quick-action" href="member_form.php?action=create">
-			<i data-lucide="user-plus" aria-hidden="true"></i>
-			<span>
-				<strong>เพิ่มสมาชิก</strong>
-				บันทึกข้อมูลสมาชิกหรือเกษตรกรใหม่
-			</span>
-		</a>
-		<a class="quick-action" href="prices.php">
-			<i data-lucide="dollar-sign" aria-hidden="true"></i>
-			<span>
-				<strong>ราคายาง</strong>
-				ดูราคายางและจัดการรอบราคา
-			</span>
-		</a>
-		<a class="quick-action" href="members.php">
-			<i data-lucide="users" aria-hidden="true"></i>
-			<span>
-				<strong>ค้นหาสมาชิก</strong>
-				เปิดรายชื่อและแก้ไขข้อมูลที่เกี่ยวข้อง
-			</span>
-		</a>
-	</div>
+  <div class="quick-actions" aria-label="ทางลัดงานหลัก">
+    <a class="quick-action" href="rubbers.php?lan=all">
+      <i data-lucide="clipboard-list" aria-hidden="true"></i>
+      <span>
+        <strong>ดูรายการรับซื้อ</strong>
+        ตรวจสอบและค้นหารายการยางได้ทันที
+      </span>
+    </a>
+    <a class="quick-action" href="member_form.php?action=create">
+      <i data-lucide="user-plus" aria-hidden="true"></i>
+      <span>
+        <strong>เพิ่มสมาชิก</strong>
+        บันทึกข้อมูลสมาชิกหรือเกษตรกรใหม่
+      </span>
+    </a>
+    <a class="quick-action" href="prices.php">
+      <i data-lucide="dollar-sign" aria-hidden="true"></i>
+      <span>
+        <strong>ราคายาง</strong>
+        ดูราคายางและจัดการรอบราคา
+      </span>
+    </a>
+    <a class="quick-action" href="members.php">
+      <i data-lucide="users" aria-hidden="true"></i>
+      <span>
+        <strong>ค้นหาสมาชิก</strong>
+        เปิดรายชื่อและแก้ไขข้อมูลที่เกี่ยวข้อง
+      </span>
+    </a>
+  </div>
 
-	<div class="index-toolbar">
-			<h2 class="d-flex align-items-center gap-2 mb-0">
-				<i data-lucide="grid" aria-hidden="true"></i>
-				ภาพรวมวันนี้
-			</h2>
-		<p class="index-toolbar-note">สรุปข้อมูลสำคัญของระบบในรูปแบบที่อ่านง่ายและอัปเดตจากฐานข้อมูลล่าสุด</p>
-	</div>
+  <div class="index-toolbar">
+    <h2 class="d-flex align-items-center gap-2 mb-0">
+      <i data-lucide="grid" aria-hidden="true"></i>
+      ภาพรวมการดำเนินงาน
+    </h2>
+    <p class="index-toolbar-note">สรุปข้อมูลสำคัญของระบบในรูปแบบที่อ่านง่ายและอัปเดตจากฐานข้อมูลล่าสุด</p>
+  </div>
 
-	<!-- Quick stats -->
-	<div class="row g-3 mb-4">
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card">
-				<div class="stat-label"><i data-lucide="tag" aria-hidden="true"></i>ราคาที่ใช้คำนวณ</div>
-				<div class="stat-value"><?php echo number_format($latest_price,2); ?> ฿</div>
-				<div class="stat-sub">อัปเดต: <span class="fw-semibold"><?php echo $latest_price_date_text; ?></span></div>
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card stat-card-accent-2">
-				<div class="stat-label"><i data-lucide="calendar-check" aria-hidden="true"></i>ปริมาณรวม (<?php echo $latest_price_date_text; ?>)</div>
-				<div class="stat-value"><?php echo number_format($price_date_total_quantity,2); ?> kg</div>
-				<div class="stat-sub">อ้างอิงวันที่ราคายาง</div>
-			</div>
-		</div>
-		<div class="col-12 col-md-6 col-lg-4">
-			<div class="stat-card stat-card-accent-3">
-				<div class="stat-label"><i data-lucide="file-text" aria-hidden="true"></i>ยอดเงินรวม (<?php echo $latest_price_date_text; ?>)</div>
-				<div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
-				<div class="stat-sub">รวมมูลค่าตามราคาที่ใช้ตอนชั่ง</div>
-			</div>
-		</div>
-	</div>
+  <!-- Quick stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="stat-card">
+        <div class="stat-label"><i data-lucide="tag" aria-hidden="true"></i>ราคาที่ใช้คำนวณ</div>
+        <div class="stat-value"><?php echo number_format($latest_price,2); ?> ฿</div>
+        <div class="stat-sub">อัปเดต: <span class="fw-semibold"><?php echo $latest_price_date_text; ?></span></div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="stat-card stat-card-accent-2">
+        <div class="stat-label"><i data-lucide="calendar-check" aria-hidden="true"></i>ปริมาณรวม
+          (<?php echo $latest_price_date_text; ?>)</div>
+        <div class="stat-value"><?php echo number_format($price_date_total_quantity,2); ?> kg</div>
+        <div class="stat-sub">อ้างอิงวันที่ราคายาง</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="stat-card stat-card-accent-3">
+        <div class="stat-label"><i data-lucide="file-text" aria-hidden="true"></i>ยอดเงินรวม
+          (<?php echo $latest_price_date_text; ?>)</div>
+        <div class="stat-value"><?php echo number_format($price_date_total_value,2); ?> ฿</div>
+        <div class="stat-sub">รวมมูลค่าตามราคาที่ใช้ตอนชั่ง</div>
+      </div>
+    </div>
+  </div>
 
-	<div class="row g-3 mb-4">
-		<div class="col-12 col-lg-6">
-			<div class="stat-card stat-card-accent-4">
-				<div class="stat-label"><i data-lucide="box" aria-hidden="true"></i>ปริมาณยางทั้งหมด</div>
-				<div class="stat-value"><?php echo number_format($all_total_quantity,2); ?> kg</div>
-				<div class="stat-sub">รวมจากรายการรับซื้อทั้งหมด</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-6">
-			<div class="stat-card stat-card-accent-5">
-				<div class="stat-label"><i data-lucide="dollar-sign" aria-hidden="true"></i>ยอดเงินทั้งหมด</div>
-				<div class="stat-value"><?php echo number_format($all_total_value,2); ?> ฿</div>
-				<div class="stat-sub">รวมยอดเงินจากแต่ละช่วงราคา</div>
-			</div>
-		</div>
-	</div>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="stat-card stat-card-accent-4">
+        <div class="stat-label"><i data-lucide="box" aria-hidden="true"></i>ปริมาณยางทั้งหมด</div>
+        <div class="stat-value"><?php echo number_format($all_total_quantity,2); ?> kg</div>
+        <div class="stat-sub">รวมจากรายการรับซื้อทั้งหมด</div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="stat-card stat-card-accent-5">
+        <div class="stat-label"><i data-lucide="dollar-sign" aria-hidden="true"></i>ยอดเงินทั้งหมด</div>
+        <div class="stat-value"><?php echo number_format($all_total_value,2); ?> ฿</div>
+        <div class="stat-sub">รวมยอดเงินจากแต่ละช่วงราคา</div>
+      </div>
+    </div>
+  </div>
 
-	<div class="section-title">
-		<i data-lucide="bar-chart-3" aria-hidden="true"></i>
-		กราฟสรุปตามรอบ
-	</div>
-	<div class="row g-3 mb-4">
-		<div class="col-12 col-lg-6">
-			<div class="chart-card">
-				<div class="card-header px-3 py-2">
-					<i data-lucide="bar-chart-2" class="me-1" aria-hidden="true"></i>ปริมาณยางในแต่ละรอบ
-				</div>
-				<div class="card-body p-3">
-					<div class="chart-wrap">
-						<canvas id="quantityChart" aria-label="กราฟปริมาณยางในแต่ละรอบ" role="img"></canvas>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-6">
-			<div class="chart-card">
-				<div class="card-header px-3 py-2">
-					<i data-lucide="coins" class="me-1" aria-hidden="true"></i>จำนวนเงินในแต่ละรอบ
-				</div>
-				<div class="card-body p-3">
-					<div class="chart-wrap">
-						<canvas id="valueChart" aria-label="กราฟจำนวนเงินในแต่ละรอบ" role="img"></canvas>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="section-title">
+    <i data-lucide="bar-chart-3" aria-hidden="true"></i>
+    กราฟสรุปตามรอบ
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="chart-card">
+        <div class="card-header px-3 py-2">
+          <i data-lucide="bar-chart-2" class="me-1" aria-hidden="true"></i>ปริมาณยางในแต่ละรอบ
+        </div>
+        <div class="card-body p-3">
+          <div class="chart-wrap">
+            <canvas id="quantityChart" aria-label="กราฟปริมาณยางในแต่ละรอบ" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="chart-card">
+        <div class="card-header px-3 py-2">
+          <i data-lucide="coins" class="me-1" aria-hidden="true"></i>จำนวนเงินในแต่ละรอบ
+        </div>
+        <div class="card-body p-3">
+          <div class="chart-wrap">
+            <canvas id="valueChart" aria-label="กราฟจำนวนเงินในแต่ละรอบ" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="section-title">
-		<i data-lucide="users" aria-hidden="true"></i>
-		กราฟจำนวนคนที่รวบรวมตามรอบ
-	</div>
-	<div class="row g-3 mb-4">
-		<div class="col-12 col-lg-6">
-			<div class="chart-card">
-				<div class="card-header px-3 py-2">
-					<i data-lucide="user" class="me-1" aria-hidden="true"></i>จำนวนสมาชิกที่รวบรวมในแต่ละรอบ
-				</div>
-				<div class="card-body p-3">
-					<div class="chart-wrap">
-						<canvas id="memberCountChart" aria-label="กราฟจำนวนสมาชิกที่รวบรวมในแต่ละรอบ" role="img"></canvas>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-6">
-			<div class="chart-card">
-				<div class="card-header px-3 py-2">
-					<i data-lucide="users" class="me-1" aria-hidden="true"></i>จำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ
-				</div>
-				<div class="card-body p-3">
-					<div class="chart-wrap">
-						<canvas id="generalCountChart" aria-label="กราฟจำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ" role="img"></canvas>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="section-title">
+    <i data-lucide="users" aria-hidden="true"></i>
+    กราฟจำนวนคนที่รวบรวมตามรอบ
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="chart-card">
+        <div class="card-header px-3 py-2">
+          <i data-lucide="user" class="me-1" aria-hidden="true"></i>จำนวนสมาชิกที่รวบรวมในแต่ละรอบ
+        </div>
+        <div class="card-body p-3">
+          <div class="chart-wrap">
+            <canvas id="memberCountChart" aria-label="กราฟจำนวนสมาชิกที่รวบรวมในแต่ละรอบ" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="chart-card">
+        <div class="card-header px-3 py-2">
+          <i data-lucide="users" class="me-1" aria-hidden="true"></i>จำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ
+        </div>
+        <div class="card-body p-3">
+          <div class="chart-wrap">
+            <canvas id="generalCountChart" aria-label="กราฟจำนวนเกษตรกรทั่วไปที่รวบรวมในแต่ละรอบ" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="section-title">
-		<i data-lucide="users-round" aria-hidden="true"></i>
-		ค่าเฉลี่ยต่อคนรอบล่าสุด
-	</div>
-	<div class="row g-3 mb-4">
-		<div class="col-12 col-lg-6">
-			<div class="stat-card">
-				<div class="average-card">
-					<div>
-						<div class="stat-label mb-2"><i data-lucide="scale" aria-hidden="true"></i>ยอดปริมาณยางเฉลี่ยต่อคน</div>
-						<div class="average-card-value"><?php echo number_format($latest_average_quantity_per_person,2); ?> kg</div>
-						<div class="average-card-note">รอบวันที่ <?php echo htmlspecialchars($latest_price_date_text); ?> · คำนวณจากปริมาณยางรวม ÷ ผู้ส่งทั้งหมด <?php echo number_format($latest_round_unique_people); ?> คน</div>
-					</div>
-					<div class="average-card-icon" aria-hidden="true">
-						<i data-lucide="scale" class="fs-4"></i>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-lg-6">
-			<div class="stat-card stat-card-accent-5">
-				<div class="average-card">
-					<div>
-						<div class="stat-label mb-2"><i data-lucide="wallet" aria-hidden="true"></i>รายรับเฉลี่ยต่อคน</div>
-						<div class="average-card-value"><?php echo number_format($latest_average_net_per_person,2); ?> ฿</div>
-						<div class="average-card-note">รอบวันที่ <?php echo htmlspecialchars($latest_price_date_text); ?> · คำนวณจากยอดสุทธิรวม (หักยอดหักแล้ว) ÷ ผู้ส่งทั้งหมด <?php echo number_format($latest_round_unique_people); ?> คน</div>
-					</div>
-					<div class="average-card-icon is-accent" aria-hidden="true">
-						<i data-lucide="coins" class="fs-4"></i>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="section-title">
+    <i data-lucide="users-round" aria-hidden="true"></i>
+    ค่าเฉลี่ยต่อคนรอบล่าสุด
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="stat-card">
+        <div class="average-card">
+          <div>
+            <div class="stat-label mb-2"><i data-lucide="scale" aria-hidden="true"></i>ยอดปริมาณยางเฉลี่ยต่อคน</div>
+            <div class="average-card-value"><?php echo number_format($latest_average_quantity_per_person,2); ?> kg</div>
+            <div class="average-card-note">รอบวันที่ <?php echo htmlspecialchars($latest_price_date_text); ?> ·
+              คำนวณจากปริมาณยางรวม ÷ ผู้ส่งทั้งหมด <?php echo number_format($latest_round_unique_people); ?> คน</div>
+          </div>
+          <div class="average-card-icon" aria-hidden="true">
+            <i data-lucide="scale" class="fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="stat-card stat-card-accent-5">
+        <div class="average-card">
+          <div>
+            <div class="stat-label mb-2"><i data-lucide="wallet" aria-hidden="true"></i>รายรับเฉลี่ยต่อคน</div>
+            <div class="average-card-value"><?php echo number_format($latest_average_net_per_person,2); ?> ฿</div>
+            <div class="average-card-note">รอบวันที่ <?php echo htmlspecialchars($latest_price_date_text); ?> ·
+              คำนวณจากยอดสุทธิรวม (หักยอดหักแล้ว) ÷ ผู้ส่งทั้งหมด
+              <?php echo number_format($latest_round_unique_people); ?> คน</div>
+          </div>
+          <div class="average-card-icon is-accent" aria-hidden="true">
+            <i data-lucide="coins" class="fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
-	<div class="row mb-4">
-		<div class="col-12">
-					<div class="section-title">
-						<i data-lucide="bar-chart-2" aria-hidden="true"></i>
-						ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
-					</div>
-			<div class="card-table">
-				<div class="table-responsive">
-					<table class="table table-hover table-sm mb-0 lan-summary-table">
-					<thead>
-						<tr class="text-center">
-							<th>ลาน</th>
-							<th>ปริมาณรวม (kg)</th>
+  <!-- ปริมาณรวบรวมแต่ละลาน (เฉพาะวันที่ราคายางล่าสุด) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="section-title">
+        <i data-lucide="bar-chart-2" aria-hidden="true"></i>
+        ปริมาณรวบรวมแต่ละลาน (วันที่ราคายาง: <?php echo htmlspecialchars($latest_price_date_text); ?>)
+      </div>
+      <div class="card-table">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm mb-0 lan-summary-table">
+            <thead>
+              <tr class="text-center">
+                <th>ลาน</th>
+                <th>ปริมาณรวม (kg)</th>
 
-							<th>ยอดเงินรวม (฿)</th>
-						</tr>
-					</thead>
-					<tbody>
-					<?php
+                <th>ยอดเงินรวม (฿)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
 					$grand_total_qty = 0;
 					$grand_total_value = 0;
 
 					if ($latest_price_date) {
 						$lan_sql = "SELECT ru_lan, SUM(ru_quantity) AS total_qty
-									FROM tbl_rubber
+									FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
 									WHERE ru_date = ?
 									GROUP BY ru_lan
 									ORDER BY CAST(ru_lan AS UNSIGNED) ASC";
@@ -1333,43 +1353,43 @@ if (!empty($chartSummaryByDate)) {
 						}
 					}
 					?>
-					<tr class="table-success fw-bold text-center">
-						<td>รวมทั้งหมด</td>
-						<td><?php echo number_format($grand_total_qty,2); ?></td>
-						<td><?php echo number_format($grand_total_value,2); ?></td>
-					</tr>
-					</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+              <tr class="table-success fw-bold text-center">
+                <td>รวมทั้งหมด</td>
+                <td><?php echo number_format($grand_total_qty,2); ?></td>
+                <td><?php echo number_format($grand_total_value,2); ?></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<!-- Daily summary table (all lans combined) -->
-	<div class="row daily-summary-section">
-		<div class="col-12">
-					<div class="section-title">
-						<i data-lucide="clipboard" aria-hidden="true"></i>
-						สรุปรับซื้อรายวัน (รวมทุกลาน)
-					</div>
+  <!-- Daily summary table (all lans combined) -->
+  <div class="row daily-summary-section">
+    <div class="col-12">
+      <div class="section-title">
+        <i data-lucide="clipboard" aria-hidden="true"></i>
+        สรุปรับซื้อรายวัน (รวมทุกลาน)
+      </div>
 
-			<div class="card-table">
-				<div class="table-responsive">
-					<table class="table table-striped table-hover w-100 mb-0 daily-summary-table">
-						<thead>
-							<tr class="text-center">
-								<th>วันที่</th>
-								<th>ราคา (฿/kg)</th>
-								<th>ปริมาณรวม (kg)</th>
-								<th>เงินรวม (฿)</th>
-								<th>ยอดหัก (฿)</th>
-								<th>คงเหลือ/สุทธิ (฿)</th>
-								<th>รายการ</th>
-								<th>สมาชิก/เกษตรกร (คน)</th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php
+      <div class="card-table">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover w-100 mb-0 daily-summary-table">
+            <thead>
+              <tr class="text-center">
+                <th>วันที่</th>
+                <th>ราคา (฿/kg)</th>
+                <th>ปริมาณรวม (kg)</th>
+                <th>เงินรวม (฿)</th>
+                <th>ยอดหัก (฿)</th>
+                <th>คงเหลือ/สุทธิ (฿)</th>
+                <th>รายการ</th>
+                <th>สมาชิก/เกษตรกร (คน)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
 							// รวมข้อมูลทุกลานให้เหลือวันที่ละ 1 แถว
 							$daily_summary = [];
 							if (!empty($summary_rows)) {
@@ -1422,7 +1442,7 @@ if (!empty($chartSummaryByDate)) {
 									r.ru_date,
 									COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'member' THEN TRIM(r.ru_number) END)    AS member_people,
 									COUNT(DISTINCT CASE WHEN LOWER(r.ru_class) = 'general' THEN TRIM(r.ru_fullname) END) AS general_people
-								FROM tbl_rubber r
+								FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) r
 								$sum_where_sql
 								GROUP BY r.ru_date";
 								$countStmt = $db->prepare($countSql);
@@ -1447,9 +1467,9 @@ if (!empty($chartSummaryByDate)) {
 								}
 							?>
 
-							<?php if (!empty($daily_summary)): ?>
-								<?php foreach ($daily_summary as $ruDate => $row): ?>
-									<?php
+              <?php if (!empty($daily_summary)): ?>
+              <?php foreach ($daily_summary as $ruDate => $row): ?>
+              <?php
 									$qty    = (float)$row['total_qty'];
 									$value  = (float)$row['total_value'];
 									$expend = (float)$row['total_expend'];
@@ -1470,45 +1490,48 @@ if (!empty($chartSummaryByDate)) {
 									$member_count  = $people_count_by_date[$ruDate]['member'] ?? 0;
 									$general_count = $people_count_by_date[$ruDate]['general'] ?? 0;
 									?>
-									<tr class="text-center">
-										<td class="text-nowrap"><?php echo htmlspecialchars($ruDate ? thai_date_format((string)$ruDate) : '-'); ?></td>
-										<td><?php echo $price !== null ? number_format($price, 2) : '-'; ?></td>
-										<td><?php echo number_format($qty, 2); ?></td>
-										<td><?php echo number_format($value, 2); ?></td>
-										<td><?php echo number_format($expend, 2); ?></td>
-										<td class="fw-semibold"><?php echo number_format($net, 2); ?></td>
-										<td><?php echo number_format($count); ?></td>
-										<td><?php echo number_format($member_count); ?>/<?php echo number_format($general_count); ?></td>
-									</tr>
-								<?php endforeach; ?>
-								<tr class="table-success fw-bold text-center">
-									<td colspan="2">รวมตามตัวกรอง</td>
-									<td><?php echo number_format($sum_total_qty, 2); ?></td>
-									<td><?php echo number_format($sum_total_value, 2); ?></td>
-									<td><?php echo number_format($sum_total_expend, 2); ?></td>
-									<td><?php echo number_format($sum_total_net, 2); ?></td>
-									<td><?php echo number_format($sum_total_rows); ?></td>
-									<td>-</td>
-								</tr>
-							<?php else: ?>
-								<tr>
-									<td colspan="8" class="text-center text-muted py-4">ยังไม่มีข้อมูลสรุปในช่วงที่เลือก</td>
-								</tr>
-							<?php endif; ?>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+              <tr class="text-center">
+                <td class="text-nowrap">
+                  <?php echo htmlspecialchars($ruDate ? thai_date_format((string)$ruDate) : '-'); ?></td>
+                <td><?php echo $price !== null ? number_format($price, 2) : '-'; ?></td>
+                <td><?php echo number_format($qty, 2); ?></td>
+                <td><?php echo number_format($value, 2); ?></td>
+                <td><?php echo number_format($expend, 2); ?></td>
+                <td class="fw-semibold"><?php echo number_format($net, 2); ?></td>
+                <td><?php echo number_format($count); ?></td>
+                <td><?php echo number_format($member_count); ?>/<?php echo number_format($general_count); ?></td>
+              </tr>
+              <?php endforeach; ?>
+              <tr class="table-success fw-bold text-center">
+                <td colspan="2">รวมตามตัวกรอง</td>
+                <td><?php echo number_format($sum_total_qty, 2); ?></td>
+                <td><?php echo number_format($sum_total_value, 2); ?></td>
+                <td><?php echo number_format($sum_total_expend, 2); ?></td>
+                <td><?php echo number_format($sum_total_net, 2); ?></td>
+                <td><?php echo number_format($sum_total_rows); ?></td>
+                <td>-</td>
+              </tr>
+              <?php else: ?>
+              <tr>
+                <td colspan="8" class="text-center text-muted py-4">ยังไม่มีข้อมูลสรุปในช่วงที่เลือก</td>
+              </tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="text-center mt-2 py-2">
-		<div class="text-muted mb-3 fs-5">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</div>
-			<a href="<?php echo htmlspecialchars($target); ?>" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
-				<i data-lucide="plus-circle" class="me-2" aria-hidden="true"></i>บันทึกข้อมูล
-			</a>
-</div>
+  <div class="text-center mt-2 py-2">
+    <div class="text-muted mb-3 fs-5">ต้องการเพิ่มข้อมูลการรวบรวมยาง?</div>
+    <a href="<?php echo htmlspecialchars($target); ?>"
+      class="btn btn-success btn-lg rounded-pill px-4 shadow-sm fw-semibold">
+      <i data-lucide="plus-circle" class="me-2" aria-hidden="true"></i>บันทึกข้อมูล
+    </a>
+  </div>
 
+</div><!-- .home-dashboard -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 (function() {
@@ -1526,7 +1549,9 @@ if (!empty($chartSummaryByDate)) {
 
   async function refreshLiveRound() {
     try {
-      const res = await fetch('rubber_round_live_summary.php', { cache: 'no-store' });
+      const res = await fetch('rubber_round_live_summary.php', {
+        cache: 'no-store'
+      });
       if (!res.ok) return;
       const data = await res.json();
 
@@ -1551,10 +1576,13 @@ if (!empty($chartSummaryByDate)) {
 
 (function() {
   const chartLabels = <?php echo json_encode($chartLabels, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
-  const chartQuantities = <?php echo json_encode($chartQuantities, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartQuantities =
+    <?php echo json_encode($chartQuantities, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
   const chartValues = <?php echo json_encode($chartValues, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
-  const chartMemberCounts = <?php echo json_encode($chartMemberCounts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
-  const chartGeneralCounts = <?php echo json_encode($chartGeneralCounts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartMemberCounts =
+    <?php echo json_encode($chartMemberCounts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+  const chartGeneralCounts =
+    <?php echo json_encode($chartGeneralCounts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 
   const quantityCanvas = document.getElementById('quantityChart');
   const valueCanvas = document.getElementById('valueChart');
@@ -1568,7 +1596,10 @@ if (!empty($chartSummaryByDate)) {
   const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
     plugins: {
       legend: {
         labels: {

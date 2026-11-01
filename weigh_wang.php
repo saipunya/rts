@@ -70,10 +70,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 $success = (string)($_SESSION['weighing_success'] ?? '');
 unset($_SESSION['weighing_success']);
 $sql = 'SELECT w.*, x.weighing_id, x.net_weight, x.price_per_kg, x.ru_id, x.round_date, x.deductions_saved_at, x.weighed_by, x.deductions_saved_by, x.approval_route, x.weight_updated_at, x.weight_updated_by
-        FROM tbl_wangyang w LEFT JOIN tbl_wang_weighing x ON x.wang_id = w.wang_id
+        FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w LEFT JOIN tbl_wang_weighing x ON x.wang_id = w.wang_id
         WHERE w.wang_date BETWEEN ? AND ? AND (x.weighing_id IS NULL OR x.round_date=?)';
 $sql .= ' AND w.wang_lan = ?';
-$sql .= " AND LOWER(TRIM(w.wang_status)) NOT IN ('cancelled','canceled','deleted')";
+$sql .= " AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')";
 if ($status === 'pending') $sql .= ' AND x.weighing_id IS NULL';
 if ($status === 'deductions') $sql .= ' AND x.weighing_id IS NOT NULL AND x.deductions_saved_at IS NULL';
 if ($status === 'completed') $sql .= ' AND x.deductions_saved_at IS NOT NULL';

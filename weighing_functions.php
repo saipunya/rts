@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 function ensure_weighing_schema(mysqli $db): void {
     ensure_wang_collection_table($db);
+    ensure_cancellation_schema($db);
     ensure_collection_round_schema($db);
     $db->query("CREATE TABLE IF NOT EXISTS tbl_collection_audit (
         audit_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -104,7 +105,7 @@ function record_wang_weighing(mysqli $db, int $wangId, string $weight, int $pric
             throw new RuntimeException('รายการวางยางไม่ตรงกับลานที่เลือก กรุณาเลือกรายการใหม่');
         }
         if (wang_has_weighing($db, $wangId)) throw new RuntimeException('รายการนี้ชั่งและส่งไปใส่ยอดหักแล้ว');
-        if (in_array(strtolower($wang['wang_status']), ['cancelled', 'canceled', 'deleted'], true)) {
+        if (collection_is_cancelled($wang)) {
             throw new RuntimeException('รายการวางยางนี้ถูกยกเลิกแล้ว');
         }
         if (!in_array((string)$wang['wang_lan'], ['1', '2', '3', '4'], true)
@@ -170,7 +171,7 @@ function collection_workflow_counts(mysqli $db, string $date, string $lane = 'al
         COALESCE(SUM(x.weighing_id IS NOT NULL AND x.deductions_saved_at IS NULL),0) AS pending_deductions,
         COALESCE(SUM(x.deductions_saved_at IS NOT NULL),0) AS completed
         FROM tbl_wangyang w LEFT JOIN tbl_wang_weighing x ON x.wang_id = w.wang_id
-        WHERE (? = '' OR w.wang_date = ?) AND LOWER(TRIM(w.wang_status)) NOT IN ('cancelled','canceled','deleted')";
+        WHERE (? = '' OR w.wang_date = ?) AND LOWER(TRIM(COALESCE(w.record_status, 'normal'))) NOT IN ('cancelled','canceled','deleted') AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')";
     $params = [$date, $date]; $types = 'ss';
     if ($lane !== 'all') { $sql .= ' AND w.wang_lan = ?'; $params[] = $lane; $types .= 's'; }
     if ($roundId !== null) { $sql .= ' AND w.collection_round_id = ?'; $params[] = $roundId; $types .= 'i'; }
@@ -207,6 +208,7 @@ function normalize_rubber_deductions(array $input): array {
 }
 
 function rubber_receipt_ready(mysqli $db, int $rubberId): bool {
+    assert_rubber_not_cancelled($db, $rubberId);
     $weighing = weighing_for_rubber($db, $rubberId);
     // Legacy purchases were entered before the weighing workflow existed.
     return $weighing === null || $weighing['deductions_saved_at'] !== null;
@@ -229,6 +231,7 @@ function lock_rubber_for_edit(mysqli $db, int $id, bool $admin): void {
     $exists = $stmt->get_result()->num_rows > 0;
     $stmt->close();
     if (!$exists) throw new RuntimeException('ไม่พบรายการ');
+    assert_rubber_not_cancelled($db, $id);
     $stmt = $db->prepare('SELECT ru_id FROM tbl_rubber_receipts WHERE ru_id = ? FOR UPDATE');
     $stmt->bind_param('i', $id);
     $stmt->execute();
@@ -240,6 +243,7 @@ function lock_rubber_for_edit(mysqli $db, int $id, bool $admin): void {
 // Caller holds the purchase row lock and has successfully rendered its PDF.
 function record_rubber_receipt_issue(mysqli $db, array $row, string $actor): void {
     $id = (int)$row['ru_id'];
+    assert_rubber_not_cancelled($db, $id);
     $now = (new DateTimeImmutable('now', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d H:i:s');
     $alreadyIssued = rubber_receipt_issued($db, $id) !== null;
     $snapshot = json_encode($row, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
@@ -263,6 +267,7 @@ function record_receipt_admin_edit(mysqli $db, int $id, string $actor): void {
 }
 
 function wang_record_lock_label(array $state): string {
+    if (collection_is_cancelled($state)) return 'ยกเลิก';
     if (!empty($state['receipt_issued_at'])) return 'ออกใบเสร็จแล้ว — ล็อกข้อมูลวางยาง';
     if (!empty($state['deductions_saved_at'])) return 'บันทึกยอดหักแล้ว — ล็อกข้อมูลวางยาง';
     if (!empty($state['weighing_id'])) return 'ชั่งน้ำหนักแล้ว — ล็อกข้อมูลวางยาง';
@@ -270,8 +275,8 @@ function wang_record_lock_label(array $state): string {
 }
 
 function wang_record_lock_reason(mysqli $db, int $id): string {
-    $stmt = $db->prepare('SELECT x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at
-        FROM tbl_wang_weighing x LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE x.wang_id=?');
+    $stmt = $db->prepare('SELECT w.record_status, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at
+        FROM tbl_wangyang w LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_id=?');
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $state = $stmt->get_result()->fetch_assoc();
@@ -394,6 +399,7 @@ function execute_wang_with_audit(mysqli $db, mysqli_stmt $mutation, int $id, str
         if ($id > 0) {
             $stmt = $db->prepare('SELECT * FROM tbl_wangyang WHERE wang_id=? FOR UPDATE');
             $stmt->bind_param('i', $id); $stmt->execute(); $before = $stmt->get_result()->fetch_assoc(); $stmt->close();
+            if ($before && collection_is_cancelled($before)) throw new DomainException('รายการนี้ยกเลิกแล้ว ไม่สามารถแก้ไขหรือลบได้');
         }
         if ($before && $roundId !== null && (int)$before['collection_round_id'] !== $roundId) throw new DomainException('รายการไม่อยู่ในรอบที่เลือก');
         $ok = $mutation->execute();
@@ -441,6 +447,7 @@ function delete_unlinked_rubber(mysqli $db, int $id): void {
         $stmt = $db->prepare('SELECT * FROM tbl_rubber WHERE ru_id=? FOR UPDATE');
         $stmt->bind_param('i', $id); $stmt->execute(); $before = $stmt->get_result()->fetch_assoc(); $stmt->close();
         if (!$before) throw new DomainException('ไม่พบรายการที่ต้องการลบ');
+        if (collection_is_cancelled($before)) throw new DomainException('รายการนี้ยกเลิกแล้ว ต้องเก็บไว้ตรวจสอบ');
         if (rubber_receipt_issued($db, $id) || weighing_for_rubber($db, $id)) {
             throw new DomainException('รายการนี้เชื่อมกับผลชั่งหรือใบเสร็จ ให้ดำเนินการแก้ไขข้อมูลแทนการลบ');
         }
@@ -456,7 +463,7 @@ function issued_rubber_receipts(mysqli $db, string $search = '', string $lane = 
     if (!in_array($lane, ['all','1','2','3','4'], true)) $lane = 'all';
     $from = ' FROM tbl_rubber_receipts z JOIN tbl_rubber r ON r.ru_id=z.ru_id
         LEFT JOIN tbl_wang_weighing x ON x.ru_id=r.ru_id LEFT JOIN tbl_wangyang w ON w.wang_id=x.wang_id LEFT JOIN tbl_collection_rounds c ON c.round_id=w.collection_round_id';
-    $conditions = []; $params = []; $types = '';
+    $conditions = ["COALESCE(r.record_status,'normal') NOT IN ('cancelled','canceled','deleted')"]; $params = []; $types = '';
     if ($roundDate !== null) { $conditions[] = 'COALESCE(x.round_date, r.ru_date)=?'; $params[] = $roundDate; $types .= 's'; }
     if ($lane !== 'all') { $conditions[] = 'r.ru_lan=?'; $params[] = $lane; $types .= 's'; }
     if (trim($search) !== '') {

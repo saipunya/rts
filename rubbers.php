@@ -42,9 +42,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 }
 // The round queue is fixed on the server; old date, lane or status parameters cannot broaden it.
-$from = ' FROM tbl_rubber r JOIN tbl_wang_weighing x ON x.ru_id=r.ru_id JOIN tbl_wangyang w ON w.wang_id=x.wang_id';
+$from = ' FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) r JOIN tbl_wang_weighing x ON x.ru_id=r.ru_id JOIN (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w ON w.wang_id=x.wang_id';
 $where = " WHERE w.collection_round_id=? AND x.approval_route='review' AND x.deductions_saved_at IS NULL
-    AND LOWER(TRIM(w.wang_status)) NOT IN ('cancelled','canceled','deleted')";
+    AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')";
 $params = [$roundId]; $types = 'i';
 if ($search !== '') {
     $where .= ' AND (r.ru_fullname LIKE ? OR r.ru_number LIKE ? OR r.ru_group LIKE ? OR w.wang_note LIKE ?)';
@@ -60,7 +60,7 @@ $listParams = array_merge($params, [$perPage, $offset]); $listTypes = $types . '
 $stmt->bind_param($listTypes, ...$listParams); $stmt->execute(); $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC); $stmt->close();
 $selected = null;
 if ($id > 0) {
-    $stmt = $db->prepare("SELECT r.*, x.net_weight, w.wang_note" . $from . " WHERE r.ru_id=? AND w.collection_round_id=? AND x.approval_route='review' AND x.deductions_saved_at IS NULL AND LOWER(TRIM(w.wang_status)) NOT IN ('cancelled','canceled','deleted')");
+    $stmt = $db->prepare("SELECT r.*, x.net_weight, w.wang_note" . $from . " WHERE r.ru_id=? AND w.collection_round_id=? AND x.approval_route='review' AND x.deductions_saved_at IS NULL AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')");
     $stmt->bind_param('ii', $id, $roundId); $stmt->execute(); $selected = $stmt->get_result()->fetch_assoc(); $stmt->close();
     if (!$selected) $errors[] = 'ไม่พบรายการในคิวบันทึกยอดหักของรอบนี้';
 }

@@ -106,7 +106,7 @@ $deductionLabels = [
 
 if ($member) {
     $db = db();
-    if ($stmtYear = $db->prepare('SELECT DISTINCT YEAR(ru_date) AS y FROM tbl_rubber WHERE ru_number = ? ORDER BY y DESC')) {
+    if ($stmtYear = $db->prepare('SELECT DISTINCT YEAR(ru_date) AS y FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber WHERE ru_number = ? ORDER BY y DESC')) {
         $stmtYear->bind_param('s', $member['mem_number']);
         $stmtYear->execute();
         $resYear = $stmtYear->get_result();
@@ -137,7 +137,7 @@ if ($member) {
                    SUM(ru_deposit) AS total_deposit,
                    SUM(ru_tradeloan) AS total_tradeloan,
                    SUM(ru_insurance) AS total_insurance
-            FROM tbl_rubber
+            FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber
             WHERE ru_number = ?';
     $types = 's';
     $params = [$member['mem_number']];

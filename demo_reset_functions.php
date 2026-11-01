@@ -4,6 +4,7 @@ declare(strict_types=1);
 function demo_reset_tables(): array {
     // Child records precede their parents; user accounts are deliberately excluded.
     return [
+        'tbl_collection_cancellations'=>'ประวัติยกเลิกรายการ',
         'tbl_collection_audit'=>'ประวัติการบันทึกและแก้ไข',
         'tbl_weighing_review_returns'=>'ประวัติย้อนกลับการอนุมัติ',
         'tbl_rubber_receipts'=>'ใบเสร็จ',

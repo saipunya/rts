@@ -10,12 +10,12 @@ if (!in_array($lane, ['all','1','2','3','4'], true)) $lane = 'all';
 $source = "(SELECT w.wang_id, x.ru_id, w.wang_name AS name, w.wang_note AS note,
     w.wang_number AS member_number, w.wang_group AS member_group, w.wang_lan AS lane,
     COALESCE(x.round_date,w.wang_date) AS business_date, w.wang_savedate AS saved_at,
-    w.wang_saveby AS recorder, x.weighing_id, x.approval_route, x.deductions_saved_at, z.issued_at
+    w.wang_saveby AS recorder, w.record_status, w.wang_status, x.weighing_id, x.approval_route, x.deductions_saved_at, z.issued_at
     FROM tbl_wangyang w LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id
     LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id
     UNION ALL
     SELECT 0, r.ru_id, r.ru_fullname, '', r.ru_number, r.ru_group, r.ru_lan, r.ru_date,
-    r.ru_date, r.ru_saveby, NULL, NULL, NULL, z.issued_at
+    r.ru_date, r.ru_saveby, r.record_status, NULL, NULL, NULL, NULL, z.issued_at
     FROM tbl_rubber r LEFT JOIN tbl_wang_weighing x ON x.ru_id=r.ru_id
     LEFT JOIN tbl_rubber_receipts z ON z.ru_id=r.ru_id WHERE x.ru_id IS NULL) records";
 $conditions = []; $params = []; $types = '';
@@ -47,7 +47,7 @@ require __DIR__.'/header.php';
 <p class="small text-muted">พบ <?php echo number_format($total); ?> รายการ · หน้า <?php echo $page; ?> / <?php echo $pages; ?></p>
 <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>รายการ</th><th>สมาชิก</th><th>วันที่รายการ</th><th>ลาน</th><th>สถานะ</th><th>ความเคลื่อนไหวล่าสุด</th><th>ตรวจสอบ</th></tr></thead><tbody>
 <?php foreach ($rows as $row):
-$status=$row['issued_at']!==null?'ออกใบเสร็จแล้ว':($row['deductions_saved_at']!==null?'บันทึกยอดหักแล้ว':($row['approval_route']==='review'?'รอบันทึกยอดหัก':($row['weighing_id']!==null?'รออนุมัติ':($row['wang_id']?'รอชั่งน้ำหนัก':'รายการเดิม'))));
+$status=collection_is_cancelled($row)?'ยกเลิก':($row['issued_at']!==null?'ออกใบเสร็จแล้ว':($row['deductions_saved_at']!==null?'บันทึกยอดหักแล้ว':($row['approval_route']==='review'?'รอบันทึกยอดหัก':($row['weighing_id']!==null?'รออนุมัติ':($row['wang_id']?'รอชั่งน้ำหนัก':'รายการเดิม')))));
 $link='collection_history.php?'.http_build_query($row['wang_id']?['wang_id'=>$row['wang_id']]:['ru_id'=>$row['ru_id']]);
 ?>
 <tr><td><?php if ($row['wang_id']): ?>วางยาง #<?php echo (int)$row['wang_id']; ?><br><?php endif; ?><?php if ($row['ru_id']): ?>ใบรับยาง #<?php echo (int)$row['ru_id']; ?><?php endif; ?></td><td><strong><?php echo e(collection_display_name($row['name'],$row['note'])); ?></strong><small class="d-block text-muted">เลขที่ <?php echo e($row['member_number']); ?> · กลุ่ม <?php echo e($row['member_group']); ?></small></td><td><?php echo e(thai_date_short_format($row['business_date'])); ?></td><td><?php echo e($row['lane']); ?></td><td><?php echo e($status); ?></td><td><?php echo e(thai_datetime_format($row['latest_event']??$row['saved_at'])); ?></td><td><a class="btn btn-sm btn-outline-success" href="<?php echo e($link); ?>"><i data-lucide="history" aria-hidden="true"></i>ดูประวัติ</a></td></tr>

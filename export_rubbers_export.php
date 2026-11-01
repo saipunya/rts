@@ -71,7 +71,7 @@ $sql = "SELECT ru_fullname, ru_number,
         SUM(ru_value)              AS total_value,
         SUM(ru_netvalue)           AS total_netvalue,
         SUM(ru_value - ru_netvalue) AS total_deduct
-    FROM tbl_rubber $where
+    FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber $where
     GROUP BY ru_fullname, ru_number
     ORDER BY ru_fullname";
 $st = $db->prepare($sql);

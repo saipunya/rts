@@ -110,6 +110,7 @@ $perPage = 50;
 $offset = ($page - 1) * $perPage;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
     $token = (string)($_POST['csrf_token'] ?? '');
     $action = (string)($_POST['action'] ?? '');
     $returnParams = [];
@@ -215,6 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+    } catch (DomainException $exception) { $error = $exception->getMessage(); }
 }
 
 $where = '';
@@ -251,6 +253,7 @@ $rows = [];
 $sql = "
     SELECT
         x.weighing_id, x.net_weight, x.deductions_saved_at, z.issued_at AS receipt_issued_at,
+        w.record_status, w.wang_status,
         w.wang_id,
         w.wang_date,
         w.wang_mid,

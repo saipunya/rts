@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'น้ำหนักประมาณต่อถุงต้องไม่ติดลบ';
     } else {
         $totalBags = 0.0;
-        $stmt = $db->prepare('SELECT COALESCE(SUM(wang_sack), 0) AS total_bags FROM tbl_wangyang WHERE wang_date = ?');
+        $stmt = $db->prepare('SELECT COALESCE(SUM(wang_sack), 0) AS total_bags FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_wangyang WHERE wang_date = ?');
         if ($stmt) {
             $stmt->bind_param('s', $summaryDate);
             $stmt->execute();
@@ -105,7 +105,7 @@ $sql = "
         ROUND(COALESCE(SUM(w.wang_sack), 0) * COALESCE(s.ws_weight_per_bag, 0), 2) AS ws_estimated_weight,
         s.ws_saveby,
         s.ws_savedate
-    FROM tbl_wangyang w
+    FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w
     LEFT JOIN tbl_wangyang_daily_summary s ON s.ws_date = w.wang_date
     GROUP BY w.wang_date, s.ws_weight_per_bag, s.ws_saveby, s.ws_savedate
     ORDER BY w.wang_date DESC
