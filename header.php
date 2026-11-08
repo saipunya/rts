@@ -7,6 +7,7 @@ if (function_exists('touch_online_presence')) {
 }
 
 $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
+$publicHome = $currentPage === 'index.php' && (!function_exists('is_logged_in') || !is_logged_in());
 
 if (!function_exists('nav_active')) {
     function nav_active($pages): string {
@@ -17,7 +18,7 @@ if (!function_exists('nav_active')) {
 }
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="th">
 
 <head>
   <title>++ระบบการรวบรวมยาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด ++</title>
@@ -38,56 +39,56 @@ if (!function_exists('nav_active')) {
     font-family: 'Sarabun';
     font-style: normal;
     font-weight: 400;
-    src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
+    src: url('fonts/Sarabun-Regular.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Sarabun';
     font-style: normal;
     font-weight: 700;
-    src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
+    src: url('fonts/Sarabun-Bold.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Sarabun';
     font-style: italic;
     font-weight: 400;
-    src: url('assets/fonts/Sarabun-Italic.ttf') format('truetype');
+    src: url('fonts/Sarabun-Italic.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Sarabun';
     font-style: italic;
     font-weight: 700;
-    src: url('assets/fonts/Sarabun-BoldItalic.ttf') format('truetype');
+    src: url('fonts/Sarabun-BoldItalic.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: normal;
     font-weight: 400;
-    src: url('assets/fonts/THSarabunNew.ttf') format('truetype');
+    src: url('fonts/Sarabun-Regular.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: normal;
     font-weight: 700;
-    src: url('assets/fonts/THSarabunNew-Bold.ttf') format('truetype');
+    src: url('fonts/Sarabun-Bold.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: italic;
     font-weight: 400;
-    src: url('assets/fonts/THSarabunNew-italic.ttf') format('truetype');
+    src: url('fonts/Sarabun-Italic.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: italic;
     font-weight: 700;
-    src: url('assets/fonts/THSarabunNew-BoldItalic.ttf') format('truetype');
+    src: url('fonts/Sarabun-BoldItalic.ttf') format('truetype');
   }
 
   * {
@@ -988,9 +989,10 @@ if (!function_exists('nav_active')) {
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js"></script>
 <?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
 <?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
+<link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 </head>
 
-<body class="<?php echo $collectionControls ? 'collection-ui' : ''; ?>">
+<body class="rts-operations <?php echo $collectionControls ? 'collection-ui' : ''; ?>" data-page="<?php echo htmlspecialchars($currentPage, ENT_QUOTES, 'UTF-8'); ?>">
   <header class="app-header">
     <div class="header-shell">
       <div class="app-shell">
@@ -1015,6 +1017,8 @@ if (!function_exists('nav_active')) {
               </span>
             </button>
             <div class="desktop-nav d-none d-lg-flex">
+<?php if ($publicHome): include __DIR__.'/partials/public-navigation.php'; else: ?>
+
               <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
                 <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
               </a>
@@ -1034,13 +1038,14 @@ if (!function_exists('nav_active')) {
                 <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
               </a>
           <details class="management-menu">
-            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
+            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','collection_analysis.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
             <nav class="management-menu-items" aria-label="จัดการระบบ">
               <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
               <?php if (is_admin()): ?>
               <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
               <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
               <?php endif; ?>
+              <a href="collection_analysis.php" class="topbar-link<?php echo nav_active('collection_analysis.php'); ?>"><i data-lucide="bar-chart-3" class="me-1" aria-hidden="true"></i>วิเคราะห์การรวบรวม</a>
               <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
               <a href="logout.php" class="topbar-link text-danger fw-semibold">
                 <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
@@ -1053,10 +1058,13 @@ if (!function_exists('nav_active')) {
               <?php endif; ?>
             </nav>
           </details>
-            </div>
+            <?php endif; ?>
+</div>
           </div>
         </div>
         <div class="mobile-nav collapse d-lg-none" id="topbarNav">
+<?php if ($publicHome): include __DIR__.'/partials/public-navigation.php'; else: ?>
+
           <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
             <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
           </a>
@@ -1076,13 +1084,14 @@ if (!function_exists('nav_active')) {
             <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
           </a>
           <details class="management-menu">
-            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
+            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','collection_analysis.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
             <nav class="management-menu-items" aria-label="จัดการระบบ">
               <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
               <?php if (is_admin()): ?>
               <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
               <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
               <?php endif; ?>
+              <a href="collection_analysis.php" class="topbar-link<?php echo nav_active('collection_analysis.php'); ?>"><i data-lucide="bar-chart-3" class="me-1" aria-hidden="true"></i>วิเคราะห์การรวบรวม</a>
               <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
           <a href="logout.php" class="topbar-link text-danger fw-semibold">
             <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
@@ -1095,7 +1104,8 @@ if (!function_exists('nav_active')) {
           <?php endif; ?>
             </nav>
           </details>
-        </div>
+        <?php endif; ?>
+</div>
       </div>
     </div>
   </header>

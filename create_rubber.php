@@ -1006,7 +1006,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 <link rel="stylesheet" href="assets/css/placement-mobile.css?v=<?php echo filemtime(__DIR__ . '/assets/css/placement-mobile.css'); ?>">
 </head>
 
-<body class="collection-ui placement-page">
+<body class="rts-operations collection-ui placement-page">
   <div id="app">
     <header class="app-header">
       <div class="container">
@@ -1951,6 +1951,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     /* ignore if functions not ready */
   }
   </script>
+<link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 </body>
 
 </html>

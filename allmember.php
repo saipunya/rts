@@ -860,7 +860,7 @@ if ($member) {
         }
     </style>
 </head>
-<body>
+<body class="rts-operations">
 
 <?php if (!$member): ?>
 <!-- ═══════════════ LOGIN ═══════════════ -->
@@ -1299,5 +1299,6 @@ if ($member) {
     });
 })();
 </script>
+<link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 </body>
 </html>

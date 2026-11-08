@@ -1,4 +1,5 @@
 </div>
+</div>
 </main>
 <?php
 $footerOnlineStats = [
@@ -422,6 +423,7 @@ if (function_exists('fetch_online_presence_stats')) {
 }
 </style>
 
+<link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 <!-- Bootstrap JavaScript Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
   integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>

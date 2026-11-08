@@ -908,11 +908,12 @@ body {
 <div class="container my-4">
   <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
     <div>
-      <h1 class="h4 mb-0"><i data-lucide="gauge" class="me-2" aria-hidden="true"></i>Dashboard</h1>
+      <h1 class="h4 mb-0"><i data-lucide="gauge" class="me-2" aria-hidden="true"></i>ศูนย์งานสหกรณ์</h1>
       <div class="small text-muted">สวัสดี <?php echo htmlspecialchars($cu['user_fullname'] ?? $cu['user_username']); ?>
         (<?php echo htmlspecialchars($cu['user_level']); ?>)</div>
     </div>
     <div class="d-flex flex-wrap gap-2">
+      <a href="collection_analysis.php" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1"><i data-lucide="bar-chart-3" aria-hidden="true"></i><span>วิเคราะห์การรวบรวม</span></a>
       <a href="wang_main.php" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
         <i data-lucide="package-check" aria-hidden="true"></i>
         <span>วางยาง</span>
@@ -945,10 +946,10 @@ body {
     <div class="col-12 col-md-6">
       <div class="card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title"><i data-lucide="user" class="me-2" aria-hidden="true"></i>Account</h5>
-          <p class="card-text mb-1"><strong>Username:</strong> <?php echo htmlspecialchars($cu['user_username']); ?></p>
-          <p class="card-text mb-1"><strong>Fullname:</strong> <?php echo htmlspecialchars($cu['user_fullname']); ?></p>
-          <p class="card-text mb-0"><strong>Level:</strong> <?php echo htmlspecialchars($cu['user_level']); ?></p>
+          <h5 class="card-title"><i data-lucide="user" class="me-2" aria-hidden="true"></i>บัญชีผู้ใช้งาน</h5>
+          <p class="card-text mb-1"><strong>ชื่อผู้ใช้:</strong> <?php echo htmlspecialchars($cu['user_username']); ?></p>
+          <p class="card-text mb-1"><strong>ชื่อ–นามสกุล:</strong> <?php echo htmlspecialchars($cu['user_fullname']); ?></p>
+          <p class="card-text mb-0"><strong>สิทธิ์การใช้งาน:</strong> <?php echo htmlspecialchars($cu['user_level']); ?></p>
         </div>
         <div class="card-footer bg-transparent d-flex justify-content-end align-items-center">
           <div>
@@ -966,7 +967,7 @@ body {
     <div class="col-12 col-md-6">
       <div class="card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title"><i data-lucide="download" class="me-2" aria-hidden="true"></i>Export Data</h5>
+          <h5 class="card-title"><i data-lucide="download" class="me-2" aria-hidden="true"></i>ส่งออกข้อมูล</h5>
           <p class="card-text text-muted mb-2">ส่งออกข้อมูลรายการตามรอบวันที่ขาย / ชั่งยาง</p>
           <?php
                     // ดึง pr_date จาก tbl_price โดยใช้ db() จาก functions.php
