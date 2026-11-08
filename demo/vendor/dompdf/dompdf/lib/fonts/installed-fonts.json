@@ -1,0 +1,42 @@
+{
+    "kanit": {
+        "900": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_900_e458ec004e139e5535816dc2e0ecb8bd",
+        "900_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_900_italic_1112961ba6124b19a10f2e2f7d7c522f",
+        "bold": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_bold_d6b6927145bb0f1d5382f7a1f51a4e0a",
+        "bold_italic": "kanit_bold_italic_d2855ac694a620f7b77cea5fdc26e844",
+        "200": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_200_674dc8387bed20db600abbc3dd7238e9",
+        "200_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_200_italic_0f2c63c73140af8cb964ca9583f8ec45",
+        "italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_italic_a4ad42e4ba76b86dfddc8af23e10b3e7",
+        "300": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_300_84d71f4d5e53047640d374b6a64f8166",
+        "300_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_300_italic_7e220996e0fb7f8ae7c7e4240b64fa34",
+        "500": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_500_6dfd867e4a16ae87fd0e4f9083f07642",
+        "500_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_500_italic_ab76cd94dc9bcce17023f3208cd47788",
+        "normal": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_normal_6ddf676401112f7610d1b4e2a6d6aa82",
+        "600": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_600_759578244b74907b1e8c587f3e043e40",
+        "600_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_600_italic_89f180c3c32f1fc9199342f70ceaf266",
+        "100": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_100_441242cd1c0c39083c452e3cfea0fa5c",
+        "100_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/kanit_100_italic_32cba967b970dfa3f040a5902c07abe1"
+    },
+    "sarabun": {
+        "bold": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_bold_91ad218eba498e3eeb54b11701cbf57c",
+        "bold_italic": "sarabun_bold_italic_e9608e372c45b49d7e8235981cf4839f",
+        "200": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_200_72d0f243fac4d30db667f6c0c17c4035",
+        "200_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_200_italic_ea0eba5741fa73577754ab8c73db4a3c",
+        "italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_italic_ccff108dc924b48472dfe8ce6878f41f",
+        "300": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_300_059292c89057c3941c92b40407606adc",
+        "300_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_300_italic_b891a8bedbec43dde6374c1665ff2b40",
+        "500": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_500_af93ab4b0cfd833cd2a165acd2def8d0",
+        "500_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_500_italic_7e2500adea1ff80440e6524b98815652",
+        "normal": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_normal_ddd3f3e73c01fa318823162a3646cfb2",
+        "600": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_600_04fe6df9d095954a3438f669e0e9c9bc",
+        "600_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_600_italic_84b7d9431ec089210c1ac35c6e09bac9",
+        "100": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_100_fd823aa7041920446140f68373450176",
+        "100_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/sarabun_100_italic_babb3b992ef47b063271f25b0341d9ba"
+    },
+    "thsarabunnew": {
+        "bold": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/thsarabunnew_bold_d726f9b436565dca29a8b9f5f85255c0",
+        "bold_italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/thsarabunnew_bold_italic_8fa4082ca29b58268d4d36be355f0e86",
+        "italic": "\/Users\/sumetmac\/Desktop\/GitHub\/rts\/vendor\/dompdf\/dompdf\/lib\/fonts\/thsarabunnew_italic_e1c92f5d9d63336ef5107bd49d6b24a1",
+        "normal": "thsarabunnew_normal_d9be1ed6999d748d4e13dc7d5170a64c"
+    }
+}

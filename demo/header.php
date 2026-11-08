@@ -1,0 +1,1136 @@
+<?php
+// functions.php should be required by pages that need it to avoid double-includes
+require_once __DIR__ . '/app_bootstrap.php';
+
+if (function_exists('touch_online_presence')) {
+    touch_online_presence();
+}
+
+$currentPage = basename($_SERVER['PHP_SELF'] ?? '');
+
+if (!function_exists('nav_active')) {
+    function nav_active($pages): string {
+        global $currentPage;
+        $pages = (array)$pages;
+        return in_array($currentPage, $pages, true) ? ' active' : '';
+    }
+}
+?>
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>++ระบบการรวบรวมยาง สหกรณ์ตัวอย่าง (ระบบทดลอง) ++</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Bootstrap CSS v5.3 -->
+  <link href="assets/offline/bootstrap-5.3.2.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <!-- AOS Animation Library -->
+  <link href="assets/offline/aos-2.3.1.css" rel="stylesheet">
+  <!-- Google Fonts: Sarabun -->
+  <link href="assets/offline/sarabun.css"
+    rel="stylesheet">
+  <style>
+  /* Fonts: Sarabun and fallback THSarabunNew */
+  @font-face {
+    font-family: 'Sarabun';
+    font-style: normal;
+    font-weight: 400;
+    src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Sarabun';
+    font-style: normal;
+    font-weight: 700;
+    src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Sarabun';
+    font-style: italic;
+    font-weight: 400;
+    src: url('assets/fonts/Sarabun-Italic.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Sarabun';
+    font-style: italic;
+    font-weight: 700;
+    src: url('assets/fonts/Sarabun-BoldItalic.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'THSarabunNew';
+    font-style: normal;
+    font-weight: 400;
+    src: url('assets/fonts/THSarabunNew.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'THSarabunNew';
+    font-style: normal;
+    font-weight: 700;
+    src: url('assets/fonts/THSarabunNew-Bold.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'THSarabunNew';
+    font-style: italic;
+    font-weight: 400;
+    src: url('assets/fonts/THSarabunNew-italic.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'THSarabunNew';
+    font-style: italic;
+    font-weight: 700;
+    src: url('assets/fonts/THSarabunNew-BoldItalic.ttf') format('truetype');
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 992px) {
+    .app-header {
+      overflow: visible;
+    }
+
+    .topbar .app-shell {
+      align-items: center;
+    }
+
+    .brand-panel {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .mobile-nav {
+      position: relative;
+      width: 100vw;
+      margin-top: 0.75rem;
+      margin-left: calc(50% - 50vw);
+      padding: 0.9rem 1rem;
+      border-top: 1px solid #b8dabc;
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 0;
+      box-shadow: 0 14px 28px rgba(16, 24, 40, 0.08);
+      z-index: 2;
+    }
+
+    .mobile-nav.collapse {
+      display: none;
+    }
+
+    .mobile-nav.collapse.show,
+    .mobile-nav.collapsing {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .mobile-nav .topbar-link {
+      display: flex;
+      width: 100%;
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+    }
+
+    .mobile-nav>* {
+      width: 100%;
+    }
+
+    .mobile-nav.collapse.show>*,
+    .mobile-nav.collapsing>* {
+      margin-bottom: 0.35rem;
+    }
+
+    .mobile-nav.collapse.show>*:last-child,
+    .mobile-nav.collapsing>*:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  :root {
+    font-size: 18px;
+    /* slightly larger baseline for THSarabun readability */
+    --brand-dark: #5a6c7d;
+    --brand-primary: #6b8fa3;
+    --brand-secondary: #8fa3b1;
+    --brand-accent: #d4a574;
+    --brand-soft: #f0f4f7;
+    --header-deep: #184d2d;
+    --header-mid: #2f6e43;
+    --header-light: #edf7f0;
+    --header-border: rgba(24, 77, 45, 0.12);
+  }
+
+  html {
+    font-size: 18px;
+  }
+
+  /* Make any intentionally-small helper text readable */
+  .small,
+  .form-text {
+    font-size: 1rem !important;
+  }
+
+  body {
+    min-height: 100vh;
+    background: #f5f7f9;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #475467;
+  }
+
+  /* Typography baseline for all main pages */
+  .content-card,
+  .card,
+  .table,
+  .form-control,
+  .form-select,
+  .form-label,
+  .nav-link,
+  .dropdown-item,
+  .alert,
+  .badge {
+    font-size: 1rem;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  main {
+    padding: 1.5rem 0 2rem;
+  }
+
+  .app-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .app-header {
+    background:
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 30%),
+      linear-gradient(135deg, #eef7f1 0%, #d7eadb 48%, #cfe5d5 100%);
+    color: var(--header-deep);
+    box-shadow: 0 18px 40px rgba(16, 24, 40, 0.08);
+    position: relative;
+    z-index: 10;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    overflow: hidden;
+  }
+
+  .app-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 28%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 40%);
+    pointer-events: none;
+  }
+
+  .header-shell {
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 0 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .brand-mark {
+    width: 58px;
+    height: 58px;
+    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #ffffff 0%, #eef8f1 100%);
+    color: var(--header-mid);
+    box-shadow: 0 10px 22px rgba(24, 77, 45, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    flex-shrink: 0;
+    font-size: 1.55rem;
+  }
+
+  .brand-copy {
+    min-width: 0;
+  }
+
+  .brand-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--header-mid);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .brand-title {
+    margin: 0.3rem 0 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--header-deep);
+    letter-spacing: 0.01em;
+  }
+
+  .brand-subtitle {
+    margin: 0.15rem 0 0;
+    font-size: 0.84rem;
+    color: rgba(24, 77, 45, 0.75);
+    line-height: 1.35;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--header-deep);
+    font-size: 0.88rem;
+    font-weight: 700;
+    border: 1px solid rgba(24, 77, 45, 0.08);
+    box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  .topbar-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    color: var(--header-deep);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    font-size: 0.84rem;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  .topbar-link:hover {
+    color: #0f3d23;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 8px 18px rgba(16, 24, 40, 0.06);
+    border-color: rgba(24, 77, 45, 0.12);
+  }
+
+  .topbar-link.active {
+    color: #0f3d23;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 10px 22px rgba(16, 24, 40, 0.08);
+    border: 1px solid rgba(24, 77, 45, 0.16);
+    border-radius: 5px;
+    padding: 0.35rem 0.85rem;
+    font-weight: 700;
+  }
+
+  .desktop-nav {
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  .topbar-toggle {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(24, 77, 45, 0.12);
+    border-radius: 0.75rem;
+    width: 48px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-left: auto;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .topbar-toggle:hover,
+  .topbar-toggle:focus {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(24, 77, 45, 0.18);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  .topbar-toggle .toggle-bars {
+    width: 22px;
+    height: 18px;
+    position: relative;
+  }
+
+  .topbar-toggle .bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2.5px;
+    border-radius: 999px;
+    background: #0d5322;
+    transition: transform 0.25s ease, top 0.25s ease, opacity 0.2s ease;
+  }
+
+  .topbar-toggle .bar:nth-child(1) {
+    top: 0;
+  }
+
+  .topbar-toggle .bar:nth-child(2) {
+    top: 7.5px;
+  }
+
+  .topbar-toggle .bar:nth-child(3) {
+    top: 15px;
+  }
+
+  .topbar-toggle[aria-expanded="true"] .bar:nth-child(1) {
+    top: 7.5px;
+    transform: rotate(45deg);
+  }
+
+  .topbar-toggle[aria-expanded="true"] .bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .topbar-toggle[aria-expanded="true"] .bar:nth-child(3) {
+    top: 7.5px;
+    transform: rotate(-45deg);
+  }
+
+  .text-accent {
+    color: var(--brand-accent) !important;
+  }
+
+  .page-hero {
+    color: #495057;
+    border-radius: 0.75rem;
+    padding: 1.75rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    margin-bottom: 1.5rem;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+  }
+
+  .page-hero-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-hero h1 {
+    font-size: 2rem;
+    /* normal title size */
+    font-weight: 700;
+    letter-spacing: .04em;
+  }
+
+  .page-hero h5 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    opacity: .95;
+  }
+
+  .page-hero .badge-pill {
+    font-size: .95rem;
+    background-color: rgba(255, 255, 255, .2);
+    border-radius: 999px;
+    padding: .25rem .9rem;
+    backdrop-filter: blur(6px);
+  }
+
+  .hero-stats .stat-card {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+    color: #f8fafc;
+    min-height: 110px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+
+  .stat-label {
+    font-size: 1.2rem;
+    opacity: 0.85;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  .content-card {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+  }
+
+  .section-title i {
+    color: #28a745;
+  }
+
+  /* Normal font inside tables */
+  table,
+  .dataTable,
+  table.dataTable tbody td,
+  table.dataTable thead th,
+  table.table td,
+  table.table th {
+    font-size: 1rem;
+    /* normal cell & header size */
+  }
+
+  .btn-sm {
+    font-size: 1rem;
+    padding: .25rem .5rem;
+  }
+
+  .btn {
+    font-size: 1rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn::before {
+    display: none;
+  }
+
+  .btn-primary {
+    background: #28a745;
+    border: none;
+    box-shadow: none;
+  }
+
+  .btn-primary:hover {
+    background: #218838;
+    box-shadow: none;
+  }
+
+  .btn-outline-primary {
+    background: transparent;
+    border: 2px solid #28a745;
+    color: #28a745;
+  }
+
+  .btn-outline-primary:hover {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+  }
+
+  .btn-outline-secondary {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+  }
+
+  .btn-outline-secondary:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+    color: #495057;
+  }
+
+  .btn-danger,
+  .btn-outline-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+  }
+
+  .btn-outline-danger:hover {
+    background: #c82333;
+  }
+
+  .card-table {
+    border-radius: .85rem;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  table.dataTable thead th {
+    background-color: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 600;
+  }
+
+  .navbar-brand {
+    font-weight: 700;
+    letter-spacing: .02em;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  header .navbar {
+    box-shadow: none;
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom: 0;
+  }
+
+  .navbar-nav .nav-link,
+  .topbar-actions .topbar-link {
+    border: 1px solid transparent;
+    color: var(--header-deep);
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    font-size: 0.92rem;
+    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  }
+
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .nav-link:focus,
+  .navbar-nav .nav-link.active,
+  .topbar-actions .topbar-link:hover,
+  .topbar-actions .topbar-link:focus,
+  .topbar-actions .topbar-link.active {
+    color: var(--header-deep);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 10px 20px rgba(16, 24, 40, 0.06);
+  }
+
+  .navbar-nav .nav-link.active,
+  .topbar-actions .topbar-link.active {
+    border: 1px solid rgba(24, 77, 45, 0.12);
+  }
+
+  .nav-cta {
+    background: linear-gradient(135deg, #2f6e43 0%, #4d8a60 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 12px 24px rgba(47, 110, 67, 0.25);
+    padding: 0.45rem 1.4rem;
+  }
+
+  .nav-cta:hover {
+    background: linear-gradient(135deg, #275f39 0%, #437a54 100%);
+    color: #ffffff !important;
+  }
+
+  .navbar-toggler {
+    border: 1px solid rgba(24, 77, 45, 0.15);
+    background: rgba(255, 255, 255, 0.65);
+  }
+
+  footer {
+    padding: 1.5rem 0 1.75rem;
+    color: #6b7280;
+  }
+
+  /* Enhanced Responsive Design */
+  @media (max-width: 992px) {
+    .app-shell {
+      max-width: 100%;
+      padding: 0 1rem;
+    }
+
+    .topbar {
+      padding: 0.75rem 0;
+    }
+
+    .status-pill {
+      font-size: 0.9rem;
+      padding: 0.25rem 0.65rem;
+    }
+
+    .topbar-link {
+      font-size: 0.82rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    main {
+      padding-top: 1rem;
+    }
+
+    .page-hero {
+      padding: 1.1rem 1.25rem;
+    }
+
+    .page-hero h1 {
+      font-size: 1.5rem;
+    }
+
+    .page-hero h5 {
+      font-size: 1rem;
+    }
+
+    .content-card {
+      padding: 1.1rem 1.2rem;
+    }
+
+    .topbar {
+      padding: 0.5rem 0;
+    }
+
+    .topbar .app-shell {
+      flex-direction: column;
+      align-items: stretch !important;
+      gap: 0.6rem;
+    }
+
+    .brand-panel {
+      width: 100%;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+    }
+
+    .topbar-info {
+      order: 1;
+      justify-content: center;
+    }
+
+    .topbar-actions {
+      order: 2;
+      justify-content: flex-start;
+    }
+
+    .topbar-link {
+      font-size: 0.94rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .status-pill {
+      font-size: 1rem;
+      padding: 0.2rem 0.5rem;
+      justify-content: center;
+    }
+
+    /* Mobile navigation improvements */
+    .navbar-nav {
+      text-align: center;
+    }
+
+    .navbar-nav .nav-link {
+      font-size: 0.92rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin: 0.25rem 0;
+    }
+
+    .nav-cta {
+      margin-top: 0.5rem;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Responsive tables */
+    .table-responsive {
+      font-size: 0.9rem;
+    }
+
+    .table th,
+    .table td {
+      padding: 0.5rem;
+      vertical-align: middle;
+    }
+
+    /* Responsive forms */
+    .form-control,
+    .form-select {
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Responsive buttons */
+    .btn {
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+      min-height: 44px;
+      /* Touch-friendly */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-sm {
+      font-size: 1rem;
+      padding: 0.375rem 0.5rem;
+      min-height: 38px;
+    }
+
+    /* Responsive cards */
+    .card {
+      margin-bottom: 1rem;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .topbar-actions {
+      display: flex !important;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .topbar-actions.collapse {
+      width: auto;
+    }
+
+    .topbar-actions>* {
+      width: auto;
+    }
+
+    .topbar-user {
+      width: auto;
+      padding: 0;
+      background: transparent;
+      border-radius: 0;
+    }
+  }
+
+  @media (max-width: 576px) {
+    :root {
+      font-size: 16px;
+      /* Smaller base font for very small screens */
+    }
+
+    body {
+      font-size: 1rem;
+    }
+
+    .app-shell {
+      padding: 0 0.5rem;
+    }
+
+    .page-hero {
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .page-hero h1 {
+      font-size: 1.25rem;
+    }
+
+    .content-card {
+      padding: 1rem;
+    }
+
+    .topbar-info .d-none.d-md-inline {
+      display: none !important;
+    }
+
+    .topbar-actions {
+      gap: 0.25rem !important;
+    }
+
+    .topbar-link {
+      font-size: 0.9rem;
+      padding: 0.2rem 0.4rem;
+    }
+
+    .status-pill {
+      font-size: 0.8rem;
+      padding: 0.15rem 0.4rem;
+    }
+
+    /* Extra small screen adjustments */
+    .table-responsive {
+      font-size: 0.85rem;
+    }
+
+    .table th,
+    .table td {
+      padding: 0.4rem 0.3rem;
+    }
+
+    .btn {
+      font-size: 0.9rem;
+      padding: 0.4rem 0.6rem;
+    }
+
+    .btn-sm {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.4rem;
+    }
+
+    .stat-value {
+      font-size: 1rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+    }
+
+    /* Hide some less critical elements on very small screens */
+    .section-title i {
+      display: none;
+    }
+  }
+
+  /* Landscape orientation adjustments */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .page-hero {
+      padding: 0.75rem 1rem;
+    }
+
+    .content-card {
+      padding: 1rem;
+    }
+
+    .mobile-nav {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+
+  /* Touch-friendly improvements */
+  @media (hover: none) and (pointer: coarse) {
+
+    .btn,
+    .nav-link,
+    .topbar-link {
+      min-height: 44px;
+    }
+
+    .form-control,
+    .form-select {
+      min-height: 44px;
+    }
+
+    .table-hover tbody tr:hover td {
+      background-color: transparent;
+    }
+  }
+  /* Management links share one vertical menu without hover-driven layout shifts. */
+  .app-header{overflow:visible}
+  .management-menu{position:relative}
+  .management-menu>summary{list-style:none;cursor:pointer;gap:5px;white-space:nowrap}
+  .management-menu>summary::-webkit-details-marker{display:none}
+  .management-menu>summary:focus-visible{outline:2px solid #245c38;outline-offset:3px}
+  .management-menu-items{position:absolute;top:calc(100% + 6px);right:0;z-index:1050;display:flex;flex-direction:column;gap:4px;min-width:205px;padding:8px;background:#fff;border:1px solid #d8e5dc;border-radius:12px;box-shadow:0 12px 28px #193d2926}
+  .management-menu:not([open])>.management-menu-items{display:none}
+  .management-menu-items>.topbar-link{width:100%;min-height:42px;white-space:nowrap}
+  @media(max-width:991px){.mobile-nav .management-menu{width:100%}.mobile-nav .management-menu>summary{width:100%}.mobile-nav .management-menu-items{position:static;min-width:0;box-shadow:none;margin-top:4px;margin-left:12px}.mobile-nav .management-menu-items>.topbar-link{margin:0;flex:none}}
+  </style>
+  <!-- Lucide Icons (UMD build) -->
+  <script src="assets/offline/lucide-0.278.0.min.js"></script>
+<?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
+<?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
+</head>
+
+<body class="<?php echo $collectionControls ? 'collection-ui' : ''; ?>">
+  <header class="app-header">
+    <div class="header-shell">
+      <div class="app-shell">
+      <?php if (!empty($GLOBALS['rts_license_status']['allowed'])): $licenseStatus = $GLOBALS['rts_license_status']; ?>
+      <div class="alert <?php echo ($licenseStatus['remaining_days'] ?? 999) <= 7 ? 'alert-warning' : 'alert-light border'; ?> d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" role="status">
+        <span><?php if ($licenseStatus['mode'] === 'permanent'): ?>เปิดใช้งานแบบไม่จำกัดเวลา<?php else: ?><?php echo $licenseStatus['mode'] === 'trial' ? 'ทดลองใช้งาน' : 'สิทธิ์ใช้งาน'; ?> เหลือ <?php echo (int)$licenseStatus['remaining_days']; ?> วัน · ใช้ได้ถึง <?php echo htmlspecialchars(rts_license_date($licenseStatus['expires_at']), ENT_QUOTES, 'UTF-8'); ?> น.<?php endif; ?></span>
+        <a class="btn btn-sm btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center" href="activation.php">สิทธิ์ใช้งาน / ขอรหัสใช้งาน</a>
+      </div>
+      <?php endif; ?>
+
+        <div class="brand-panel">
+          <a href="index.php" class="text-decoration-none d-flex align-items-center gap-3">
+            <span class="brand-mark">
+              <i data-lucide="droplet" aria-hidden="true"></i>
+            </span>
+            <span class="brand-copy">
+              <span class="brand-kicker">Rubber System</span>
+              <span class="d-block brand-title">ระบบการรวบรวมยาง</span>
+              <span class="d-block brand-subtitle">สหกรณ์ตัวอย่าง (ระบบทดลอง)</span>
+            </span>
+          </a>
+          <div class="topbar d-flex align-items-center">
+            <button class="topbar-toggle d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#topbarNav"
+              aria-controls="topbarNav" aria-expanded="false" aria-label="สลับเมนูนำทาง">
+              <span class="toggle-bars" aria-hidden="true">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+              </span>
+            </button>
+            <div class="desktop-nav d-none d-lg-flex">
+              <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
+                <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
+              </a>
+              <a href="wang_main.php" class="topbar-link<?php echo nav_active(['wang_main.php', 'create_rubber.php', 'manage_wang.php', 'wang_summary.php']); ?>">
+            <i data-lucide="package-check" class="me-1" aria-hidden="true"></i>วางยาง
+          </a>
+          <a href="weigh_wang.php" class="topbar-link<?php echo nav_active('weigh_wang.php'); ?>">
+            <i data-lucide="scale" class="me-1" aria-hidden="true"></i>ชั่งยาง
+          </a>
+          <a href="approve_weighing.php" class="topbar-link<?php echo nav_active('approve_weighing.php'); ?>">
+            <i data-lucide="clipboard-check" class="me-1" aria-hidden="true"></i>อนุมัติหลังชั่ง
+          </a>
+          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
+                <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
+              </a>
+              <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
+                <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
+              </a>
+          <details class="management-menu">
+            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
+            <nav class="management-menu-items" aria-label="จัดการระบบ">
+              <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
+              <?php if (is_admin()): ?>
+              <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
+              <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
+              <?php endif; ?>
+              <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
+              <a href="logout.php" class="topbar-link text-danger fw-semibold">
+                <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
+              </a>
+              <?php else: ?>
+              <a href="login.php"
+                class="topbar-link text-primary fw-semibold<?php echo nav_active('login.php'); ?>">
+                <i data-lucide="log-in" class="me-1" aria-hidden="true"></i>เข้าสู่ระบบ
+              </a>
+              <?php endif; ?>
+            </nav>
+          </details>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-nav collapse d-lg-none" id="topbarNav">
+          <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
+            <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
+          </a>
+          <a href="wang_main.php" class="topbar-link<?php echo nav_active(['wang_main.php', 'create_rubber.php', 'manage_wang.php', 'wang_summary.php']); ?>">
+            <i data-lucide="package-check" class="me-1" aria-hidden="true"></i>วางยาง
+          </a>
+          <a href="weigh_wang.php" class="topbar-link<?php echo nav_active('weigh_wang.php'); ?>">
+            <i data-lucide="scale" class="me-1" aria-hidden="true"></i>ชั่งยาง
+          </a>
+          <a href="approve_weighing.php" class="topbar-link<?php echo nav_active('approve_weighing.php'); ?>">
+            <i data-lucide="clipboard-check" class="me-1" aria-hidden="true"></i>อนุมัติหลังชั่ง
+          </a>
+          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
+            <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
+          </a>
+          <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
+            <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
+          </a>
+          <details class="management-menu">
+            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
+            <nav class="management-menu-items" aria-label="จัดการระบบ">
+              <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
+              <?php if (is_admin()): ?>
+              <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
+              <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
+              <?php endif; ?>
+              <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
+          <a href="logout.php" class="topbar-link text-danger fw-semibold">
+            <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
+          </a>
+          <?php else: ?>
+          <a href="login.php"
+            class="topbar-link text-primary fw-semibold<?php echo nav_active('login.php'); ?>">
+            <i data-lucide="log-in" class="me-1" aria-hidden="true"></i>เข้าสู่ระบบ
+          </a>
+          <?php endif; ?>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </div>
+  </header>
+  <script>
+  document.addEventListener('click', function(event) {
+    document.querySelectorAll('.management-menu[open]').forEach(menu => {
+      if (!menu.contains(event.target)) menu.open = false;
+    });
+  });
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') document.querySelectorAll('.management-menu[open]').forEach(menu => { menu.open = false; menu.querySelector('summary').focus(); });
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined' && lucide && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  });
+  </script>
+  <main>
+    <div class="app-shell">
+      <?php if (!empty($GLOBALS['rts_license_status']['allowed'])): $licenseStatus = $GLOBALS['rts_license_status']; ?>
+      <div class="alert <?php echo ($licenseStatus['remaining_days'] ?? 999) <= 7 ? 'alert-warning' : 'alert-light border'; ?> d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" role="status">
+        <span><?php if ($licenseStatus['mode'] === 'permanent'): ?>เปิดใช้งานแบบไม่จำกัดเวลา<?php else: ?><?php echo $licenseStatus['mode'] === 'trial' ? 'ทดลองใช้งาน' : 'สิทธิ์ใช้งาน'; ?> เหลือ <?php echo (int)$licenseStatus['remaining_days']; ?> วัน · ใช้ได้ถึง <?php echo htmlspecialchars(rts_license_date($licenseStatus['expires_at']), ENT_QUOTES, 'UTF-8'); ?> น.<?php endif; ?></span>
+        <a class="btn btn-sm btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center" href="activation.php">สิทธิ์ใช้งาน / ขอรหัสใช้งาน</a>
+      </div>
+      <?php endif; ?>
+
+
+      <div class="content-card">
+        <!-- หน้าหลักแต่ละเพจจะต่อเนื่องจาก container นี้ -->
+        <!-- เนื้อหาของแต่ละหน้าให้วางต่อจาก div นี้ และปิด div/แท็กต่าง ๆ ใน footer.php -->

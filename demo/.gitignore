@@ -1,0 +1,11 @@
+db_config.php
+*.log
+/backups/
+/windows/cache/
+/windows/stage/
+/dist/
+
+__pycache__/
+/developer-tools/private/
+/.license-data/
+/tests/.tmp/

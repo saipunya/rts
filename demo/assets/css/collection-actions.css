@@ -1,0 +1,83 @@
+/* Shared controls for the rubber collection workflow. */
+body.collection-ui .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 15px;border-radius:10px;font-size:.9rem;font-weight:600;line-height:1.4;text-decoration:none;vertical-align:middle;transition:background-color .15s,border-color .15s,box-shadow .15s;white-space:normal}
+.collection-ui .btn svg,.collection-ui .btn i{width:17px;height:17px;flex-shrink:0}
+.collection-ui .btn .me-1{margin-right:0!important}
+.collection-ui .btn:focus-visible{outline:3px solid #88b79a;outline-offset:3px;box-shadow:none}
+body.collection-ui .btn-success{color:#fff;background:#245c38;border-color:#245c38}
+body.collection-ui .btn-success:hover{color:#fff;background:#19482a;border-color:#19482a;box-shadow:0 3px 9px #245c381c}
+body.collection-ui .btn-outline-success{color:#245c38;background:#f5faf6;border-color:#bad1c0}
+body.collection-ui .btn-outline-success:hover{color:#19482a;background:#e8f3eb;border-color:#7ba889}
+body.collection-ui .btn-outline-primary{color:#245a85;background:#f3f8fc;border-color:#b9d0e3}
+body.collection-ui .btn-outline-primary:hover{color:#194368;background:#e5eff8;border-color:#7fa9c9}
+body.collection-ui .btn-outline-secondary,body.collection-ui .collection-history-btn{color:#53645b;background:#f7f9f8;border:1px solid #dce4df}
+body.collection-ui .btn-outline-secondary:hover,body.collection-ui .collection-history-btn:hover{color:#2a4434;background:#edf2ef;border-color:#aec2b5}
+body.collection-ui .btn-outline-dark{color:#245a85;background:#f3f8fc;border-color:#b9d0e3}
+body.collection-ui .btn-outline-dark:hover{color:#194368;background:#e5eff8;border-color:#7fa9c9}
+body.collection-ui .btn-outline-danger{color:#a13d3d;background:#fff8f7;border-color:#ebcdca}
+body.collection-ui .btn-outline-danger:hover{color:#8b2929;background:#fcebea;border-color:#d99690}
+.collection-ui .btn:disabled,.collection-ui .btn.disabled{opacity:.55;box-shadow:none;cursor:not-allowed}
+body.collection-ui .btn-sm,body.collection-ui .collection-history-btn{min-height:36px;padding:7px 11px;font-size:.8rem;border-radius:8px}
+body.collection-ui .collection-history-btn{white-space:nowrap;font-weight:500}
+.collection-ui .rubbers-page .action-stack{flex-wrap:wrap;gap:8px;max-width:370px;min-width:220px}
+.collection-ui .rubbers-page .action-stack form{margin:0}
+.collection-ui .record-actions{display:flex;flex-wrap:wrap;gap:7px;white-space:normal}
+.collection-ui .record-actions .btn{width:36px;min-height:36px;padding:8px;border-radius:9px!important}
+.collection-ui .record-actions .btn svg{width:16px;height:16px}
+.collection-ui .approval-page{max-width:1400px;margin:0 auto}
+.collection-ui .approval-page .card{border:1px solid #dfe8e2;border-radius:14px;box-shadow:0 3px 12px #20382a05}
+.collection-ui .approval-page .card-body{padding:22px;display:flex;flex-direction:column;align-items:flex-start}
+.collection-ui .approval-page .approval-record-heading{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;width:100%;margin-bottom:12px}
+.collection-ui .approval-record-heading h2{margin:5px 0 0;flex:1 1 180px;line-height:1.5}
+.collection-ui .approval-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;width:100%;margin-top:4px}
+.collection-ui .approval-stages{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;padding:8px;border:1px solid #e0e9e3;background:#f6f9f7;border-radius:14px}
+.collection-ui .approval-stages .btn{flex:1 1 180px;border-color:transparent;min-height:48px;justify-content:space-between;background:transparent;color:#5c7164}
+.collection-ui .approval-stages .btn[aria-current=page]{background:#245c38;color:#fff;box-shadow:0 3px 8px #245c3820}
+.collection-ui .approval-stages .badge{min-width:28px;padding:6px 8px;border-radius:7px;font-variant-numeric:tabular-nums}
+.collection-ui .approval-filter{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.collection-ui .approval-filter .form-select{min-height:42px;border-radius:10px;border-color:#cfddd3}
+.collection-ui .weigh-heading{gap:12px;flex-wrap:wrap}
+.collection-ui .weigh-heading>div:first-child{flex:1 1 260px}
+.collection-ui .weigh-record>.collection-history-btn{margin:4px 0 10px}
+@media(max-width:575px){
+ body.collection-ui .btn{min-height:44px}
+ body.collection-ui .btn-sm,body.collection-ui .collection-history-btn{min-height:40px}
+ .collection-ui .approval-page .card-body{padding:17px}
+ .collection-ui .approval-actions>.btn,.collection-ui .approval-actions>form{flex:1 1 100%}
+ .collection-ui .approval-stages{gap:5px;padding:6px}
+ .collection-ui .approval-stages .btn{flex-basis:100%;min-height:44px}
+ .collection-ui .approval-record-heading h2{flex-basis:100%}
+ .collection-ui .record-actions .btn{min-width:40px;min-height:40px}
+}
+.collection-ui .approval-list-wrap{border:1px solid #dfe8e2;border-radius:12px;overflow:hidden;background:#fff}
+.collection-ui .approval-list{width:100%;font-size:.85rem;table-layout:fixed}
+.collection-ui .approval-list th{background:#f1f7f3;color:#526d5c;font-weight:600;white-space:nowrap}
+.collection-ui .approval-list th,.collection-ui .approval-list td{padding:12px 10px;vertical-align:middle;border-color:#e5ece7;overflow-wrap:anywhere}
+.collection-ui .approval-list th:first-child{width:60px}.collection-ui .approval-list th:nth-child(2){width:26%}.collection-ui .approval-list th:nth-child(3){width:75px}.collection-ui .approval-list th:nth-child(4){width:80px}.collection-ui .approval-list th:nth-child(5){width:105px}.collection-ui .approval-list th:nth-child(6){width:145px}
+.collection-ui .approval-list tbody tr:last-child td{border-bottom:0}
+.collection-ui .approval-list tbody tr:hover{background:#f8fbf9}
+.collection-ui .approval-list-member strong{display:block;color:#245c38;font-size:.95rem}
+.collection-ui .approval-list-member small{display:block;color:#758178;margin-top:3px;font-size:.75rem}
+.collection-ui .approval-list-member a{color:#245c38;margin-left:5px}
+.collection-ui .approval-list-number{font-variant-numeric:tabular-nums;text-align:right}
+.collection-ui .approval-list-date{font-size:.75rem;color:#6a7b70}
+.collection-ui .approval-list .approval-actions{margin:0;gap:6px}
+.collection-ui .approval-list .approval-actions .btn{flex:1 1 100%;padding:7px 8px;font-size:.78rem}
+@media(max-width:991px){
+ .collection-ui .approval-list thead{display:none}
+ .collection-ui .approval-list,.collection-ui .approval-list tbody{display:block}
+ .collection-ui .approval-list tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:12px;gap:7px 12px;border-bottom:1px solid #dfe8e2}
+ .collection-ui .approval-list tr:last-child{border-bottom:0}
+ .collection-ui .approval-list td{display:block;padding:0;border:0;min-width:0;text-align:left}
+ .collection-ui .approval-list td[data-label]::before{content:attr(data-label) ' ';color:#758178;font-weight:400;font-size:.75rem}
+ .collection-ui .approval-list .approval-list-member,.collection-ui .approval-list .approval-list-date,.collection-ui .approval-list .approval-list-controls{grid-column:1/-1}
+ .collection-ui .approval-list .approval-list-order{color:#758178;font-size:.75rem}
+ .collection-ui .approval-list .approval-list-member{grid-row:2}
+ .collection-ui .approval-list .approval-actions{margin-top:4px}
+ .collection-ui .approval-list .approval-actions .btn{flex:1 1 130px;min-height:44px}
+}
+.collection-ui .approval-list .approval-actions-inline{display:flex;flex-wrap:nowrap;gap:6px}
+.collection-ui .approval-list .approval-actions-inline>.btn{flex:1 1 0;min-width:0;min-height:40px;padding:7px 6px;white-space:nowrap;font-size:.75rem;gap:4px}
+.collection-ui .approval-list .approval-actions-inline>.btn svg{width:16px;height:16px}
+@media(min-width:992px) and (max-width:1199px){.collection-ui .approval-list .approval-actions-inline>.btn span{display:none}}
+@media(max-width:991px){.collection-ui .approval-list .approval-actions-inline>.btn{min-height:44px}}
+@media(prefers-reduced-motion:reduce){body.collection-ui .btn{transition:none}}

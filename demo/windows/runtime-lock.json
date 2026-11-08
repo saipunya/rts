@@ -1,0 +1,25 @@
+{
+  "php": {
+    "version": "8.3.36-1",
+    "url": "https://downloads.php.net/~windows/releases/php-8.3.36-1-nts-Win32-vs16-x64.zip",
+    "file": "php-8.3.36-1-nts-Win32-vs16-x64.zip",
+    "sha256": "1a097d52b7a68622cdc723073b61cc70caf79c941218ff65b2d8441dbc6b10d4"
+  },
+  "mariadb": {
+    "version": "11.4.13",
+    "url": "https://archive.mariadb.org/mariadb-11.4.13/winx64-packages/mariadb-11.4.13-winx64.zip",
+    "file": "mariadb-11.4.13-winx64.zip",
+    "sha256": "d62986d433eeebfde218560b276103831604a61e929e87f1a17f5aebd80257e2"
+  },
+  "vcredist": {
+    "url": "https://aka.ms/vc14/vc_redist.x64.exe",
+    "file": "vc_redist.x64.exe",
+    "sha256": "843068991daaa1f73ad9f6239bce4d0f6a07a51f18c37ea2a867e9beca71295c"
+  },
+  "mariadb_source": {
+    "version": "11.4.13",
+    "url": "https://archive.mariadb.org/mariadb-11.4.13/source/mariadb-11.4.13.tar.gz",
+    "file": "mariadb-11.4.13.tar.gz",
+    "sha256": "1bb254b106d0a7ca871cfa18fa6e18d4b80a7430f9ec9d1571ec4271a13def96"
+  }
+}

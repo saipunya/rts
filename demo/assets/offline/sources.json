@@ -1,0 +1,72 @@
+[
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css",
+    "file": "bootstrap-5.3.2.min.css",
+    "sha256": "3017df4a76db5f01c2b99b603d88b03106df13bcfe18e67b7c13c2341d3a67df"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+    "file": "bootstrap-5.3.3.min.css",
+    "sha256": "3c8f27e6009ccfd710a905e6dcf12d0ee3c6f2ac7da05b0572d3e0d12e736fc8"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js",
+    "file": "bootstrap-5.3.2.min.js",
+    "sha256": "60c6bec0033a424572cfdf7da1d5fb94f4719286006a7f2cb9e76ee24d99babf"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js",
+    "file": "bootstrap-5.3.2.bundle.min.js",
+    "sha256": "82f64f62bb03c1bc1824b0f9c9e05f70dba33e146818e63cdf5c306c8cf3dedd"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+    "file": "bootstrap-5.3.3.bundle.min.js",
+    "sha256": "0833b2e9c3a26c258476c46266e6877fc75218625162e0460be9a3a098a61c6c"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js",
+    "file": "popper-2.11.8.min.js",
+    "sha256": "c212f4b505a86352aed62b24a8f16f999f821ecbe6456c7f3c8a04bc87968782"
+  },
+  {
+    "url": "https://unpkg.com/aos@2.3.1/dist/aos.css",
+    "file": "aos-2.3.1.css",
+    "sha256": "1aa8845fd06e475aefe733d4e55b36a92fcd487975049c8172341827ac9cc03e"
+  },
+  {
+    "url": "https://unpkg.com/aos@2.3.1/dist/aos.js",
+    "file": "aos-2.3.1.js",
+    "sha256": "f268612ba59ead1b24353bb77d66783bcc435aff1c22be5f93c40bac3869968e"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js",
+    "file": "lucide-0.278.0.min.js",
+    "sha256": "63c0a54f65e1d7556208abeab0fcf638ab2d565f6547ca067afa090a74607957"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js",
+    "file": "lucide-0.468.0.min.js",
+    "sha256": "3411692820cb8d47543f69496aa25fd603a358f4498046f41c508a5a3342210e"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+    "file": "chart-4.4.1.umd.min.js",
+    "sha256": "d2af8974e95271638772e9e9524db5b9a6f58d6ec2d5d781400447b4a31c681e"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+    "file": "bootstrap-icons-1.11.3.min.css",
+    "sha256": "f643d6fe7e679f9de3e16311600c5ef5cd6b098f7a3a8828fcc29255d2b33e62"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff2",
+    "file": "fonts/bootstrap-icons.woff2",
+    "sha256": "476adf42b40325098fcfa8b36ab3e769186bb4f6ce6a249753e2e1a9c22bf99e"
+  },
+  {
+    "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff",
+    "file": "fonts/bootstrap-icons.woff",
+    "sha256": "bb1de989b83970f6f4e54de1cd974c5cba55b73582da5e1b225a6d0edf029483"
+  }
+]
