@@ -394,7 +394,7 @@ if ($q !== '') {
   </style>
 <link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
 </head>
-<body class="collection-ui">
+<body class="rts-professional collection-ui">
   <header class="app-header">
     <div class="main-shell">
       <div class="header-row">
@@ -674,5 +674,6 @@ if ($q !== '') {
     }
   })();
   </script>
+<link rel="stylesheet" media="screen" href="assets/css/professional-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/professional-theme.css'); ?>">
 </body>
 </html>

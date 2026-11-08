@@ -825,7 +825,7 @@ foreach ($summaryRows as $row) {
 	  </style>
 </head>
 
-	<body>
+	<body class="rts-professional">
 	  <main class="container summary-shell my-4">
 	    <div
 	      class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3 page-heading">
@@ -1043,6 +1043,7 @@ foreach ($summaryRows as $row) {
     }
   }
   </script>
+<link rel="stylesheet" media="screen" href="assets/css/professional-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/professional-theme.css'); ?>">
 </body>
 
 </html>

@@ -26,7 +26,7 @@ function rts_activation_escape($value): string { return htmlspecialchars((string
 ?>
 <!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>สิทธิ์ใช้งาน RTS Demo</title>
 <link rel="stylesheet" href="assets/offline/bootstrap-5.3.3.min.css"><link rel="stylesheet" href="assets/offline/sarabun.css">
-<style>body{font-family:Sarabun,Tahoma,sans-serif;background:#f3f7f4;color:#233d2c}.license-shell{max-width:960px}.form-control,.btn{min-height:44px}textarea{font:14px/1.6 Consolas,monospace;overflow-wrap:anywhere}.card{border-color:#dce9df;border-radius:14px}.contact-row{overflow-wrap:anywhere}.request-code{min-height:125px}.btn-success{background:#245f39;border-color:#245f39}</style></head><body>
+<style>body{font-family:Sarabun,Tahoma,sans-serif;background:#f3f7f4;color:#233d2c}.license-shell{max-width:960px}.form-control,.btn{min-height:44px}textarea{font:14px/1.6 Consolas,monospace;overflow-wrap:anywhere}.card{border-color:#dce9df;border-radius:14px}.contact-row{overflow-wrap:anywhere}.request-code{min-height:125px}.btn-success{background:#245f39;border-color:#245f39}</style></head><body class="rts-professional">
 <main class="container license-shell py-4 py-md-5">
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4"><div><h1 class="h4">สิทธิ์ใช้งานระบบรวบรวมยาง</h1><p class="text-secondary mb-0">ทดลอง 60 วัน · ขอรหัสจากผู้พัฒนาเพื่อใช้งานต่อ</p></div><?php if ($status['allowed']): ?><a class="btn btn-outline-success" href="login.php">กลับเข้าสู่ระบบ</a><?php endif; ?></div>
 <?php if ($success): ?><div class="alert alert-success" role="status"><?=rts_activation_escape($success)?></div><?php endif; ?>
@@ -48,4 +48,5 @@ function rts_activation_escape($value): string { return htmlspecialchars((string
 </div></form></section></div>
 </main><script>
 document.getElementById('copyRequest').addEventListener('click',async()=>{const input=document.getElementById('requestCode');try{await navigator.clipboard.writeText(input.value);document.getElementById('copyStatus').textContent='คัดลอกรหัสแล้ว';}catch(e){input.focus();input.select();document.getElementById('copyStatus').textContent='เลือกข้อความแล้ว กด Ctrl+C เพื่อคัดลอก';}});
-</script></body></html>
+</script><link rel="stylesheet" media="screen" href="assets/css/professional-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/professional-theme.css'); ?>">
+</body></html>

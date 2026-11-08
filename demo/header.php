@@ -17,7 +17,7 @@ if (!function_exists('nav_active')) {
 }
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="th">
 
 <head>
   <title>++ระบบการรวบรวมยาง สหกรณ์ตัวอย่าง (ระบบทดลอง) ++</title>
@@ -38,56 +38,56 @@ if (!function_exists('nav_active')) {
     font-family: 'Sarabun';
     font-style: normal;
     font-weight: 400;
-    src: url('assets/fonts/Sarabun-Regular.ttf') format('truetype');
+    src: url('fonts/Sarabun-Regular.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Sarabun';
     font-style: normal;
     font-weight: 700;
-    src: url('assets/fonts/Sarabun-Bold.ttf') format('truetype');
+    src: url('fonts/Sarabun-Bold.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Sarabun';
     font-style: italic;
     font-weight: 400;
-    src: url('assets/fonts/Sarabun-Italic.ttf') format('truetype');
+    src: url('fonts/Sarabun-Italic.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'Sarabun';
     font-style: italic;
     font-weight: 700;
-    src: url('assets/fonts/Sarabun-BoldItalic.ttf') format('truetype');
+    src: url('fonts/Sarabun-BoldItalic.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: normal;
     font-weight: 400;
-    src: url('assets/fonts/THSarabunNew.ttf') format('truetype');
+    src: url('fonts/Sarabun-Regular.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: normal;
     font-weight: 700;
-    src: url('assets/fonts/THSarabunNew-Bold.ttf') format('truetype');
+    src: url('fonts/Sarabun-Bold.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: italic;
     font-weight: 400;
-    src: url('assets/fonts/THSarabunNew-italic.ttf') format('truetype');
+    src: url('fonts/Sarabun-Italic.ttf') format('truetype');
   }
 
   @font-face {
     font-family: 'THSarabunNew';
     font-style: italic;
     font-weight: 700;
-    src: url('assets/fonts/THSarabunNew-BoldItalic.ttf') format('truetype');
+    src: url('fonts/Sarabun-BoldItalic.ttf') format('truetype');
   }
 
   * {
@@ -988,14 +988,15 @@ if (!function_exists('nav_active')) {
   <script src="assets/offline/lucide-0.278.0.min.js"></script>
 <?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
 <?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
+<link rel="stylesheet" media="screen" href="assets/css/professional-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/professional-theme.css'); ?>">
 </head>
 
-<body class="<?php echo $collectionControls ? 'collection-ui' : ''; ?>">
+<body class="rts-professional <?php echo $collectionControls ? 'collection-ui' : ''; ?>" data-page="<?php echo htmlspecialchars($currentPage, ENT_QUOTES, 'UTF-8'); ?>">
   <header class="app-header">
     <div class="header-shell">
       <div class="app-shell">
       <?php if (!empty($GLOBALS['rts_license_status']['allowed'])): $licenseStatus = $GLOBALS['rts_license_status']; ?>
-      <div class="alert <?php echo ($licenseStatus['remaining_days'] ?? 999) <= 7 ? 'alert-warning' : 'alert-light border'; ?> d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" role="status">
+      <div class="rts-license-strip alert <?php echo ($licenseStatus['remaining_days'] ?? 999) <= 7 ? 'alert-warning' : 'alert-light border'; ?> d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" role="status">
         <span><?php if ($licenseStatus['mode'] === 'permanent'): ?>เปิดใช้งานแบบไม่จำกัดเวลา<?php else: ?><?php echo $licenseStatus['mode'] === 'trial' ? 'ทดลองใช้งาน' : 'สิทธิ์ใช้งาน'; ?> เหลือ <?php echo (int)$licenseStatus['remaining_days']; ?> วัน · ใช้ได้ถึง <?php echo htmlspecialchars(rts_license_date($licenseStatus['expires_at']), ENT_QUOTES, 'UTF-8'); ?> น.<?php endif; ?></span>
         <a class="btn btn-sm btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center" href="activation.php">สิทธิ์ใช้งาน / ขอรหัสใช้งาน</a>
       </div>
@@ -1123,12 +1124,6 @@ if (!function_exists('nav_active')) {
   </script>
   <main>
     <div class="app-shell">
-      <?php if (!empty($GLOBALS['rts_license_status']['allowed'])): $licenseStatus = $GLOBALS['rts_license_status']; ?>
-      <div class="alert <?php echo ($licenseStatus['remaining_days'] ?? 999) <= 7 ? 'alert-warning' : 'alert-light border'; ?> d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3" role="status">
-        <span><?php if ($licenseStatus['mode'] === 'permanent'): ?>เปิดใช้งานแบบไม่จำกัดเวลา<?php else: ?><?php echo $licenseStatus['mode'] === 'trial' ? 'ทดลองใช้งาน' : 'สิทธิ์ใช้งาน'; ?> เหลือ <?php echo (int)$licenseStatus['remaining_days']; ?> วัน · ใช้ได้ถึง <?php echo htmlspecialchars(rts_license_date($licenseStatus['expires_at']), ENT_QUOTES, 'UTF-8'); ?> น.<?php endif; ?></span>
-        <a class="btn btn-sm btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center" href="activation.php">สิทธิ์ใช้งาน / ขอรหัสใช้งาน</a>
-      </div>
-      <?php endif; ?>
 
 
       <div class="content-card">

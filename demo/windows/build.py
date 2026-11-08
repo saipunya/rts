@@ -48,7 +48,7 @@ for p in (STAGE/'windows').glob('*.ps1'):
 shutil.copytree(ROOT/'manual',STAGE/'manual')
 manual=STAGE/'manual/คู่มือใช้งาน.html'
 manual.write_text(manual.read_text().replace("../fonts/","../app/fonts/"))
-(STAGE/'version.txt').write_text('0.2.0\n')
+(STAGE/'version.txt').write_text('0.3.0\n')
 copy(HERE/'runtime-lock.json',STAGE/'runtime-lock.json')
 licenses={
  'Bootstrap-MIT.txt':'https://raw.githubusercontent.com/twbs/bootstrap/v5.3.3/LICENSE',
@@ -80,6 +80,6 @@ digest=hashlib.sha256(exe.read_bytes()).hexdigest()
 shutil.copytree(ROOT/'manual',DIST/'manual',dirs_exist_ok=True)
 # Include fonts for the standalone HTML manual beside the installer too.
 shutil.copytree(ROOT/'fonts',DIST/'fonts',dirs_exist_ok=True)
-(DIST/'อ่านก่อนติดตั้ง.txt').write_text('RTS Demo สำหรับ Windows x64 รุ่นทดลอง 0.2.0 (ทดลอง 60 วัน)\n\n1. เปิด manual/คู่มือใช้งาน.html\n2. เรียก RTS-Demo-Setup-x64.exe บน Windows\n3. เปิด RTS Demo บน Desktop แล้วสร้างบัญชีใหม่\n\nไม่ต้องติดตั้ง XAMPP, PHP หรือ MySQL เพิ่ม\nเป็นชุดทดลองที่ยังต้องตรวจรับบน Windows จริงก่อนแจกใช้งาน\n')
+(DIST/'อ่านก่อนติดตั้ง.txt').write_text('RTS Demo สำหรับ Windows x64 รุ่นทดลอง 0.3.0 (ทดลอง 60 วัน)\n\n1. เปิด manual/คู่มือใช้งาน.html\n2. เรียก RTS-Demo-Setup-x64.exe บน Windows\n3. เปิด RTS Demo บน Desktop แล้วสร้างบัญชีใหม่\n\nไม่ต้องติดตั้ง XAMPP, PHP หรือ MySQL เพิ่ม\nเป็นชุดทดลองที่ยังต้องตรวจรับบน Windows จริงก่อนแจกใช้งาน\n')
 print('Built:',exe,'size:',round(exe.stat().st_size/1024/1024,1),'MiB')
 print('SHA256:',digest)

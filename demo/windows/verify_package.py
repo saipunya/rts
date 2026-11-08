@@ -24,7 +24,7 @@ assert not list((STAGE/'app').rglob('signing-private.pem'))
 assert (STAGE/'app/license_public.pem').read_bytes()==(ROOT/'license_public.pem').read_bytes()
 assert 'BEGIN PUBLIC KEY' in (STAGE/'app/license_public.pem').read_text()
 for p in (STAGE/'app').rglob('*.pem'): assert 'PRIVATE KEY' not in p.read_text(),p
-assert (STAGE/'version.txt').read_text().strip()=='0.2.0'
+assert (STAGE/'version.txt').read_text().strip()=='0.3.0'
 assert 'INSERT INTO' not in (STAGE/'app/setup/schema.sql').read_text()
 print('PASS: installer checksum, bundled source and credential isolation')
 for base in [ROOT,STAGE/'app']:

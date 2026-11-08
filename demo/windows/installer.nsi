@@ -7,6 +7,7 @@ OutFile "../dist/RTS-Demo-Setup-x64.exe"
 InstallDir "$PROGRAMFILES64\RTS Demo"
 RequestExecutionLevel admin
 SetCompressor /FINAL zlib
+SetCompressionLevel 3
 ShowInstDetails show
 ShowUninstDetails show
 !define MUI_ABORTWARNING
@@ -73,7 +74,7 @@ Section "RTS Demo (required)" Main
   CreateShortcut "$SMPROGRAMS\RTS Demo\User Guide.lnk" "$INSTDIR\manual\คู่มือใช้งาน.html"
   CreateShortcut "$SMPROGRAMS\RTS Demo\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RTSDemo" "DisplayName" "RTS Demo"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RTSDemo" "DisplayVersion" "0.2.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RTSDemo" "DisplayVersion" "0.3.0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RTSDemo" "UninstallString" '"$INSTDIR\Uninstall.exe"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RTSDemo" "InstallLocation" "$INSTDIR"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RTSDemo" "NoModify" 1
