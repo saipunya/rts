@@ -33,3 +33,14 @@
 .printed-receipts .receipt-details-grid dt{font-weight:500;color:#748278}
 .printed-receipts .receipt-details-grid dd{margin:0;color:#294634;overflow-wrap:anywhere}
 .printed-receipts .receipt-details .modal-footer{border-top-color:#e1ebe4;padding:14px 22px;gap:8px}
+
+@media(max-width:575px){
+ .printed-receipts .receipt-record-column,.printed-receipts .receipt-amount-column{display:none}
+ .printed-receipts table{min-width:0;width:100%}
+ .printed-receipts td:nth-child(2){min-width:0;overflow-wrap:anywhere}
+ .printed-receipts td:nth-child(2) small{white-space:normal}
+ .printed-receipts th:last-child,.printed-receipts td:last-child{width:110px}
+ .printed-receipts .receipt-row-actions .receipt-action-label{display:none}
+ .printed-receipts .receipt-row-actions .btn{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;min-height:44px;padding:10px;gap:0}
+ .printed-receipts .receipt-row-actions .btn svg{width:18px;height:18px;flex-shrink:0}
+}

@@ -27,7 +27,7 @@ require __DIR__ . '/header.php';
   <p id="receiptSearchStatus" class="small text-muted" role="status" aria-live="polite"></p>
   <div id="receiptSearchResults">
   <p class="receipt-total" role="status" aria-live="polite"><?php echo number_format($result['total']); ?> รายการ<?php if ($result['total']): ?> · หน้า <?php echo $result['page']; ?> / <?php echo $result['total_pages']; ?><?php endif; ?></p>
-  <div class="table-responsive receipt-table"><table class="table table-hover align-middle mb-0"><thead><tr><th>รายการ</th><th>ชื่อผู้ส่งยาง</th><th class="text-end">น้ำหนัก (กก.)</th><th class="text-end">ยอดหัก (บาท)</th><th class="text-end">รับสุทธิ (บาท)</th><th>จัดการ</th></tr></thead><tbody>
+  <div class="table-responsive receipt-table"><table class="table table-hover align-middle mb-0"><thead><tr><th class="receipt-record-column">รายการ</th><th>ชื่อผู้ส่งยาง</th><th class="text-end receipt-amount-column">น้ำหนัก (กก.)</th><th class="text-end receipt-amount-column">ยอดหัก (บาท)</th><th class="text-end receipt-amount-column">รับสุทธิ (บาท)</th><th>จัดการ</th></tr></thead><tbody>
   <?php foreach ($result['rows'] as $row):
     $hasDeductions = (float)$row['ru_expend'] > 0;
     $deductionLabel = $hasDeductions ? 'มียอดหัก' : 'ไม่มียอดหัก';
@@ -37,14 +37,17 @@ require __DIR__ . '/header.php';
         'round'=>$row['collection_weigh_date'] ? 'รอบขายยาง ' . thai_date_format($row['collection_weigh_date']) : 'รายการเดิม (ยังไม่ระบุรอบ)',
         'lane'=>'ลาน ' . $row['ru_lan'],
         'sacks'=>$row['wang_sack'] !== null ? number_format((float)$row['wang_sack'],2) . ' กระสอบ' : 'ไม่มีข้อมูล',
+        'weight'=>number_format((float)$row['ru_quantity'],2) . ' กก.',
+        'deductions'=>number_format((float)$row['ru_expend'],2) . ' บาท',
+        'netAmount'=>number_format((float)$row['ru_netvalue'],2) . ' บาท',
         'issuedAt'=>thai_datetime_format($row['issued_at']),
         'issuedBy'=>$row['issued_by'],
     ];
   ?>
-    <tr><td><strong>#<?php echo (int)$row['ru_id']; ?></strong><small>รอบ <?php echo e(thai_date_short_format($row['collection_weigh_date'] ?? $row['ru_date'])); ?></small></td>
+    <tr><td class="receipt-record-column"><strong>#<?php echo (int)$row['ru_id']; ?></strong><small>รอบ <?php echo e(thai_date_short_format($row['collection_weigh_date'] ?? $row['ru_date'])); ?></small></td>
     <td><strong><?php echo e(collection_display_name($row['ru_fullname'], $row['wang_note'])); ?></strong> <span class="receipt-deduction-badge <?php echo $hasDeductions ? 'has-deductions' : 'no-deductions'; ?>" title="<?php echo e($deductionLabel); ?>"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="color:<?php echo $hasDeductions ? '#d9480f' : '#15803d'; ?>;stroke:<?php echo $hasDeductions ? '#d9480f' : '#15803d'; ?>;width:22px;height:22px" fill="none" stroke="<?php echo $hasDeductions ? '#d9480f' : '#15803d'; ?>" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><?php if ($hasDeductions): ?><path d="M8 12h8"/><?php else: ?><path d="m8 12 3 3 5-6"/><?php endif; ?></svg><span class="visually-hidden"><?php echo e($deductionLabel); ?></span></span><small>เลขที่ <?php echo e($row['ru_number']); ?> · กลุ่ม <?php echo e($row['ru_group']); ?></small></td>
-    <td class="text-end"><?php echo number_format((float)$row['ru_quantity'],2); ?></td><td class="text-end"><?php echo number_format((float)$row['ru_expend'],2); ?></td><td class="text-end fw-semibold text-success"><?php echo number_format((float)$row['ru_netvalue'],2); ?></td>
-    <td><div class="receipt-row-actions"><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#receiptDetailsModal" data-receipt="<?php echo e(json_encode($details, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)); ?>" aria-haspopup="dialog"><i data-lucide="info" aria-hidden="true"></i>รายละเอียด</button><a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href="export_rubber_pdf.php?ru_id=<?php echo (int)$row['ru_id']; ?>"><i data-lucide="printer" aria-hidden="true"></i>พิมพ์ซ้ำ</a></div></td></tr>
+    <td class="receipt-amount-column text-end"><?php echo number_format((float)$row['ru_quantity'],2); ?></td><td class="receipt-amount-column text-end"><?php echo number_format((float)$row['ru_expend'],2); ?></td><td class="receipt-amount-column text-end fw-semibold text-success"><?php echo number_format((float)$row['ru_netvalue'],2); ?></td>
+    <td><div class="receipt-row-actions"><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#receiptDetailsModal" data-receipt="<?php echo e(json_encode($details, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)); ?>" aria-haspopup="dialog" aria-label="รายละเอียด" title="รายละเอียด"><i data-lucide="info" aria-hidden="true"></i><span class="receipt-action-label">รายละเอียด</span></button><a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" aria-label="พิมพ์ซ้ำ" title="พิมพ์ซ้ำ" href="export_rubber_pdf.php?ru_id=<?php echo (int)$row['ru_id']; ?>"><i data-lucide="printer" aria-hidden="true"></i><span class="receipt-action-label">พิมพ์ซ้ำ</span></a></div></td></tr>
   <?php endforeach; ?>
   <?php if (!$result['rows']): ?><tr><td colspan="6" class="text-center text-muted py-5"><?php echo $search !== '' || $lane !== 'all' ? 'ไม่พบรายการตามตัวกรอง' : 'ยังไม่มีรายการที่พิมพ์ใบเสร็จแล้ว'; ?></td></tr><?php endif; ?>
   </tbody></table></div>
@@ -61,6 +64,9 @@ require __DIR__ . '/header.php';
         <dt>รอบขายยาง</dt><dd data-detail="round"></dd>
         <dt>ลาน</dt><dd data-detail="lane"></dd>
         <dt>จำนวนกระสอบ</dt><dd data-detail="sacks"></dd>
+        <dt>น้ำหนัก</dt><dd data-detail="weight"></dd>
+        <dt>ยอดหัก</dt><dd data-detail="deductions"></dd>
+        <dt>รับสุทธิ</dt><dd data-detail="netAmount"></dd>
         <dt>ออกใบเสร็จเมื่อ</dt><dd data-detail="issuedAt"></dd>
         <dt>ผู้ดำเนินการ</dt><dd data-detail="issuedBy"></dd>
       </dl></div>

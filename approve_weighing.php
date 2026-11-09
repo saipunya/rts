@@ -82,7 +82,7 @@ require __DIR__ . '/header.php';
   </select><button class="btn btn-success">แสดง</button>
 </form>
 <nav class="approval-stages" aria-label="สถานะอนุมัติ">
-<?php foreach (['pending'=>'รออนุมัติ','review'=>'ตรวจสอบ / บันทึกยอดหัก'] as $key=>$label): ?>
+<?php foreach (['pending'=>'รออนุมัติ','review'=>'ตรวจสอบยอดหัก'] as $key=>$label): ?>
   <a class="btn <?php echo $tab === $key ? 'btn-success' : 'btn-outline-success'; ?>" <?php echo $tab === $key ? 'aria-current="page"' : ''; ?> href="?<?php echo e(http_build_query(['round'=>$roundId,'lan'=>$lane,'tab'=>$key])); ?>"><?php echo e($label); ?> <span class="badge text-bg-light"><?php echo number_format(count($groups[$key])); ?></span></a>
 <?php endforeach; ?>
 </nav>
@@ -112,7 +112,6 @@ require __DIR__ . '/header.php';
         <?php elseif ($tab === 'review'): ?>
           <div class="approval-actions approval-actions-inline">
             <a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" title="พิมพ์ใบตรวจสอบยอดหัก" aria-label="พิมพ์ใบตรวจสอบยอดหัก" href="print_deduction_check.php?ru_id=<?php echo (int)$row['ru_id']; ?>"><i data-lucide="printer" aria-hidden="true"></i><span>พิมพ์ใบ</span></a>
-            <a class="btn btn-sm btn-success" title="บันทึกยอดหัก" aria-label="บันทึกยอดหัก" href="rubbers.php?round=<?php echo $roundId; ?>&amp;action=edit&amp;id=<?php echo (int)$row['ru_id']; ?>"><i data-lucide="pencil" aria-hidden="true"></i><span>ยอดหัก</span></a>
             <form method="post" onsubmit="return confirm('ย้อนกลับไปรออนุมัติหรือไม่? หากพิมพ์ใบแจ้งรายการแล้ว กรุณาแจ้งเจ้าหน้าที่ที่เกี่ยวข้องยกเลิกใบเดิม');">
               <input type="hidden" name="round" value="<?php echo $roundId; ?>"><input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>"><input type="hidden" name="ru_id" value="<?php echo (int)$row['ru_id']; ?>">
               <button class="btn btn-sm btn-outline-secondary" name="route" value="return" title="ย้อนกลับไปรออนุมัติ" aria-label="ย้อนกลับไปรออนุมัติ"><i data-lucide="undo-2" aria-hidden="true"></i></button>

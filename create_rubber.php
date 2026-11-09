@@ -135,7 +135,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>บันทึกวางยาง - รายการ</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
@@ -1002,8 +1002,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     }
   }
   </style>
-<link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
-<link rel="stylesheet" href="assets/css/placement-mobile.css?v=<?php echo filemtime(__DIR__ . '/assets/css/placement-mobile.css'); ?>">
+  <link rel="stylesheet"
+    href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
+  <link rel="stylesheet"
+    href="assets/css/placement-mobile.css?v=<?php echo filemtime(__DIR__ . '/assets/css/placement-mobile.css'); ?>">
 </head>
 
 <body class="rts-operations collection-ui placement-page">
@@ -1019,16 +1021,18 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
             </div>
           </a>
           <div class="header-actions">
-            <?php if (is_admin()): ?><a href="manage_wang.php" class="btn">รายการย้อนหลัง / แก้วันที่</a><?php endif; ?>
-            <a href="wang_main.php" class="btn">
+            <?php if (is_admin()): ?><a href="manage_wang.php" class="btn" aria-label="แก้ไข" title="แก้ไข">
+              <i data-lucide="pencil" aria-hidden="true"></i>
+            </a><?php endif; ?>
+            <a href="wang_main.php" class="btn" aria-label="กลับ">
               <i data-lucide="arrow-left" aria-hidden="true"></i>
               <span>กลับ</span>
             </a>
-            <a href="wang_summary.php" class="btn">
+            <a href="wang_summary.php" class="btn" aria-label="สรุป">
               <i data-lucide="clipboard-list" aria-hidden="true"></i>
               <span>สรุป</span>
             </a>
-            <button id="btn-add" type="button" class="btn btn-add-icon">
+            <button id="btn-add" type="button" class="btn btn-add-icon" aria-label="เพิ่มรายการ">
               <i data-lucide="plus" aria-hidden="true"></i>
               <span>เพิ่ม</span>
             </button>
@@ -1040,19 +1044,22 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     <main class="container" style="padding-top:.75rem;padding-bottom:2rem">
 
 
-      <?php if ($round && !$canPlaceToday): ?><p class="text-muted small">วันนี้ไม่อยู่ในช่วงวางยางของรอบนี้ สามารถดูรายการเดิมได้</p><?php endif; ?>
+      <?php if ($round && !$canPlaceToday): ?><p class="text-muted small">วันนี้ไม่อยู่ในช่วงวางยางของรอบนี้
+        สามารถดูรายการเดิมได้</p><?php endif; ?>
       <div class="top-bar">
         <span id="lane-badge" class="lane-pill" style="display:none">ลาน -</span>
         <span class="page-sub">วันที่วางยาง · <span id="current-date-label"></span></span>
       </div>
 
       <?php if (is_admin()): ?>
-      <form method="get" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px">
+      <form method="get" class="placement-date-filter">
         <input type="hidden" name="lane" value="<?php echo e($selected_lane); ?>">
         <label for="view-date">วันที่รายการ</label>
-        <input type="date" id="view-date" name="view_date" value="<?php echo e($viewDate); ?>" style="min-height:44px;font-size:16px">
+        <input type="date" id="view-date" name="view_date" value="<?php echo e($viewDate); ?>"
+          style="min-height:44px;font-size:16px">
         <button class="btn" type="submit">แสดง</button>
-        <a class="btn" href="create_rubber.php?<?php echo e(http_build_query(['lane'=>$selected_lane])); ?>">ทุกวันที่</a>
+        <a class="btn"
+          href="create_rubber.php?<?php echo e(http_build_query(['lane'=>$selected_lane])); ?>">ทุกวันที่</a>
         <small><?php echo $viewDate === '' ? 'แสดงรายการล่าสุดทุกวันที่ สูงสุด 500 รายการ' : e(thai_date_format($viewDate)); ?></small>
       </form>
       <?php endif; ?>
@@ -1080,7 +1087,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         <button id="btn-clear-search" class="clr-btn" type="button" aria-label="ล้างคำค้น">
           <i data-lucide="x" aria-hidden="true"></i>
         </button>
-        <button id="btn-add-top" type="button" class="add-btn" <?php echo $canPlaceToday ? '' : 'disabled title="วันนี้ไม่อยู่ในช่วงวางยางของรอบที่เลือก"'; ?>>
+        <button id="btn-add-top" type="button" class="add-btn" aria-label="เพิ่มรายการ"
+          <?php echo $canPlaceToday ? '' : 'disabled title="วันนี้ไม่อยู่ในช่วงวางยางของรอบที่เลือก"'; ?>>
           <i data-lucide="plus" aria-hidden="true"></i>
           <span>เพิ่มรายการ</span>
         </button>
@@ -1186,11 +1194,35 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   </div>
 
   <dialog id="placementDetails" class="placement-dialog" aria-labelledby="placementDetailsTitle">
-    <div class="placement-dialog-heading"><h2 id="placementDetailsTitle">ข้อมูลรายการวางยาง</h2><form method="dialog"><button class="modal-x" type="submit" aria-label="ปิด"><i data-lucide="x" aria-hidden="true"></i></button></form></div>
-    <div class="placement-dialog-body"><p class="placement-detail-name" data-placement-detail="name"></p><dl>
-      <dt>เลขสมาชิก</dt><dd data-placement-detail="number"></dd><dt>กลุ่ม</dt><dd data-placement-detail="group"></dd><dt>ลาน</dt><dd data-placement-detail="lane"></dd><dt>จำนวนกระสอบ</dt><dd data-placement-detail="sacks"></dd><dt>วันที่วางยาง</dt><dd data-placement-detail="date"></dd><dt>สถานะ</dt><dd data-placement-detail="status"></dd>
-    </dl></div>
-    <div class="placement-dialog-actions"><a class="btn btn-outline-secondary" id="placementDetailHistory" href="collection_history.php"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a><button class="btn btn-outline-success" type="button" id="placementDetailEdit"><i data-lucide="pencil" aria-hidden="true"></i>แก้ไข</button><button class="btn btn-outline-danger" type="button" id="placementDetailDelete"><i data-lucide="trash-2" aria-hidden="true"></i>ลบ</button><form method="dialog"><button class="btn btn-outline-secondary" type="submit">ปิด</button></form></div>
+    <div class="placement-dialog-heading">
+      <h2 id="placementDetailsTitle">ข้อมูลรายการวางยาง</h2>
+      <form method="dialog"><button class="modal-x" type="submit" aria-label="ปิด"><i data-lucide="x"
+            aria-hidden="true"></i></button></form>
+    </div>
+    <div class="placement-dialog-body">
+      <p class="placement-detail-name" data-placement-detail="name"></p>
+      <dl>
+        <dt>เลขสมาชิก</dt>
+        <dd data-placement-detail="number"></dd>
+        <dt>กลุ่ม</dt>
+        <dd data-placement-detail="group"></dd>
+        <dt>ลาน</dt>
+        <dd data-placement-detail="lane"></dd>
+        <dt>จำนวนกระสอบ</dt>
+        <dd data-placement-detail="sacks"></dd>
+        <dt>วันที่วางยาง</dt>
+        <dd data-placement-detail="date"></dd>
+        <dt>สถานะ</dt>
+        <dd data-placement-detail="status"></dd>
+      </dl>
+    </div>
+    <div class="placement-dialog-actions"><a class="btn btn-outline-secondary" id="placementDetailHistory"
+        href="collection_history.php"><i data-lucide="history" aria-hidden="true"></i>ประวัติ</a><button
+        class="btn btn-outline-success" type="button" id="placementDetailEdit"><i data-lucide="pencil"
+          aria-hidden="true"></i>แก้ไข</button><button class="btn btn-outline-danger" type="button"
+        id="placementDetailDelete"><i data-lucide="trash-2" aria-hidden="true"></i>ลบ</button>
+      <form method="dialog"><button class="btn btn-outline-secondary" type="submit">ปิด</button></form>
+    </div>
   </dialog>
 
   <script>
@@ -1434,8 +1466,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   }
 
   function recordActions(rec) {
-    const info = `<button type="button" class="btn placement-info" data-placement-details="${encodeURIComponent(String(rec.__backendId))}" aria-label="ข้อมูลรายการวางยาง"><i data-lucide="info" aria-hidden="true"></i><span>ข้อมูล</span></button>`;
-    if (rec.edit_locked) return `${info}<span class="placement-lock" title="รายการที่ชั่งแล้วไม่สามารถแก้ไขได้"><span class="placement-lock-full">ล็อกรายการแล้ว</span><span class="placement-lock-short">ชั่งแล้ว</span></span>`;
+    const info =
+      `<button type="button" class="btn placement-info" data-placement-details="${encodeURIComponent(String(rec.__backendId))}" aria-label="ข้อมูลรายการวางยาง"><i data-lucide="info" aria-hidden="true"></i><span>ข้อมูล</span></button>`;
+    if (rec.edit_locked)
+      return `${info}<span class="placement-lock" title="รายการที่ชั่งแล้วไม่สามารถแก้ไขได้"><span class="placement-lock-full">ล็อกรายการแล้ว</span><span class="placement-lock-short">ชั่งแล้ว</span></span>`;
     return `${info}<button type="button" class="btn btn-outline-success rounded-pill" title="แก้ไข" aria-label="แก้ไข" data-placement-edit="${encodeURIComponent(String(rec.__backendId))}"><i data-lucide="pencil" aria-hidden="true"></i></button>
       <button type="button" class="btn btn-outline-danger rounded-pill placement-delete" title="ลบ" aria-label="ลบ" data-placement-delete="${encodeURIComponent(String(rec.__backendId))}"><i data-lucide="trash-2" aria-hidden="true"></i></button>`;
   }
@@ -1443,15 +1477,32 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   const placementDialog = document.getElementById('placementDetails');
   let detailRecordId = null;
   document.addEventListener('click', event => {
-    const trigger = event.target.closest('[data-placement-details], [data-placement-edit], [data-placement-delete]');
+    const trigger = event.target.closest(
+      '[data-placement-details], [data-placement-edit], [data-placement-delete]');
     if (!trigger) return;
-    if (trigger.hasAttribute('data-placement-edit')) { window.openEditModal(decodeURIComponent(trigger.dataset.placementEdit)); return; }
-    if (trigger.hasAttribute('data-placement-delete')) { window.confirmDelete(decodeURIComponent(trigger.dataset.placementDelete)); return; }
+    if (trigger.hasAttribute('data-placement-edit')) {
+      window.openEditModal(decodeURIComponent(trigger.dataset.placementEdit));
+      return;
+    }
+    if (trigger.hasAttribute('data-placement-delete')) {
+      window.confirmDelete(decodeURIComponent(trigger.dataset.placementDelete));
+      return;
+    }
     const record = records.find(item => item.__backendId === decodeURIComponent(trigger.dataset.placementDetails));
     if (!record) return;
     detailRecordId = record.__backendId;
-    const details = {name: formatFarmerDisplay(record.farmer_name, record.note), number: record.member_number || '—', group: record.group_name || '—', lane: 'ลาน ' + record.lane, sacks: formatNumber(record.bags) + ' กระสอบ', date: formatThaiDate(record.date), status: record.lock_reason || 'รอชั่งน้ำหนัก'};
-    placementDialog.querySelectorAll('[data-placement-detail]').forEach(element => { element.textContent = details[element.dataset.placementDetail] || '—'; });
+    const details = {
+      name: formatFarmerDisplay(record.farmer_name, record.note),
+      number: record.member_number || '—',
+      group: record.group_name || '—',
+      lane: 'ลาน ' + record.lane,
+      sacks: formatNumber(record.bags) + ' กระสอบ',
+      date: formatThaiDate(record.date),
+      status: record.lock_reason || 'รอชั่งน้ำหนัก'
+    };
+    placementDialog.querySelectorAll('[data-placement-detail]').forEach(element => {
+      element.textContent = details[element.dataset.placementDetail] || '—';
+    });
     document.getElementById('placementDetailEdit').hidden = Boolean(record.edit_locked);
     document.getElementById('placementDetailDelete').hidden = Boolean(record.edit_locked);
     const match = String(record.__backendId).match(/^db-(\d+)$/);
@@ -1460,11 +1511,18 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     history.href = match ? 'collection_history.php?wang_id=' + match[1] : '#';
     placementDialog.showModal();
   });
-  document.getElementById('placementDetailEdit').addEventListener('click', () => { placementDialog.close(); window.openEditModal(detailRecordId); });
-  document.getElementById('placementDetailDelete').addEventListener('click', () => { placementDialog.close(); window.confirmDelete(detailRecordId); });
+  document.getElementById('placementDetailEdit').addEventListener('click', () => {
+    placementDialog.close();
+    window.openEditModal(detailRecordId);
+  });
+  document.getElementById('placementDetailDelete').addEventListener('click', () => {
+    placementDialog.close();
+    window.confirmDelete(detailRecordId);
+  });
   placementDialog.addEventListener('click', event => {
     const bounds = placementDialog.getBoundingClientRect();
-    if (event.target === placementDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) placementDialog.close();
+    if (event.target === placementDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event
+        .clientY < bounds.top || event.clientY > bounds.bottom)) placementDialog.close();
   });
 
   function renderTable() {
@@ -1484,7 +1542,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     visible.forEach(rec => {
       if (existingRows.has(rec.__backendId)) {
         const row = existingRows.get(rec.__backendId);
-        row.children[0].innerHTML = `${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')} · ${esc(formatThaiDateShort(rec.date))}</small>`;
+        row.children[0].innerHTML =
+          `${esc(formatFarmerDisplay(rec.farmer_name, rec.note))}<small class="placement-member-number">เลขที่ ${esc(rec.member_number || '—')} · ${esc(formatThaiDateShort(rec.date))}</small>`;
         row.children[1].textContent = rec.group_name;
         row.children[2].textContent = rec.lane;
         row.children[3].textContent = formatNumber(rec.bags);
@@ -1607,7 +1666,9 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   const backendIdInput = document.getElementById('f-backend-id');
   const dateInput = document.getElementById('f-date');
   const currentDateDisplay = document.getElementById('current-date-display');
-  dateInput.addEventListener('change', () => { currentDateDisplay.textContent = formatThaiDate(dateInput.value); });
+  dateInput.addEventListener('change', () => {
+    currentDateDisplay.textContent = formatThaiDate(dateInput.value);
+  });
   const recordSummary = document.getElementById('record-summary');
   const bagsInput = document.getElementById('f-bags');
   const memberSearchInput = document.getElementById('memberSearch');
@@ -1648,7 +1709,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   function renderMemberSelected(member) {
     if (!memberSelectedBox) return;
     const classText = member.mem_class === 'general' ? 'เกษตรกรทั่วไป' : (member.mem_class === 'member' ? 'สมาชิก' :
-    '');
+      '');
     const classSuffix = classText ? ` | ${esc(classText)}` : '';
     memberSelectedBox.hidden = false;
     memberSelectedBox.innerHTML = `
@@ -1799,7 +1860,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   function openEditModal(id) {
     const record = records.find(r => r.__backendId === id);
     if (!record) return;
-    if (record.edit_locked) { alert(record.lock_reason); return; }
+    if (record.edit_locked) {
+      alert(record.lock_reason);
+      return;
+    }
     openModal('edit', record);
   }
 
@@ -1916,7 +1980,11 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
   window.confirmDelete = (id) => {
     deleteTarget = records.find(r => r.__backendId === id);
     if (!deleteTarget) return;
-    if (deleteTarget.edit_locked) { alert(deleteTarget.lock_reason); deleteTarget = null; return; }
+    if (deleteTarget.edit_locked) {
+      alert(deleteTarget.lock_reason);
+      deleteTarget = null;
+      return;
+    }
     delModal.classList.remove('hidden');
     delModal.classList.add('flex');
   };
@@ -1951,7 +2019,8 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     /* ignore if functions not ready */
   }
   </script>
-<link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
+  <link rel="stylesheet" media="screen"
+    href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 </body>
 
 </html>
