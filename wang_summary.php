@@ -825,7 +825,7 @@ foreach ($summaryRows as $row) {
 	  </style>
 </head>
 
-	<body class="rts-operations">
+	<body class="rts-operations" data-page="wang_summary.php">
 	  <main class="container summary-shell my-4">
 	    <div
 	      class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3 page-heading">

@@ -308,7 +308,7 @@ function render_deduction_summary_card(string $title, string $subtitle, array $s
         </span>
         <?php endif; ?>
         <?php endforeach; ?>
-        <?php if (empty(array_filter($chips, fn($v) => (float)$v > 0))): ?>
+        <?php if (empty(array_filter($chips, function ($v) { return (float)$v > 0; }))): ?>
         <div class="text-muted small py-2">ยังไม่มีรายการหักในรอบนี้</div>
         <?php endif; ?>
       </div>
@@ -913,7 +913,9 @@ body {
         (<?php echo htmlspecialchars($cu['user_level']); ?>)</div>
     </div>
     <div class="d-flex flex-wrap gap-2">
+<?php if (rts_can('analysis')): ?>
       <a href="collection_analysis.php" class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1"><i data-lucide="bar-chart-3" aria-hidden="true"></i><span>วิเคราะห์การรวบรวม</span></a>
+<?php endif; if (rts_can('placement')): ?>
       <a href="wang_main.php" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
         <i data-lucide="package-check" aria-hidden="true"></i>
         <span>วางยาง</span>
@@ -922,6 +924,7 @@ body {
         <i data-lucide="clipboard-list" aria-hidden="true"></i>
         <span>สรุปวางยาง</span>
       </a>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -953,9 +956,9 @@ body {
         </div>
         <div class="card-footer bg-transparent d-flex justify-content-end align-items-center">
           <div>
-            <a href="user_form.php?action=edit&id=<?php echo (int)($cu['user_id'] ?? 0); ?>"
+            <?php if (is_admin()): ?><a href="user_form.php?action=edit&id=<?php echo (int)($cu['user_id'] ?? 0); ?>"
               class="btn btn-sm btn-outline-primary"><i data-lucide="edit" class="me-1"
-                aria-hidden="true"></i>แก้ไขโปรไฟล์</a>
+                aria-hidden="true"></i>แก้ไขโปรไฟล์</a><?php endif; ?>
           </div>
 
         </div>
@@ -963,6 +966,7 @@ body {
     </div>
 
 
+    <?php if (rts_can('reports')): ?>
     <!-- Export Section Start -->
     <div class="col-12 col-md-6">
       <div class="card h-100 shadow-sm">
@@ -1023,6 +1027,7 @@ body {
       </div>
     </div>
     <!-- Export Section End -->
+    <?php endif; if (rts_can('members')): ?>
     <div class="col-12 mb-4">
       <div class="card h-100 shadow-sm border-success-subtle">
         <div class="card-body d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
@@ -1068,6 +1073,7 @@ body {
       </div>
     </div>
 
+    <?php endif; ?>
     <?php if (function_exists('is_admin') && is_admin()): ?>
     <div class="col-12 col-lg-6">
       <div class="card border-danger shadow-sm h-100">

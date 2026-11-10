@@ -7,7 +7,7 @@ if (function_exists('touch_online_presence')) {
 }
 
 $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
-$publicHome = $currentPage === 'index.php' && (!function_exists('is_logged_in') || !is_logged_in());
+$publicHome = in_array($currentPage, ['index.php','public_collection_list.php'], true) && (!function_exists('is_logged_in') || !is_logged_in());
 
 if (!function_exists('nav_active')) {
     function nav_active($pages): string {
@@ -987,7 +987,7 @@ if (!function_exists('nav_active')) {
   </style>
   <!-- Lucide Icons (UMD build) -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js"></script>
-<?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php'], true); ?>
+<?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php','price_form.php','prices.php'], true); ?>
 <?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
 <link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 </head>
@@ -1017,94 +1017,12 @@ if (!function_exists('nav_active')) {
               </span>
             </button>
             <div class="desktop-nav d-none d-lg-flex">
-<?php if ($publicHome): include __DIR__.'/partials/public-navigation.php'; else: ?>
-
-              <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
-                <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
-              </a>
-              <a href="wang_main.php" class="topbar-link<?php echo nav_active(['wang_main.php', 'create_rubber.php', 'manage_wang.php', 'wang_summary.php']); ?>">
-            <i data-lucide="package-check" class="me-1" aria-hidden="true"></i>วางยาง
-          </a>
-          <a href="weigh_wang.php" class="topbar-link<?php echo nav_active('weigh_wang.php'); ?>">
-            <i data-lucide="scale" class="me-1" aria-hidden="true"></i>ชั่งยาง
-          </a>
-          <a href="approve_weighing.php" class="topbar-link<?php echo nav_active('approve_weighing.php'); ?>">
-            <i data-lucide="clipboard-check" class="me-1" aria-hidden="true"></i>อนุมัติหลังชั่ง
-          </a>
-          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
-                <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
-              </a>
-              <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
-                <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
-              </a>
-          <details class="management-menu">
-            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','collection_analysis.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
-            <nav class="management-menu-items" aria-label="จัดการระบบ">
-              <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
-              <?php if (is_admin()): ?>
-              <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
-              <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
-              <?php endif; ?>
-              <a href="collection_analysis.php" class="topbar-link<?php echo nav_active('collection_analysis.php'); ?>"><i data-lucide="bar-chart-3" class="me-1" aria-hidden="true"></i>วิเคราะห์การรวบรวม</a>
-              <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
-              <a href="logout.php" class="topbar-link text-danger fw-semibold">
-                <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
-              </a>
-              <?php else: ?>
-              <a href="login.php"
-                class="topbar-link text-primary fw-semibold<?php echo nav_active('login.php'); ?>">
-                <i data-lucide="log-in" class="me-1" aria-hidden="true"></i>เข้าสู่ระบบ
-              </a>
-              <?php endif; ?>
-            </nav>
-          </details>
-            <?php endif; ?>
+<?php if ($publicHome || !function_exists('is_logged_in') || !is_logged_in()): require __DIR__.'/partials/public-navigation.php'; else: require __DIR__.'/partials/operations-navigation.php'; endif; ?>
 </div>
           </div>
         </div>
         <div class="mobile-nav collapse d-lg-none" id="topbarNav">
-<?php if ($publicHome): include __DIR__.'/partials/public-navigation.php'; else: ?>
-
-          <a href="index.php" class="topbar-link<?php echo nav_active('index.php'); ?>">
-            <i data-lucide="home" class="me-1" aria-hidden="true"></i>หน้าหลัก
-          </a>
-          <a href="wang_main.php" class="topbar-link<?php echo nav_active(['wang_main.php', 'create_rubber.php', 'manage_wang.php', 'wang_summary.php']); ?>">
-            <i data-lucide="package-check" class="me-1" aria-hidden="true"></i>วางยาง
-          </a>
-          <a href="weigh_wang.php" class="topbar-link<?php echo nav_active('weigh_wang.php'); ?>">
-            <i data-lucide="scale" class="me-1" aria-hidden="true"></i>ชั่งยาง
-          </a>
-          <a href="approve_weighing.php" class="topbar-link<?php echo nav_active('approve_weighing.php'); ?>">
-            <i data-lucide="clipboard-check" class="me-1" aria-hidden="true"></i>อนุมัติหลังชั่ง
-          </a>
-          <a href="rubbers.php" class="topbar-link<?php echo nav_active(['rubbers.php', 'report_rubber.php']); ?>">
-            <i data-lucide="clipboard-list" class="me-1" aria-hidden="true"></i>บันทึกยอดหัก
-          </a>
-          <a href="printed_receipts.php" class="topbar-link<?php echo nav_active('printed_receipts.php'); ?>">
-            <i data-lucide="receipt" class="me-1" aria-hidden="true"></i>พิมพ์ใบเสร็จแล้ว
-          </a>
-          <details class="management-menu">
-            <summary class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php','cancel_collection.php','dashboard.php','collection_analysis.php','members.php','member_form.php','users.php','user_form.php','login.php']); ?>"><i data-lucide="settings" class="me-1" aria-hidden="true"></i>จัดการระบบ <span aria-hidden="true">▾</span></summary>
-            <nav class="management-menu-items" aria-label="จัดการระบบ">
-              <?php if (!empty($_SESSION['user_id']) || !empty($_SESSION['user_username']) || !empty($_SESSION['username']) || !empty($_SESSION['member_id'])): ?>
-              <?php if (is_admin()): ?>
-              <a href="collection_audit.php" class="topbar-link<?php echo nav_active(['collection_audit.php','collection_history.php']); ?>"><i data-lucide="history" class="me-1" aria-hidden="true"></i>ตรวจสอบประวัติ</a>
-              <a href="cancel_collection.php" class="topbar-link<?php echo nav_active('cancel_collection.php'); ?>"><svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>ยกเลิกรายการ</a>
-              <?php endif; ?>
-              <a href="collection_analysis.php" class="topbar-link<?php echo nav_active('collection_analysis.php'); ?>"><i data-lucide="bar-chart-3" class="me-1" aria-hidden="true"></i>วิเคราะห์การรวบรวม</a>
-              <a href="dashboard.php" class="topbar-link<?php echo nav_active(['dashboard.php','members.php','member_form.php','users.php','user_form.php']); ?>"><i data-lucide="gauge" class="me-1" aria-hidden="true"></i>แดชบอร์ด</a>
-          <a href="logout.php" class="topbar-link text-danger fw-semibold">
-            <i data-lucide="log-out" class="me-1" aria-hidden="true"></i>ออกจากระบบ
-          </a>
-          <?php else: ?>
-          <a href="login.php"
-            class="topbar-link text-primary fw-semibold<?php echo nav_active('login.php'); ?>">
-            <i data-lucide="log-in" class="me-1" aria-hidden="true"></i>เข้าสู่ระบบ
-          </a>
-          <?php endif; ?>
-            </nav>
-          </details>
-        <?php endif; ?>
+<?php if ($publicHome || !function_exists('is_logged_in') || !is_logged_in()): require __DIR__.'/partials/public-navigation.php'; else: require __DIR__.'/partials/operations-navigation.php'; endif; ?>
 </div>
       </div>
     </div>

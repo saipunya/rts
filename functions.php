@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Report incomplete uploads before requiring any shared application files.
-$requiredAppFiles = ['app_bootstrap.php', 'cancellation_functions.php', 'collection_round_functions.php', 'weighing_functions.php'];
+$requiredAppFiles = ['app_bootstrap.php', 'cancellation_functions.php', 'collection_round_functions.php', 'weighing_functions.php', 'permission_functions.php', 'partials/operations-navigation.php'];
 $missingAppFiles = [];
 foreach ($requiredAppFiles as $requiredAppFile) {
     if (!is_file(__DIR__ . '/' . $requiredAppFile)) $missingAppFiles[] = $requiredAppFile;
@@ -622,3 +622,6 @@ function ensure_wang_collection_table(mysqli $db): void {
 
 require_once __DIR__ . '/collection_round_functions.php';
 require_once __DIR__ . '/weighing_functions.php';
+
+require_once __DIR__ . '/permission_functions.php';
+rts_enforce_request_permissions();

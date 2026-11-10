@@ -1,0 +1,22 @@
+/* Price administration uses the common operations theme, scoped to this screen. */
+.price-form-shell{max-width:1200px;min-width:0;font-family:Sarabun,Tahoma,sans-serif;color:#23332e}
+.price-form-shell .price-hero,.price-form-shell .price-panel{border:1px solid #dce4df;border-radius:8px;background:#fff;box-shadow:none}
+.price-form-shell .price-hero{background:#f8faf9}
+.price-form-shell .price-badge{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:48px;height:48px;border-radius:8px;background:#e8f1eb;color:#245c38}
+.price-form-shell .price-badge svg{width:25px;height:25px}
+.price-form-shell .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.price-form-shell .btn svg{width:18px;height:18px;flex-shrink:0}
+.price-form-shell .price-current{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-bottom:24px;padding:20px 24px;border:1px solid #dce4df;border-left:4px solid #245c38;border-radius:8px;background:#f8faf9}
+.price-form-shell .price-current>div>span{display:block;font-size:.85rem;color:#62736d;margin-bottom:6px}
+.price-form-shell .price-current strong{display:block;font-size:2rem;line-height:1.4;color:#245c38;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.price-form-shell .price-current strong small{font-size:.8rem;font-weight:400;margin-left:8px;color:#62736d}
+.price-form-shell .price-current .price-current-date{font-size:1.2rem}
+.price-form-shell .price-window-preview{display:grid;gap:6px;margin-bottom:22px;padding:16px 18px;background:#f1f6f2;border:1px solid #d5e3d8;border-radius:8px;font-size:.9rem;color:#245c38}
+.price-form-shell .price-window-preview small{font-size:.8rem;color:#62736d;line-height:1.7}
+.price-form-shell .form-label{font-weight:600;color:#354b40}
+.price-form-shell .form-control{min-width:0;max-width:100%}
+.price-form-shell input[readonly]{background:#f3f5f4}
+.price-form-shell .price-history-table td,.price-form-shell .price-history-table th{padding:12px 16px;font-size:.85rem}
+.price-form-shell .price-history-table .btn-sm{min-height:40px;padding:7px 10px}
+.price-form-shell .price-history-table td:first-child{white-space:nowrap}
+@media(max-width:575px){.price-form-shell{padding-inline:0}.price-form-shell .price-current{grid-template-columns:minmax(0,1fr);gap:14px;padding:16px}.price-form-shell .price-current strong{font-size:1.75rem}.price-form-shell .price-window-preview{padding:14px}.price-form-shell .price-history-table th,.price-form-shell .price-history-table td{padding:10px 8px;font-size:.78rem}.price-form-shell .price-history-table .btn-sm{min-width:40px;padding:8px}.price-form-shell .form-control{font-size:16px}}

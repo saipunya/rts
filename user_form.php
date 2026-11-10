@@ -1,7 +1,6 @@
 <?php
 require_once 'functions.php';
 require_admin();
-include 'header.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'create';
 $user = [
@@ -34,7 +33,11 @@ if ($action === 'edit') {
     }
     $user = $data;
 }
+$permissionChoices = $action === 'edit' ? rts_permissions_for_user(db(),(int)$user['user_id']) : [];
+if ($user['user_level']==='admin') $permissionChoices=array_keys(rts_permission_catalog());
+include __DIR__.'/header.php';
 ?>
+<link rel="stylesheet" href="assets/css/user-permissions.css?v=<?php echo filemtime(__DIR__.'/assets/css/user-permissions.css'); ?>">
 <style>
   html, body {
     font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
@@ -133,6 +136,8 @@ if ($action === 'edit') {
 
   <section class="user-panel p-3 p-md-4">
     <form method="post" action="user_save.php">
+      <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+      <input type="hidden" name="permissions_present" value="1">
       <input type="hidden" name="action" value="<?php echo htmlspecialchars($action); ?>">
       <input type="hidden" name="id" value="<?php echo (int)$user['user_id']; ?>">
 
@@ -187,6 +192,31 @@ if ($action === 'edit') {
         </div>
       </div>
 
+      <section class="user-permissions" aria-labelledby="userPermissionsTitle">
+        <h2 id="userPermissionsTitle">สิทธิ์เข้าถึงเมนู</h2>
+        <p>เลือกเมนูที่บัญชี user ใช้งานได้ ระบบตรวจทั้งการเปิดหน้าและส่งคำสั่งบันทึก เมนู admin ยังคงสงวนไว้สำหรับผู้ดูแลระบบ</p>
+        <p id="adminPermissionsNote" <?php echo $user['user_level']==='admin'?'':'hidden'; ?>>บัญชี admin เข้าถึงทุกเมนูได้เสมอ ไม่ถูกจำกัดด้วยตัวเลือกด้านล่าง</p>
+        <fieldset id="permissionOptions" <?php echo $user['user_level']==='admin'?'disabled':''; ?>>
+          <legend class="visually-hidden">เลือกเมนูที่อนุญาต</legend>
+          <div class="permission-grid">
+            <?php foreach (rts_permission_catalog() as $key=>$module): ?>
+            <label class="permission-option"><input type="checkbox" name="permissions[]" value="<?php echo e($key); ?>" <?php echo in_array($key,$permissionChoices,true)?'checked':''; ?>><span><strong><?php echo e($module['label']); ?></strong><small><?php echo e($module['description']); ?></small></span></label>
+            <?php endforeach; ?>
+          </div>
+          <div class="permission-selection"><button type="button" class="btn btn-sm btn-outline-success" id="selectAllPermissions">เลือกทั้งหมด</button><button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllPermissions">ล้างทั้งหมด</button></div>
+        </fieldset>
+        <small>ไม่เลือกเมนูใด = เปิดได้เฉพาะหน้าสาธารณะ · สิทธิ์ใหม่มีผลกับคำขอถัดไป ไม่ต้องออกจากระบบ</small>
+      </section>
+      <script>
+      (() => {
+        const level=document.getElementById('level');
+        const options=document.getElementById('permissionOptions');
+        const sync=()=>{const admin=level.value==='admin';options.disabled=admin;document.getElementById('adminPermissionsNote').hidden=!admin;};
+        level.addEventListener('change',sync);sync();
+        document.getElementById('selectAllPermissions').addEventListener('click',()=>options.querySelectorAll('input').forEach(input=>input.checked=true));
+        document.getElementById('clearAllPermissions').addEventListener('click',()=>options.querySelectorAll('input').forEach(input=>input.checked=false));
+      })();
+      </script>
       <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end mt-4">
         <a href="users.php" class="btn btn-outline-secondary">
           <i data-lucide="x" class="me-1" aria-hidden="true"></i>ยกเลิก

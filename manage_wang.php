@@ -204,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             if ($stmt) {
                 $stmt->bind_param('sissssdssssi', $date, $memberId, $group, $number, $name, $class, $sack, $lane, $note, $saveBy, $savedAt, $wangId);
-                if (execute_wang_with_audit($db, $stmt, $wangId, 'placement_edit')) {
+                if (execute_wang_with_audit($db, $stmt, $wangId, 'placement_edit', null, trim((string)($_POST['date_change_reason'] ?? '')))) {
                     $returnParams['msg'] = 'แก้ไขรายการ ID ' . $wangId . ' เรียบร้อย';
                     $stmt->close();
                     redirect_manage($returnParams);
@@ -394,7 +394,7 @@ if ($q !== '') {
   </style>
 <link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>">
 </head>
-<body class="rts-operations collection-ui">
+<body class="rts-operations collection-ui" data-page="manage_wang.php">
   <header class="app-header">
     <div class="main-shell">
       <div class="header-row">
@@ -577,6 +577,10 @@ if ($q !== '') {
               <input type="date" class="form-control" name="wang_date" id="edit-wang-date" required <?php echo is_admin() ? '' : 'readonly'; ?>>
               <?php if (is_admin()): ?><div class="form-text">แก้วันที่ได้เฉพาะรายการที่ยังไม่ชั่ง เก็บประวัติวันที่ก่อน–หลังและผู้แก้ไข</div><?php endif; ?>
             </div>
+            <?php if (is_admin()): ?><div class="col-12">
+              <label class="form-label" for="edit-date-reason">เหตุผลการแก้ไขวันที่</label>
+              <textarea class="form-control" id="edit-date-reason" name="date_change_reason" maxlength="1000" rows="2" placeholder="ต้องระบุเมื่อเปลี่ยนวันที่วางยาง"></textarea>
+            </div><?php endif; ?>
             <div class="col-12 col-md-3">
               <label class="form-label">ลาน</label>
               <select class="form-select" name="wang_lan" id="edit-wang-lan" required>
@@ -656,6 +660,12 @@ if ($q !== '') {
         }
         fields.id.value = row.wang_id || '';
         fields.date.value = row.wang_date || '';
+        const reason = document.getElementById('edit-date-reason');
+        if (reason) {
+          reason.value = '';
+          reason.required = false;
+          fields.date.onchange = () => { reason.required = fields.date.value !== row.wang_date; };
+        }
         fields.mid.value = row.wang_mid || 0;
         fields.number.value = row.wang_number || '';
         fields.className.value = row.wang_class || '';

@@ -284,7 +284,10 @@ function wang_record_lock_reason(mysqli $db, int $id): string {
     return wang_record_lock_label($state ?: []);
 }
 
-function update_wang_weighing(mysqli $db, int $wangId, string $weight, string $actor, string $lane, ?int $expectedRoundId = null): int {
+function update_wang_weighing(mysqli $db, int $wangId, string $weight, string $actor, string $lane, ?int $expectedRoundId = null, string $reason = '', ?string $expectedWeight = null): int {
+    if (!is_admin()) throw new DomainException('เฉพาะ admin เท่านั้นที่แก้ไขน้ำหนักได้');
+    $reason = trim($reason);
+    if ($reason === '' || mb_strlen($reason) > 1000) throw new DomainException('กรุณาระบุเหตุผลแก้ไขน้ำหนัก ไม่เกิน 1,000 ตัวอักษร');
     $weight = trim($weight);
     if (!preg_match('/^\d{1,12}(?:\.\d{1,2})?$/D', $weight) || (float)$weight <= 0) {
         throw new InvalidArgumentException('กรุณากรอกน้ำหนักสุทธิมากกว่า 0 ทศนิยมไม่เกิน 2 ตำแหน่ง');
@@ -298,10 +301,13 @@ function update_wang_weighing(mysqli $db, int $wangId, string $weight, string $a
         $stmt = $db->prepare('SELECT ru_id FROM tbl_wang_weighing WHERE wang_id=?');
         $stmt->bind_param('i', $wangId); $stmt->execute(); $id = (int)($stmt->get_result()->fetch_row()[0] ?? 0); $stmt->close();
         if (!$id) throw new RuntimeException('ยังไม่มีผลชั่งสำหรับรายการนี้');
-        lock_rubber_for_edit($db, $id, false);
+        lock_rubber_for_edit($db, $id, true);
         $stmt = $db->prepare('SELECT * FROM tbl_wang_weighing WHERE wang_id=? FOR UPDATE');
         $stmt->bind_param('i', $wangId); $stmt->execute(); $weighing = $stmt->get_result()->fetch_assoc(); $stmt->close();
-        if ($weighing['deductions_saved_at'] !== null || $weighing['approval_route'] !== null) throw new RuntimeException('รายการนี้ส่งตรวจสอบหรืออนุมัติแล้ว ไม่สามารถแก้น้ำหนักจากหน้าชั่งได้');
+        if ($expectedWeight === null || number_format((float)$expectedWeight,2,'.','') !== number_format((float)$weighing['net_weight'],2,'.','')) throw new DomainException('น้ำหนักเปลี่ยนแล้ว กรุณาโหลดหน้าใหม่ก่อนแก้ไข');
+        $receipt = rubber_receipt_issued($db, $id);
+        $stmt=$db->prepare('SELECT ru_quantity,ru_value,ru_expend,ru_netvalue FROM tbl_rubber WHERE ru_id=?');
+        $stmt->bind_param('i',$id); $stmt->execute(); $beforeValues=$stmt->get_result()->fetch_assoc(); $stmt->close();
         $stmt = $db->prepare('UPDATE tbl_rubber SET ru_quantity=?, ru_value=ROUND(CAST(? AS DECIMAL(18,2))*CAST(? AS DECIMAL(18,2)),2), ru_netvalue=ROUND(CAST(? AS DECIMAL(18,2))*CAST(? AS DECIMAL(18,2)),2)-ru_expend WHERE ru_id=?');
         $price = $weighing['price_per_kg'];
         $stmt->bind_param('sssssi', $weight, $weight, $price, $weight, $price, $id); $stmt->execute(); $stmt->close();
@@ -310,7 +316,10 @@ function update_wang_weighing(mysqli $db, int $wangId, string $weight, string $a
         $stmt->bind_param('sssi', $weight, $now, $actor, $wangId); $stmt->execute(); $stmt->close();
         $stmt = $db->prepare('UPDATE tbl_wangyang SET wang_weight=? WHERE wang_id=?');
         $stmt->bind_param('si', $weight, $wangId); $stmt->execute(); $stmt->close();
-        record_collection_audit($db, 'weight_edit', $wangId, $id, $actor, ['before'=>$weighing['net_weight'], 'after'=>$weight]);
+        $stmt=$db->prepare('SELECT ru_quantity,ru_value,ru_expend,ru_netvalue FROM tbl_rubber WHERE ru_id=?');
+        $stmt->bind_param('i',$id); $stmt->execute(); $afterValues=$stmt->get_result()->fetch_assoc(); $stmt->close();
+        record_collection_audit($db, 'weight_edit', $wangId, $id, $actor, ['before'=>$weighing['net_weight'], 'after'=>$weight, 'reason'=>$reason, 'approval_route'=>$weighing['approval_route'], 'receipt_issued'=>(bool)$receipt, 'before_values'=>$beforeValues, 'after_values'=>$afterValues]);
+        if ($receipt) record_receipt_admin_edit($db, $id, $actor);
         $db->commit();
         return $id;
     } catch (Throwable $e) { $db->rollback(); throw $e; }
@@ -392,7 +401,7 @@ function record_collection_audit(mysqli $db, string $action, int $wangId, int $r
 }
 
 // Keep placement writes and their before/after history atomic.
-function execute_wang_with_audit(mysqli $db, mysqli_stmt $mutation, int $id, string $action, ?int $roundId = null): bool {
+function execute_wang_with_audit(mysqli $db, mysqli_stmt $mutation, int $id, string $action, ?int $roundId = null, string $dateChangeReason = ''): bool {
     $db->begin_transaction();
     try {
         $before = null;
@@ -414,6 +423,9 @@ function execute_wang_with_audit(mysqli $db, mysqli_stmt $mutation, int $id, str
             }
             if ($before && $after && $before['wang_date'] !== $after['wang_date']) {
                 if (!is_admin()) throw new DomainException('เฉพาะ admin เท่านั้นที่แก้ไขวันที่วางยางได้');
+                $dateChangeReason = trim($dateChangeReason);
+                if ($dateChangeReason === '') throw new DomainException('กรุณาระบุเหตุผลการแก้ไขวันที่วางยาง');
+                if (mb_strlen($dateChangeReason) > 1000) throw new DomainException('เหตุผลการแก้ไขวันที่ต้องไม่เกิน 1,000 ตัวอักษร');
                 if (wang_has_weighing($db, $recordId)) throw new DomainException('รายการที่ชั่งน้ำหนักแล้วไม่สามารถแก้ไขวันที่วางยางได้');
             }
             $effectiveRoundId = $roundId ?? 0;
@@ -424,7 +436,7 @@ function execute_wang_with_audit(mysqli $db, mysqli_stmt $mutation, int $id, str
                 $stmt->bind_param('ii', $effectiveRoundId, $recordId); $stmt->execute(); $stmt->close();
                 $after['collection_round_id'] = $effectiveRoundId;
             }
-            record_collection_audit($db, $action, $recordId, 0, '', ['before'=>$before, 'after'=>$after]);
+            record_collection_audit($db, $action, $recordId, 0, '', ['before'=>$before, 'after'=>$after, 'date_change_reason'=>($before && $after && $before['wang_date'] !== $after['wang_date']) ? $dateChangeReason : null]);
         }
         $db->commit();
         return $ok;

@@ -5,8 +5,6 @@ $db = db();
 ensure_weighing_schema($db);
 $round = selected_collection_round($db, false);
 $roundId = (int)($round['round_id'] ?? 0);
-$lane = (string)($_GET['lan'] ?? 'all');
-if (!in_array($lane, ['all','1','2','3','4'], true)) $lane = 'all';
 $tab = (string)($_GET['tab'] ?? 'pending');
 if (!in_array($tab, ['pending','review'], true)) $tab = 'pending';
 $error = '';
@@ -20,7 +18,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         if ($route === 'return') {
             return_weighed_purchase_to_approval($db, $rubberId, $actor, $roundId);
             $_SESSION['approval_success'] = 'ย้อนกลับไปรออนุมัติแล้ว กรุณาตรวจสอบและเลือกดำเนินการใหม่ หากพิมพ์ใบแจ้งรายการไปแล้วให้แจ้งเจ้าหน้าที่ที่เกี่ยวข้องยกเลิกใบเดิม';
-            header('Location: approve_weighing.php?' . http_build_query(['round'=>$roundId, 'lan'=>$lane, 'tab'=>'pending']));
+            header('Location: approve_weighing.php?' . http_build_query(['round'=>$roundId, 'tab'=>'pending']));
             exit;
         }
         approve_weighed_purchase($db, $rubberId, $route, $actor, $roundId);
@@ -30,7 +28,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             exit;
         }
         $receiptUrl = 'export_rubber_pdf.php?' . http_build_query(['ru_id'=>$rubberId]);
-        $queueUrl = 'approve_weighing.php?' . http_build_query(['round'=>$roundId, 'lan'=>$lane, 'tab'=>'pending']);
+        $queueUrl = 'approve_weighing.php?' . http_build_query(['round'=>$roundId, 'tab'=>'pending']);
         header('Content-Type: text/html; charset=utf-8');
         ?>
         <!doctype html><html lang="th"><meta charset="utf-8"><title>เปิดใบเสร็จ</title>
@@ -54,9 +52,9 @@ $sql = "SELECT w.*, x.ru_id, x.net_weight, x.weighed_at, x.approval_route, x.app
     (SELECT h.returned_at FROM tbl_weighing_review_returns h WHERE h.ru_id=x.ru_id ORDER BY h.return_id DESC LIMIT 1) AS returned_at
     FROM tbl_wang_weighing x JOIN (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w ON w.wang_id=x.wang_id
     LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id
-    WHERE w.collection_round_id=? AND (?='all' OR w.wang_lan=?) AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')
+    WHERE w.collection_round_id=? AND LOWER(TRIM(COALESCE(w.wang_status, ''))) NOT IN ('cancelled','canceled','deleted')
     ORDER BY x.weighed_at $queueOrder, x.weighing_id $queueOrder";
-$stmt = $db->prepare($sql); $stmt->bind_param('iss', $roundId, $lane, $lane); $stmt->execute();
+$stmt = $db->prepare($sql); $stmt->bind_param('i', $roundId); $stmt->execute();
 $groups = ['pending'=>[], 'review'=>[]];
 foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
     if ($row['issued_at'] !== null || $row['deductions_saved_at'] !== null) continue;
@@ -75,15 +73,10 @@ require __DIR__ . '/header.php';
 </div>
 <?php if ($error): ?><div class="alert alert-danger" role="alert"><?php echo e($error); ?></div><?php endif; ?>
 <?php if ($success): ?><div class="alert alert-success" role="status"><?php echo e($success); ?></div><?php endif; ?>
-<form method="get" class="approval-filter">
-  <input type="hidden" name="round" value="<?php echo $roundId; ?>"><input type="hidden" name="tab" value="<?php echo e($tab); ?>">
-  <label for="approval-lane">ลาน</label><select class="form-select w-auto" id="approval-lane" name="lan">
-    <?php foreach (['all'=>'ทุกลาน','1'=>'ลาน 1','2'=>'ลาน 2','3'=>'ลาน 3','4'=>'ลาน 4'] as $value=>$label): ?><option value="<?php echo e($value); ?>" <?php echo $lane === (string)$value ? 'selected' : ''; ?>><?php echo e($label); ?></option><?php endforeach; ?>
-  </select><button class="btn btn-success">แสดง</button>
-</form>
+
 <nav class="approval-stages" aria-label="สถานะอนุมัติ">
 <?php foreach (['pending'=>'รออนุมัติ','review'=>'ตรวจสอบยอดหัก'] as $key=>$label): ?>
-  <a class="btn <?php echo $tab === $key ? 'btn-success' : 'btn-outline-success'; ?>" <?php echo $tab === $key ? 'aria-current="page"' : ''; ?> href="?<?php echo e(http_build_query(['round'=>$roundId,'lan'=>$lane,'tab'=>$key])); ?>"><?php echo e($label); ?> <span class="badge text-bg-light"><?php echo number_format(count($groups[$key])); ?></span></a>
+  <a class="btn <?php echo $tab === $key ? 'btn-success' : 'btn-outline-success'; ?>" <?php echo $tab === $key ? 'aria-current="page"' : ''; ?> href="?<?php echo e(http_build_query(['round'=>$roundId,'tab'=>$key])); ?>"><?php echo e($label); ?> <span class="badge text-bg-light"><?php echo number_format(count($groups[$key])); ?></span></a>
 <?php endforeach; ?>
 </nav>
 <?php if ($groups[$tab]): ?>
@@ -102,7 +95,7 @@ require __DIR__ . '/header.php';
       <td data-label="กระสอบ" class="approval-list-number"><?php echo number_format((float)$row['wang_sack'], 2); ?></td>
       <td data-label="น้ำหนัก (กก.)" class="approval-list-number"><strong><?php echo number_format((float)$row['net_weight'], 2); ?></strong></td>
       <td data-label="ชั่งเมื่อ" class="approval-list-date"><?php echo e(thai_datetime_format($row['weighed_at'])); ?></td>
-      <td class="approval-list-controls">
+      <td class="approval-list-controls"><?php if (is_admin()): ?><a class="btn btn-sm btn-outline-primary" href="admin_weight_edit.php?ru_id=<?php echo (int)$row['ru_id']; ?>">แก้ไขน้ำหนัก</a><?php endif; ?>
         <?php if ($tab === 'pending'): ?>
         <form method="post" rel="opener" class="approval-actions approval-actions-inline">
           <input type="hidden" name="round" value="<?php echo $roundId; ?>"><input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>"><input type="hidden" name="ru_id" value="<?php echo (int)$row['ru_id']; ?>">

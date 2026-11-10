@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_status'] = (string) $status;
 
                     session_regenerate_id(true);
-                    $redirect = app_login_destination((string)($_GET['redirect'] ?? 'dashboard.php'));
+                    $redirect = rts_login_destination((string)($_GET['redirect'] ?? rts_first_allowed_page()));
 
                     header('Location: ' . $redirect);
                     exit;

@@ -72,7 +72,7 @@ if ($viewDate !== '') {
   if (!$parsedViewDate || $parsedViewDate->format('Y-m-d') !== $viewDate) $viewDate = $placementToday;
 }
 if ($selected_lane !== '') {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_lan = ? AND (? = '' OR w.wang_date = ?) ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE w.wang_lan = ? AND (? = '' OR w.wang_date = ?) ORDER BY w.wang_savedate DESC, w.wang_id DESC LIMIT 500");
   if ($wstm) {
     $wstm->bind_param('sss', $selected_lane, $viewDate, $viewDate);
     $wstm->execute();
@@ -97,7 +97,7 @@ if ($selected_lane !== '') {
     $wstm->close();
   }
 } else {
-  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE (? = '' OR w.wang_date = ?) ORDER BY w.wang_savedate DESC LIMIT 500");
+  $wstm = $db->prepare("SELECT w.wang_id, w.wang_date, w.wang_mid, COALESCE(NULLIF(w.wang_group, ''), m.mem_group, '') AS wang_group, COALESCE(NULLIF(w.wang_number, ''), m.mem_number, '') AS wang_number, w.wang_name, COALESCE(NULLIF(w.wang_class, ''), m.mem_class, '') AS wang_class, w.wang_sack, w.wang_lan, w.wang_note, w.wang_status, x.weighing_id, x.deductions_saved_at, z.issued_at AS receipt_issued_at FROM (SELECT * FROM tbl_wangyang WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564) AND LOWER(TRIM(COALESCE(wang_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) w LEFT JOIN tbl_member m ON w.wang_mid = m.mem_id LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id LEFT JOIN tbl_rubber_receipts z ON z.ru_id=x.ru_id WHERE (? = '' OR w.wang_date = ?) ORDER BY w.wang_savedate DESC, w.wang_id DESC LIMIT 500");
   if ($wstm) {
     $wstm->bind_param('ss', $viewDate, $viewDate);
     $wstm->execute();
@@ -1168,6 +1168,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
             <div id="record-summary" style="margin-top:.25rem"></div>
           </div>
 
+          <?php if (is_admin()): ?><div class="fld">
+            <label for="f-date-reason">เหตุผลการแก้ไขวันที่</label>
+            <textarea id="f-date-reason" maxlength="1000" rows="2" placeholder="ต้องระบุเมื่อเปลี่ยนวันที่ของรายการเดิม"></textarea>
+          </div><?php endif; ?>
           <div class="fld">
             <label for="f-note">หมายเหตุ</label>
             <textarea id="f-note" rows="2" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
@@ -1385,16 +1389,10 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         }, payload);
         delete rec.backend_id;
 
-        const idx = records.findIndex(r => r.__backendId === backendId);
-        const updateIdx = idx >= 0 ? idx : records.findIndex(r => String(r.__backendId || '') === String(payload
-          .backend_id || ''));
-        if (payload.backend_id && updateIdx >= 0) {
-          records[updateIdx] = rec;
-        } else if (idx >= 0) {
-          records[idx] = rec;
-        } else {
-          records.push(rec);
-        }
+        // Put the most recently saved record first, including edits.
+        records = records.filter(r => r.__backendId !== backendId &&
+          String(r.__backendId || '') !== String(payload.backend_id || ''));
+        records.unshift(rec);
         dataHandler.onDataChanged(records);
         return {
           isOk: true,
@@ -1551,6 +1549,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         if (actions) {
           actions.innerHTML = recordActions(rec);
         }
+        tbody.appendChild(row); // Move reused rows into the current display order.
         existingRows.delete(rec.__backendId);
       } else {
         const row = document.createElement('tr');
@@ -1811,6 +1810,12 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
     submitBtn.textContent = mode === 'edit' ? 'บันทึกการแก้ไข' : 'บันทึก';
     const dateValue = record ? record.date : getTodayDateString();
     dateInput.value = dateValue;
+    const dateReason = document.getElementById('f-date-reason');
+    if (dateReason) {
+      dateReason.required = false;
+      dateReason.parentElement.hidden = !record;
+      dateInput.onchange = () => { dateReason.required = Boolean(record && dateInput.value !== record.date); };
+    }
     currentDateDisplay.textContent = formatThaiDate(dateValue);
     recordSummary.textContent = record ?
       `${formatFarmerDisplay(record.farmer_name, record.note)} · กลุ่ม ${record.group_name} · ลาน ${record.lane}` :
@@ -1954,6 +1959,7 @@ $selected_lane_js = $selected_lane !== '' ? $selected_lane : '';
         weight: 0,
         note: noteInput ? noteInput.value.trim() : '',
         date: dateInput.value || getTodayDateString(),
+        date_change_reason: document.getElementById('f-date-reason')?.value.trim() || '',
         round_id: <?php echo $roundId; ?>
       };
       if (backendIdInput.value) {

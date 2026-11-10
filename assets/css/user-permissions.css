@@ -1,0 +1,14 @@
+.user-permissions{margin-top:24px;padding-top:22px;border-top:1px solid #dce4df;color:#23332e}
+.user-permissions h2{font-size:1.1rem;font-weight:700;margin:0 0 8px}
+.user-permissions>p,.user-permissions>small{font-size:.85rem;line-height:1.7;color:#62736d}
+.user-permissions [hidden]{display:none!important}
+.user-permissions fieldset{min-width:0;margin:18px 0;border:0;padding:0}
+.permission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.permission-option{display:flex;gap:12px;align-items:flex-start;min-width:0;padding:16px;border:1px solid #d4e1d8;border-radius:8px;background:#fff;cursor:pointer}
+.permission-option:has(input:checked){background:#f0f6f1;border-color:#7ea38a}
+.permission-option input{flex-shrink:0;width:20px;height:20px;margin-top:2px;accent-color:#245c38}
+.permission-option strong{display:block;font-size:.9rem;font-weight:600}
+.permission-option small{display:block;font-size:.78rem;color:#62736d;margin-top:4px;overflow-wrap:anywhere}
+.permission-selection{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.user-permissions fieldset:disabled{opacity:.6}
+@media(max-width:575px){.permission-grid{grid-template-columns:minmax(0,1fr)}.permission-option{padding:14px}.permission-selection>.btn{flex:1}}

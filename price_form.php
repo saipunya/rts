@@ -3,10 +3,12 @@ require_once 'functions.php';
 require_admin();
 $db = db(); ensure_weighing_schema($db);
 
-include 'header.php';
-
-$action = isset($_GET['action']) ? $_GET['action'] : 'create';
+$action = ($_GET['action'] ?? '') === 'edit' ? 'edit' : 'create';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($action === 'edit' && $id <= 0) {
+    header('Location: prices.php?msg=' . urlencode('ไม่พบรายการราคาที่ต้องการแก้ไข'));
+    exit;
+}
 
 // default values
 $pr = [
@@ -14,7 +16,7 @@ $pr = [
     'pr_year' => date('Y') + 543, // Thai year default
     'pr_date' => (new DateTimeImmutable('today', new DateTimeZone('Asia/Bangkok')))->format('Y-m-d'),
     'pr_number' => '',
-    'pr_price' => '0.00',
+    'pr_price' => '',
 ];
 
 if ($action === 'edit' && $id > 0) {
@@ -43,94 +45,18 @@ $historyStmt = $db->prepare('SELECT pr_id, pr_date, pr_number, pr_price, pr_save
 $historyStmt->bind_param('ii', $historyPerPage, $historyOffset);
 $historyStmt->execute(); $priceHistory = $historyStmt->get_result()->fetch_all(MYSQLI_ASSOC); $historyStmt->close();
 
-$currentThaiYear = (int)date('Y') + 543;
+$latestPrice = latest_rubber_price($db);
+$placementDate = new DateTimeImmutable($pr['pr_date'], new DateTimeZone('Asia/Bangkok'));
+$windowStart = $placementDate->modify('-2 days')->format('Y-m-d');
+$windowEnd = $placementDate->modify('-1 day')->format('Y-m-d');
 $priceDateTs = strtotime((string)($pr['pr_date'] ?? ''));
 if ($priceDateTs !== false) {
     $pr['pr_year'] = (int)date('Y', $priceDateTs) + 543;
 }
 
 ?>
-<!-- Removed Google Fonts, now using local Sarabun -->
-<style>
-html, body {
-    font-family: 'Sarabun', 'THSarabunNew', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    background: #eff7f1;
-    color: #14532d;
-}
-
-.price-form-shell {
-    max-width: 960px;
-}
-
-.price-hero,
-.price-panel {
-    border: 1px solid #bbf7d0;
-    border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 16px 42px rgba(20, 83, 45, 0.08);
-}
-
-.price-hero {
-    background: linear-gradient(135deg, rgba(240, 253, 244, 0.98), rgba(236, 253, 245, 0.95));
-}
-
-.price-badge,
-.price-mini {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-}
-
-.price-badge {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 1rem;
-    background: #16a34a;
-    color: #fff;
-    box-shadow: 0 10px 24px rgba(22, 163, 74, 0.24);
-}
-
-.price-mini {
-    width: 2.35rem;
-    color: #166534;
-}
-
-.form-label {
-    font-weight: 700;
-    color: #166534;
-}
-
-.form-control,
-.form-select {
-    min-height: 46px;
-    border-radius: .9rem;
-    border-color: #bbf7d0;
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: #22c55e;
-    box-shadow: 0 0 0 .2rem rgba(34, 197, 94, .14);
-}
-
-.btn {
-    min-height: 44px;
-    border-radius: 999px;
-    font-weight: 700;
-}
-
-@media (max-width: 576px) {
-    .price-hero,
-    .price-panel {
-        border-radius: 1rem;
-    }
-}
-.price-history-table th,.price-history-table td{padding:12px 16px;font-size:.85rem}
-.price-history-table .btn-sm{min-height:36px;padding:7px 10px;display:inline-flex;align-items:center;gap:5px}
-.price-history-table .btn svg{width:16px;height:16px;flex-shrink:0}
-@media(max-width:575px){.price-history-table th,.price-history-table td{padding:11px 8px;font-size:.78rem}.price-history-table .btn-sm{min-width:38px;min-height:40px;padding:8px}.price-history-table td:first-child{white-space:nowrap}}
-</style>
+<?php include __DIR__.'/header.php'; ?>
+<link rel="stylesheet" href="assets/css/prices.css?v=<?php echo filemtime(__DIR__.'/assets/css/prices.css'); ?>">
 <div class="container price-form-shell my-4">
     <section class="price-hero p-3 p-md-4 mb-4">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -140,8 +66,8 @@ html, body {
                 </span>
                 <div>
                     <div class="text-uppercase text-success fw-semibold small mb-1">ราคายาง</div>
-                    <h1 class="h3 fw-bold mb-1 text-success-emphasis"><?php echo ($action === 'edit') ? 'แก้ไขราคายาง' : 'เพิ่มราคายาง'; ?></h1>
-                    <div class="text-success">บันทึกราคายางและรอบการประกาศราคา</div>
+                    <h1 class="h3 fw-bold mb-1 text-success-emphasis"><?php echo ($action === 'edit') ? 'แก้ไขราคายาง' : 'กำหนดราคายาง'; ?></h1>
+                    <div class="text-success">กำหนดราคา วันที่ชั่ง และเลขที่ประกาศในหน้าเดียว</div>
                 </div>
             </div>
             <a href="prices.php" class="btn btn-outline-success">
@@ -150,6 +76,10 @@ html, body {
         </div>
     </section>
 
+    <div class="price-current" aria-label="ราคายางล่าสุด">
+      <div><span>ราคาใช้งานล่าสุด</span><strong><?php echo $latestPrice ? number_format((float)$latestPrice['pr_price'],2) : '—'; ?><small>บาท / กก.</small></strong></div>
+      <div><span>วันที่ราคายาง / วันชั่ง</span><strong class="price-current-date"><?php echo $latestPrice ? e(thai_date_format($latestPrice['pr_date'])) : 'ยังไม่มีประกาศราคา'; ?></strong></div>
+    </div>
     <?php if (!empty($_GET['msg'])): ?><div class="alert alert-warning" role="alert"><?php echo e($_GET['msg']); ?></div><?php endif; ?>
     <section class="price-panel p-3 p-md-4">
         <form method="post" action="price_save.php">
@@ -158,12 +88,14 @@ html, body {
             <input type="hidden" name="pr_id" value="<?php echo (int)$pr['pr_id']; ?>">
 
             <p class="text-muted small">วันที่ราคายางคือวันที่ขาย / ชั่งยาง ระบบจะเรียกชั่งเฉพาะรายการวางยางย้อนหลัง 2 วันก่อนวันที่ราคาล่าสุด โดยไม่ต้องตั้งค่ารอบแยก</p>
+            <div class="price-window-preview" role="status"><strong>รายการวางยางที่เรียกชั่งได้</strong><span><span id="priceWindowStart"><?php echo e(thai_date_format($windowStart)); ?></span> – <span id="priceWindowEnd"><?php echo e(thai_date_format($windowEnd)); ?></span></span><small>ย้อนหลัง 2 วัน ไม่รวมวันที่ราคายาง · รายการที่ชั่งแล้วใช้ราคาที่บันทึกตอนชั่ง</small></div>
             <div class="row g-3">
                 <div class="col-12 col-md-3">
                     <label class="form-label" for="pr_year">
                         <i data-lucide="calendar-range" class="me-1" aria-hidden="true"></i>ปี (พ.ศ.)
                     </label>
-                    <input type="number" name="pr_year" id="pr_year" class="form-control" min="<?php echo $currentThaiYear - 1; ?>" max="<?php echo $currentThaiYear + 5; ?>" value="<?php echo htmlspecialchars((string)$pr['pr_year']); ?>" required>
+                    <input type="number" name="pr_year" id="pr_year" class="form-control" readonly aria-describedby="priceYearHelp" value="<?php echo htmlspecialchars((string)$pr['pr_year']); ?>" required>
+                    <small id="priceYearHelp" class="form-text">คำนวณจากวันที่ราคายาง</small>
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label" for="pr_date">
@@ -179,9 +111,9 @@ html, body {
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label" for="pr_price">
-                        <i data-lucide="circle-dollar-sign" class="me-1" aria-hidden="true"></i>ราคา
+                        <i data-lucide="circle-dollar-sign" class="me-1" aria-hidden="true"></i>ราคา (บาท / กก.)
                     </label>
-                    <input type="number" name="pr_price" id="pr_price" class="form-control" inputmode="decimal" min="0" step="0.01" value="<?php echo htmlspecialchars($pr['pr_price']); ?>" required>
+                    <input type="number" name="pr_price" id="pr_price" class="form-control" inputmode="decimal" min="0.01" step="0.01" placeholder="เช่น 56.50" value="<?php echo htmlspecialchars($pr['pr_price']); ?>" required>
                 </div>
             </div>
 
@@ -222,10 +154,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const yearInput = document.getElementById('pr_year');
     if (!dateInput || !yearInput) return;
 
+    const dateFormat = new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
     function syncThaiYear() {
         const match = /^(\d{4})-\d{2}-\d{2}$/.exec(dateInput.value || '');
         if (match) {
             yearInput.value = String(Number(match[1]) + 543);
+            const date = new Date(dateInput.value + 'T00:00:00+07:00');
+            if (Number.isNaN(date.getTime())) return;
+            const start = new Date(date); start.setUTCDate(start.getUTCDate()-2);
+            const end = new Date(date); end.setUTCDate(end.getUTCDate()-1);
+            document.getElementById('priceWindowStart').textContent = dateFormat.format(start);
+            document.getElementById('priceWindowEnd').textContent = dateFormat.format(end);
         }
     }
 

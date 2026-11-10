@@ -53,7 +53,14 @@ require __DIR__ . '/header.php';
 </div></div>
 <p class="text-muted small">ประวัติรายครั้งเริ่มเก็บเมื่อเปิดใช้ระบบประวัติ ข้อมูลเก่าแสดงผู้ดำเนินการที่มีบันทึกอยู่ วันที่และเวลาเป็นเวลาประเทศไทย</p>
 <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>วันเวลา</th><th>การดำเนินการ</th><th>เจ้าหน้าที่</th><th>บัญชีผู้ใช้</th></tr></thead><tbody>
-<?php foreach ($events as $event): ?><tr><td class="text-nowrap"><?php echo e(thai_datetime_format($event['recorded_at'])); ?></td><td><?php echo e($labels[$event['action']] ?? $event['action']); ?><?php if ($event['action'] === 'weight_edit'): $detail=json_decode($event['details'], true); ?><div class="small text-muted"><?php echo e($detail['before'] ?? ''); ?> → <?php echo e($detail['after'] ?? ''); ?> กก.</div><?php endif; ?></td><td><?php echo e($event['actor_name']); ?></td><td><?php echo e($event['actor_username']); ?><?php if ($event['actor_id'] !== null): ?> <small class="text-muted">#<?php echo (int)$event['actor_id']; ?></small><?php endif; ?></td></tr><?php endforeach; ?>
+<?php foreach ($events as $event): ?><tr><td class="text-nowrap"><?php echo e(thai_datetime_format($event['recorded_at'])); ?></td><td><?php echo e($labels[$event['action']] ?? $event['action']); ?><?php if ($event['action'] === 'placement_edit'):
+  $change = json_decode($event['details'], true) ?: [];
+  $oldDate = $change['before']['wang_date'] ?? '';
+  $newDate = $change['after']['wang_date'] ?? '';
+  if ($oldDate !== $newDate): ?>
+  <div class="small text-muted">วันที่วางยาง: <?php echo e(thai_date_format($oldDate)); ?> → <?php echo e(thai_date_format($newDate)); ?></div>
+  <div class="small" style="white-space:pre-wrap;overflow-wrap:anywhere">เหตุผล: <?php echo e($change['date_change_reason'] ?? 'ไม่ได้ระบุ (ประวัติเก่า)'); ?></div>
+<?php endif; endif; ?><?php if ($event['action'] === 'weight_edit'): $detail=json_decode($event['details'], true); ?><div class="small text-muted"><?php echo e($detail['before'] ?? ''); ?> → <?php echo e($detail['after'] ?? ''); ?> กก.<?php if (!empty($detail['reason'])): ?><br>เหตุผล: <?php echo e($detail['reason']); ?><?php endif; ?></div><?php endif; ?></td><td><?php echo e($event['actor_name']); ?></td><td><?php echo e($event['actor_username']); ?><?php if ($event['actor_id'] !== null): ?> <small class="text-muted">#<?php echo (int)$event['actor_id']; ?></small><?php endif; ?></td></tr><?php endforeach; ?>
 <?php if (!$events): ?><tr><td colspan="4" class="text-muted text-center">ยังไม่มีประวัติรายครั้ง</td></tr><?php endif; ?>
 </tbody></table></div>
 <?php require __DIR__ . '/footer.php'; ?>

@@ -1,183 +1,198 @@
 <?php
 require_once __DIR__.'/functions.php';
-require_once __DIR__.'/public_collection_feeds.php';
-$db=db(); ensure_weighing_schema($db);
-$currentCollectionRound=latest_priced_collection_round($db);
-$currentRoundPrice=$currentCollectionRound ? latest_collection_round_price($db,(int)$currentCollectionRound['round_id']) : null;
-$latest_price_date=$currentCollectionRound['weigh_date'] ?? null;
-$latest_price_date_text=$latest_price_date ? thai_date_format($latest_price_date) : 'ยังไม่มีรอบราคา';
-$rubberAnnouncement=fetch_rubber_collection_announcement($db,$latest_price_date);
-$rubberLiveSummary=fetch_rubber_round_live_summary($db,$latest_price_date);
-$validRubber="(SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564))";
-$totals=$db->query("SELECT COALESCE(SUM(ru_quantity),0) quantity,COALESCE(SUM(ru_value),0) value,COUNT(*) records,COUNT(DISTINCT ru_date) days FROM $validRubber r")->fetch_assoc();
-$latest=['quantity'=>0,'value'=>0,'records'=>0,'members'=>0,'general'=>0];
-$lanes=[];
-if ($latest_price_date) {
-    $stmt=$db->prepare("SELECT COALESCE(SUM(ru_quantity),0) quantity,COALESCE(SUM(ru_value),0) value,COUNT(*) records,COUNT(DISTINCT CASE WHEN LOWER(TRIM(ru_class))='member' THEN NULLIF(TRIM(ru_number),'') END) members,COUNT(DISTINCT CASE WHEN LOWER(TRIM(ru_class))='general' THEN NULLIF(TRIM(ru_fullname),'') END) general FROM $validRubber r WHERE ru_date=?");
-    $stmt->bind_param('s',$latest_price_date);$stmt->execute();$latest=$stmt->get_result()->fetch_assoc();$stmt->close();
-    $stmt=$db->prepare("SELECT ru_lan,COALESCE(SUM(ru_quantity),0) quantity,COALESCE(SUM(ru_value),0) value,COUNT(*) records FROM $validRubber r WHERE ru_date=? GROUP BY ru_lan ORDER BY CAST(ru_lan AS UNSIGNED),ru_lan");
-    $stmt->bind_param('s',$latest_price_date);$stmt->execute();$lanes=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);$stmt->close();
-}
-$history=$db->query("SELECT ru_date,COALESCE(SUM(ru_quantity),0) quantity,COALESCE(SUM(ru_value),0) value FROM $validRubber r GROUP BY ru_date ORDER BY ru_date DESC LIMIT 12")->fetch_all(MYSQLI_ASSOC);
-$history=array_reverse($history);
-$collectionFeeds=rts_public_collection_feeds($db);
-$publicData=['dates'=>array_column($history,'ru_date'),'quantity'=>array_map('floatval',array_column($history,'quantity')),'value'=>array_map('floatval',array_column($history,'value'))];
-include __DIR__.'/header.php';
+require_once __DIR__.'/public_dashboard_data.php';
+$db = db();
+ensure_weighing_schema($db);
+$member = is_string($_GET['member'] ?? null) ? trim($_GET['member']) : '';
+if (mb_strlen($member) > 100) $member = '';
+$dashboard = rts_public_dashboard($db,$member);
+$history = $db->query("SELECT ru_date,COALESCE(SUM(ru_quantity),0) quantity FROM tbl_rubber
+    WHERE LOWER(TRIM(COALESCE(record_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
+    GROUP BY ru_date ORDER BY ru_date DESC LIMIT 8")->fetch_all(MYSQLI_ASSOC);
+$history = array_reverse($history);
+$historyMax = max(array_merge([1.0],array_map('floatval',array_column($history,'quantity'))));
+require __DIR__.'/header.php';
 ?>
-<link rel="stylesheet" media="screen" href="assets/css/public-overview.css?v=<?php echo filemtime(__DIR__.'/assets/css/public-overview.css'); ?>">
-<div class="public-overview home-dashboard">
-  <section class="public-intro" aria-labelledby="publicTitle"><div><span class="public-eyebrow">ระบบงานสหกรณ์การเกษตร</span><h1 id="publicTitle">ระบบรวบรวมยางพารา</h1><p class="public-cooperative">สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด</p><p class="public-description">เชื่อมโยงการวางยาง ชั่งน้ำหนัก ตรวจสอบยอด และออกใบเสร็จ<br class="d-none d-md-block"> พร้อมข้อมูลสรุปการรวบรวมที่ติดตามได้</p><div class="public-entry"><a href="allmember.php" class="btn btn-success public-member-entry"><i data-lucide="users" aria-hidden="true"></i><span>สำหรับสมาชิก</span><i data-lucide="arrow-right" aria-hidden="true"></i></a><a href="<?php echo is_logged_in() ? 'dashboard.php' : 'login.php'; ?>" class="btn btn-outline-secondary public-staff-entry"><i data-lucide="log-in" aria-hidden="true"></i><?php echo is_logged_in() ? 'ศูนย์งานเจ้าหน้าที่' : 'เข้าสู่ระบบเจ้าหน้าที่'; ?></a></div><p class="public-member-help">ดูข้อมูลการรวบรวมยางของตนเองผ่านระบบสมาชิก</p></div><aside class="public-price" aria-label="ราคาประกาศล่าสุด"><span>ราคาประกาศล่าสุด</span><strong><?php echo $currentRoundPrice ? number_format((float)$currentRoundPrice['pr_price'],2) : '—'; ?></strong><span>บาทต่อกิโลกรัม</span><small><?php echo e($latest_price_date ? 'รอบวันที่ '.$latest_price_date_text : $latest_price_date_text); ?></small></aside></section>
-  <ol class="public-workflow" aria-label="ขั้นตอนของระบบ"><li><span>01</span>บันทึกวางยาง</li><li><span>02</span>ชั่งน้ำหนัก</li><li><span>03</span>ตรวจสอบและบันทึกยอดหัก</li><li><span>04</span>ออกใบเสร็จ</li></ol>
-  <div class="public-notice-grid">
-  <?php if (!empty($rubberAnnouncement['show'])): ?>
-  <div class="row g-3 mb-4">
-    <div class="col-12">
-      <div class="card announcement-card">
-        <div class="card-body p-3 p-md-4">
-          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-            <div class="d-flex align-items-start gap-3">
-              <div class="announcement-icon" aria-hidden="true">
-                <i data-lucide="megaphone" class="fs-4"></i>
-              </div>
-              <div>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                  <span class="badge text-bg-warning text-dark">ประกาศอัตโนมัติ</span>
-                  <h2 class="h5 mb-0">วันวางยางและวันชั่งยางรอบล่าสุด</h2>
-                </div>
-                <div class="announcement-note mb-2">
-                  <?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?> ถึง
-                  <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?>
-                  สำหรับการวางยาง และชั่งยางวันที่ <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?>
-                </div>
-                <div class="small text-muted">
-                  ประกาศนี้แสดงตามรอบขายยางที่ตั้งค่า และแสดงจนถึงวันชั่งยาง และจะหายไปอัตโนมัติหลังวันชั่งยาง
-                </div>
-              </div>
-            </div>
-            <div class="d-flex flex-column gap-2">
-              <span class="announcement-pill"><i data-lucide="calendar-range" aria-hidden="true"></i> วางยาง
-                <?php echo e($rubberAnnouncement['lay_start_text'] ?? '-'); ?></span>
-              <span class="announcement-pill"><i data-lucide="calendar-check" aria-hidden="true"></i> วางยาง
-                <?php echo e($rubberAnnouncement['lay_end_text'] ?? '-'); ?></span>
-              <span class="announcement-pill"><i data-lucide="scale" aria-hidden="true"></i> ชั่งยาง
-                <?php echo e($rubberAnnouncement['weigh_date_text'] ?? '-'); ?></span>
-            </div>
-          </div>
-        </div>
-      </div>
+<link rel="stylesheet" media="screen"
+  href="assets/css/public-overview.css?v=<?php echo filemtime(__DIR__.'/assets/css/public-overview.css'); ?>">
+<div class="public-overview" id="publicDashboard">
+  <?php if (is_logged_in() && !is_admin() && !rts_current_acl()['permissions']): ?><p class="alert alert-info">บัญชีนี้ยังไม่มีเมนูงานที่ได้รับอนุญาต กรุณาติดต่อ admin เพื่อกำหนดสิทธิ์ คุณยังดูข้อมูลสาธารณะได้ตามปกติ</p><?php endif; ?>
+  <section class="public-intro" aria-labelledby="publicTitle">
+    <div class="public-intro-copy"><span class="public-eyebrow"><span class="public-live-dot" aria-hidden="true"></span>
+        เชื่อมทุกขั้นตอน เห็นทุกความเคลื่อนไหว</span>
+      <h1 id="publicTitle">ติดตามการรวบรวม<br><span>ง่ายขึ้น ในหน้าเดียว</span></h1>
+      <p>สมาชิกดูสถานะได้ทันที ไม่ต้องเข้าสู่ระบบ<br class="d-none d-sm-block"> ตั้งแต่วางยาง ชั่งน้ำหนัก
+        จนถึงออกใบเสร็จ</p>
+      <div class="public-entry"><a href="#tracking" class="btn btn-success"><i data-lucide="search"
+            aria-hidden="true"></i>ติดตามรายการของฉัน</a><a href="#overview" class="public-text-link">ดูภาพรวมการรวบรวม
+          <span aria-hidden="true">↗</span></a></div>
     </div>
-  </div>
-  <?php endif; ?>
+    <aside class="public-price" aria-label="ราคายางรอบล่าสุด"><span><i data-lucide="trending-up" aria-hidden="true"></i>
+        ราคายางรอบล่าสุด</span><strong
+        id="publicPrice"><?php echo $dashboard['round'] ? number_format($dashboard['round']['price'],2) : '—'; ?><small>บาท
+          / กก.</small></strong>
+      <p id="publicPriceDate">
+        <?php echo $dashboard['round'] ? 'รอบวันที่ '.e(thai_date_format($dashboard['round']['date'])) : 'รอประกาศราคายาง'; ?>
+      </p>
+      <div class="public-price-foot"><i data-lucide="shield-check" aria-hidden="true"></i> ข้อมูลจากระบบสหกรณ์</div>
+    </aside>
+  </section>
 
-  <div id="liveRoundSection" class="row g-3 mb-4<?php echo empty($rubberLiveSummary['show']) ? ' d-none' : ''; ?>">
-    <div class="col-12">
-      <div class="card live-round-card">
-        <div class="card-body">
-          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+  <section id="overview" aria-labelledby="latestSummaryTitle" class="public-summary">
+    <div class="public-section-heading">
+      <div><span class="public-eyebrow">ภาพรวมการดำเนินงาน</span>
+        <h2 id="latestSummaryTitle">ทุกขั้นตอน เชื่อมต่อกัน</h2>
+        <p id="publicRoundLabel">
+          <?php echo $dashboard['round'] ? 'รอบวันที่ '.e(thai_date_format($dashboard['round']['date'])) : 'ยังไม่มีรอบราคายาง'; ?>
+        </p>
+      </div><span class="public-round-state"
+        id="publicRoundState"><?php echo !$dashboard['round'] ? 'รอประกาศราคา' : ($dashboard['round']['is_today'] ? 'รอบวันนี้' : ($dashboard['round']['is_future'] ? 'รอบที่ประกาศล่วงหน้า' : 'ข้อมูลรอบล่าสุด')); ?></span>
+    </div>
+    <div class="public-kpis">
+      <?php foreach (['placed'=>['package-check','วางยางในรอบ','รายการ'],'weighed'=>['scale','ชั่งน้ำหนักแล้ว','รายการ'],'weight'=>['bar-chart-3','น้ำหนักรวม','กก.']] as $key=>$metric): ?>
+      <article><span class="public-metric-icon"><i data-lucide="<?php echo e($metric[0]); ?>"
+            aria-hidden="true"></i></span>
+        <div><span><?php echo e($metric[1]); ?></span><strong
+            data-public-metric="<?php echo e($key); ?>"><?php echo number_format($dashboard['summary'][$key],$key==='weight'?2:0); ?></strong><small><?php echo e($metric[2]); ?></small>
+        </div>
+      </article>
+      <?php endforeach; ?>
+      <article class="public-participants-card">
+        <span class="public-metric-icon"><i data-lucide="users" aria-hidden="true"></i></span>
+        <div class="public-participants"><span>ผู้ส่งยางในรอบ</span>
+          <dl>
             <div>
-              <div class="live-round-badge mb-2">
-                <i data-lucide="radio" aria-hidden="true"></i> อัปเดตทุก 5 นาที
-              </div>
-              <h2 class="h5 mb-1">สรุปข้อมูลรอบวางยางล่าสุด</h2>
-              <div class="small text-muted">
-                <?php echo e($rubberLiveSummary['lay_start_text'] ?? '-'); ?> ถึง
-                <?php echo e($rubberLiveSummary['lay_end_text'] ?? '-'); ?>
-                และชั่งยางวันที่ <?php echo e($rubberLiveSummary['weigh_date_text'] ?? '-'); ?>
-              </div>
+              <dt>สมาชิก</dt>
+              <dd><strong
+                  data-public-metric="members"><?php echo number_format($dashboard['summary']['members']); ?></strong><small>คน</small>
+              </dd>
             </div>
-            <div class="live-round-time">
-              <i data-lucide="clock-3" aria-hidden="true"></i>
-              อัปเดตล่าสุด <span
-                id="liveRoundUpdatedAt"><?php echo e($rubberLiveSummary['updated_at_text'] ?? '-'); ?></span>
+            <div>
+              <dt>เกษตรกรทั่วไป</dt>
+              <dd><strong
+                  data-public-metric="general"><?php echo number_format($dashboard['summary']['general']); ?></strong><small>คน</small>
+              </dd>
             </div>
-          </div>
-
-          <div class="live-round-grid">
-            <div class="card live-round-tile bg-success-subtle">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div>
-                    <div class="live-round-label mb-1">น้ำหนักรวม</div>
-                    <div class="live-round-value" id="liveRoundQuantity">
-                      <?php echo number_format((float)($rubberLiveSummary['total_quantity'] ?? 0), 2); ?> kg</div>
-                  </div>
-                  <div class="live-round-icon" aria-hidden="true">
-                    <i data-lucide="scale" class="fs-3"></i>
-                  </div>
-                </div>
-                <div class="live-round-foot">
-                  <span class="small text-success-emphasis">รวมทุกลานในรอบล่าสุด</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card live-round-tile bg-warning-subtle">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div>
-                    <div class="live-round-label mb-1">ยอดเงินหัก</div>
-                    <div class="live-round-value" id="liveRoundDeduct">
-                      <?php echo number_format((float)($rubberLiveSummary['total_expend'] ?? 0), 2); ?> ฿</div>
-                  </div>
-                  <div class="live-round-icon" aria-hidden="true" style="background:#fff4db;color:#b45309;">
-                    <i data-lucide="file-text" class="fs-3"></i>
-                  </div>
-                </div>
-                <div class="live-round-foot">
-                  <span class="small text-warning-emphasis">หักรวมจากทุกรายการในรอบนี้</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card live-round-tile bg-primary-subtle">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start gap-3">
-                  <div>
-                    <div class="live-round-label mb-1">ยอดเงินที่จ่าย</div>
-                    <div class="live-round-value" id="liveRoundNet">
-                      <?php echo number_format((float)($rubberLiveSummary['total_net'] ?? 0), 2); ?> ฿</div>
-                  </div>
-                  <div class="live-round-icon" aria-hidden="true" style="background:#e0ecff;color:#1d4ed8;">
-                    <i data-lucide="wallet" class="fs-3"></i>
-                  </div>
-                </div>
-                <div class="live-round-foot">
-                  <span class="small text-primary-emphasis">จ่ายสุทธิหลังหักทั้งหมด</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          </dl>
         </div>
-      </div>
+      </article>
     </div>
-  </div>
+    <p class="public-note">จำนวนสมาชิกและเกษตรกรทั่วไปนับคนไม่ซ้ำจากรายการในรอบนี้ รวมผู้ที่รอชั่ง และไม่รวมรายการยกเลิก
+    </p>
+    <div class="public-progress">
+      <div><span>ความคืบหน้าการชั่ง</span><strong
+          id="publicProgressText"><?php echo $dashboard['summary']['weighed']; ?> /
+          <?php echo $dashboard['summary']['placed']; ?> รายการ</strong></div><progress id="publicProgress"
+        value="<?php echo $dashboard['summary']['weighed']; ?>"
+        max="<?php echo max(1,$dashboard['summary']['placed']); ?>" aria-label="ความคืบหน้าการชั่ง"></progress>
+    </div>
+  </section>
 
-  </div>
-  <div class="public-content-grid">
-  <section class="public-summary" aria-labelledby="latestSummaryTitle"><div class="public-section-heading"><div><h2 id="latestSummaryTitle">สรุปการรวบรวมรอบล่าสุด</h2><p><?php echo e($latest_price_date ? 'รอบวันที่ '.$latest_price_date_text : $latest_price_date_text); ?> · รวมทุกลาน ไม่รวมรายการยกเลิก</p></div><span class="public-data-label">ข้อมูลจากรายการรับซื้อ</span></div>
-    <div class="public-kpis"><article><span>ปริมาณรวบรวม</span><strong><?php echo number_format((float)$latest['quantity'],2); ?><small>กิโลกรัม</small></strong></article><article><span>มูลค่ารับซื้อ</span><strong><?php echo number_format((float)$latest['value'],2); ?><small>บาท</small></strong></article><article><span>ผู้ส่งยางในรอบ</span><strong><?php echo number_format((int)$latest['members']+(int)$latest['general']); ?><small>คน</small></strong></article><article><span>รายการรับซื้อ</span><strong><?php echo number_format((int)$latest['records']); ?><small>รายการ</small></strong></article></div>
-    <p class="public-note">มูลค่ารับซื้อใช้ยอดที่บันทึกจริงตามราคาตอนชั่ง ผู้ส่งยางนับสมาชิกตามเลขสมาชิกและเกษตรกรทั่วไปตามชื่อภายในรอบนั้น</p>
+  <section id="tracking" class="public-tracking" aria-labelledby="trackingTitle">
+    <div class="public-section-heading">
+      <div><span class="public-eyebrow">สำหรับสมาชิกและผู้ส่งยาง</span>
+        <h2 id="trackingTitle">รายการของฉัน ถึงขั้นตอนไหนแล้ว?</h2>
+        <p>ค้นหาด้วยชื่อหรือเลขสมาชิก หรือดูความเคลื่อนไหวล่าสุดของทุกลาน</p>
+      </div><span class="public-live-label"><span class="public-live-dot" aria-hidden="true"></span> อัปเดตทุก 10
+        วินาที</span>
+    </div>
+    <div class="public-tracking-layout">
+      <div class="public-board">
+        <form id="publicMemberSearch" class="public-search" method="get" action="index.php#tracking" role="search">
+          <div><span class="public-search-icon"><i data-lucide="search" aria-hidden="true"></i></span><input
+              id="publicMemberNumber" name="member" type="search" maxlength="100" autocomplete="off"
+              placeholder="พิมพ์ชื่อ นามสกุล หรือเลขสมาชิก" value="<?php echo e($member); ?>"><button
+              class="btn btn-success" type="submit">ค้นหา</button><button class="btn btn-outline-secondary"
+              type="button" id="publicClearSearch" <?php echo $member === '' ? 'hidden' : ''; ?>>ล้าง</button></div>
+
+        </form>
+
+        <div class="public-tabs" role="group" aria-label="กรองสถานะรายการ"><button type="button" class="is-active"
+            aria-pressed="true" data-public-stage="all">ทั้งหมด</button><button type="button" aria-pressed="false"
+            data-public-stage="weighed">ชั่งแล้ว</button><button type="button" aria-pressed="false"
+            data-public-stage="issued">ออกใบเสร็จแล้ว</button></div>
+        <div class="public-board-meta">
+          <p id="publicResultLabel" role="status">
+            <?php echo $member !== '' ? 'คำค้น “'.e($member).'” · ' : ''; ?><?php echo number_format($dashboard['matched']); ?>
+            รายการ<?php echo $dashboard['matched']>20?' · แสดง 20 รายการล่าสุด':''; ?></p><button id="publicRefresh"
+            type="button" aria-label="อัปเดตข้อมูลตอนนี้" title="อัปเดตข้อมูลตอนนี้"><i data-lucide="refresh-cw"
+              aria-hidden="true"></i></button>
+        </div>
+        <div class="public-all-records"><a id="publicAllRecords"
+            href="public_collection_list.php?<?php echo e(http_build_query(['member'=>$member,'stage'=>'all'])); ?>">ดูรายการทั้งหมดตามสถานะ
+            <i data-lucide="arrow-up-right" aria-hidden="true"></i></a></div>
+        <div id="publicRecords" class="public-records">
+          <?php require __DIR__.'/partials/public-status-records.php'; ?>
+        </div>
+        <div class="public-update"><span id="publicConnection" role="status">อัปเดตล่าสุด <time
+              datetime="<?php echo e($dashboard['updated_at']); ?>"><?php echo e((new DateTimeImmutable($dashboard['updated_at']))->format('H:i:s')); ?></time></span><span>เวลาประเทศไทย</span>
+        </div>
+        <noscript>
+          <p class="public-note">เปิด JavaScript เพื่ออัปเดตอัตโนมัติ หรือค้นหาและโหลดหน้าใหม่เพื่อดูสถานะล่าสุด</p>
+        </noscript>
+      </div>
+      <aside class="public-guide"><span class="public-guide-icon"><i data-lucide="scan-line"
+            aria-hidden="true"></i></span>
+        <h3>สแกนครั้งเดียว<br>ติดตามได้ตลอดรอบ</h3>
+        <p>เปิดหน้านี้ค้างไว้ ระบบจะอัปเดตสถานะให้เอง ไม่ต้องกดรีเฟรช</p>
+        <ol>
+          <li><span>1</span>
+            <div><strong>วางยางแล้ว</strong><small>รอเรียกรายการเข้าชั่ง</small></div>
+          </li>
+          <li><span>2</span>
+            <div><strong>ชั่งแล้ว</strong><small>อยู่ระหว่างอนุมัติหรือตรวจสอบ</small></div>
+          </li>
+          <li><span>3</span>
+            <div><strong>รอออกใบเสร็จ</strong><small>ตรวจสอบยอดเรียบร้อยแล้ว</small></div>
+          </li>
+          <li><span>4</span>
+            <div><strong>ออกใบเสร็จแล้ว</strong><small>ระบบบันทึกการออกใบเสร็จแล้ว</small></div>
+          </li>
+        </ol>
+        <p class="public-guide-note">สถานะแสดงความคืบหน้าของรายการ ไม่ใช่ลำดับเรียกรับเงินหรือการยืนยันจ่ายเงิน</p>
+      </aside>
+    </div>
+
   </section>
-  <?php
-  $feedRows=$collectionFeeds['weighed']; $feedId='recentWeighed';
-  $feedTitle='20 รายการล่าสุดที่ชั่งแล้ว';
-  $feedDescription='เรียงตามเวลายืนยันผลชั่งล่าสุด · รวมทุกลาน ไม่รวมรายการยกเลิก';
-  require __DIR__.'/partials/public-collection-feed.php';
-  ?>
-  <?php
-  $feedRows=$collectionFeeds['receipts']; $feedId='recentReceipts';
-  $feedTitle='20 รายการล่าสุดที่พิมพ์ใบเสร็จแล้ว';
-  $feedDescription='แสดงตามรายการในหน้า “พิมพ์ใบเสร็จแล้ว” · ไม่รวมรายการยกเลิก';
-  require __DIR__.'/partials/public-collection-feed.php';
-  ?>
-  <section class="public-history" aria-labelledby="publicHistoryTitle"><div class="public-section-heading"><div><h2 id="publicHistoryTitle">ภาพรวมการรวบรวมที่ผ่านมา</h2><p>ข้อมูล <?php echo number_format(count($history)); ?> วันที่มีรายการล่าสุด (สูงสุด 12 วัน) · รวมทุกลาน</p></div></div>
-    <?php if ($history): ?><div id="publicChartStatus" class="alert alert-warning" hidden>ยังแสดงกราฟไม่ได้ ข้อมูลสรุปและตารางด้านล่างยังใช้งานได้</div><div class="public-charts"><article><header><h3>ปริมาณยางที่รวบรวม</h3><span>กิโลกรัม</span></header><div class="public-chart-canvas"><canvas id="publicQuantityChart" role="img" aria-label="สรุปปริมาณรวบรวมย้อนหลัง">ดูตัวเลขปริมาณรวบรวมในข้อมูลสรุป</canvas></div></article><article><header><h3>มูลค่ารับซื้อ</h3><span>บาท</span></header><div class="public-chart-canvas"><canvas id="publicValueChart" role="img" aria-label="สรุปมูลค่ารับซื้อย้อนหลัง">ดูตัวเลขมูลค่ารับซื้อในข้อมูลสรุป</canvas></div></article></div><noscript><p class="public-note">เปิด JavaScript เพื่อดูกราฟ หรือตรวจข้อมูลจากตัวเลขสรุปและตารางรายลาน</p></noscript><?php else: ?><div class="public-empty">ยังไม่มีรายการรับซื้อสำหรับแสดงภาพรวม</div><?php endif; ?>
+
+  <section class="public-lanes" aria-labelledby="publicLanesTitle">
+    <div class="public-section-heading"><div><span class="public-eyebrow">ปริมาณรวบรวมแยกตามลาน</span><h2 id="publicLanesTitle">น้ำหนักยางในแต่ละลาน</h2><p id="publicLaneRound"><?php echo $dashboard['round'] ? 'รอบวันที่ '.e(thai_date_format($dashboard['round']['date'])) : 'ยังไม่มีรอบราคายาง'; ?></p></div><span class="public-live-label"><span class="public-live-dot" aria-hidden="true"></span> อัปเดตทุก 10 วินาที</span></div>
+    <div class="public-lane-cards" id="publicLaneCards">
+      <?php foreach ($dashboard['lanes'] as $lane): ?>
+      <article class="public-lane-card" data-lane="<?php echo e($lane['lane']); ?>">
+        <span class="public-lane-number"><?php echo $lane['lane']!=='' ? 'ลาน '.e($lane['lane']) : 'ไม่ระบุลาน'; ?></span>
+        <div class="public-lane-weight"><strong><?php echo number_format($lane['weight'],2); ?></strong><small>กก.</small></div>
+        <progress value="<?php echo $lane['weight']; ?>" max="<?php echo max(1,$dashboard['summary']['weight']); ?>" aria-label="สัดส่วนน้ำหนัก<?php echo $lane['lane']!=='' ? 'ลาน '.e($lane['lane']) : 'ไม่ระบุลาน'; ?>"></progress>
+        <span class="public-lane-count"><?php echo number_format($lane['weighed']); ?> รายการชั่งแล้ว</span>
+      </article>
+      <?php endforeach; ?>
+    </div>
+    <div class="public-lane-total"><span>รวมทุกลาน</span><div><strong id="publicLaneTotal"><?php echo number_format($dashboard['summary']['weight'],2); ?></strong> กก.</div></div>
+    <p class="public-note">รวมเฉพาะน้ำหนักที่ยืนยันชั่งแล้วของรอบล่าสุด ไม่รวมรายการยกเลิก และไม่เปลี่ยนตามคำค้นหรือตัวกรองรายการ</p>
   </section>
-  <section class="public-lifetime" aria-labelledby="lifetimeTitle"><h2 id="lifetimeTitle">ภาพรวมสะสมของระบบ</h2><div><span>ปริมาณรวบรวมทั้งหมด<strong id="publicQuantityTotal"><?php echo number_format((float)$totals['quantity'],2); ?> <small>กก.</small></strong></span><span>มูลค่ารับซื้อทั้งหมด<strong><?php echo number_format((float)$totals['value'],2); ?> <small>บาท</small></strong></span><span>รายการรับซื้อทั้งหมด<strong><?php echo number_format((int)$totals['records']); ?> <small>รายการ</small></strong></span><span>วันที่มีการรับซื้อ<strong><?php echo number_format((int)$totals['days']); ?> <small>วัน</small></strong></span></div><p class="public-note">รวมข้อมูลตั้งแต่เริ่มมีรายการในระบบ โดยไม่รวมรายการที่ยกเลิก ไม่ใช่ยอดเฉพาะ 12 วันที่แสดงในกราฟ</p></section>
-  <section aria-labelledby="publicLanesTitle"><div class="public-section-heading"><div><h2 id="publicLanesTitle">สรุปรับซื้อรายลานรอบล่าสุด</h2><p><?php echo e($latest_price_date_text); ?></p></div></div><div class="table-responsive public-lane-table"><table class="table table-hover mb-0"><thead><tr><th>ลานรับซื้อ</th><th class="text-end">ปริมาณ (กก.)</th><th class="text-end">มูลค่ารับซื้อ (บาท)</th><th class="text-end">รายการ</th></tr></thead><tbody><?php foreach($lanes as $lane): ?><tr><td>ลาน <?php echo e($lane['ru_lan']); ?></td><td class="text-end"><?php echo number_format((float)$lane['quantity'],2); ?></td><td class="text-end"><?php echo number_format((float)$lane['value'],2); ?></td><td class="text-end"><?php echo number_format((int)$lane['records']); ?></td></tr><?php endforeach; ?><?php if (!$lanes): ?><tr><td colspan="4" class="text-center text-secondary py-4">ยังไม่มีรายการรับซื้อในรอบนี้</td></tr><?php endif; ?></tbody></table></div></section>
-  </div>
-  <p class="public-note public-snapshot-note">ข้อมูลสรุปตามรายการที่บันทึกในระบบ ณ เวลาที่เปิดหน้า ไม่ใช่การยืนยันสถานะการจ่ายเงิน</p>
-  <script type="application/json" id="publicOverviewData"><?php echo json_encode($publicData,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); ?></script>
+
+  <section class="public-about" aria-labelledby="publicAboutTitle">
+    <div><span class="public-eyebrow">ข้อมูลจริง เพื่อการทำงานที่เป็นระบบ</span>
+      <h2 id="publicAboutTitle">จากลานรวบรวม<br>สู่ข้อมูลที่ติดตามได้</h2>
+      <p>เชื่อมโยงรายการวางยาง น้ำหนัก และใบเสร็จในกระบวนการเดียว ช่วยให้สมาชิกติดตามความคืบหน้า
+        และสหกรณ์ดูแลการรวบรวมได้อย่างเป็นระเบียบ</p><a class="public-text-link"
+        href="<?php echo is_logged_in()?rts_first_allowed_page():'login.php'; ?>">เข้าสู่ระบบเจ้าหน้าที่ <span
+          aria-hidden="true">↗</span></a>
+    </div>
+    <div class="public-history">
+      <h3>ปริมาณรวบรวมที่ผ่านมา</h3>
+      <p>สูงสุด 8 รอบวันที่มีรายการรับซื้อ · กิโลกรัม</p><?php if ($history): ?><div class="public-history-bars">
+        <?php foreach ($history as $day): ?><div><span><?php echo e(thai_date_short_format($day['ru_date'])); ?></span>
+          <div><span style="width:<?php echo max(1,round((float)$day['quantity']/$historyMax*100,2)); ?>%"></span></div>
+          <strong><?php echo number_format((float)$day['quantity'],2); ?></strong>
+        </div><?php endforeach; ?></div><?php else: ?><p class="public-empty">ยังไม่มีข้อมูลรับซื้อย้อนหลัง</p>
+      <?php endif; ?>
+    </div>
+  </section>
+  <script type="application/json" id="publicDashboardData">
+  <?php echo json_encode($dashboard,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); ?>
+  </script>
 </div>
-<script src="assets/js/public-overview.js?v=<?php echo filemtime(__DIR__.'/assets/js/public-overview.js'); ?>"></script>
-<?php include __DIR__.'/footer.php'; ?>
+<script src="assets/js/public-overview.js?v=<?php echo filemtime(__DIR__.'/assets/js/public-overview.js'); ?>" defer>
+</script>
+<?php require __DIR__.'/footer.php'; ?>

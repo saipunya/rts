@@ -71,9 +71,11 @@ try {
     $testDb->query("CREATE TRIGGER fail_weighing BEFORE INSERT ON tbl_wang_weighing FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Simulated failure'");
     expect_failure(fn() => record_wang_weighing($testDb, $secondId, '10', $priceId, 'test'), 'Simulate failure after purchase insertion');
     check((int)$testDb->query('SELECT COUNT(*) FROM tbl_rubber')->fetch_row()[0] === 1 && !wang_has_weighing($testDb, $secondId), 'Rollback leaves no partial purchase or weighing');
-    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '0', 'weight-editor', '1'), 'Reject invalid corrected weight');
-    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '125.25', 'weight-editor', '2'), 'Reject cross-lane weight correction');
-    update_wang_weighing($testDb, $wangId, '125.25', 'weight-editor', '1');
+    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '125.25', 'user', '1', null, 'Correction', '100.50'), 'Non-admin cannot correct weights');
+    $_SESSION['user_level']='admin';
+    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '0', 'weight-editor', '1', null, 'Correction', '100.50'), 'Reject invalid corrected weight');
+    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '125.25', 'weight-editor', '2', null, 'Correction', '100.50'), 'Reject cross-lane weight correction');
+    update_wang_weighing($testDb, $wangId, '125.25', 'weight-editor', '1', null, 'Correct scale reading', '100.50');
     $updated = $testDb->query("SELECT * FROM tbl_rubber WHERE ru_id=$rubberId")->fetch_assoc();
     $weighed = weighing_for_rubber($testDb, $rubberId);
     check($updated['ru_quantity'] === '125.25' && $updated['ru_value'] === '6293.81' && $updated['ru_netvalue'] === '6293.81', 'Correction updates purchase weight and money using original price');
@@ -81,9 +83,12 @@ try {
     check($testDb->query("SELECT wang_weight FROM tbl_wangyang WHERE wang_id=$wangId")->fetch_row()[0] === '125.25', 'Correction synchronizes placement weight');
     check((int)$testDb->query('SELECT COUNT(*) FROM tbl_rubber')->fetch_row()[0] === 1 && $weighed['deductions_saved_at'] === null, 'Correction creates no duplicate or deduction confirmation');
     expect_failure(fn() => refresh_weighed_financial_data($testDb, $rubberId, ['ru_expend'=>'10.00']), 'Cannot bypass approval to save deductions');
-    update_wang_weighing($testDb, $wangId, '100.50', 'weight-editor', '1');
+    update_wang_weighing($testDb, $wangId, '100.50', 'weight-editor', '1', null, 'Restore reading', '125.25');
     approve_weighed_purchase($testDb, $rubberId, 'review', 'approver');
     check(!rubber_receipt_ready($testDb, $rubberId), 'Review referral does not enable receipts');
+    update_wang_weighing($testDb,$wangId,'101.50','admin','1',null,'Review correction','100.50');
+    check(weighing_for_rubber($testDb,$rubberId)['approval_route']==='review', 'Admin correction preserves review stage');
+    update_wang_weighing($testDb,$wangId,'100.50','admin','1',null,'Restore review fixture','101.50');
     expect_failure(fn() => assert_weighed_weight_unchanged($testDb, $rubberId, '999.00'), 'Admin cannot change referred weight through purchase editor');
     assert_weighed_weight_unchanged($testDb, $rubberId, '100.50');
     return_weighed_purchase_to_approval($testDb, $rubberId, 'return-staff');
@@ -99,7 +104,7 @@ try {
     check((int)$testDb->query("SELECT COUNT(*) FROM tbl_weighing_review_returns WHERE ru_id=$rubberId")->fetch_row()[0] === 2, 'Repeated review and return preserves all history');
     approve_weighed_purchase($testDb, $rubberId, 'review', 'approver');
     expect_failure(fn() => approve_weighed_purchase($testDb, $rubberId, 'zero', 'approver'), 'Cannot approve a review referral again');
-    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '200', 'weight-editor', '1'), 'Referral locks the weight printed on the slip');
+    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '200', 'weight-editor', '1'), 'Correction requires a reason and expected weight after referral');
     $testDb->begin_transaction();
     lock_rubber_for_edit($testDb, $rubberId, false);
     $fresh = refresh_weighed_financial_data($testDb, $rubberId, ['ru_quantity'=>'9999','ru_expend'=>'10.00']);
@@ -114,9 +119,12 @@ try {
     mark_weighing_deductions_saved($testDb, $rubberId, 'finance');
     $testDb->commit();
     check($testDb->query("SELECT ru_loan FROM tbl_rubber WHERE ru_id=$rubberId")->fetch_row()[0] === '10.00', 'Reviewed nonzero deductions are saved before enabling receipts');
-    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '200', 'weight-editor', '1'), 'Zero deduction confirmation locks weight corrections');
+    expect_failure(fn() => update_wang_weighing($testDb, $wangId, '200', 'weight-editor', '1'), 'Correction requires a reason and expected weight after deductions');
     check(weighing_for_rubber($testDb, $rubberId)['net_weight'] === '100.50', 'Rejected correction leaves saved weight unchanged');
     check(rubber_receipt_ready($testDb, $rubberId), 'Reviewed deductions enable receipt printing');
+    update_wang_weighing($testDb,$wangId,'101.50','admin','1',null,'Confirmed deductions correction','100.50');
+    check(rubber_receipt_ready($testDb,$rubberId), 'Admin correction preserves deduction confirmation');
+    update_wang_weighing($testDb,$wangId,'100.50','admin','1',null,'Restore deduction fixture','101.50');
     expect_failure(fn() => return_weighed_purchase_to_approval($testDb, $rubberId, 'return-staff'), 'Cannot return a purchase after saving deductions');
     $completed = weighing_for_rubber($testDb, $rubberId);
     check(str_contains(wang_record_lock_reason($testDb, $wangId), 'บันทึกยอดหักแล้ว'), 'Completed deductions explicitly lock placement data');
@@ -136,6 +144,14 @@ try {
     $testDb->commit();
     check(str_contains(wang_record_lock_reason($testDb, $wangId), 'ออกใบเสร็จแล้ว'), 'Issued receipt lock takes priority over deduction status');
     check(rubber_receipt_issued($testDb, $rubberId)['issued_by'] === 'receipt-staff', 'Receipt issuance records responsible staff');
+    $originalReceipt = rubber_receipt_issued($testDb, $rubberId)['original_data'];
+    update_wang_weighing($testDb,$wangId,'110.50','admin-correction','1',null,'Correct after receipt','100.50');
+    $corrected=$testDb->query("SELECT * FROM tbl_rubber WHERE ru_id=$rubberId")->fetch_assoc();
+    check($corrected['ru_quantity']==='110.50' && $corrected['ru_value']==='5552.63', 'Admin corrects issued weight and recalculates fixed-price money');
+    check(rubber_receipt_issued($testDb,$rubberId)['original_data']===$originalReceipt && rubber_receipt_issued($testDb,$rubberId)['last_edited_by']==='admin-correction', 'Correction preserves original receipt and records administrator');
+    expect_failure(fn()=>update_wang_weighing($testDb,$wangId,'120','admin-correction','1',null,'Stale form','100.50'),'Reject stale correction without overwriting newer weight');
+    update_wang_weighing($testDb,$wangId,'100.50','admin-correction','1',null,'Restore fixture','110.50');
+
     expect_failure(fn() => return_weighed_purchase_to_approval($testDb, $rubberId, 'return-staff'), 'Cannot return a purchase after receipt issuance');
     $testDb->begin_transaction();
     expect_failure(fn() => lock_rubber_for_edit($testDb, $rubberId, false), 'Regular staff cannot edit an issued receipt');
@@ -165,7 +181,7 @@ try {
     $zeroApproval = weighing_for_rubber($testDb, $zeroId);
     check($zeroApproval['approval_route'] === 'zero' && $zeroApproval['approved_by'] === 'zero-approver' && $zeroApproval['approved_at'] !== null, 'Approval records route, actor and time');
     check(rubber_receipt_ready($testDb, $zeroId), 'Zero approval immediately enables receipt printing');
-    expect_failure(fn() => update_wang_weighing($testDb, $secondId, '20', 'test', '2'), 'Zero approval locks weighing corrections');
+    expect_failure(fn() => update_wang_weighing($testDb, $secondId, '20', 'test', '2'), 'Correction requires a reason and expected weight after zero approval');
     expect_failure(fn() => assert_weighed_weight_unchanged($testDb, $zeroId, '20.00'), 'Admin cannot change zero-approved weight through purchase editor');
     expect_failure(fn() => return_weighed_purchase_to_approval($testDb, $zeroId, 'return-staff'), 'Cannot return a zero-approved purchase');
     expect_failure(fn() => return_weighed_purchase_to_approval($testDb, 0, 'return-staff'), 'Cannot return a missing purchase');
@@ -302,7 +318,7 @@ try {
         require __DIR__ . '/../print_deduction_check.php';
         $slipHtml = ob_get_clean();
         check(str_contains($slipHtml, 'Test member (บิน)') && !str_contains($slipHtml, '((บิน))'), 'Slip displays placement note without duplicate parentheses');
-        check(str_contains($slipHtml, '100.50') && str_contains($slipHtml, '4.00') && str_contains($slipHtml, '80mm 60mm'), 'Small slip renders sacks, confirmed weight and paper dimensions');
+        check(str_contains($slipHtml, '100.50') && str_contains($slipHtml, '4.00') && str_contains($slipHtml, 'id="slipPageSize"') && str_contains($slipHtml, 'paperHeight') && str_contains($slipHtml, 'width:72mm'), 'Small slip renders sacks, confirmed weight and content-fitted 80 mm paper');
         $slipContent = explode('</article>', explode('<article class="slip"', $slipHtml, 2)[1], 2)[0];
         check(str_contains($slipContent, 'วันที่ชั่งยาง:') && str_contains($slipContent, 'กลุ่ม:') && !str_contains($slipContent, 'เลขที่') && !str_contains($slipContent, 'ลาน') && !str_contains($slipContent, 'รอบขายยาง') && !str_contains($slipContent, 'ผู้ตรวจสอบ'), 'Slip contains name, weighing date, group, sacks and weight without unrelated fields');
     } finally {
@@ -323,7 +339,15 @@ try {
     $manualPlacementDate = (new DateTimeImmutable($realToday))->modify('-2 days')->format('Y-m-d');
     $manualDateEdit = $testDb->prepare('UPDATE tbl_wangyang SET wang_date=? WHERE wang_id=?');
     $manualDateEdit->bind_param('si', $manualPlacementDate, $simulatedWang);
-    execute_wang_with_audit($testDb, $manualDateEdit, $simulatedWang, 'placement_edit');
+    expect_failure(fn()=>execute_wang_with_audit($testDb, $manualDateEdit, $simulatedWang, 'placement_edit', null, '   '), 'Date change requires a nonblank reason');
+    check($testDb->query("SELECT wang_date FROM tbl_wangyang WHERE wang_id=$simulatedWang")->fetch_row()[0] === $realToday, 'Missing reason rolls back the date change');
+    $_SESSION['user_level']='user';
+    expect_failure(fn()=>execute_wang_with_audit($testDb, $manualDateEdit, $simulatedWang, 'placement_edit', null, 'Correct date'), 'Non-admin cannot change date even with a reason');
+    $_SESSION['user_level']='admin';
+    execute_wang_with_audit($testDb, $manualDateEdit, $simulatedWang, 'placement_edit', null, 'Correct placement date');
+    $dateAudit=$testDb->query("SELECT * FROM tbl_collection_audit WHERE wang_id=$simulatedWang AND action='placement_edit' ORDER BY audit_id DESC LIMIT 1")->fetch_assoc();
+    $dateDetails=json_decode($dateAudit['details'],true);
+    check($dateDetails['before']['wang_date'] === $realToday && $dateDetails['after']['wang_date'] === $manualPlacementDate && $dateDetails['date_change_reason'] === 'Correct placement date' && $dateAudit['actor_username'] === 'same-day-admin', 'Date audit preserves old and new dates, reason and authenticated editor');
     $manualDateEdit->close();
 
     $simulatedPurchase=record_wang_weighing($testDb,$simulatedWang,'10',$simulatedPrice,'test','1');
@@ -415,7 +439,7 @@ try {
     expect_failure(fn() => execute_wang_with_audit($testDb, $changeDate, $beforePriceId, 'placement_edit'), 'Ordinary staff cannot change placement date');
     check($testDb->query("SELECT wang_date FROM tbl_wangyang WHERE wang_id=$beforePriceId")->fetch_row()[0] === '2026-10-29', 'Rejected date edit rolls back');
     $_SESSION['user_level'] = 'admin';
-    execute_wang_with_audit($testDb, $changeDate, $beforePriceId, 'placement_edit');
+    execute_wang_with_audit($testDb, $changeDate, $beforePriceId, 'placement_edit', null, 'Correct placement date');
     check($testDb->query("SELECT wang_date FROM tbl_wangyang WHERE wang_id=$beforePriceId")->fetch_row()[0] === '2026-10-28', 'Admin can move an unweighed placement to another date');
     $changeDate->close();
     $auditCount = fn() => (int)$testDb->query("SELECT COUNT(*) FROM tbl_collection_audit WHERE wang_id=$beforePriceId AND action='placement_edit'")->fetch_row()[0];
@@ -425,18 +449,18 @@ try {
     $_SESSION['demo_test_sale_date'] = '2026-10-31';
     $dateOnly = $testDb->prepare("UPDATE tbl_wangyang SET wang_date='2026-10-27', wang_saveby='Demo admin', wang_savedate=NOW() WHERE wang_id=?");
     $dateOnly->bind_param('i', $beforePriceId);
-    execute_wang_with_audit($testDb, $dateOnly, $beforePriceId, 'placement_edit');
+    execute_wang_with_audit($testDb, $dateOnly, $beforePriceId, 'placement_edit', null, 'Correct placement date');
     check($auditCount() === $baselineAudits + 1, 'Date-only edit remains audited even with stale demo flags');
     $dateOnly->close();
     $mixedEdit = $testDb->prepare("UPDATE tbl_wangyang SET wang_date='2026-10-26', wang_note='Changed note' WHERE wang_id=?");
     $mixedEdit->bind_param('i', $beforePriceId);
-    execute_wang_with_audit($testDb, $mixedEdit, $beforePriceId, 'placement_edit');
+    execute_wang_with_audit($testDb, $mixedEdit, $beforePriceId, 'placement_edit', null, 'Correct placement date');
     check($auditCount() === $baselineAudits + 2, 'Edits of date and other data continue creating audit');
     $mixedEdit->close();
     unset($_SESSION['demo_test_sale_date'], $_SESSION['demo_test_user_id']);
     $normalEdit = $testDb->prepare("UPDATE tbl_wangyang SET wang_date='2026-10-25' WHERE wang_id=?");
     $normalEdit->bind_param('i', $beforePriceId);
-    execute_wang_with_audit($testDb, $normalEdit, $beforePriceId, 'placement_edit');
+    execute_wang_with_audit($testDb, $normalEdit, $beforePriceId, 'placement_edit', null, 'Correct placement date');
     check($auditCount() === $baselineAudits + 3, 'Normal workflow audits all date edits');
     $normalEdit->close();
     echo "All weighing checks passed.\n";

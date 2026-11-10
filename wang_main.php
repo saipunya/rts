@@ -58,6 +58,20 @@ if ($stm) {
     $stm->close();
 }
 
+// Use the same authenticated route and the same queries for initial and live data.
+if (($_GET['ajax'] ?? '') === 'summary') {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, private');
+    echo json_encode([
+        'summary'=>$overviewSummary, 'lanes'=>$lane_data, 'workflow'=>$workflowCounts,
+        'date_label'=>format_thai_date_short($currentWangDate), 'round_id'=>$roundId,
+        'round_label'=>$round ? collection_round_label($round) : 'ยังไม่มีราคายาง',
+        'round_description'=>$round ? 'วันที่ราคายาง / วันชั่ง '.thai_date_format($round['weigh_date']).' · เรียกเฉพาะรายการวางยาง '.thai_date_format($round['lay_start']).' – '.thai_date_format($round['lay_end']) : 'บันทึกวางยางได้ตามปกติ เมื่อมีราคายางล่าสุดจึงจะเรียกรายการย้อนหลัง 2 วันมาชั่งได้',
+    ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    exit;
+}
+header('Cache-Control: no-store, private');
+
 $lane_colors = [
     '1' => ['bg' => '#dcfce7', 'border' => '#16a34a', 'badge' => '#16a34a', 'icon_bg' => '#bbf7d0', 'text' => '#14532d'],
     '2' => ['bg' => '#d1fae5', 'border' => '#059669', 'badge' => '#059669', 'icon_bg' => '#a7f3d0', 'text' => '#064e3b'],
@@ -67,7 +81,7 @@ $lane_colors = [
 require __DIR__ . '/header.php';
 ?>
 <link rel="stylesheet" href="assets/css/wang-main.css?v=<?php echo filemtime(__DIR__ . '/assets/css/wang-main.css'); ?>">
-<section class="wang-main">
+<section class="wang-main" id="wangMainLive">
   <?php require __DIR__ . '/collection_round_bar.php'; ?>
   <header class="wang-heading">
     <div><span class="wang-eyebrow"><i data-lucide="package-check" aria-hidden="true"></i>งานรวบรวมยาง</span><h1>วางยาง — เลือกลาน</h1><p>เลือกลานเพื่อบันทึกวางยาง และติดตามรายการวางยางของวันนี้</p></div>
@@ -79,26 +93,26 @@ require __DIR__ . '/header.php';
   </header>
     <section class="workflow-links" aria-label="สถานะงานในรอบนี้">
       <?php foreach (['pending_weighing'=>['รอชั่งน้ำหนัก','pending'], 'pending_deductions'=>['ชั่งแล้ว รออนุมัติ / ยอดหัก','deductions'], 'completed'=>['บันทึกยอดหักแล้ว','completed']] as $key=>$item): ?>
-        <a href="weigh_wang.php?<?php echo e(http_build_query(['round'=>$roundId,'status'=>$item[1]])); ?>" class="btn btn-outline-success"><?php echo e($item[0]); ?> <strong><?php echo $workflowCounts[$key]; ?></strong> รายการ</a>
+        <a href="weigh_wang.php?<?php echo e(http_build_query(['round'=>$roundId,'status'=>$item[1]])); ?>" class="btn btn-outline-success" data-workflow="<?php echo e($key); ?>" data-workflow-status="<?php echo e($item[1]); ?>"><?php echo e($item[0]); ?> <strong><?php echo $workflowCounts[$key]; ?></strong> รายการ</a>
       <?php endforeach; ?>
     </section>
 
     <div class="date-badge">
       <i data-lucide="calendar-days" aria-hidden="true"></i>
-      วันที่ปัจจุบัน: <?php echo e(format_thai_date_short($overviewSummary['current_date'])); ?>
+      <span id="wangCurrentDate">วันที่ปัจจุบัน: <?php echo e(format_thai_date_short($overviewSummary['current_date'])); ?></span>
     </div>
 
     <div class="summary-strip">
       <div class="summary-item">
-        <div class="summary-value"><?php echo number_format($overviewSummary['sacks'], 2); ?></div>
+        <div class="summary-value" data-summary="sacks"><?php echo number_format($overviewSummary['sacks'], 2); ?></div>
         <div class="summary-label">กระสอบรวม</div>
       </div>
       <div class="summary-item">
-        <div class="summary-value"><?php echo number_format($overviewSummary['entries']); ?></div>
+        <div class="summary-value" data-summary="entries"><?php echo number_format($overviewSummary['entries']); ?></div>
         <div class="summary-label">รายการ</div>
       </div>
       <div class="summary-item">
-        <div class="summary-value"><?php echo number_format($overviewSummary['lanes']); ?></div>
+        <div class="summary-value" data-summary="lanes"><?php echo number_format($overviewSummary['lanes']); ?></div>
         <div class="summary-label">ลานที่มีข้อมูล</div>
       </div>
     </div>
@@ -113,7 +127,7 @@ require __DIR__ . '/header.php';
           <?php echo e($lan); ?>
         </span>
         <span class="lane-label">ลาน <?php echo e($lan); ?></span>
-        <span class="lane-stat">
+        <span class="lane-stat" data-lane="<?php echo e($lan); ?>">
           <?php if ((int)$data['count'] > 0): ?>
             <?php echo number_format($data['sacks'], 2); ?> กระสอบ · <?php echo number_format($data['count']); ?> รายการ
           <?php else: ?>
@@ -123,5 +137,7 @@ require __DIR__ . '/header.php';
       </a>
       <?php endforeach; ?>
     </div>
+<p id="wangLiveStatus" class="small text-muted mt-3 mb-0" role="status" aria-live="polite">อัปเดตอัตโนมัติทุก 5 วินาที</p>
 </section>
+<script src="assets/js/wang-main-live.js?v=<?php echo filemtime(__DIR__.'/assets/js/wang-main-live.js'); ?>" defer></script>
 <?php require __DIR__ . '/footer.php'; ?>

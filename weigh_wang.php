@@ -149,15 +149,7 @@ require __DIR__ . '/header.php';
           </form>
         <?php else: ?>
           <div class="record-weight"><strong><?php echo number_format((float)$row['net_weight'],2); ?> <small>กก.</small></strong><span>รอบ <?php echo e(thai_date_short_format($row['round_date'])); ?></span></div>
-          <?php if (!$row['deductions_saved_at'] && $row['approval_route'] === null): ?>
-            <details class="weight-edit"><summary>แก้ไขน้ำหนัก</summary>
-              <form method="post" class="weight-form">
-                <input type="hidden" name="round" value="<?php echo $roundId; ?>"><input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>"><input type="hidden" name="lan" value="<?php echo e($lane); ?>"><input type="hidden" name="wang_id" value="<?php echo $wid; ?>"><input type="hidden" name="action" value="update_weight">
-                <label for="correct-weight-<?php echo $wid; ?>">น้ำหนักใหม่ (กก.)</label><input class="form-control weight-input" id="correct-weight-<?php echo $wid; ?>" type="number" inputmode="decimal" name="net_weight" min="0.01" max="999999999999.99" step="0.01" required value="<?php echo $posted ? e($_POST['net_weight'] ?? $row['net_weight']) : e($row['net_weight']); ?>">
-                <button class="btn btn-success save-weight"><i data-lucide="check" aria-hidden="true"></i>บันทึกน้ำหนักใหม่</button>
-              </form>
-            </details>
-          <?php else: ?><div class="weight-locked"><i data-lucide="lock-keyhole" aria-hidden="true"></i>ล็อกน้ำหนัก · ส่งดำเนินการแล้ว</div><?php endif; ?>
+          <?php if (is_admin()): ?><a class="btn btn-sm btn-outline-primary" href="admin_weight_edit.php?ru_id=<?php echo (int)$row['ru_id']; ?>">แก้ไขน้ำหนัก</a><?php else: ?><div class="weight-locked">แก้ไขน้ำหนักได้เฉพาะ admin</div><?php endif; ?>
 
         <?php endif; ?>
       </article>

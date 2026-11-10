@@ -189,7 +189,7 @@ if ($wangId > 0) {
         $wangId
     );
 
-    if (!execute_wang_with_audit($db, $stmt, $wangId, 'placement_edit')) {
+    if (!execute_wang_with_audit($db, $stmt, $wangId, 'placement_edit', null, trim((string)($payload['date_change_reason'] ?? '')))) {
         $err = $stmt->error;
         $stmt->close();
         respond(false, ['message' => 'Update failed: ' . $err], 500);

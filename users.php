@@ -300,10 +300,11 @@ body {
                 <?php else: ?>
                 <a href="user_form.php?action=edit&id=<?php echo (int)$u['user_id']; ?>"
                   class="btn btn-sm btn-outline-primary">
-                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไข
+                  <i data-lucide="pencil" class="me-1" aria-hidden="true"></i>แก้ไข / สิทธิ์
                 </a>
                 <form method="post" action="user_delete.php" onsubmit="return confirm('ลบบัญชีผู้ใช้นี้หรือไม่?');">
                   <input type="hidden" name="id" value="<?php echo (int)$u['user_id']; ?>">
+                  <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                   <button type="submit" class="btn btn-sm btn-outline-danger">
                     <i data-lucide="trash-2" class="me-1" aria-hidden="true"></i>ลบ
                   </button>
