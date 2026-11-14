@@ -227,25 +227,25 @@ if ($member) {
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --green-dark:  #1b5e20;
-            --green-main:  #2e7d32;
-            --green-mid:   #4caf50;
-            --green-light: #81c784;
-            --green-pale:  #e8f5e9;
-            --amber:       #f59e0b;
-            --amber-pale:  #fef3c7;
+            --green-dark:  #173f32;
+            --green-main:  #2c704d;
+            --green-mid:   #4b9067;
+            --green-light: #a9c987;
+            --green-pale:  #eaf2e7;
+            --amber:       #bd8124;
+            --amber-pale:  #fbf1dc;
             --red-pale:    #fef2f2;
             --red-main:    #dc2626;
             --surface:     #ffffff;
-            --bg:          #f0f4f0;
-            --text-main:   #1a2e1a;
-            --text-muted:  #6b7c6b;
-            --radius-lg:   1.25rem;
-            --radius-md:   0.875rem;
-            --radius-sm:   0.5rem;
-            --shadow-sm:   0 2px 8px rgba(0,0,0,.07);
-            --shadow-md:   0 4px 20px rgba(0,0,0,.10);
-            --shadow-lg:   0 10px 40px rgba(0,0,0,.14);
+            --bg:          #f4f6f1;
+            --text-main:   #20372d;
+            --text-muted:  #687b70;
+            --radius-lg:   1.35rem;
+            --radius-md:   1rem;
+            --radius-sm:   0.65rem;
+            --shadow-sm:   0 3px 12px rgba(23,63,50,.07);
+            --shadow-md:   0 8px 24px rgba(23,63,50,.10);
+            --shadow-lg:   0 14px 42px rgba(23,63,50,.16);
         }
 
         * { -webkit-tap-highlight-color: transparent; }
@@ -259,6 +259,11 @@ if ($member) {
             font-size: 16px;
             color: var(--text-main);
             overscroll-behavior-y: contain;
+        }
+
+        a:focus-visible, button:focus-visible, [data-bs-toggle="collapse"]:focus-visible {
+            outline: 3px solid rgba(189,129,36,.7);
+            outline-offset: 3px;
         }
 
         /* ───── LOGIN PAGE ───── */
@@ -448,11 +453,22 @@ if ($member) {
             color: #fff;
         }
         .install-panel.surface {
-            background: var(--surface);
-            border-color: rgba(0,0,0,.06);
-            box-shadow: var(--shadow-sm);
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: .6rem 1rem;
+            background: #eaf1e8;
+            border-color: #dce8d9;
+            box-shadow: none;
             color: var(--text-main);
+            padding: .7rem 1rem;
+            margin-top: .5rem;
         }
+        .install-panel.surface .install-panel-title { margin: 0; }
+        .install-panel.surface .install-panel-subtitle { margin: 0; font-size: .78rem; }
+        .install-panel.surface .install-panel-actions { grid-column: 3; grid-row: 1; }
+        .install-panel.surface .install-panel-note { grid-column: 1 / -1; margin-top: .1rem; }
+        .install-panel[hidden] { display: none !important; }
         .install-panel-title {
             font-size: .95rem;
             font-weight: 700;
@@ -515,18 +531,26 @@ if ($member) {
         /* Top App Bar */
         .app-bar {
             position: sticky; top: 0; z-index: 100;
-            background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+            background: var(--green-dark);
             color: #fff;
             padding: .85rem 1rem .85rem;
             padding-top: calc(.85rem + env(safe-area-inset-top, 0px));
-            box-shadow: 0 2px 12px rgba(0,0,0,.18);
+            border-bottom: 3px solid var(--green-light);
+            box-shadow: 0 3px 14px rgba(23,63,50,.16);
         }
         .app-bar-inner {
             display: flex; align-items: center; justify-content: space-between; gap: .75rem;
             max-width: 800px; margin: 0 auto;
         }
-        .app-bar-title { font-size: 1rem; font-weight: 700; line-height: 1.2; }
-        .app-bar-sub { font-size: .75rem; opacity: .8; margin-top: .1rem; }
+        .app-bar-inner > div { min-width: 0; }
+        .app-bar-title {
+            font-size: 1rem; font-weight: 700; line-height: 1.2;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .app-bar-sub {
+            font-size: .75rem; opacity: .8; margin-top: .1rem;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
         .btn-logout {
             background: rgba(255,255,255,.18);
             border: 1px solid rgba(255,255,255,.3);
@@ -547,7 +571,7 @@ if ($member) {
         /* Main content */
         .app-content {
             flex: 1;
-            padding: 1rem 1rem env(safe-area-inset-bottom, 1rem);
+            padding: 1rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
             max-width: 800px;
             margin: 0 auto;
             width: 100%;
@@ -567,6 +591,7 @@ if ($member) {
         .year-chip {
             flex-shrink: 0;
             padding: .45rem 1rem;
+            min-height: 44px;
             border-radius: 999px;
             border: 1.5px solid #c8e6c9;
             background: #fff;
@@ -583,8 +608,18 @@ if ($member) {
             background: var(--green-main);
             border-color: var(--green-main);
             color: #fff;
-            box-shadow: 0 2px 8px rgba(46,125,50,.3);
+            box-shadow: 0 3px 9px rgba(23,63,50,.18);
         }
+        .filter-heading {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: .75rem;
+            margin-top: .9rem;
+            color: var(--text-muted);
+            font-size: .78rem;
+        }
+        .filter-heading strong { color: var(--green-dark); font-size: .9rem; }
 
         /* ─── Stat cards (2-up grid on mobile) ─── */
         .stats-grid {
@@ -596,12 +631,21 @@ if ($member) {
         .stat-card {
             background: var(--surface);
             border-radius: var(--radius-md);
-            padding: 1rem;
+            padding: 1.05rem;
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0,0,0,.05);
+            border: 1px solid rgba(23,63,50,.06);
             position: relative;
             overflow: hidden;
         }
+        .stat-card.featured {
+            background: var(--green-dark);
+            border-color: var(--green-dark);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(23,63,50,.18);
+        }
+        .stat-card.featured::before { background: var(--green-light); height: 4px; }
+        .stat-card.featured .stat-label { color: rgba(255,255,255,.78); }
+        .stat-card.featured .stat-icon { color: #fff; opacity: .2; }
         .stat-card::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0;
@@ -616,14 +660,40 @@ if ($member) {
             font-size: 1.5rem; opacity: .12;
         }
         .stat-card .stat-value {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
             line-height: 1.2;
         }
         .stat-card .stat-value.green { color: var(--green-main); }
+        .stat-card.featured .stat-value.green { color: #fff; }
         .stat-card .stat-value.amber { color: #b45309; }
         .stat-card .stat-value.blue  { color: #1d4ed8; }
         .stat-card .stat-unit { font-size: .75rem; font-weight: 400; }
+
+        .history-heading {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            margin: 1.35rem 0 .7rem;
+        }
+        .history-heading-mark {
+            width: 4px;
+            height: 2.2rem;
+            border-radius: 99px;
+            background: var(--green-light);
+        }
+        .history-heading h2 {
+            margin: 0;
+            color: var(--green-dark);
+            font-size: 1rem;
+            line-height: 1.25;
+            font-weight: 700;
+        }
+        .history-heading p {
+            margin: .1rem 0 0;
+            color: var(--text-muted);
+            font-size: .75rem;
+        }
 
         /* ─── Section header ─── */
         .section-header {
@@ -650,7 +720,7 @@ if ($member) {
             background: var(--surface);
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0,0,0,.05);
+            border: 1px solid rgba(23,63,50,.06);
             overflow: hidden;
             margin-bottom: 1rem;
         }
@@ -691,13 +761,14 @@ if ($member) {
             background: var(--surface);
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0,0,0,.05);
+            border: 1px solid rgba(23,63,50,.06);
             margin-bottom: 1rem;
             overflow: hidden;
         }
         .year-section-header {
             padding: .9rem 1rem;
-            background: linear-gradient(90deg, var(--green-pale), #f1f8e9);
+            background: var(--green-pale);
+            border-bottom: 1px solid #dce8d9;
             display: flex; align-items: center; justify-content: space-between; gap: .5rem;
             flex-wrap: wrap;
         }
@@ -717,6 +788,7 @@ if ($member) {
             color: var(--green-main);
             border-radius: var(--radius-sm);
             padding: .3rem .75rem;
+            min-height: 44px;
             font-size: .78rem;
             font-weight: 600;
             cursor: pointer;
@@ -730,24 +802,31 @@ if ($member) {
         /* ─── Transaction rows (mobile-card style) ─── */
         .txn-list { padding: .25rem 0; }
         .txn-item {
-            border-bottom: 1px solid #f0f4f0;
+            border-bottom: 1px solid #edf1eb;
         }
         .txn-item:last-child { border-bottom: none; }
         .txn-row {
             display: grid;
-            grid-template-columns: 1fr auto auto;
+            grid-template-columns: minmax(0, 1fr) auto auto auto;
             gap: .35rem;
             align-items: center;
             padding: .85rem 1rem;
+            min-height: 72px;
             cursor: pointer;
             transition: background .15s;
         }
-        .txn-row:active, .txn-row.expanded { background: #f9fdf9; }
+        .txn-row:active, .txn-row.expanded { background: #f7faf5; }
         .txn-date { font-size: .85rem; font-weight: 600; color: var(--text-main); }
         .txn-qty  { font-size: .78rem; color: var(--text-muted); margin-top: .1rem; }
         .txn-value-col { text-align: right; }
         .txn-gross { font-size: .85rem; font-weight: 600; color: #1d4ed8; }
         .txn-net   { font-size: .85rem; font-weight: 700; color: var(--green-main); }
+        .txn-amount-label { font-size: .68rem; color: var(--text-muted); line-height: 1.2; }
+        .txn-net-col {
+            background: #f0f6ed;
+            border-radius: .7rem;
+            padding: .35rem .45rem;
+        }
         .txn-expend-col { text-align: right; }
         .txn-expend { font-size: .8rem; color: #b45309; font-weight: 600; }
         .txn-chevron {
@@ -774,12 +853,12 @@ if ($member) {
 
         /* ─── Year totals footer ─── */
         .year-totals {
-            background: linear-gradient(90deg, var(--green-pale), #f1f8e9);
+            background: #f0f5ed;
             padding: .8rem 1rem;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: .5rem;
-            border-top: 2px solid #c8e6c9;
+            border-top: 1px solid #d8e5d4;
         }
         .year-total-item { text-align: center; }
         .year-total-label { font-size: .7rem; color: var(--text-muted); font-weight: 500; }
@@ -789,8 +868,12 @@ if ($member) {
         /* ─── Empty state ─── */
         .empty-state {
             text-align: center;
-            padding: 3rem 1rem;
+            padding: 3.25rem 1rem;
             color: var(--text-muted);
+            background: rgba(255,255,255,.68);
+            border: 1px dashed #cfdccf;
+            border-radius: var(--radius-md);
+            margin-top: .75rem;
         }
         .empty-state i { font-size: 3rem; opacity: .35; display: block; margin-bottom: .75rem; }
 
@@ -818,6 +901,7 @@ if ($member) {
             border: none;
             border-radius: var(--radius-sm);
             padding: .55rem 1.1rem;
+            min-height: 44px;
             font-size: .875rem;
             font-weight: 600;
             cursor: pointer;
@@ -841,6 +925,43 @@ if ($member) {
         }
 
         @media (max-width: 576px) {
+            .stat-card.featured {
+                grid-column: 1 / -1;
+                padding: 1rem 1.1rem;
+            }
+            .stat-card.featured .stat-value { font-size: 1.65rem; }
+            .app-content { padding-left: .85rem; padding-right: .85rem; }
+            .filter-heading { margin-top: .65rem; }
+            .stats-grid { gap: .6rem; }
+            .stats-grid > .stat-card:nth-child(4) {
+                grid-column: 1 / -1;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: .75rem;
+                padding: .8rem 1rem;
+            }
+            .stats-grid > .stat-card:nth-child(4) .stat-label { margin: 0; }
+            .stats-grid > .stat-card:nth-child(4) .stat-icon { display: none; }
+            .stats-grid > .stat-card:nth-child(4) .stat-value { white-space: nowrap; }
+            .install-panel.surface {
+                display: flex;
+                align-items: center;
+                gap: .65rem;
+                padding: .55rem .7rem;
+                margin-top: .65rem;
+                border-radius: .8rem;
+            }
+            .install-panel.surface .install-panel-title { margin: 0; font-size: .82rem; }
+            .install-panel.surface .install-panel-subtitle { display: none; }
+            .install-panel.surface .install-panel-actions { margin-left: auto; gap: .35rem; }
+            .install-panel.surface .btn-install { padding: .4rem .6rem; font-size: .76rem; }
+            .install-panel.surface .install-panel-note { flex-basis: 100%; }
+            .txn-row { gap: .25rem; padding: .8rem .7rem; }
+            .txn-date { font-size: .82rem; }
+            .txn-net-col { padding: .3rem .35rem; }
+            .txn-net, .txn-gross { font-size: .8rem; }
+            .history-heading { margin-top: 1.1rem; }
             #pwa-install-banner.show {
                 flex-direction: column;
             }
@@ -943,7 +1064,7 @@ if ($member) {
 
     <main class="app-content">
 
-        <div class="install-panel surface mb-3" aria-label="mobile-install-panel-app">
+        <div class="install-panel surface mb-3" id="appInstallPanel" aria-label="mobile-install-panel-app">
             <div class="install-panel-title"><i class="bi bi-download"></i> ติดตั้งบนอุปกรณ์</div>
             <div class="install-panel-subtitle">เพิ่มหน้านี้ลงหน้าจอหลักเพื่อเปิดดูข้อมูลสมาชิกได้สะดวกเหมือนแอป</div>
             <div class="install-panel-actions">
@@ -955,6 +1076,10 @@ if ($member) {
 
         <?php if ($availableYears): ?>
         <!-- Year Filter Chips -->
+        <div class="filter-heading">
+            <strong>สรุปตามปี</strong>
+            <span><?php echo $selectedYear !== null ? 'กำลังดูปี พ.ศ. ' . ($selectedYear + 543) : 'ยอดสะสมทุกปี'; ?></span>
+        </div>
         <div class="year-filter-wrap">
             <a href="allmember.php" class="year-chip <?php echo $selectedYear === null ? 'active' : ''; ?>">ทั้งหมด</a>
             <?php foreach ($availableYears as $yo): ?>
@@ -970,6 +1095,11 @@ if ($member) {
 
         <!-- ── Overall stat cards ── -->
         <div class="stats-grid">
+            <div class="stat-card green featured">
+                <i class="bi bi-wallet2 stat-icon"></i>
+                <div class="stat-label">รับสุทธิรวม<?php echo $selectedYear !== null ? ' ปี พ.ศ. ' . ($selectedYear + 543) : ''; ?></div>
+                <div class="stat-value green">฿<?php echo number_format($overallTotals['netvalue'], 2); ?></div>
+            </div>
             <div class="stat-card green">
                 <i class="bi bi-box-seam stat-icon"></i>
                 <div class="stat-label">ปริมาณรวม</div>
@@ -984,11 +1114,6 @@ if ($member) {
                 <i class="bi bi-arrow-down-circle stat-icon"></i>
                 <div class="stat-label">ยอดหักรวม</div>
                 <div class="stat-value amber">฿<?php echo number_format($overallTotals['expend'], 2); ?></div>
-            </div>
-            <div class="stat-card green">
-                <i class="bi bi-wallet2 stat-icon"></i>
-                <div class="stat-label">รับสุทธิรวม</div>
-                <div class="stat-value green">฿<?php echo number_format($overallTotals['netvalue'], 2); ?></div>
             </div>
         </div>
 
@@ -1005,6 +1130,14 @@ if ($member) {
                         <span class="deduct-chip"><i class="bi bi-tag-fill"></i> <?php echo e($label); ?>: <?php echo number_format($overallDeductionBreakdown[$key] ?? 0.0, 2); ?> ฿</span>
                     <?php endforeach; ?>
                 </div>
+            </div>
+        </div>
+
+        <div class="history-heading">
+            <span class="history-heading-mark" aria-hidden="true"></span>
+            <div>
+                <h2>ประวัติการส่งยาง</h2>
+                <p>รายการและยอดรับแยกตามวัน</p>
             </div>
         </div>
 
@@ -1047,10 +1180,11 @@ if ($member) {
                             <div class="txn-qty"><i class="bi bi-box-seam me-1"></i><?php echo number_format($row['total_quantity'], 2); ?> กก.</div>
                         </div>
                         <div class="txn-value-col">
+                            <div class="txn-amount-label">ยอดก่อนหัก</div>
                             <div class="txn-gross">฿<?php echo number_format($row['total_value'], 2); ?></div>
-                            <div class="txn-expend" style="font-size:.73rem;">-<?php echo number_format($row['total_expend'], 2); ?></div>
+                            <div class="txn-expend" style="font-size:.73rem;">หัก ฿<?php echo number_format($row['total_expend'], 2); ?></div>
                         </div>
-                        <div class="txn-value-col">
+                        <div class="txn-value-col txn-net-col">
                             <div class="txn-net">฿<?php echo number_format($row['total_netvalue'], 2); ?></div>
                             <div style="font-size:.7rem;color:var(--text-muted);">สุทธิ</div>
                         </div>
@@ -1179,6 +1313,7 @@ if ($member) {
     var btnIosInstall = document.getElementById('btn-ios-install');
     var btnDismiss = document.getElementById('btn-pwa-dismiss');
     var installMessage = document.getElementById('pwa-install-message');
+    var appInstallPanel = document.getElementById('appInstallPanel');
     var iosInstallModalElement = document.getElementById('iosInstallModal');
     var iosInstallModal = iosInstallModalElement ? new bootstrap.Modal(iosInstallModalElement) : null;
     var isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
@@ -1188,9 +1323,20 @@ if ($member) {
     var inlineIosButtons = Array.prototype.slice.call(document.querySelectorAll('.js-ios-install'));
     var inlineAndroidNotes = Array.prototype.slice.call(document.querySelectorAll('.js-android-note'));
 
+    if (isStandalone) {
+        if (appInstallPanel) appInstallPanel.hidden = true;
+        inlineAndroidButtons.forEach(function (button) { button.hidden = true; });
+        inlineIosButtons.forEach(function (button) { button.hidden = true; });
+    } else if (isIos) {
+        inlineAndroidButtons.forEach(function (button) { button.hidden = true; });
+    } else {
+        inlineIosButtons.forEach(function (button) { button.hidden = true; });
+    }
+
     function showBanner() {
         if (banner && !hasDismissed) {
             banner.classList.add('show');
+            if (appInstallPanel) appInstallPanel.hidden = true;
         }
     }
 
@@ -1286,6 +1432,7 @@ if ($member) {
     if (btnDismiss) {
         btnDismiss.addEventListener('click', function () {
             banner.classList.remove('show');
+            if (appInstallPanel && !isStandalone) appInstallPanel.hidden = false;
             hideAndroidNote();
             sessionStorage.setItem('pwa-dismissed', '1');
         });
@@ -1293,6 +1440,7 @@ if ($member) {
 
     window.addEventListener('appinstalled', function () {
         if (banner) banner.classList.remove('show');
+        if (appInstallPanel) appInstallPanel.hidden = true;
         if (btnInstall) btnInstall.hidden = true;
         if (btnIosInstall) btnIosInstall.hidden = true;
         hideAndroidNote();
