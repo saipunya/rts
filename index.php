@@ -88,6 +88,22 @@ require __DIR__.'/header.php';
     </div>
   </section>
 
+  <section class="public-lanes" aria-labelledby="publicLanesTitle">
+    <div class="public-section-heading"><div><span class="public-eyebrow">ปริมาณรวบรวมแยกตามลาน</span><h2 id="publicLanesTitle">น้ำหนักยางในแต่ละลาน</h2><p id="publicLaneRound"><?php echo $dashboard['round'] ? 'รอบวันที่ '.e(thai_date_format($dashboard['round']['date'])) : 'ยังไม่มีรอบราคายาง'; ?></p></div><span class="public-live-label"><span class="public-live-dot" aria-hidden="true"></span> อัปเดตทุก 10 วินาที</span></div>
+    <div class="public-lane-cards" id="publicLaneCards">
+      <?php foreach ($dashboard['lanes'] as $lane): ?>
+      <article class="public-lane-card" data-lane="<?php echo e($lane['lane']); ?>">
+        <span class="public-lane-number"><?php echo $lane['lane']!=='' ? 'ลาน '.e($lane['lane']) : 'ไม่ระบุลาน'; ?></span>
+        <div class="public-lane-weight"><strong><?php echo number_format($lane['weight'],2); ?></strong><small>กก.</small></div>
+        <progress value="<?php echo $lane['weight']; ?>" max="<?php echo max(1,$dashboard['summary']['weight']); ?>" aria-label="สัดส่วนน้ำหนัก<?php echo $lane['lane']!=='' ? 'ลาน '.e($lane['lane']) : 'ไม่ระบุลาน'; ?>"></progress>
+        <span class="public-lane-count"><?php echo number_format($lane['weighed']); ?> รายการชั่งแล้ว</span>
+      </article>
+      <?php endforeach; ?>
+    </div>
+    <div class="public-lane-total"><span>รวมทุกลาน</span><div><strong id="publicLaneTotal"><?php echo number_format($dashboard['summary']['weight'],2); ?></strong> กก.</div></div>
+    <p class="public-note">รวมเฉพาะน้ำหนักที่ยืนยันชั่งแล้วของรอบล่าสุด ไม่รวมรายการยกเลิก และไม่เปลี่ยนตามคำค้นหรือตัวกรองรายการ</p>
+  </section>
+
   <section id="tracking" class="public-tracking" aria-labelledby="trackingTitle">
     <div class="public-section-heading">
       <div><span class="public-eyebrow">สำหรับสมาชิกและผู้ส่งยาง</span>
@@ -153,22 +169,6 @@ require __DIR__.'/header.php';
       </aside>
     </div>
 
-  </section>
-
-  <section class="public-lanes" aria-labelledby="publicLanesTitle">
-    <div class="public-section-heading"><div><span class="public-eyebrow">ปริมาณรวบรวมแยกตามลาน</span><h2 id="publicLanesTitle">น้ำหนักยางในแต่ละลาน</h2><p id="publicLaneRound"><?php echo $dashboard['round'] ? 'รอบวันที่ '.e(thai_date_format($dashboard['round']['date'])) : 'ยังไม่มีรอบราคายาง'; ?></p></div><span class="public-live-label"><span class="public-live-dot" aria-hidden="true"></span> อัปเดตทุก 10 วินาที</span></div>
-    <div class="public-lane-cards" id="publicLaneCards">
-      <?php foreach ($dashboard['lanes'] as $lane): ?>
-      <article class="public-lane-card" data-lane="<?php echo e($lane['lane']); ?>">
-        <span class="public-lane-number"><?php echo $lane['lane']!=='' ? 'ลาน '.e($lane['lane']) : 'ไม่ระบุลาน'; ?></span>
-        <div class="public-lane-weight"><strong><?php echo number_format($lane['weight'],2); ?></strong><small>กก.</small></div>
-        <progress value="<?php echo $lane['weight']; ?>" max="<?php echo max(1,$dashboard['summary']['weight']); ?>" aria-label="สัดส่วนน้ำหนัก<?php echo $lane['lane']!=='' ? 'ลาน '.e($lane['lane']) : 'ไม่ระบุลาน'; ?>"></progress>
-        <span class="public-lane-count"><?php echo number_format($lane['weighed']); ?> รายการชั่งแล้ว</span>
-      </article>
-      <?php endforeach; ?>
-    </div>
-    <div class="public-lane-total"><span>รวมทุกลาน</span><div><strong id="publicLaneTotal"><?php echo number_format($dashboard['summary']['weight'],2); ?></strong> กก.</div></div>
-    <p class="public-note">รวมเฉพาะน้ำหนักที่ยืนยันชั่งแล้วของรอบล่าสุด ไม่รวมรายการยกเลิก และไม่เปลี่ยนตามคำค้นหรือตัวกรองรายการ</p>
   </section>
 
   <section class="public-about" aria-labelledby="publicAboutTitle">

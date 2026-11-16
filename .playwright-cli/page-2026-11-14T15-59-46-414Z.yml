@@ -1,0 +1,251 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e5]:
+      - link "Rubber System ระบบการรวบรวมยาง สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด" [ref=f2e6] [cursor=pointer]:
+        - /url: index.php
+        - generic [ref=f2e10]:
+          - generic [ref=f2e11]: Rubber System
+          - generic [ref=f2e12]: ระบบการรวบรวมยาง
+          - generic [ref=f2e13]: สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด
+      - generic [ref=f2e15]:
+        - link "หน้าหลัก" [ref=f2e16] [cursor=pointer]:
+          - /url: index.php
+        - link "ติดตามรายการของฉัน" [ref=f2e20] [cursor=pointer]:
+          - /url: index.php#tracking
+        - link "ภาพรวมการรวบรวม" [ref=f2e24] [cursor=pointer]:
+          - /url: index.php#overview
+        - link "รายการตามสถานะ" [ref=f2e27] [cursor=pointer]:
+          - /url: public_collection_list.php
+        - link "เข้าสู่ระบบเจ้าหน้าที่" [ref=f2e29] [cursor=pointer]:
+          - /url: login.php
+  - main [ref=f2e33]:
+    - generic [ref=f2e36]:
+      - region "ติดตามการรวบรวม ง่ายขึ้น ในหน้าเดียว" [ref=f2e37]:
+        - generic [ref=f2e38]:
+          - generic [ref=f2e39]: เชื่อมทุกขั้นตอน เห็นทุกความเคลื่อนไหว
+          - heading "ติดตามการรวบรวม ง่ายขึ้น ในหน้าเดียว" [level=1] [ref=f2e41]: ติดตามการรวบรวมง่ายขึ้น ในหน้าเดียว
+          - paragraph [ref=f2e42]: สมาชิกดูสถานะได้ทันที ไม่ต้องเข้าสู่ระบบ ตั้งแต่วางยาง ชั่งน้ำหนัก จนถึงออกใบเสร็จ
+          - generic [ref=f2e43]:
+            - link "ติดตามรายการของฉัน" [ref=f2e44] [cursor=pointer]:
+              - /url: "#tracking"
+            - link "ดูภาพรวมการรวบรวม" [ref=f2e48] [cursor=pointer]:
+              - /url: "#overview"
+              - text: ดูภาพรวมการรวบรวม
+              - generic [aria-hidden] [ref=f2e49]: ↗
+        - complementary "ราคายางรอบล่าสุด" [ref=f2e50]:
+          - strong [ref=f2e55]:
+            - text: "35.00"
+            - generic [ref=f2e56]: บาท / กก.
+          - paragraph [ref=f2e57]: รอบวันที่ 29 ต.ค. 2569
+          - generic [ref=f2e58]: ข้อมูลจากระบบสหกรณ์
+      - region "ทุกขั้นตอน เชื่อมต่อกัน" [ref=f2e62]:
+        - generic [ref=f2e63]:
+          - generic [ref=f2e64]:
+            - generic [ref=f2e65]: ภาพรวมการดำเนินงาน
+            - heading "ทุกขั้นตอน เชื่อมต่อกัน" [level=2] [ref=f2e66]
+            - paragraph [ref=f2e67]: รอบวันที่ 29 ต.ค. 2569
+          - generic [ref=f2e68]: ข้อมูลรอบล่าสุด
+        - generic [ref=f2e69]:
+          - article [ref=f2e70]:
+            - generic [ref=f2e77]:
+              - generic [ref=f2e78]: วางยางในรอบ
+              - strong [ref=f2e79]: "4"
+              - text: รายการ
+          - article [ref=f2e80]:
+            - generic [ref=f2e86]:
+              - generic [ref=f2e87]: ชั่งน้ำหนักแล้ว
+              - strong [ref=f2e88]: "4"
+              - text: รายการ
+          - article [ref=f2e89]:
+            - generic [ref=f2e93]:
+              - generic [ref=f2e94]: น้ำหนักรวม
+              - strong [ref=f2e95]: 1,162.00
+              - text: กก.
+          - article [ref=f2e96]:
+            - generic [ref=f2e103]:
+              - generic [ref=f2e104]: ผู้ส่งยางในรอบ
+              - generic [ref=f2e105]:
+                - generic [ref=f2e106]:
+                  - term [ref=f2e107]: สมาชิก
+                  - definition [ref=f2e108]:
+                    - strong [ref=f2e109]: "2"
+                    - generic [ref=f2e110]: คน
+                - generic [ref=f2e111]:
+                  - term [ref=f2e112]: เกษตรกรทั่วไป
+                  - definition [ref=f2e113]:
+                    - strong [ref=f2e114]: "1"
+                    - generic [ref=f2e115]: คน
+        - paragraph [ref=f2e116]: จำนวนสมาชิกและเกษตรกรทั่วไปนับคนไม่ซ้ำจากรายการในรอบนี้ รวมผู้ที่รอชั่ง และไม่รวมรายการยกเลิก
+        - generic [ref=f2e117]:
+          - generic [ref=f2e118]:
+            - generic [ref=f2e119]: ความคืบหน้าการชั่ง
+            - strong [ref=f2e120]: 4 / 4 รายการ
+          - progressbar "ความคืบหน้าการชั่ง" [ref=f2e121]
+      - region "น้ำหนักยางในแต่ละลาน" [ref=f2e122]:
+        - generic [ref=f2e123]:
+          - generic [ref=f2e124]:
+            - generic [ref=f2e125]: ปริมาณรวบรวมแยกตามลาน
+            - heading "น้ำหนักยางในแต่ละลาน" [level=2] [ref=f2e126]
+            - paragraph [ref=f2e127]: รอบวันที่ 29 ต.ค. 2569
+          - generic [ref=f2e128]: อัปเดตทุก 10 วินาที
+        - generic [ref=f2e130]:
+          - article [ref=f2e131]:
+            - text: ลาน 1
+            - generic [ref=f2e132]:
+              - strong [ref=f2e133]: "262.00"
+              - generic [ref=f2e134]: กก.
+            - progressbar "สัดส่วนน้ำหนักลาน 1" [ref=f2e135]
+            - generic [ref=f2e136]: 2 รายการชั่งแล้ว
+          - article [ref=f2e137]:
+            - text: ลาน 2
+            - generic [ref=f2e138]:
+              - strong [ref=f2e139]: "900.00"
+              - generic [ref=f2e140]: กก.
+            - progressbar "สัดส่วนน้ำหนักลาน 2" [ref=f2e141]
+            - generic [ref=f2e142]: 2 รายการชั่งแล้ว
+          - article [ref=f2e143]:
+            - text: ลาน 3
+            - generic [ref=f2e144]:
+              - strong [ref=f2e145]: "0.00"
+              - generic [ref=f2e146]: กก.
+            - progressbar "สัดส่วนน้ำหนักลาน 3" [ref=f2e147]
+            - generic [ref=f2e148]: 0 รายการชั่งแล้ว
+          - article [ref=f2e149]:
+            - text: ลาน 4
+            - generic [ref=f2e150]:
+              - strong [ref=f2e151]: "0.00"
+              - generic [ref=f2e152]: กก.
+            - progressbar "สัดส่วนน้ำหนักลาน 4" [ref=f2e153]
+            - generic [ref=f2e154]: 0 รายการชั่งแล้ว
+        - generic [ref=f2e155]:
+          - generic [ref=f2e156]: รวมทุกลาน
+          - generic [ref=f2e157]:
+            - strong [ref=f2e158]: 1,162.00
+            - text: กก.
+        - paragraph [ref=f2e159]: รวมเฉพาะน้ำหนักที่ยืนยันชั่งแล้วของรอบล่าสุด ไม่รวมรายการยกเลิก และไม่เปลี่ยนตามคำค้นหรือตัวกรองรายการ
+      - region "รายการของฉัน ถึงขั้นตอนไหนแล้ว?" [ref=f2e160]:
+        - generic [ref=f2e161]:
+          - generic [ref=f2e162]:
+            - generic [ref=f2e163]: สำหรับสมาชิกและผู้ส่งยาง
+            - heading "รายการของฉัน ถึงขั้นตอนไหนแล้ว?" [level=2] [ref=f2e164]
+            - paragraph [ref=f2e165]: ค้นหาด้วยชื่อหรือเลขสมาชิก หรือดูความเคลื่อนไหวล่าสุดของทุกลาน
+          - generic [ref=f2e166]: อัปเดตทุก 10 วินาที
+        - generic [ref=f2e168]:
+          - generic [ref=f2e169]:
+            - search [ref=f2e170]:
+              - generic [ref=f2e171]:
+                - searchbox "พิมพ์ชื่อ นามสกุล หรือเลขสมาชิก" [ref=f2e172]
+                - button "ค้นหา" [ref=f2e173] [cursor=pointer]
+            - group "กรองสถานะรายการ" [ref=f2e174]:
+              - button "ทั้งหมด" [pressed] [ref=f2e175] [cursor=pointer]
+              - button "ชั่งแล้ว" [ref=f2e176] [cursor=pointer]
+              - button "ออกใบเสร็จแล้ว" [ref=f2e177] [cursor=pointer]
+            - generic [ref=f2e178]:
+              - status [ref=f2e179]: 4 รายการ
+              - button "อัปเดตข้อมูลตอนนี้" [ref=f2e180] [cursor=pointer]
+            - link "ดูรายการทั้งหมดตามสถานะ" [ref=f2e187] [cursor=pointer]:
+              - /url: /public_collection_list.php?stage=all
+            - generic [ref=f2e191]:
+              - article [ref=f2e192]:
+                - generic [ref=f2e193]:
+                  - strong [ref=f2e194]:
+                    - img "รอยืนยันยอดหัก" [ref=f2e195]
+                    - generic [ref=f2e199]: นางดวงใจ โกยทรัพย์มา
+                  - generic [ref=f2e200]: เลขสมาชิก 624 · ลาน 2 · 50.00 กระสอบ
+                - generic [ref=f2e201]:
+                  - generic [ref=f2e202]: ชั่งแล้ว
+                  - time [ref=f2e203]: 09/11 19:54
+              - article [ref=f2e204]:
+                - generic [ref=f2e205]:
+                  - strong [ref=f2e206]:
+                    - img "ไม่มียอดหัก" [ref=f2e207]
+                    - generic [ref=f2e211]: นางดวงใจ โกยทรัพย์มา (ทองดี)
+                  - generic [ref=f2e212]: เลขสมาชิก 624 · ลาน 2 · 17.00 กระสอบ
+                - generic [ref=f2e213]:
+                  - generic [ref=f2e214]: ออกใบเสร็จแล้ว
+                  - time [ref=f2e215]: 09/11 19:54
+              - article [ref=f2e216]:
+                - generic [ref=f2e217]:
+                  - strong [ref=f2e218]:
+                    - img "รอยืนยันยอดหัก" [ref=f2e219]
+                    - generic [ref=f2e223]: นางถาวร รักษาสัตย์
+                  - generic [ref=f2e224]: เลขสมาชิก 734 · ลาน 1 · 15.00 กระสอบ
+                - generic [ref=f2e225]:
+                  - generic [ref=f2e226]: ชั่งแล้ว
+                  - time [ref=f2e227]: 30/10 06:27
+              - article [ref=f2e228]:
+                - generic [ref=f2e229]:
+                  - strong [ref=f2e230]:
+                    - img "ไม่มียอดหัก" [ref=f2e231]
+                    - generic [ref=f2e235]: นางจริยาพร ประชาเขียว (พิน)
+                  - generic [ref=f2e236]: เลขสมาชิก ก148 · ลาน 1 · 35.00 กระสอบ
+                - generic [ref=f2e237]:
+                  - generic [ref=f2e238]: ออกใบเสร็จแล้ว
+                  - time [ref=f2e239]: 30/10 06:25
+            - generic [ref=f2e240]:
+              - status [ref=f2e241]: อัปเดตล่าสุด 22:59:46
+              - generic [ref=f2e242]: เวลาประเทศไทย
+          - complementary [ref=f2e243]:
+            - heading "สแกนครั้งเดียว ติดตามได้ตลอดรอบ" [level=3] [ref=f2e250]: สแกนครั้งเดียวติดตามได้ตลอดรอบ
+            - paragraph [ref=f2e251]: เปิดหน้านี้ค้างไว้ ระบบจะอัปเดตสถานะให้เอง ไม่ต้องกดรีเฟรช
+            - list [ref=f2e252]:
+              - listitem [ref=f2e253]:
+                - generic [ref=f2e254]: "1"
+                - generic [ref=f2e255]:
+                  - strong [ref=f2e256]: วางยางแล้ว
+                  - generic [ref=f2e257]: รอเรียกรายการเข้าชั่ง
+              - listitem [ref=f2e258]:
+                - generic [ref=f2e259]: "2"
+                - generic [ref=f2e260]:
+                  - strong [ref=f2e261]: ชั่งแล้ว
+                  - generic [ref=f2e262]: อยู่ระหว่างอนุมัติหรือตรวจสอบ
+              - listitem [ref=f2e263]:
+                - generic [ref=f2e264]: "3"
+                - generic [ref=f2e265]:
+                  - strong [ref=f2e266]: รอออกใบเสร็จ
+                  - generic [ref=f2e267]: ตรวจสอบยอดเรียบร้อยแล้ว
+              - listitem [ref=f2e268]:
+                - generic [ref=f2e269]: "4"
+                - generic [ref=f2e270]:
+                  - strong [ref=f2e271]: ออกใบเสร็จแล้ว
+                  - generic [ref=f2e272]: ระบบบันทึกการออกใบเสร็จแล้ว
+            - paragraph [ref=f2e273]: สถานะแสดงความคืบหน้าของรายการ ไม่ใช่ลำดับเรียกรับเงินหรือการยืนยันจ่ายเงิน
+      - region "จากลานรวบรวม สู่ข้อมูลที่ติดตามได้" [ref=f2e274]:
+        - generic [ref=f2e275]:
+          - generic [ref=f2e276]: ข้อมูลจริง เพื่อการทำงานที่เป็นระบบ
+          - heading "จากลานรวบรวม สู่ข้อมูลที่ติดตามได้" [level=2] [ref=f2e277]: จากลานรวบรวมสู่ข้อมูลที่ติดตามได้
+          - paragraph [ref=f2e278]: เชื่อมโยงรายการวางยาง น้ำหนัก และใบเสร็จในกระบวนการเดียว ช่วยให้สมาชิกติดตามความคืบหน้า และสหกรณ์ดูแลการรวบรวมได้อย่างเป็นระเบียบ
+          - link "เข้าสู่ระบบเจ้าหน้าที่" [ref=f2e279] [cursor=pointer]:
+            - /url: login.php
+            - text: เข้าสู่ระบบเจ้าหน้าที่
+            - generic [aria-hidden] [ref=f2e280]: ↗
+        - generic [ref=f2e281]:
+          - heading "ปริมาณรวบรวมที่ผ่านมา" [level=3] [ref=f2e282]
+          - paragraph [ref=f2e283]: สูงสุด 8 รอบวันที่มีรายการรับซื้อ · กิโลกรัม
+          - generic [ref=f2e285]:
+            - generic [ref=f2e286]: 29 ต.ค. 2569
+            - strong [ref=f2e289]: 1,162.00
+  - contentinfo [ref=f2e290]:
+    - generic [ref=f2e291]:
+      - generic [ref=f2e292]:
+        - generic [ref=f2e294]:
+          - heading "สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด" [level=5] [ref=f2e295]
+          - paragraph [ref=f2e296]: ขับเคลื่อนการรวบรวมยางพาราและการดูแลสมาชิกด้วยระบบดิจิทัลที่ทันสมัย เชื่อมโยงข้อมูลการซื้อขาย การชำระเงิน และการบริการครบวงจร
+        - generic [ref=f2e297]:
+          - heading "ติดต่อสหกรณ์" [level=6] [ref=f2e298]
+          - list [ref=f2e299]:
+            - listitem [ref=f2e300]: หมู่ 7 ต.ทุ่งลุยลาย อ.คอนสาร จ.ชัยภูมิ 36180
+            - listitem [ref=f2e304]: 044-109752,089-9441753
+            - listitem [ref=f2e307]: 080-0062515(ร้านค้าสหกรณ์)
+            - listitem [ref=f2e311]: tungluilay@gmail.com
+            - listitem [ref=f2e315]: เวลาทำการ 08:30 - 16:30 น. (จันทร์-ศุกร์)
+      - generic [ref=f2e320]:
+        - generic [ref=f2e321]:
+          - strong [ref=f2e326]: "0"
+          - generic [ref=f2e327]: ผู้ใช้งานออนไลน์
+        - generic [ref=f2e328]:
+          - strong [ref=f2e334]: "6"
+          - generic [ref=f2e335]: คนทั่วไปออนไลน์
+      - generic [ref=f2e337]:
+        - generic [ref=f2e338]: © 2026 สหกรณ์การเกษตรโครงการทุ่งลุยลาย จำกัด - ระบบการซื้อขายยางพารา
+        - generic [ref=f2e339]: "อัปเดตล่าสุด: 14/11/2026 | พัฒนาด้วยเทคโนโลยีเว็บสมัยใหม่"
