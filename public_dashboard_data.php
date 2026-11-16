@@ -75,8 +75,8 @@ function rts_public_dashboard(mysqli $db, string $member = '', string $stage = '
         }
     }
     if ($stage === 'waiting') $where .= ' AND x.weighing_id IS NULL';
-    if ($stage === 'ready') $where .= " AND z.issued_at IS NULL AND (x.deductions_saved_at IS NOT NULL OR x.approval_route='zero')";
-    if ($stage === 'weighed') $where .= ' AND x.weighing_id IS NOT NULL';
+    if ($stage === 'ready') $where .= " AND z.issued_at IS NULL AND (x.deductions_saved_at IS NOT NULL OR x.approval_route IN ('review','zero'))";
+    if ($stage === 'weighed') $where .= ' AND x.weighing_id IS NOT NULL AND z.issued_at IS NULL';
     if ($stage === 'issued') $where .= ' AND z.issued_at IS NOT NULL';
     $stmt = $db->prepare('SELECT COUNT(*)'.$from.$where);
     $stmt->bind_param($types, ...$params); $stmt->execute();
@@ -92,7 +92,7 @@ function rts_public_dashboard(mysqli $db, string $member = '', string $stage = '
     $stmt->bind_param($types, ...$params); $stmt->execute();
     foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
         $status = $row['issued_at'] ? 'issued' :
-            (($row['deductions_saved_at'] || $row['approval_route'] === 'zero') ? 'ready' : ($row['weighing_id'] ? 'weighed' : 'waiting'));
+            (($row['deductions_saved_at'] || in_array($row['approval_route'], ['review','zero'], true)) ? 'ready' : ($row['weighing_id'] ? 'weighed' : 'waiting'));
         $deductionsConfirmed = $row['deductions_saved_at'] || $row['approval_route'] === 'zero' || $row['issued_at'];
         $deductionState = $deductionsConfirmed ? ((float)$row['ru_expend'] > 0 ? 'has' : 'none') : 'pending';
         // Publish the requested display name and note, without financial or internal workflow fields.

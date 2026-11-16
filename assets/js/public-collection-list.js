@@ -9,13 +9,17 @@
   const notice = document.getElementById('publicListChanges');
   const refreshLink = document.getElementById('publicListRefresh');
   const connection = document.getElementById('publicListConnection');
+  const searchInput = document.getElementById('publicListSearch');
+  const searchForm = document.getElementById('publicListSearchForm');
+  const searchStage = document.getElementById('publicListStage');
   const labels = {all:'ทั้งหมด',waiting:'วางยางแล้ว',weighed:'ชั่งแล้ว',ready:'รอออกใบเสร็จ',issued:'ออกใบเสร็จแล้ว'};
   const formatNumber = new Intl.NumberFormat('th-TH');
   const formatDate = new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Bangkok'});
   const formatTime = new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
   let displayed = JSON.parse(initial.textContent);
+  let baseStage = displayed.stage;
   let pending = null;
-  let timer, controller, sequence = 0;
+  let timer, searchTimer, controller, sequence = 0;
   const signature = data => JSON.stringify([data.round?.date || null,data.member,data.stage,data.page,data.total_pages,data.matched,data.records]);
   const pageUrl = data => {
     const url = new URL('public_collection_list.php',window.location.href);
@@ -32,8 +36,20 @@
       if (window.lucide?.createIcons) window.lucide.createIcons();
     }
     displayed = data;
+    if (!data.member) baseStage = data.stage;
     pending = null;
     notice.hidden = true;
+    searchInput.value = data.member;
+    searchStage.value = data.stage;
+    root.querySelectorAll('[data-public-stage]').forEach(link => {
+      const selectedStage = link.dataset.publicStage;
+      const active = data.stage === selectedStage;
+      link.classList.toggle('is-active',active);
+      if (active) link.setAttribute('aria-current','page'); else link.removeAttribute('aria-current');
+      const tabUrl = new URL('public_collection_list.php',window.location.href);
+      tabUrl.search = new URLSearchParams({stage:data.member ? 'all' : selectedStage,member:data.member}).toString();
+      link.href = tabUrl.pathname + tabUrl.search;
+    });
     document.getElementById('publicListResult').textContent = `${labels[data.stage] || labels.all}${data.member ? ` · คำค้น “${data.member}”` : ''} · ${formatNumber.format(data.matched)} รายการ · หน้า ${data.page} / ${data.total_pages}`;
     document.getElementById('publicListRound').textContent = (data.round ? 'รอบวันที่ ' + formatDate.format(new Date(data.round.date + 'T00:00:00+07:00')) : 'ยังไม่มีรอบราคายาง') + ' · แสดงหน้าละ 20 รายการ';
     const address = pageUrl(data);
@@ -43,7 +59,7 @@
     connection.parentElement.classList.remove('is-stale');
     if (changed) window.scrollTo(position.x,position.y);
   }
-  async function refresh(force = false) {
+  async function refresh(force = false, criteria = displayed) {
     clearTimeout(timer);
     if (document.hidden) return;
     controller?.abort();
@@ -54,7 +70,7 @@
     refreshLink.setAttribute('aria-busy','true');
     try {
       const url = new URL('public_collection_status.php',window.location.href);
-      url.search = new URLSearchParams({view:'list',stage:displayed.stage,member:displayed.member,page:String(displayed.page)}).toString();
+      url.search = new URLSearchParams({view:'list',stage:criteria.stage,member:criteria.member,page:String(criteria.page)}).toString();
       const response = await fetch(url,{cache:'no-store',signal:request.signal,headers:{Accept:'application/json'}});
       if (!response.ok) throw new Error('Status unavailable');
       const data = await response.json();
@@ -80,6 +96,25 @@
       }
     }
   }
+  function search() {
+    clearTimeout(searchTimer);
+    const member = searchInput.value.trim();
+    const stage = member ? 'all' : baseStage;
+    searchStage.value = stage;
+    refresh(true,{stage,member,page:1});
+  }
+  searchInput.addEventListener('input',() => {
+    clearTimeout(searchTimer);
+    clearTimeout(timer);
+    ++sequence;
+    controller?.abort();
+    document.getElementById('publicListResult').textContent = 'กำลังค้นหา…';
+    searchTimer = setTimeout(search,300);
+  });
+  searchForm.addEventListener('submit',event => {
+    event.preventDefault();
+    search();
+  });
   refreshLink.addEventListener('click',event => {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault(); refresh(true);
@@ -90,6 +125,7 @@
   });
   document.addEventListener('visibilitychange',() => {
     clearTimeout(timer);
+    clearTimeout(searchTimer);
     if (document.hidden) { ++sequence; controller?.abort(); refreshLink.removeAttribute('aria-busy'); }
     else refresh();
   });

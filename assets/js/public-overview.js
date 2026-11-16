@@ -8,8 +8,15 @@
   const clear = document.getElementById('publicClearSearch');
   const refreshButton = document.getElementById('publicRefresh');
   const connection = document.getElementById('publicConnection');
-  const records = document.getElementById('publicRecords');
   const resultLabel = document.getElementById('publicResultLabel');
+  const recordDialog = document.getElementById('publicRecordDialog');
+  const dialogClose = document.getElementById('publicRecordDialogClose');
+  const columns = ['weighed','issued'].map(stage => ({
+    stage,
+    records: document.getElementById(`public-${stage}-records`),
+    count: document.getElementById(`public-${stage}-count`),
+    lastRecords: ''
+  }));
   const countFormat = new Intl.NumberFormat('th-TH');
   const weightFormat = new Intl.NumberFormat('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2});
   const dateFormat = new Intl.DateTimeFormat('th-TH', {day:'numeric', month:'short', year:'numeric', timeZone:'Asia/Bangkok'});
@@ -19,10 +26,8 @@
   const storageKey = 'rts-public-member:' + new URL('.',window.location.href).pathname;
   let snapshot = JSON.parse(initial.textContent);
   let member = snapshot.member;
-  let stage = 'all';
   let timer, searchTimer, controller, sequence = 0;
   let composing = false;
-  let lastRecords = JSON.stringify(snapshot.records);
   let lastLanes = JSON.stringify(snapshot.lanes || []);
   const node = (tag, text, className) => {
     const element = document.createElement(tag);
@@ -77,39 +82,59 @@
     const progress = document.getElementById('publicProgress');
     progress.max = Math.max(1,data.summary.placed); progress.value = data.summary.weighed;
     document.getElementById('publicProgressText').textContent = `${countFormat.format(data.summary.weighed)} / ${countFormat.format(data.summary.placed)} รายการ`;
-    resultLabel.textContent = (member ? `คำค้น “${member}” · ` : '') + `${countFormat.format(data.matched)} รายการ` + (data.matched > data.limit ? ` · แสดง ${data.limit} รายการล่าสุด` : '');
-    const allRecords = document.getElementById('publicAllRecords');
-    if (allRecords) {
+    resultLabel.textContent = (member ? `คำค้น “${member}” · ` : '') + `${countFormat.format(data.matched)} รายการในรอบล่าสุด`;
+    root.querySelectorAll('[data-public-list]').forEach(link => {
       const address = new URL('public_collection_list.php',window.location.href);
-      address.searchParams.set('stage',stage);
+      address.searchParams.set('stage',link.dataset.publicList);
       if (member) address.searchParams.set('member',member);
-      allRecords.href = address.pathname + address.search;
-    }
-    const serialized = JSON.stringify(data.records);
-    if (serialized !== lastRecords || !data.records.length) {
+      link.href = address.pathname + address.search;
+    });
+    connection.textContent = 'อัปเดตล่าสุด ' + timeFormat.format(new Date(data.updated_at));
+    connection.parentElement.classList.remove('is-stale');
+  }
+  function renderColumn(column, data) {
+    const latestRecords = data.records.slice(0,10);
+    column.count.textContent = countFormat.format(latestRecords.length);
+    column.count.title = `${countFormat.format(latestRecords.length)} รายการล่าสุด จากทั้งหมด ${countFormat.format(data.matched)} รายการ`;
+    const serialized = JSON.stringify(latestRecords);
+    if (serialized !== column.lastRecords || !latestRecords.length) {
       const fragment = document.createDocumentFragment();
-      data.records.forEach(record => {
+      latestRecords.forEach(record => {
         const row = node('article',undefined,'public-status-record');
         const identity = node('div');
         const name = node('strong',undefined,'public-record-name');
-        name.append(deductionIcon(record.deduction_state),node('span',record.name));
-        const sacks = record.sacks == null ? 'ไม่ระบุจำนวนกระสอบ' : `${weightFormat.format(record.sacks)} กระสอบ`;
-        identity.append(name,node('span',`เลขสมาชิก ${record.member_number || '—'} · ลาน ${record.lane} · ${sacks}`));
+        const nameText = node('span',record.name);
+        nameText.title = record.name;
+        name.append(deductionIcon(record.deduction_state),nameText);
+        identity.append(name);
         const state = node('div');
         const status = Object.hasOwn(labels,record.status) ? record.status : 'waiting';
         const time = node('time',activityFormat.format(new Date(record.activity_at))); time.dateTime = record.activity_at;
-        state.append(node('span',labels[status],`public-status public-status-${status}`),time);
+        const viewButton = node('button','ดู','public-record-view');
+        viewButton.type = 'button';
+        viewButton.title = 'ดูข้อมูล';
+        viewButton.setAttribute('aria-label',`ดูข้อมูลของ ${record.name}`);
+        viewButton.addEventListener('click',() => {
+          const recordDate = new Date(record.activity_at);
+          document.getElementById('publicRecordName').textContent = record.name;
+          document.getElementById('publicRecordNumber').textContent = record.member_number || '—';
+          document.getElementById('publicRecordLane').textContent = record.lane || 'ไม่ระบุลาน';
+          document.getElementById('publicRecordSacks').textContent = record.sacks == null ? 'ไม่ระบุจำนวนกระสอบ' : `${weightFormat.format(record.sacks)} กระสอบ`;
+          document.getElementById('publicRecordStatus').textContent = labels[status];
+          document.getElementById('publicRecordDeduction').textContent = {has:'มียอดหัก',none:'ไม่มียอดหัก',pending:'รอยืนยันยอดหัก'}[record.deduction_state] || 'รอยืนยันยอดหัก';
+          document.getElementById('publicRecordTime').textContent = `${dateFormat.format(recordDate)} ${timeFormat.format(recordDate)} น.`;
+          recordDialog.showModal();
+        });
+        state.append(node('span',labels[status],`public-status public-status-${status}`),time,viewButton);
         row.append(identity,state); fragment.append(row);
       });
-      if (!data.records.length) {
+      if (!latestRecords.length) {
         const empty = node('div',undefined,'public-empty');
         empty.append(node('strong',member ? 'ยังไม่พบรายการที่ตรงกับคำค้นในรอบล่าสุด' : 'ยังไม่มีรายการในขั้นตอนนี้'),node('p','ตรวจสอบชื่อ เลขสมาชิก และวันที่รอบ หรือสอบถามเจ้าหน้าที่ประจำลาน'));
         fragment.append(empty);
       }
-      records.replaceChildren(fragment); lastRecords = serialized;
+      column.records.replaceChildren(fragment); column.lastRecords = serialized;
     }
-    connection.textContent = 'อัปเดตล่าสุด ' + timeFormat.format(new Date(data.updated_at));
-    connection.parentElement.classList.remove('is-stale');
   }
   async function refresh() {
     clearTimeout(timer);
@@ -121,21 +146,25 @@
     const timeout = setTimeout(() => requestController.abort(),14000);
     refreshButton.disabled = true;
     try {
-      const url = new URL('public_collection_status.php',window.location.href);
-      if (member) url.searchParams.set('member',member);
-      url.searchParams.set('stage',stage);
-      const response = await fetch(url,{cache:'no-store',signal:requestController.signal,headers:{Accept:'application/json'}});
-      if (!response.ok) throw new Error('Status unavailable');
-      const data = await response.json();
+      const requests = ['all',...columns.map(column => column.stage)].map(async selectedStage => {
+        const url = new URL('public_collection_status.php',window.location.href);
+        if (member) url.searchParams.set('member',member);
+        url.searchParams.set('stage',selectedStage);
+        const response = await fetch(url,{cache:'no-store',signal:requestController.signal,headers:{Accept:'application/json'}});
+        if (!response.ok) throw new Error('Status unavailable');
+        return response.json();
+      });
+      const [data,...columnData] = await Promise.all(requests);
       if (current !== sequence) return;
-      if (!data.summary || !Array.isArray(data.records) || !data.updated_at) throw new Error('Invalid snapshot');
+      if (!data.summary || !data.updated_at || columnData.some(item => !Array.isArray(item.records))) throw new Error('Invalid snapshot');
       render(data);
+      columns.forEach((column,index) => renderColumn(column,columnData[index]));
     } catch (error) {
       if (current !== sequence) return;
       const lastTime = timeFormat.format(new Date(snapshot.updated_at));
       connection.textContent = `ยังอัปเดตไม่ได้ · ข้อมูลล่าสุด ${lastTime} ระบบจะลองใหม่`;
       connection.parentElement.classList.add('is-stale');
-      if (snapshot.member !== member || snapshot.stage !== stage) resultLabel.textContent = 'ยังโหลดตัวกรองใหม่ไม่ได้ · รายการด้านล่างเป็นข้อมูลก่อนหน้า';
+      resultLabel.textContent = 'ยังโหลดผลค้นหาใหม่ไม่ได้ · รายการด้านล่างเป็นข้อมูลก่อนหน้า';
     } finally {
       clearTimeout(timeout);
       if (current === sequence) {
@@ -173,14 +202,9 @@
     search(); document.getElementById('tracking').scrollIntoView({behavior:'auto',block:'start'});
   });
   clear.addEventListener('click',() => {input.value='';search();input.focus();});
-  root.querySelectorAll('[data-public-stage]').forEach(button => button.addEventListener('click',() => {
-    stage = button.dataset.publicStage;
-    root.querySelectorAll('[data-public-stage]').forEach(item => {
-      const active = item === button; item.classList.toggle('is-active',active); item.setAttribute('aria-pressed',String(active));
-    });
-    search();
-  }));
   refreshButton.addEventListener('click',search);
+  dialogClose.addEventListener('click',() => recordDialog.close());
+  recordDialog.addEventListener('click',event => { if (event.target === recordDialog) recordDialog.close(); });
   document.addEventListener('visibilitychange',() => {
     clearTimeout(timer);
     clearTimeout(searchTimer);
@@ -192,5 +216,5 @@
     const remembered = localStorage.getItem(storageKey);
     if (!member && remembered && remembered.length<=100) {input.value=remembered;search();return;}
   } catch (_) { /* The board works without storage. */ }
-  timer = setTimeout(refresh,10000);
+  refresh();
 })();

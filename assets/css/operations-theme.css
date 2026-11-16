@@ -1,6 +1,6 @@
 /* Shared screen theme. Print layouts and generated documents retain their own styles. */
 :root {
-  font-size: 16px;
+  font-size: 17px;
   --rts-ink: #23332e;
   --rts-muted: #62736d;
   --rts-green-900: #173d2d;
@@ -11,7 +11,7 @@
   --rts-surface: #ffffff;
   --rts-canvas: #f3f5f4;
 }
-html { font-size: 16px; }
+html { font-size: 17px; }
 body.rts-operations {
   background: var(--rts-canvas);
   color: var(--rts-ink);
@@ -35,7 +35,7 @@ body.rts-operations .content-card {
   box-shadow: none;
 }
 body.rts-operations :is(h1,h2,h3,h4,h5,h6) { color: var(--rts-ink); text-shadow: none; }
-body.rts-operations :is(.small,.form-text) { font-size: .875rem !important; }
+body.rts-operations :is(.small,.form-text) { font-size: .9375rem !important; }
 body.rts-operations :is(.card,.chart-card,.card-table,.surface-card) {
   border-color: var(--rts-border);
   border-radius: 8px;

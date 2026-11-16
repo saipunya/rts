@@ -8,9 +8,9 @@ $search = trim((string)($_GET['search'] ?? ''));
 $lane = (string)($_GET['lan'] ?? 'all');
 if (!in_array($lane, ['all','1','2','3','4'], true)) $lane = 'all';
 $excel = ($_GET['format'] ?? '') === 'excel';
-$latestPrice = $excel ? null : latest_rubber_price($db);
-$printRoundDate = $excel ? null : (string)($latestPrice['pr_date'] ?? '');
-$result = issued_rubber_receipts($db, $search, $lane, 1, true, $printRoundDate);
+$latestPrice = latest_rubber_price($db);
+$latestRoundDate = (string)($latestPrice['pr_date'] ?? '');
+$result = issued_rubber_receipts($db, $search, $lane, 1, true, $latestRoundDate);
 $headings = ['ลำดับ','รอบขายยาง','ชื่อผู้ส่งยาง','เลขสมาชิก','กลุ่ม','ลาน','กระสอบ','น้ำหนัก (กก.)','ยอดเงินก่อนหัก (บาท)','ยอดหัก (บาท)','รับสุทธิ (บาท)','ออกใบเสร็จเมื่อ'];
 $exportRows = [];
 foreach ($result['rows'] as $index=>$row) {
@@ -49,7 +49,7 @@ unset($printValues);
 </style></head><body>
 <div class="controls"><button type="button" onclick="window.print()">พิมพ์รายการ</button></div>
 <h1>รายการใบเสร็จที่พิมพ์แล้ว</h1>
-<p><?php echo $printRoundDate !== '' ? 'รอบวันที่ราคายางล่าสุด ' . e(thai_date_format($printRoundDate)) : 'ยังไม่มีข้อมูลราคายางสำหรับพิมพ์รายการ'; ?></p>
+<p><?php echo $latestRoundDate !== '' ? 'รอบรวมยางล่าสุด ' . e(thai_date_format($latestRoundDate)) : 'ยังไม่มีข้อมูลราคายางสำหรับพิมพ์รายการ'; ?></p>
 <p><?php echo $lane === 'all' ? 'ทุกลาน' : 'ลาน ' . e($lane); ?><?php if ($search !== ''): ?> · คำค้น: <?php echo e($search); ?><?php endif; ?> · <?php echo number_format($result['total']); ?> รายการ</p>
 <table><thead><tr><?php foreach ($headings as $label): ?><th><?php echo e($label); ?></th><?php endforeach; ?></tr></thead><tbody>
 <?php foreach ($exportRows as $values): ?><tr><?php foreach ($values as $column=>$value): ?><td<?php echo in_array($column,[5,6,7,8,9],true) ? ' class="number"' : ''; ?>><?php echo e(in_array($column,[5,6,7,8,9],true) && $value !== '' ? number_format((float)$value,2) : $value); ?></td><?php endforeach; ?></tr><?php endforeach; ?>

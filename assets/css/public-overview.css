@@ -44,6 +44,11 @@ body.rts-operations[data-page="index.php"] .content-card{padding:0;border:0;back
 .public-overview progress::-webkit-progress-value{background:#6a9775;border-radius:8px}
 .public-overview progress::-moz-progress-bar{background:#6a9775;border-radius:8px}
 .public-overview .public-tracking{padding-top:8px}
+.public-overview .public-tracking-heading-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px 14px}
+.public-overview .public-queue-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #cbdccf;border-radius:7px;background:#fff;color:#245c38;font-size:.85rem;font-weight:600;text-decoration:none;transition:background-color .15s,border-color .15s}
+.public-overview .public-queue-link svg{width:17px;height:17px}
+.public-overview .public-queue-link:hover{background:#edf5ef;border-color:#a9c5b0;color:#173d2d}
+.public-overview .public-queue-link:focus-visible{outline:3px solid #78ae87;outline-offset:3px}
 .public-overview .public-live-label{display:inline-flex;align-items:center;gap:7px;font-size:.75rem;color:#51715c}
 .public-overview .public-live-dot{display:inline-block;width:7px;height:7px;background:#5c9870;border-radius:50%;box-shadow:0 0 0 4px #59966a12;flex-shrink:0}
 .public-overview .public-tracking-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:start}
@@ -121,6 +126,7 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
  .public-overview .public-price-foot{display:none}
  .public-overview .public-summary{padding-block:20px}
  .public-overview .public-section-heading{gap:8px;margin-bottom:14px}
+ .public-overview .public-tracking-heading-actions{justify-content:flex-start;gap:8px}
  .public-overview .public-section-heading h2{font-size:1.12rem}
  .public-overview .public-section-heading p{font-size:.75rem}
  .public-overview .public-kpis{gap:8px}
@@ -163,10 +169,67 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
 .public-overview .public-record-name>span:last-child{overflow-wrap:anywhere}
 .public-overview .public-deduction-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;height:22px;margin-top:1px}
 .public-overview .public-deduction-icon svg{width:22px;height:22px}
-.public-overview .public-deduction-has{color:#d9480f}
+.public-overview .public-deduction-has{color:#758178}
 .public-overview .public-deduction-none{color:#15803d}
 .public-overview .public-deduction-pending{color:#8a988f}
 @media(max-width:575px){.public-overview .public-deduction-icon{flex-basis:20px;width:20px;height:20px}.public-overview .public-deduction-icon svg{width:20px;height:20px}}
+
+/* Two live status columns for the member tracking section. */
+.public-overview .public-tracking-board{background:#fff;border:1px solid var(--public-border);border-radius:12px;overflow:hidden}
+.public-overview .public-tracking-board .public-search{padding-bottom:14px}
+.public-overview .public-columns-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 24px 14px}
+.public-overview .public-columns-heading p{font-size:.8rem;color:var(--public-muted);margin:0;overflow-wrap:anywhere}
+.public-overview .public-columns-heading button{display:flex;align-items:center;justify-content:center;width:40px;min-height:40px;border:1px solid var(--public-border);background:#fff;border-radius:7px;color:#627d6b;flex-shrink:0}
+.public-overview .public-status-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:0 24px 20px}
+.public-overview .public-status-column{min-width:0;border:1px solid #e1e9e3;border-radius:10px;overflow:hidden;background:#fff}
+.public-overview .public-status-column>header{display:flex;align-items:center;gap:10px;min-height:60px;padding:12px 16px;background:#f6f9f6;border-bottom:1px solid #e6ece8}
+.public-overview .public-column-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:#eaf2ec;color:var(--public-green);flex-shrink:0}
+.public-overview .public-column-icon svg{width:18px;height:18px}
+.public-overview .public-status-column:nth-child(2) .public-column-icon{background:#eaf3ed;color:#337747}
+.public-overview .public-status-column h3{flex:1;font-size:.95rem;font-weight:700;margin:0;overflow-wrap:anywhere}
+.public-overview .public-status-column>header>strong{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:28px;padding:3px 8px;border-radius:999px;background:#e8f1eb;color:var(--public-green);font-size:.8rem;font-variant-numeric:tabular-nums}
+.public-overview .public-status-column .public-records{max-height:none;overflow:visible}
+.public-overview .public-status-column .public-status-record{grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px}
+.public-overview .public-status-column .public-status-record>div:first-child{display:flex;align-items:center;gap:8px;overflow:hidden}
+.public-overview .public-status-column .public-status-record>div:first-child>strong{display:flex;flex:1 1 auto;align-items:center;min-width:0;max-width:100%;overflow:hidden;font-size:.85rem;white-space:nowrap}
+.public-overview .public-status-column .public-status-record>div:first-child>strong>span:last-child{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+.public-overview .public-status-column .public-status-record>div:last-child{display:flex;align-items:center;justify-content:flex-end;flex-wrap:nowrap;gap:6px}
+.public-overview .public-status-column .public-status{padding:4px 7px;font-size:.67rem}
+.public-overview .public-status-column .public-status-record time{font-size:.65rem;white-space:nowrap}
+.public-overview .public-status-column .public-record-view{flex:0 0 auto;min-width:34px;min-height:32px;padding:4px 7px;border:1px solid #cbdccf;border-radius:6px;background:#f3f8f4;color:#245c38;font:inherit;font-size:.68rem;font-weight:600;cursor:pointer}
+.public-overview .public-status-column .public-record-view:hover{background:#e7f1e9;border-color:#9fbda7}
+.public-overview .public-status-column .public-record-view:focus-visible{outline:2px solid #4f8a60;outline-offset:2px}
+.public-overview .public-status-column .public-column-footer{padding:8px 16px;border-top:1px solid #e6ece8;background:#fcfdfc}
+.public-overview .public-status-column .public-all-records{display:inline-flex;align-items:center;gap:6px;padding:0;min-height:38px;color:var(--public-green);font-size:.85rem;font-weight:600;text-decoration:none}
+.public-overview .public-receipt-note{margin:0;padding:0 24px 14px}
+.public-overview .public-tracking-board>.public-update{padding-inline:24px}
+.public-overview .public-record-dialog{width:min(460px,calc(100% - 24px));max-height:88dvh;margin:auto;padding:0;border:1px solid #d6e3d9;border-radius:12px;background:#fff;color:var(--public-ink);box-shadow:0 20px 70px #163c2750}
+.public-overview .public-record-dialog::backdrop{background:#14291d88}
+.public-overview .public-record-dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#f3f8f4;border-bottom:1px solid #e1eae3}
+.public-overview .public-record-dialog-heading h3{margin:0;font-size:1.05rem;font-weight:700}
+.public-overview .public-record-dialog-heading button{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #d5e1d8;border-radius:7px;background:#fff;color:#52685a;cursor:pointer}
+.public-overview .public-record-dialog-heading button:hover{background:#edf4ef;color:#245c38}
+.public-overview .public-record-dialog-heading button svg{width:18px;height:18px}
+.public-overview .public-record-dialog-details{display:grid;grid-template-columns:minmax(0,1fr);gap:0;margin:0;padding:8px 18px 16px}
+.public-overview .public-record-dialog-details>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid #edf1ee}
+.public-overview .public-record-dialog-details>div:last-child{border-bottom:0}
+.public-overview .public-record-dialog-details dt{color:var(--public-muted);font-size:.85rem}
+.public-overview .public-record-dialog-details dd{margin:0;font-size:.9rem;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:575px){
+ .public-overview .public-columns-heading{padding:0 16px 12px}
+ .public-overview .public-status-columns{grid-template-columns:1fr;gap:12px;padding:0 16px 16px}
+ .public-overview .public-status-column>header{min-height:54px;padding:10px 12px}
+ .public-overview .public-status-column h3{font-size:.9rem}
+ .public-overview .public-status-column .public-status-record{gap:6px;padding:9px 10px}
+ .public-overview .public-status-column .public-status-record>div:first-child{gap:5px}
+ .public-overview .public-status-column .public-status-record>div:first-child>strong{font-size:.78rem}
+ .public-overview .public-status-column .public-status{padding:3px 6px;font-size:.6rem}
+ .public-overview .public-status-column .public-status-record time{font-size:.58rem}
+ .public-overview .public-status-column .public-record-view{min-width:30px;min-height:30px;padding:3px 5px;font-size:.58rem}
+ .public-overview .public-record-dialog-details>div{grid-template-columns:92px minmax(0,1fr);gap:8px}
+ .public-overview .public-receipt-note{padding:0 16px 12px}
+ .public-overview .public-tracking-board>.public-update{padding-inline:16px}
+}
 
 .public-overview .public-all-records{padding:0 24px 14px}
 .public-overview .public-all-records>a{display:inline-flex;align-items:center;gap:6px;color:var(--public-green);font-size:.85rem;font-weight:600;text-decoration:none;min-height:44px}
@@ -207,10 +270,14 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
 .public-overview .public-lane-card progress::-webkit-progress-value{background:var(--lane-color)}
 .public-overview .public-lane-card progress::-moz-progress-bar{background:var(--lane-color)}
 .public-overview .public-lane-count{display:block;font-size:.75rem;color:var(--public-muted);margin-top:9px}
-.public-overview .public-lane-total{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--public-border);font-size:.85rem;color:var(--public-muted)}
-.public-overview .public-lane-total strong{font-size:1.2rem;color:var(--public-ink);font-variant-numeric:tabular-nums;margin-right:5px}
+.public-overview .public-lane-total{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:14px 18px;border:1px solid #285b3e;border-radius:10px;background:#17432f;color:#fff}
+.public-overview .public-lane-total-label{display:flex;align-items:center;gap:9px;font-size:.9rem;font-weight:600;color:#e6f2e8}
+.public-overview .public-lane-total-label svg{width:19px;height:19px;color:#c8e4cd}
+.public-overview .public-lane-total>div{display:flex;align-items:baseline;gap:8px}
+.public-overview .public-lane-total strong{font-size:1.65rem;line-height:1.25;color:#fff;font-variant-numeric:tabular-nums}
+.public-overview .public-lane-total>div>span{font-size:.85rem;color:#d1e3d5}
 @media(max-width:991px){.public-overview .public-lane-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:575px){.public-overview .public-lanes{margin-top:24px;padding:16px}.public-overview .public-lane-cards{gap:8px}.public-overview .public-lane-card{padding:12px}.public-overview .public-lane-count{font-size:.7rem}}
+@media(max-width:575px){.public-overview .public-lanes{margin-top:24px;padding:16px}.public-overview .public-lane-total{margin-bottom:12px;padding:12px 14px}.public-overview .public-lane-total strong{font-size:1.4rem}.public-overview .public-lane-cards{gap:8px}.public-overview .public-lane-card{padding:12px}.public-overview .public-lane-count{font-size:.7rem}}
 
 /* Homepage summary: make the current round and its totals read as one report. */
 .public-overview:not(.public-list-page){--public-green:#1e6842;--public-ink:#18382a;--public-muted:#61756a;--public-border:#d7e3da}
@@ -255,7 +322,7 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
 .public-overview:not(.public-list-page) .public-lane-card[data-lane="2"]{--lane-color:#3f79ad}
 .public-overview:not(.public-list-page) .public-lane-card[data-lane="3"]{--lane-color:#7862a7}
 .public-overview:not(.public-list-page) .public-lane-card[data-lane="4"]{--lane-color:#b17b27}
-.public-overview:not(.public-list-page) .public-lane-total{border-color:#d6e2d9;color:#536a5b}
+.public-overview:not(.public-list-page) .public-lane-total{border-color:#285b3e;background:#17432f;color:#fff}
 .public-overview:not(.public-list-page) .public-tracking{padding-top:32px}
 .public-overview:not(.public-list-page) .public-board{border-radius:14px;box-shadow:0 8px 26px #153b2610}
 .public-overview:not(.public-list-page) .public-guide{border-radius:14px;background:#f2f7f3;border-color:#dce8df}
@@ -284,4 +351,33 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
  .public-overview:not(.public-list-page) .public-round-state{max-width:132px;text-align:center;line-height:1.4}
  .public-overview:not(.public-list-page) .public-lanes{margin-top:14px;padding:18px 14px;border-radius:12px}
  .public-overview:not(.public-list-page) .public-tracking{padding-top:26px}
+}
+
+/* Keep explanatory copy comfortable to read across the public homepage. */
+.public-overview:not(.public-list-page) :is(.public-section-heading p,.public-note,.public-empty p,.public-about>div>p,.public-history>p,.public-status-record>div:first-child>span){font-size:.9375rem!important}
+@media(max-width:575px){
+ .public-overview:not(.public-list-page) :is(.public-section-heading p,.public-note,.public-empty p,.public-about>div>p,.public-history>p,.public-status-record>div:first-child>span){font-size:.875rem!important}
+ .public-overview:not(.public-list-page) .public-intro-copy>p{font-size:.9rem}
+}
+
+/* Action controls use a consistent icon size, alignment and visible hover/focus state. */
+.public-overview:not(.public-list-page) .public-entry .btn{justify-content:center;min-height:48px;border-radius:8px;font-size:.9rem;font-weight:700;box-shadow:none;transition:background-color .15s,border-color .15s,color .15s}
+.public-overview:not(.public-list-page) .public-entry .btn svg,
+.public-overview:not(.public-list-page) .public-entry .public-text-link svg,
+.public-overview:not(.public-list-page) .public-search .btn svg,
+.public-overview:not(.public-list-page) .public-about .public-text-link svg{width:18px;height:18px;flex-shrink:0}
+.public-overview:not(.public-list-page) .public-entry .public-text-link{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:10px 14px;border:1px solid #ffffff40;border-radius:8px;background:#ffffff0c;color:#e1eee4;text-decoration:none;transition:background-color .15s,border-color .15s,color .15s}
+.public-overview:not(.public-list-page) .public-entry .public-text-link:hover{background:#ffffff18;border-color:#ffffff70;color:#fff;text-decoration:none}
+.public-overview:not(.public-list-page) .public-search .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:7px;font-weight:600}
+.public-overview:not(.public-list-page) #publicClearSearch{background:#f7f9f7;color:#4f6256;border-color:#d6e1d9}
+.public-overview:not(.public-list-page) #publicClearSearch:hover{background:#edf3ef;border-color:#bdcfc2;color:#294634}
+.public-overview:not(.public-list-page) #publicRefresh{cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.public-overview:not(.public-list-page) #publicRefresh:hover:not(:disabled){background:#edf5ef;border-color:#b9d2bf;color:#245c38}
+.public-overview:not(.public-list-page) #publicRefresh:disabled{opacity:.55;cursor:wait}
+.public-overview:not(.public-list-page) .public-status-column .public-all-records{font-weight:600;text-decoration:none}
+.public-overview:not(.public-list-page) .public-all-records svg{width:17px;height:17px}
+.public-overview:not(.public-list-page) .public-status-column .public-all-records:hover{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:575px){
+ .public-overview:not(.public-list-page) .public-entry .public-text-link{font-size:.85rem;padding-inline:12px}
+ .public-overview:not(.public-list-page) .public-entry .btn{min-height:46px}
 }

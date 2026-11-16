@@ -23,7 +23,7 @@ $loginMsg = '';
 
 if (isset($_GET['logout'])) {
     unset($_SESSION[MEMBER_SESSION_KEY]);
-    header('Location: allmember.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -106,7 +106,8 @@ $deductionLabels = [
 
 if ($member) {
     $db = db();
-    if ($stmtYear = $db->prepare('SELECT DISTINCT YEAR(ru_date) AS y FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber WHERE ru_number = ? ORDER BY y DESC')) {
+    $fiscalYearSql = 'CASE WHEN MONTH(ru_date) >= 2 THEN YEAR(ru_date) + 1 ELSE YEAR(ru_date) END';
+    if ($stmtYear = $db->prepare('SELECT DISTINCT '.$fiscalYearSql.' AS y FROM (SELECT * FROM tbl_rubber WHERE LOWER(TRIM(COALESCE(record_status,0x6e6f726d616c))) NOT IN (0x63616e63656c6c6564,0x63616e63656c6564,0x64656c65746564)) tbl_rubber WHERE ru_number = ? ORDER BY y DESC')) {
         $stmtYear->bind_param('s', $member['mem_number']);
         $stmtYear->execute();
         $resYear = $stmtYear->get_result();
@@ -118,14 +119,19 @@ if ($member) {
         $stmtYear->close();
     }
 
+    $selectedYear = $availableYears[0] ?? null;
     if (isset($_GET['year']) && $_GET['year'] !== '') {
-        $candidate = (int)$_GET['year'];
-        if (in_array($candidate, $availableYears, true)) {
-            $selectedYear = $candidate;
+        if ($_GET['year'] === 'all') {
+            $selectedYear = null;
+        } else {
+            $candidate = (int)$_GET['year'];
+            if (in_array($candidate, $availableYears, true)) {
+                $selectedYear = $candidate;
+            }
         }
     }
 
-    $sql = 'SELECT YEAR(ru_date) AS year,
+    $sql = 'SELECT '.$fiscalYearSql.' AS year,
                    ru_date,
                    SUM(ru_quantity) AS total_quantity,
                    SUM(ru_value) AS total_value,
@@ -142,11 +148,11 @@ if ($member) {
     $types = 's';
     $params = [$member['mem_number']];
     if ($selectedYear !== null) {
-        $sql .= ' AND YEAR(ru_date) = ?';
+        $sql .= ' AND '.$fiscalYearSql.' = ?';
         $types .= 'i';
         $params[] = $selectedYear;
     }
-    $sql .= ' GROUP BY YEAR(ru_date), ru_date ORDER BY year DESC, ru_date DESC';
+    $sql .= ' GROUP BY '.$fiscalYearSql.', ru_date ORDER BY year DESC, ru_date DESC';
 
     $stmt = $db->prepare($sql);
     if ($stmt) {
@@ -452,6 +458,24 @@ if ($member) {
             border-color: rgba(0,0,0,.06);
             box-shadow: var(--shadow-sm);
             color: var(--text-main);
+            position: relative;
+            padding-right: 3.25rem;
+        }
+        .install-panel[hidden] { display: none !important; }
+        .install-panel-close {
+            position: absolute; top: .55rem; right: .55rem;
+            display: grid; place-items: center;
+            width: 34px; height: 34px; padding: 0;
+            border: 1px solid #e1e8e2; border-radius: 50%;
+            background: #f7faf7; color: #68786c;
+            font-size: .8rem; cursor: pointer;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+        .install-panel-close:hover {
+            border-color: #c9d9cc; background: #edf5ee; color: var(--green-dark);
+        }
+        .install-panel-close:focus-visible {
+            outline: 3px solid rgba(46,125,50,.25); outline-offset: 2px;
         }
         .install-panel-title {
             font-size: .95rem;
@@ -525,8 +549,10 @@ if ($member) {
             display: flex; align-items: center; justify-content: space-between; gap: .75rem;
             max-width: 800px; margin: 0 auto;
         }
-        .app-bar-title { font-size: 1rem; font-weight: 700; line-height: 1.2; }
-        .app-bar-sub { font-size: .75rem; opacity: .8; margin-top: .1rem; }
+        .app-bar-inner > div:first-child { min-width: 0; }
+        .app-bar-actions { display: flex; align-items: center; gap: .45rem; flex: 0 0 auto; }
+        .app-bar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; font-weight: 700; line-height: 1.2; }
+        .app-bar-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .75rem; opacity: .8; margin-top: .1rem; }
         .btn-logout {
             background: rgba(255,255,255,.18);
             border: 1px solid rgba(255,255,255,.3);
@@ -543,6 +569,17 @@ if ($member) {
             display: inline-flex; align-items: center; gap: .3rem;
         }
         .btn-logout:hover { background: rgba(255,255,255,.28); color: #fff; }
+        .btn-home {
+            background: rgba(255,255,255,.92);
+            border-color: rgba(255,255,255,.92);
+            color: var(--green-dark);
+        }
+        .btn-home:hover { background: #fff; color: var(--green-dark); }
+        @media (max-width: 420px) {
+            .app-bar-inner { gap: .45rem; }
+            .app-bar-actions { gap: .3rem; }
+            .app-bar-actions .btn-logout { padding: .35rem .55rem; font-size: .72rem; }
+        }
 
         /* Main content */
         .app-content {
@@ -551,6 +588,47 @@ if ($member) {
             max-width: 800px;
             margin: 0 auto;
             width: 100%;
+        }
+
+        .member-data-tabs {
+            display: flex;
+            gap: .4rem;
+            padding: .35rem;
+            margin: .25rem 0 1rem;
+            border: 1px solid #dce7dd;
+            border-radius:  .9rem;
+            background: #eaf0eb;
+        }
+        .member-data-tabs .nav-link {
+            display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+            flex: 1 1 0; min-height: 44px; padding: .6rem .8rem;
+            border: 1px solid transparent; border-radius: .65rem;
+            color: #617365; font: inherit; font-size: .88rem; font-weight: 600;
+            transition: background .18s, color .18s, box-shadow .18s;
+        }
+        .member-data-tabs .nav-link:hover { color: var(--green-dark); }
+        .member-data-tabs .nav-link.active {
+            border-color: #d8e5da; background: #fff; color: var(--green-dark);
+            box-shadow: 0 2px 7px rgba(34, 73, 40, .08);
+        }
+        .member-data-tabs .nav-link i { font-size: 1rem; }
+        .refund-placeholder {
+            display: grid; justify-items: center; gap: .65rem;
+            min-height: 260px; padding: 2rem 1.25rem;
+            border: 1px solid #dce7dd; border-radius: var(--radius-md);
+            background: linear-gradient(145deg, #fff, #f7faf7);
+            text-align: center;
+        }
+        .refund-placeholder-icon {
+            display: grid; place-items: center; width: 58px; height: 58px;
+            border: 1px solid #dce8dd; border-radius: 18px;
+            background: #edf5ee; color: var(--green-main); font-size: 1.55rem;
+        }
+        .refund-placeholder h2 { margin: .15rem 0 0; color: var(--green-dark); font-size: 1.1rem; font-weight: 700; }
+        .refund-placeholder p { margin: 0; color: var(--text-muted); font-size: .9rem; }
+        @media (max-width: 420px) {
+            .member-data-tabs { gap: .2rem; padding: .25rem; }
+            .member-data-tabs .nav-link { min-height: 42px; gap: .3rem; padding: .5rem .35rem; font-size: .78rem; }
         }
 
         /* ─── Year filter chips ─── */
@@ -564,6 +642,8 @@ if ($member) {
             margin: .75rem 0;
         }
         .year-filter-wrap::-webkit-scrollbar { display: none; }
+        .fiscal-year-note { display: flex; align-items: flex-start; gap: .4rem; margin: -.2rem 0 .8rem; color: var(--text-muted); font-size: .75rem; line-height: 1.5; }
+        .fiscal-year-note i { color: var(--green-main); margin-top: .1rem; }
         .year-chip {
             flex-shrink: 0;
             padding: .45rem 1rem;
@@ -647,43 +727,68 @@ if ($member) {
 
         /* ─── Deduction summary card ─── */
         .deduct-summary {
-            background: var(--surface);
+            background: linear-gradient(145deg, #fffdf8, #fff);
             border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0,0,0,.05);
+            box-shadow: 0 5px 18px rgba(120, 82, 20, .06);
+            border: 1px solid #f0e2c5;
             overflow: hidden;
             margin-bottom: 1rem;
         }
         .deduct-summary-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: .85rem 1rem;
+            gap: .75rem;
+            padding: .9rem 1rem;
             cursor: pointer;
             user-select: none;
+            background: linear-gradient(90deg, #fff9e9, #fffdf8);
         }
         .deduct-summary-header .label {
-            font-size: .9rem; font-weight: 600;
-            display: flex; align-items: center; gap: .4rem;
-            color: var(--green-dark);
+            min-width: 0;
+            display: flex; align-items: center; gap: .7rem;
+            color: #744c12;
+        }
+        .deduct-summary-header .label>i {
+            display: grid; place-items: center;
+            flex: 0 0 2.35rem; width: 2.35rem; height: 2.35rem;
+            border: 1px solid #f1d99e; border-radius: .75rem;
+            background: #fff4d6; color: #a96d08; font-size: 1.05rem;
+        }
+        .deduct-summary-header .label-copy { display: grid; gap: .08rem; }
+        .deduct-summary-header .label-copy strong { font-size: .92rem; font-weight: 700; }
+        .deduct-summary-header .label-copy small { color: #927c58; font-size: .74rem; font-weight: 400; }
+        .deduct-summary-header .chevron-wrap {
+            display: grid; place-items: center;
+            flex: 0 0 2rem; width: 2rem; height: 2rem;
+            border: 1px solid #eadfca; border-radius: 50%;
+            background: #fff; color: #8c744d;
         }
         .deduct-summary-header .chevron {
             transition: transform .25s;
-            color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: .85rem;
         }
         .deduct-summary-header[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+        .deduct-summary-body { padding: .85rem 1rem 1rem; border-top: 1px solid #f2e8d5; }
+        .deduct-summary-caption { margin: 0 0 .65rem; color: #8b7a5e; font-size: .75rem; }
         .deduct-chips {
-            display: flex; flex-wrap: wrap; gap: .4rem;
-            padding: 0 1rem 1rem;
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem;
+            padding: 0;
         }
         .deduct-chip {
-            display: inline-flex; align-items: center; gap: .25rem;
-            background: var(--amber-pale);
-            color: #92400e;
-            border: 1px solid #fde68a;
-            border-radius: 999px;
-            padding: .3rem .75rem;
-            font-size: .8rem;
-            font-weight: 600;
+            display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+            min-width: 0; background: #fff; color: #58645b;
+            border: 1px solid #eee8dc; border-radius: .7rem;
+            padding: .6rem .75rem; font-size: .8rem; font-weight: 500;
+        }
+        .deduct-chip-label { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; }
+        .deduct-chip-label i { color: #bc8320; font-size: .72rem; }
+        .deduct-chip-label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .deduct-chip strong { flex: 0 0 auto; color: #805a1b; font-size: .82rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .year-section .deduct-chips { padding: .75rem 1rem; background: #fcfdfc; }
+        .year-section .deduct-chip { background: #fff; }
+        @media (max-width: 420px) {
+            .deduct-chips { grid-template-columns: 1fr; }
+            .deduct-summary-body { padding: .7rem .75rem .8rem; }
+            .year-section .deduct-chips { padding: .7rem .75rem; }
         }
 
         /* ─── Year section ─── */
@@ -919,9 +1024,9 @@ if ($member) {
                 รหัสผ่านคือเลข4ตัวท้ายของเลขบัตรประจำตัวประชาชน
             </div>
     </div>
-    <!-- <div class="login-home-link">
+    <div class="login-home-link">
         <a href="index.php"><i class="bi bi-house-door"></i> กลับหน้าหลัก</a>
-    </div> -->
+    </div>
 </div>
 
 <?php else: ?>
@@ -935,15 +1040,19 @@ if ($member) {
                 <div class="app-bar-title">🌿 <?php echo e($member['mem_fullname']); ?></div>
                 <div class="app-bar-sub">สมาชิก <?php echo e($member['mem_number']); ?> &nbsp;|&nbsp; กลุ่ม <?php echo e($member['mem_group']); ?> ชั้น <?php echo e($member['mem_class']); ?></div>
             </div>
-            <a href="allmember.php?logout=1" class="btn-logout">
-                <i class="bi bi-box-arrow-right"></i> ออก
-            </a>
+            <div class="app-bar-actions">
+                <a href="index.php" class="btn-logout btn-home"><i class="bi bi-house-door"></i> หน้าหลัก</a>
+                <a href="allmember.php?logout=1" class="btn-logout"><i class="bi bi-box-arrow-right"></i> ออก</a>
+            </div>
         </div>
     </header>
 
     <main class="app-content">
 
-        <div class="install-panel surface mb-3" aria-label="mobile-install-panel-app">
+        <div class="install-panel surface mb-3" id="memberInstallPanel" aria-label="mobile-install-panel-app">
+            <button type="button" class="install-panel-close" id="memberInstallPanelClose" aria-label="ปิดคำแนะนำการติดตั้ง" title="ปิดคำแนะนำการติดตั้ง">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
             <div class="install-panel-title"><i class="bi bi-download"></i> ติดตั้งบนอุปกรณ์</div>
             <div class="install-panel-subtitle">เพิ่มหน้านี้ลงหน้าจอหลักเพื่อเปิดดูข้อมูลสมาชิกได้สะดวกเหมือนแอป</div>
             <div class="install-panel-actions">
@@ -953,17 +1062,36 @@ if ($member) {
             <div class="install-panel-note android js-android-note" id="app-android-note">หากระบบยังไม่ขึ้นหน้าติดตั้ง ให้เปิดผ่าน Chrome บน Android แล้วลองใหม่อีกครั้ง</div>
         </div>
 
+        <ul class="nav nav-pills member-data-tabs" id="memberDataTabs" role="tablist" aria-label="หมวดข้อมูลสมาชิก">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="collection-tab" data-bs-toggle="tab" data-bs-target="#collection-pane"
+                        type="button" role="tab" aria-controls="collection-pane" aria-selected="true">
+                    <i class="bi bi-clipboard-data" aria-hidden="true"></i> ข้อมูลการรวบรวม
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="refund-tab" data-bs-toggle="tab" data-bs-target="#refund-pane"
+                        type="button" role="tab" aria-controls="refund-pane" aria-selected="false" tabindex="-1">
+                    <i class="bi bi-cash-coin" aria-hidden="true"></i> ยอดเงินเฉลี่ยคืน
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="memberDataTabContent">
+        <section class="tab-pane fade show active" id="collection-pane" role="tabpanel" aria-labelledby="collection-tab" tabindex="0">
+
         <?php if ($availableYears): ?>
         <!-- Year Filter Chips -->
         <div class="year-filter-wrap">
-            <a href="allmember.php" class="year-chip <?php echo $selectedYear === null ? 'active' : ''; ?>">ทั้งหมด</a>
+            <a href="allmember.php?year=all" class="year-chip <?php echo $selectedYear === null ? 'active' : ''; ?>">ทั้งหมด</a>
             <?php foreach ($availableYears as $yo): ?>
                 <a href="allmember.php?year=<?php echo (int)$yo; ?>"
                    class="year-chip <?php echo $selectedYear === (int)$yo ? 'active' : ''; ?>">
-                    พ.ศ. <?php echo (int)$yo + 543; ?>
+                    ปีบัญชี พ.ศ. <?php echo (int)$yo + 543; ?>
                 </a>
             <?php endforeach; ?>
         </div>
+        <p class="fiscal-year-note"><i class="bi bi-info-circle" aria-hidden="true"></i><span>ปีบัญชีเริ่ม 1 ก.พ. และสิ้นสุด 31 ม.ค. โดยระบุปีตาม พ.ศ. ของวันสิ้นสุดรอบบัญชี</span></p>
         <?php endif; ?>
 
         <?php if ($summaryRows): ?>
@@ -996,14 +1124,19 @@ if ($member) {
         <div class="deduct-summary">
             <div class="deduct-summary-header" data-bs-toggle="collapse" data-bs-target="#overallDeduct"
                  aria-expanded="false" aria-controls="overallDeduct">
-                <span class="label"><i class="bi bi-receipt-cutoff"></i> รายละเอียดยอดหักรวมทั้งหมด</span>
-                <i class="bi bi-chevron-down chevron"></i>
+                <span class="label"><i class="bi bi-receipt-cutoff"></i><span class="label-copy">
+                    <strong>รายละเอียดยอดหักรวมทั้งหมด</strong><small>แยกยอดสะสมตามประเภทการหัก</small>
+                </span></span>
+                <span class="chevron-wrap"><i class="bi bi-chevron-down chevron"></i></span>
             </div>
             <div class="collapse" id="overallDeduct">
-                <div class="deduct-chips">
+                <div class="deduct-summary-body">
+                    <p class="deduct-summary-caption">ยอดหักสะสมตลอดประวัติการรวบรวม</p>
+                    <div class="deduct-chips">
                     <?php foreach ($deductionLabels as $key => $label): ?>
-                        <span class="deduct-chip"><i class="bi bi-tag-fill"></i> <?php echo e($label); ?>: <?php echo number_format($overallDeductionBreakdown[$key] ?? 0.0, 2); ?> ฿</span>
+                        <span class="deduct-chip"><span class="deduct-chip-label"><i class="bi bi-tag-fill" aria-hidden="true"></i><span><?php echo e($label); ?></span></span><strong>฿<?php echo number_format($overallDeductionBreakdown[$key] ?? 0.0, 2); ?></strong></span>
                     <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1015,8 +1148,8 @@ if ($member) {
         <div class="year-section">
             <div class="year-section-header">
                 <div>
-                    <span class="year-pill"><i class="bi bi-calendar3"></i> พ.ศ. <?php echo $year + 543; ?></span>
-                    <span class="year-meta ms-2"><?php echo count($rows); ?> วัน</span>
+                    <span class="year-pill"><i class="bi bi-calendar3"></i> ปีบัญชี พ.ศ. <?php echo $year + 543; ?></span>
+                    <span class="year-meta ms-2">1 ก.พ. <?php echo $year + 542; ?> – 31 ม.ค. <?php echo $year + 543; ?> · <?php echo count($rows); ?> วัน</span>
                 </div>
                 <button class="btn-year-deduct" type="button"
                         data-bs-toggle="collapse" data-bs-target="#<?php echo e($yearCollapseId); ?>"
@@ -1027,9 +1160,9 @@ if ($member) {
 
             <!-- year deduction breakdown -->
             <div class="collapse" id="<?php echo e($yearCollapseId); ?>">
-                <div class="deduct-chips" style="padding:.75rem 1rem;">
+                <div class="deduct-chips">
                     <?php foreach ($deductionLabels as $key => $label): ?>
-                        <span class="deduct-chip"><?php echo e($label); ?>: <?php echo number_format($deductionTotalsByYear[$year][$key] ?? 0.0, 2); ?> ฿</span>
+                        <span class="deduct-chip"><span class="deduct-chip-label"><i class="bi bi-tag-fill" aria-hidden="true"></i><span><?php echo e($label); ?></span></span><strong>฿<?php echo number_format($deductionTotalsByYear[$year][$key] ?? 0.0, 2); ?></strong></span>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -1104,10 +1237,20 @@ if ($member) {
             <i class="bi bi-inbox"></i>
             ยังไม่มีข้อมูลการรวบรวมยาง<?php echo $selectedYear ? ' สำหรับปีที่เลือก' : ''; ?>
             <?php if ($selectedYear): ?>
-                <div class="mt-3"><a href="allmember.php" class="year-chip">ดูทั้งหมด</a></div>
+                <div class="mt-3"><a href="allmember.php?year=all" class="year-chip">ดูทั้งหมด</a></div>
             <?php endif; ?>
         </div>
         <?php endif; ?>
+
+        </section>
+        <section class="tab-pane fade" id="refund-pane" role="tabpanel" aria-labelledby="refund-tab" tabindex="0">
+            <div class="refund-placeholder">
+                <span class="refund-placeholder-icon"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                <h2>ยอดเงินเฉลี่ยคืน</h2>
+                <p>อยู่ระหว่างการปรับปรุง</p>
+            </div>
+        </section>
+        </div>
 
     </main>
 </div>
@@ -1147,6 +1290,23 @@ if ($member) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script>
 (function () {
+    var memberInstallPanel = document.getElementById('memberInstallPanel');
+    var memberInstallPanelClose = document.getElementById('memberInstallPanelClose');
+    if (memberInstallPanel && memberInstallPanelClose) {
+        var installPanelDismissKey = 'rts-member-install-panel-dismissed';
+        try {
+            if (window.localStorage.getItem(installPanelDismissKey) === '1') {
+                memberInstallPanel.hidden = true;
+            }
+        } catch (error) {}
+        memberInstallPanelClose.addEventListener('click', function () {
+            memberInstallPanel.hidden = true;
+            try {
+                window.localStorage.setItem(installPanelDismissKey, '1');
+            } catch (error) {}
+        });
+    }
+
     /* Service Worker */
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
