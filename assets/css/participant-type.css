@@ -1,0 +1,16 @@
+.participant-type-icon {
+    display: inline-block;
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: -.15em;
+    background: center / contain no-repeat;
+}
+
+.participant-type-member {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23305f86' stroke-width='1.5' stroke-linecap='round'%3E%3Crect x='1.5' y='3.5' width='17' height='13' rx='2'/%3E%3Ccircle cx='6.5' cy='8.5' r='1.5'/%3E%3Cpath d='M4 13c.5-2 4.5-2 5 0m3-5h3.5M12 12h3.5'/%3E%3C/svg%3E");
+}
+
+.participant-type-general {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232b6940' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17h12m-6 0v-6m0 2C5 13 2 10 2 6c5 0 8 3 8 7Zm0-2c0-5 3-8 8-8 0 5-3 8-8 8Z'/%3E%3C/svg%3E");
+}

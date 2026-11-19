@@ -7,6 +7,7 @@ if (function_exists('touch_online_presence')) {
 }
 
 $currentPage = basename($_SERVER['PHP_SELF'] ?? '');
+$showsParticipantType = in_array($currentPage, ['index.php', 'public_collection_list.php', 'weigh_wang.php', 'approve_weighing.php'], true);
 $publicHome = in_array($currentPage, ['index.php','public_collection_list.php'], true) && (!function_exists('is_logged_in') || !is_logged_in());
 
 if (!function_exists('nav_active')) {
@@ -989,6 +990,7 @@ if (!function_exists('nav_active')) {
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.278.0/dist/umd/lucide.min.js"></script>
 <?php $collectionControls = in_array($currentPage, ['demo_reset.php','collection_rounds.php','wang_main.php','weigh_wang.php','approve_weighing.php','collection_history.php','collection_audit.php','cancel_collection.php','printed_receipts.php','rubbers.php','admin_rubbers.php','price_form.php','prices.php'], true); ?>
 <?php if ($collectionControls): ?><link rel="stylesheet" href="assets/css/collection-actions.css?v=<?php echo filemtime(__DIR__ . '/assets/css/collection-actions.css'); ?>"><?php endif; ?>
+<?php if ($showsParticipantType): ?><link rel="stylesheet" href="assets/css/participant-type.css?v=<?php echo filemtime(__DIR__ . '/assets/css/participant-type.css'); ?>"><?php endif; ?>
 <link rel="stylesheet" media="screen" href="assets/css/operations-theme.css?v=<?php echo filemtime(__DIR__ . '/assets/css/operations-theme.css'); ?>">
 </head>
 

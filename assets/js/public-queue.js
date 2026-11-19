@@ -35,18 +35,30 @@
     const signature=JSON.stringify([records,snapshot.matched]);
     if(signature===column.signature) return;
     const fragment=document.createDocumentFragment();
-    records.forEach(record=>{
+    records.forEach((record,index)=>{
       const row=node('article',undefined,'queue-record');
+      const rank=node('span',String(index + 1),'queue-record-rank');
       const main=node('div',undefined,'queue-record-main');
+      const nameRow=node('div',undefined,'queue-record-name');
+      const participantType=record.participant_type;
+      const participantLabel=data.participant_labels?.[participantType];
+      if(typeof participantLabel==='string') {
+        const icon=node('span',undefined,'participant-type-icon participant-type-'+participantType);
+        icon.setAttribute('role','img');
+        icon.setAttribute('aria-label',participantLabel);
+        icon.title=participantLabel;
+        nameRow.append(icon);
+      }
       const name=node('strong',record.name);
       name.title=record.name;
+      nameRow.append(name);
       const sacks=record.sacks==null?'ไม่ระบุจำนวนกระสอบ':`${weightFormat.format(record.sacks)} กระสอบ`;
       const details=`เลขสมาชิก ${record.member_number||'—'} · ลาน ${record.lane||'—'} · ${sacks}`;
       const detailLine=node('span',details);
       detailLine.title=details;
-      const time=node('time',activityFormat.format(new Date(record.activity_at)));
+      const time=node('time',activityFormat.format(new Date(record.activity_at))+' น.');
       time.dateTime=record.activity_at;
-      main.append(name,detailLine); row.append(main,time); fragment.append(row);
+      main.append(nameRow,detailLine); row.append(rank,main,time); fragment.append(row);
     });
     if(!records.length) fragment.append(node('div','ยังไม่มีรายการในคิวนี้','queue-empty'));
     column.records.replaceChildren(fragment);
@@ -73,10 +85,10 @@
       if(snapshots.some(snapshot=>!Array.isArray(snapshot.records)||!snapshot.updated_at)) throw new Error('Invalid queue data');
       snapshots.forEach((snapshot,index)=>renderColumn(columns[index],snapshot));
       renderRound(snapshots[0].round);
-      updated.textContent=`อัปเดตล่าสุด ${timeFormat.format(new Date(snapshots[0].updated_at))}`;
+      updated.textContent=`อัปเดตล่าสุด ${timeFormat.format(new Date(snapshots[0].updated_at))} น.`;
     } catch(error) {
       if(current!==sequence) return;
-      updated.textContent=`เชื่อมต่อไม่ได้ · ข้อมูลล่าสุด ${timeFormat.format(new Date(data.updated_at))}`;
+      updated.textContent=`เชื่อมต่อไม่ได้ · ข้อมูลล่าสุด ${timeFormat.format(new Date(data.updated_at))} น.`;
       updated.parentElement.classList.add('is-stale');
     } finally {
       clearTimeout(timeout);

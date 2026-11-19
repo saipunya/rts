@@ -24,7 +24,7 @@ function rts_admin_navigation_catalog(): array {
 // actions keep their existing role checks as well as this central route guard.
 function rts_route_permissions(string $page): array {
     $routes = [
-        'index.php'=>[], 'public_collection_list.php'=>[], 'public_collection_status.php'=>[],
+        'index.php'=>[], 'que.php'=>[], 'public_collection_list.php'=>[], 'public_collection_status.php'=>[],
         'rubber_round_live_summary.php'=>[], 'allmember.php'=>[], 'login.php'=>[], 'logout.php'=>[],
         'register.php'=>[], 'presence.php'=>[],
         'wang_main.php'=>['placement'], 'create_rubber.php'=>['placement'],

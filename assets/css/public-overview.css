@@ -44,11 +44,6 @@ body.rts-operations[data-page="index.php"] .content-card{padding:0;border:0;back
 .public-overview progress::-webkit-progress-value{background:#6a9775;border-radius:8px}
 .public-overview progress::-moz-progress-bar{background:#6a9775;border-radius:8px}
 .public-overview .public-tracking{padding-top:8px}
-.public-overview .public-tracking-heading-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px 14px}
-.public-overview .public-queue-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid #cbdccf;border-radius:7px;background:#fff;color:#245c38;font-size:.85rem;font-weight:600;text-decoration:none;transition:background-color .15s,border-color .15s}
-.public-overview .public-queue-link svg{width:17px;height:17px}
-.public-overview .public-queue-link:hover{background:#edf5ef;border-color:#a9c5b0;color:#173d2d}
-.public-overview .public-queue-link:focus-visible{outline:3px solid #78ae87;outline-offset:3px}
 .public-overview .public-live-label{display:inline-flex;align-items:center;gap:7px;font-size:.75rem;color:#51715c}
 .public-overview .public-live-dot{display:inline-block;width:7px;height:7px;background:#5c9870;border-radius:50%;box-shadow:0 0 0 4px #59966a12;flex-shrink:0}
 .public-overview .public-tracking-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:start}
@@ -126,7 +121,6 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
  .public-overview .public-price-foot{display:none}
  .public-overview .public-summary{padding-block:20px}
  .public-overview .public-section-heading{gap:8px;margin-bottom:14px}
- .public-overview .public-tracking-heading-actions{justify-content:flex-start;gap:8px}
  .public-overview .public-section-heading h2{font-size:1.12rem}
  .public-overview .public-section-heading p{font-size:.75rem}
  .public-overview .public-kpis{gap:8px}
@@ -358,6 +352,17 @@ body.rts-operations .topbar-link.public-member-nav{background:#eaf2e6;color:#214
 @media(max-width:575px){
  .public-overview:not(.public-list-page) :is(.public-section-heading p,.public-note,.public-empty p,.public-about>div>p,.public-history>p,.public-status-record>div:first-child>span){font-size:.875rem!important}
  .public-overview:not(.public-list-page) .public-intro-copy>p{font-size:.9rem}
+}
+
+/* Units and counts alongside the homepage totals. */
+#publicDashboard :is(.public-kpis small, .public-price strong small, .public-lane-weight small, .public-lane-total > div > span) {
+    font-size: .95rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    white-space: nowrap;
+}
+#publicDashboard :is(.public-lane-count, .public-progress strong, #publicResultLabel) {
+    font-size: .95rem;
 }
 
 /* Action controls use a consistent icon size, alignment and visible hover/focus state. */

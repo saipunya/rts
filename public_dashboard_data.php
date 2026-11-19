@@ -85,6 +85,7 @@ function rts_public_dashboard(mysqli $db, string $member = '', string $stage = '
     $data['page'] = max(1,min($page,$data['total_pages']));
     $offset = ($data['page'] - 1) * $data['limit'];
     $stmt = $db->prepare("SELECT w.wang_id, COALESCE(NULLIF(w.wang_number,''),r.ru_number,'') member_number,
+        $participantClass AS participant_type,
         w.wang_name, w.wang_note, w.wang_lan, w.wang_sack, r.ru_expend, x.weighing_id, x.approval_route, x.deductions_saved_at, z.issued_at,
         COALESCE(z.issued_at,x.deductions_saved_at,x.approved_at,x.weighed_at,w.wang_savedate) activity_at".
         $from.$where.' ORDER BY activity_at DESC,w.wang_id DESC LIMIT ? OFFSET ?');
@@ -95,8 +96,10 @@ function rts_public_dashboard(mysqli $db, string $member = '', string $stage = '
             (($row['deductions_saved_at'] || in_array($row['approval_route'], ['review','zero'], true)) ? 'ready' : ($row['weighing_id'] ? 'weighed' : 'waiting'));
         $deductionsConfirmed = $row['deductions_saved_at'] || $row['approval_route'] === 'zero' || $row['issued_at'];
         $deductionState = $deductionsConfirmed ? ((float)$row['ru_expend'] > 0 ? 'has' : 'none') : 'pending';
+        $participantType = $row['participant_type'];
         // Publish the requested display name and note, without financial or internal workflow fields.
         $data['records'][] = ['id'=>(int)$row['wang_id'],'member_number'=>(string)$row['member_number'],
+            'participant_type'=>in_array($participantType, ['member','general'], true) ? $participantType : null,
             'name'=>rts_public_display_name((string)$row['wang_name'], $row['wang_note']),'lane'=>(string)$row['wang_lan'],
             'sacks'=>$row['wang_sack'] === null ? null : (float)$row['wang_sack'],
             'status'=>$status,'deduction_state'=>$deductionState,'activity_at'=>(new DateTimeImmutable($row['activity_at'],new DateTimeZone('Asia/Bangkok')))->format(DateTimeInterface::ATOM)];

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/participant_type.php';
 require_login();
 $db = db();
 ensure_weighing_schema($db);
@@ -136,7 +137,7 @@ require __DIR__ . '/header.php';
     ?>
       <article class="weigh-record <?php echo $row['weighing_id'] ? 'is-weighed' : ''; ?> <?php echo $row['deductions_saved_at'] ? 'is-complete' : ''; ?>" aria-labelledby="person-<?php echo $wid; ?>" data-member-search="<?php echo e(implode(' ', [$row['wang_name'], $row['wang_number'], $row['wang_note'] ?? ''])); ?>">
         <div class="record-heading">
-          <div><h2 id="person-<?php echo $wid; ?>"><?php echo e(collection_display_name($row['wang_name'], $row['wang_note'] ?? null)); ?></h2><p>เลขที่ <?php echo e($row['wang_number']); ?> · กลุ่ม <?php echo e($row['wang_group']); ?></p></div>
+          <div><h2 id="person-<?php echo $wid; ?>"><?php echo collection_participant_icon($row['wang_class'] ?? null); ?> <?php echo e(collection_display_name($row['wang_name'], $row['wang_note'] ?? null)); ?></h2><p>เลขที่ <?php echo e($row['wang_number']); ?> · กลุ่ม <?php echo e($row['wang_group']); ?></p></div>
           <div class="record-side"><span class="sack-count"><?php echo number_format((float)$row['wang_sack'],2); ?> <small>กระสอบ</small></span><button type="button" class="btn btn-sm record-info" data-bs-toggle="modal" data-bs-target="#weighRecordDetails" data-record="<?php echo e(json_encode($recordDetails, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)); ?>" aria-label="ข้อมูลของ <?php echo e($row['wang_name']); ?>"><i data-lucide="info" aria-hidden="true"></i>ข้อมูล</button></div>
         </div>
 

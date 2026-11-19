@@ -10,6 +10,8 @@
   const connection = document.getElementById('publicConnection');
   const resultLabel = document.getElementById('publicResultLabel');
   const recordDialog = document.getElementById('publicRecordDialog');
+  const participantTypeRow = document.getElementById('publicRecordParticipantType');
+  const participantTypeLabels = participantTypeRow.querySelectorAll('[data-participant-type]');
   const dialogClose = document.getElementById('publicRecordDialogClose');
   const columns = ['weighed','issued'].map(stage => ({
     stage,
@@ -117,6 +119,11 @@
         viewButton.addEventListener('click',() => {
           const recordDate = new Date(record.activity_at);
           document.getElementById('publicRecordName').textContent = record.name;
+          participantTypeRow.hidden = true;
+          participantTypeLabels.forEach(label => {
+            label.hidden = label.dataset.participantType !== record.participant_type;
+            if (!label.hidden) participantTypeRow.hidden = false;
+          });
           document.getElementById('publicRecordNumber').textContent = record.member_number || '—';
           document.getElementById('publicRecordLane').textContent = record.lane || 'ไม่ระบุลาน';
           document.getElementById('publicRecordSacks').textContent = record.sacks == null ? 'ไม่ระบุจำนวนกระสอบ' : `${weightFormat.format(record.sacks)} กระสอบ`;

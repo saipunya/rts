@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/participant_type.php';
 require_login();
 $db = db();
 ensure_weighing_schema($db);
@@ -88,7 +89,7 @@ require __DIR__ . '/header.php';
   <?php foreach ($groups[$tab] as $index=>$row): ?>
     <tr>
       <td class="approval-list-order" data-label="ลำดับ"><?php echo number_format($index + 1); ?></td>
-      <td class="approval-list-member"><strong><?php echo e(collection_display_name($row['wang_name'], $row['wang_note'])); ?></strong><small>เลขที่ <?php echo e($row['wang_number']); ?> · กลุ่ม <?php echo e($row['wang_group']); ?> <a href="collection_history.php?wang_id=<?php echo (int)$row['wang_id']; ?>">ประวัติ</a></small>
+      <td class="approval-list-member"><strong><?php echo collection_participant_icon($row['wang_class'] ?? null); ?> <?php echo e(collection_display_name($row['wang_name'], $row['wang_note'])); ?></strong><small>เลขที่ <?php echo e($row['wang_number']); ?> · กลุ่ม <?php echo e($row['wang_group']); ?> <a href="collection_history.php?wang_id=<?php echo (int)$row['wang_id']; ?>">ประวัติ</a></small>
         <?php if ($row['returned_at'] !== null): ?><small>ย้อนกลับโดย <?php echo e($row['returned_by']); ?> · <?php echo e(thai_datetime_format($row['returned_at'])); ?></small><?php endif; ?>
       </td>
       <td data-label="ลาน"><span class="badge text-bg-light">ลาน <?php echo e($row['wang_lan']); ?></span></td>

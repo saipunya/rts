@@ -1,43 +1,12 @@
 <?php
 require_once __DIR__.'/functions.php';
 require_once __DIR__.'/public_dashboard_data.php';
+require_once __DIR__.'/participant_type.php';
 $db = db();
 ensure_weighing_schema($db);
 $member = is_string($_GET['member'] ?? null) ? trim($_GET['member']) : '';
 if (mb_strlen($member) > 100) $member = '';
 $dashboard = rts_public_dashboard($db,$member);
-$roundScope = "(SELECT round_id,weigh_date,lay_start,lay_end FROM tbl_collection_rounds
-    ORDER BY weigh_date DESC,round_id DESC LIMIT 7)";
-$participantClass = "LOWER(TRIM(COALESCE(NULLIF(TRIM(w.wang_class),''),NULLIF(TRIM(r.ru_class),''),'')))";
-$participantIdentity = "COALESCE(CONCAT('number:',NULLIF(TRIM(COALESCE(NULLIF(w.wang_number,''),r.ru_number,'')),'')),
-    CONCAT('id:',NULLIF(w.wang_mid,0)),CONCAT('name:',NULLIF(TRIM(w.wang_name),'')))";
-$memberHistory = $db->query("SELECT c.weigh_date round_date,
-    COUNT(DISTINCT CASE WHEN $participantClass='member' AND (x.weighing_id IS NULL OR r.ru_id IS NOT NULL)
-      THEN $participantIdentity END) member_count
-    FROM $roundScope c
-    LEFT JOIN tbl_wangyang w ON (w.collection_round_id=c.round_id OR
-      (w.collection_round_id IS NULL AND w.wang_date BETWEEN c.lay_start AND c.lay_end))
-      AND LOWER(TRIM(COALESCE(w.record_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
-      AND LOWER(TRIM(COALESCE(w.wang_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
-    LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id
-    LEFT JOIN tbl_rubber r ON r.ru_id=x.ru_id
-      AND LOWER(TRIM(COALESCE(r.record_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
-    GROUP BY c.round_id,c.weigh_date ORDER BY c.weigh_date ASC,c.round_id ASC")->fetch_all(MYSQLI_ASSOC);
-$history = $db->query("SELECT c.weigh_date round_date,
-    COALESCE(SUM(CASE WHEN x.weighing_id IS NOT NULL AND w.wang_id IS NOT NULL AND r.ru_id IS NOT NULL
-      THEN x.net_weight ELSE 0 END),0) quantity
-    FROM $roundScope c
-    LEFT JOIN tbl_wangyang w ON (w.collection_round_id=c.round_id OR
-      (w.collection_round_id IS NULL AND w.wang_date BETWEEN c.lay_start AND c.lay_end))
-      AND LOWER(TRIM(COALESCE(w.record_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
-      AND LOWER(TRIM(COALESCE(w.wang_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
-    LEFT JOIN tbl_wang_weighing x ON x.wang_id=w.wang_id AND
-      (x.round_date=c.weigh_date OR x.round_date IS NULL)
-    LEFT JOIN tbl_rubber r ON r.ru_id=x.ru_id
-      AND LOWER(TRIM(COALESCE(r.record_status,'normal'))) NOT IN ('cancelled','canceled','deleted')
-    GROUP BY c.round_id,c.weigh_date ORDER BY c.weigh_date ASC,c.round_id ASC")->fetch_all(MYSQLI_ASSOC);
-$historyMax = max(array_merge([1.0],array_map('floatval',array_column($history,'quantity'))));
-$memberHistoryMax = max(array_merge([1.0],array_map('floatval',array_column($memberHistory,'member_count'))));
 require __DIR__.'/header.php';
 ?>
 <link rel="stylesheet" media="screen"
@@ -50,10 +19,12 @@ require __DIR__.'/header.php';
     <div class="public-intro-copy">
       <h1 id="publicTitle">ติดตามการรวบรวม<br><span>ในหน้าเดียว</span></h1>
 
-      <div class="public-entry"><a href="#tracking" class="btn btn-success"><i data-lucide="search"
-            aria-hidden="true"></i>ติดตามรายการของฉัน</a><a href="allmember.php" class="btn btn-outline-success"><i
-            data-lucide="users" aria-hidden="true"></i>สำหรับสมาชิก</a><a href="#overview" class="public-text-link">ดูภาพรวมการรวบรวม
-          <i data-lucide="arrow-down" aria-hidden="true"></i></a></div>
+      <div class="public-entry">
+        <a href="#tracking" class="btn btn-success"><i data-lucide="search" aria-hidden="true"></i>ติดตามรายการของฉัน</a>
+        <a href="que.php" class="btn btn-outline-success" target="_blank" rel="noopener"><i data-lucide="tv" aria-hidden="true"></i>แสดงคิวล่าสุด</a>
+        <a href="allmember.php" class="btn btn-outline-success"><i data-lucide="users" aria-hidden="true"></i>สำหรับสมาชิก</a>
+        <a href="#overview" class="public-text-link">ดูภาพรวมการรวบรวม <i data-lucide="arrow-down" aria-hidden="true"></i></a>
+      </div>
     </div>
     <aside class="public-price" aria-label="ราคายางรอบล่าสุด"><span><i data-lucide="trending-up" aria-hidden="true"></i>
         ราคายางรอบล่าสุด</span><strong
@@ -123,12 +94,7 @@ require __DIR__.'/header.php';
           <?php echo $dashboard['round'] ? 'รอบวันที่ '.e(thai_date_format($dashboard['round']['date'])) : 'ยังไม่มีรอบราคายาง'; ?>
         </p>
       </div>
-      <div class="public-tracking-heading-actions">
-        <a class="public-queue-link" href="que.php" target="_blank" rel="noopener"><i data-lucide="tv"
-            aria-hidden="true"></i>แสดงคิวล่าสุด</a>
-        <span class="public-live-label"><span class="public-live-dot" aria-hidden="true"></span> อัปเดตทุก 10
-          วินาที</span>
-      </div>
+      <span class="public-live-label"><span class="public-live-dot" aria-hidden="true"></span> อัปเดตทุก 10 วินาที</span>
     </div>
     <div class="public-lane-total" aria-label="น้ำหนักรวมทุกลาน">
       <span class="public-lane-total-label"><i data-lucide="layers" aria-hidden="true"></i>รวมทุกลาน</span>
@@ -198,6 +164,12 @@ require __DIR__.'/header.php';
         </div>
         <dl class="public-record-dialog-details">
           <div><dt>ชื่อ</dt><dd id="publicRecordName">—</dd></div>
+          <div id="publicRecordParticipantType" hidden>
+            <dt>ประเภทผู้ส่งยาง</dt>
+            <dd><?php foreach (collection_participant_labels() as $type => $label): ?>
+              <span data-participant-type="<?php echo e($type); ?>" hidden><?php echo collection_participant_icon($type, true); ?> <?php echo e($label); ?></span>
+            <?php endforeach; ?></dd>
+          </div>
           <div><dt>เลขสมาชิก</dt><dd id="publicRecordNumber">—</dd></div>
           <div><dt>ลาน</dt><dd id="publicRecordLane">—</dd></div>
           <div><dt>จำนวนกระสอบ</dt><dd id="publicRecordSacks">—</dd></div>
@@ -223,28 +195,6 @@ require __DIR__.'/header.php';
 
   </section>
 
-  <section class="public-about" aria-labelledby="publicAboutTitle">
-    <div class="public-history public-member-history">
-      <h3 id="publicAboutTitle">จำนวนสมาชิกที่เข้ารวบรวมในแต่ละรอบ</h3>
-      <p>7 รอบล่าสุด · คน</p>
-      <?php if ($memberHistory): ?><div class="public-history-bars">
-        <?php foreach ($memberHistory as $round): $memberCount=(int)$round['member_count']; $memberWidth=$memberCount>0?max(1,round($memberCount/$memberHistoryMax*100,2)):0; ?><div>
-          <span><?php echo e(thai_date_short_format($round['round_date'])); ?></span>
-          <div><span style="width:<?php echo $memberWidth; ?>%"></span></div>
-          <strong><?php echo number_format($memberCount); ?></strong>
-        </div><?php endforeach; ?></div><?php else: ?><p class="public-empty">ยังไม่มีข้อมูลรอบรวบรวม</p><?php endif; ?>
-    </div>
-    <div class="public-history public-quantity-history">
-      <h3>ปริมาณรวบรวมที่ผ่านมา</h3>
-      <p>7 รอบล่าสุด · กิโลกรัม</p>
-      <?php if ($history): ?><div class="public-history-bars">
-        <?php foreach ($history as $round): $quantity=(float)$round['quantity']; $quantityWidth=$quantity>0?max(1,round($quantity/$historyMax*100,2)):0; ?><div>
-          <span><?php echo e(thai_date_short_format($round['round_date'])); ?></span>
-          <div><span style="width:<?php echo $quantityWidth; ?>%"></span></div>
-          <strong><?php echo number_format($quantity,2); ?></strong>
-        </div><?php endforeach; ?></div><?php else: ?><p class="public-empty">ยังไม่มีข้อมูลรับซื้อย้อนหลัง</p><?php endif; ?>
-    </div>
-  </section>
   <script type="application/json" id="publicDashboardData">
   <?php echo json_encode($dashboard,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR); ?>
   </script>
